@@ -1,0 +1,4 @@
+node_modules/
+out/
+assets/cache/footage/
+data/mix*.wav

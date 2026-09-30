@@ -1,0 +1,80 @@
+{
+  "name": "stopmo",
+  "description": "Stop-motion / hecho a mano: tiempo cuantizado a 12 fps, muelles con rebote a saltos, smear, grano, luz lateral con sombra de contacto. Tráiler artesanal, marca con tacto, educación cálida.",
+  "mood": [
+    "artesanal",
+    "cálido",
+    "tangible"
+  ],
+  "defaultProfile": "reel",
+  "palette": {
+    "paper": "#EADFC8",
+    "ink": "#2A1F16",
+    "accent": "#C8461F",
+    "accent2": "#2F6F5C",
+    "shade": "#B9A98A"
+  },
+  "typeface": {
+    "family": "Georgia",
+    "fallback": "'Times New Roman', serif",
+    "weights": [
+      400,
+      700
+    ],
+    "scale": 1.5,
+    "base": 34,
+    "case": "none",
+    "tracking": 0
+  },
+  "motion": {
+    "spring": {
+      "omega": 16,
+      "zeta": 0.5
+    },
+    "ease": "outBack",
+    "stagger": 0.08,
+    "stepFps": 12,
+    "smear": 0.06
+  },
+  "camera": {
+    "amount": 0.06,
+    "slide": 0.04,
+    "ease": "inOut",
+    "maxZoomPerSec": 0.3,
+    "maxPanPerSec": 0.5,
+    "maxRotPerSec": 6,
+    "shake": 0.0008,
+    "maxShake": 0.002
+  },
+  "grade": {
+    "vignette": 0.28,
+    "grain": 0.06,
+    "letterbox": 0
+  },
+  "light": {
+    "enabled": true,
+    "az": 140,
+    "shadow": 0.3,
+    "highlight": 0.25
+  },
+  "compose": {
+    "anchor": "thirds",
+    "anchorTol": 0.14,
+    "negativeSpace": 0.4
+  },
+  "rules": {
+    "glow": false,
+    "gradients": false,
+    "maxColors": 5,
+    "maxChroma": 0.2,
+    "popRatio": 12
+  },
+  "bans": [
+    "crossfade",
+    "blur-in",
+    "glow",
+    "brightness",
+    "3d flip",
+    "flip"
+  ]
+}

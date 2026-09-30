@@ -1,0 +1,50 @@
+<!doctype html>
+<html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>preview · seek(t)</title>
+<style>
+:root{--bg:#111;--fg:#ddd}
+html,body{margin:0;height:100%;background:var(--bg);color:var(--fg);font:13px ui-monospace,monospace}
+#wrap{display:flex;flex-direction:column;height:100%}
+canvas{flex:1;min-height:0;width:100%;object-fit:contain;background:#000}
+#bar{display:flex;gap:10px;align-items:center;padding:8px}
+input[type=range]{flex:1}
+</style></head><body>
+<div id="wrap"><canvas id="c"></canvas>
+<div id="bar"><button id="play">▶</button><input id="s" type="range" min="0" max="1" step="0.001" value="0"><span id="lab">0.00s</span>
+<label><input id="anim" type="checkbox"> animatic</label></div></div>
+<script type="module">
+// Servir la raíz del repo: `npx serve .` y abrir /engine/preview.html
+import { compile, seek, activeShots } from './seek.mjs';
+import { hashStr } from './core.mjs';
+// ?timeline=data/showcase.json&style=noir&profile=cinematic   (mismo seek puro que Node: lo que ves es lo que se renderiza)
+const q = new URLSearchParams(location.search);
+const get = (p) => fetch('../' + p).then((r) => (r.ok ? r.json() : null));
+const tlPath = q.get('timeline') ?? 'data/timeline.json';
+const [tl, prof, audio, texIndex] = await Promise.all([get(tlPath), get('engine/profiles.json'), get('data/audio.json'), get('assets/cache/tex/index.json')]);
+tl.style = q.get('style') ?? tl.style ?? 'editorial'; if (q.get('profile')) tl.profile = q.get('profile');
+const pack = await get('styles/' + tl.style + '.json');
+const film = compile(tl, prof, { [tl.style]: pack }, audio);
+// Assets en navegador: TeX desde la caché precompilada (npm run assets -- --tex); imágenes/footage → marcador gris.
+const tex = new Map(); await Promise.all(Object.keys(texIndex ?? {}).map(async (k) => tex.set(k, await get(`assets/cache/tex/${k}.json`))));
+const key = (s, d) => (hashStr((d ? 'D:' : 'I:') + s) >>> 0).toString(36);
+film.assets = { tex: (s, d = true) => { const v = tex.get(key(s, d)); if (!v) throw new Error('TeX sin precompilar: npm run assets -- --tex  → ' + s); return v; }, image: () => null, footage: () => null };
+film.browser = true;
+film.canvas = (w, h) => { const c = document.createElement('canvas'); c.width = w; c.height = h; return c; };
+const ac = await get('data/autocam/' + tlPath.split('/').pop()); if (ac) film.autocam = ac;   // (el hash se valida en Node; aquí se confía)
+for (const s of film.shots) { try { film.mods[s.id] = (await import(`../shots/${s.id}.mjs`)).default; } catch (e) { console.warn(s.id, e); } }
+const cv = document.getElementById('c'), ctx = cv.getContext('2d');
+cv.width = film.width; cv.height = film.height;
+const S = document.getElementById('s'), lab = document.getElementById('lab'), anim = document.getElementById('anim');
+S.max = film.duration;
+let playing = false, t0 = 0, base = 0;
+function draw(t) {
+  const mods = film.mods; if (anim.checked) film.mods = {};
+  seek(ctx, t, film, { grade: !anim.checked }); film.mods = mods;
+  lab.textContent = `${t.toFixed(2)}s  ${activeShots(film, t).map((s) => s.id).join('+')}`;
+}
+S.oninput = () => { playing = false; draw(+S.value); };
+anim.onchange = () => draw(+S.value);
+document.getElementById('play').onclick = () => { playing = !playing; base = +S.value; t0 = performance.now(); if (playing) loop(); };
+function loop() { if (!playing) return; const t = Math.min(film.duration, base + (performance.now() - t0) / 1000); S.value = t; draw(t); if (t < film.duration) requestAnimationFrame(loop); }
+draw(0);
+</script></body></html>

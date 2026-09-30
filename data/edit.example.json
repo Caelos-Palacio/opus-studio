@@ -1,0 +1,8 @@
+{
+  "note": "Montaje no destructivo: cada ítem re-renderiza su fuente con remapeo de tiempo (sin interpolar fotogramas).",
+  "items": [
+    { "src": "A3", "label": "abre con la revelación" },
+    { "src": "A1", "speed": 0.5, "label": "cámara lenta del nacimiento" },
+    { "src": [2.0, 4.0], "reverse": true, "hold": 0.5, "label": "rebobina el anillo y congela" }
+  ]
+}

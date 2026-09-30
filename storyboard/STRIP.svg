@@ -1,0 +1,31 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1008 236"><rect width="1008" height="236" fill="#E8E0D4"/><line x1="16" y1="20" x2="1000" y2="20" stroke="#141414"/><line x1="16" y1="14" x2="16" y2="26" stroke="#141414"/><line x1="98" y1="14" x2="98" y2="21" stroke="#141414"/><line x1="180" y1="14" x2="180" y2="21" stroke="#141414"/><line x1="262" y1="14" x2="262" y2="21" stroke="#141414"/><line x1="344" y1="14" x2="344" y2="26" stroke="#141414"/><line x1="426" y1="14" x2="426" y2="21" stroke="#141414"/><line x1="508" y1="14" x2="508" y2="21" stroke="#141414"/><line x1="590" y1="14" x2="590" y2="21" stroke="#141414"/><line x1="672" y1="14" x2="672" y2="26" stroke="#141414"/><line x1="754" y1="14" x2="754" y2="21" stroke="#141414"/><line x1="836" y1="14" x2="836" y2="21" stroke="#141414"/><line x1="918" y1="14" x2="918" y2="21" stroke="#141414"/><line x1="1000" y1="14" x2="1000" y2="26" stroke="#141414"/>
+<g transform="translate(16,36)">
+<rect width="320" height="180" fill="#F4EFE6"/>
+<rect x="24" y="18" width="272" height="132" fill="none" stroke="#141414" stroke-width="1.5"/>
+<circle cx="160" cy="100" r="10" fill="#141414"/><circle cx="160" cy="100" r="16" fill="none" stroke="#141414" stroke-width="2" stroke-dasharray="2 3"/>
+<path d="M130 60 L190 60" stroke="#141414" stroke-width="2"/><path d="M60 140 L90 125" stroke="#141414" stroke-dasharray="3 3"/><path d="M86 122 L90 125 L85 128" fill="none" stroke="#141414"/>
+<text x="8" y="172" font-family="ui-monospace,monospace" font-size="11" fill="#141414">A1  0.0–2.0s</text>
+<text x="262" y="172" font-family="ui-monospace,monospace" font-size="11" fill="#141414">b1–4</text>
+<text x="30" y="32" font-family="ui-monospace,monospace" font-size="11" fill="#141414">IDEA</text>
+<g stroke="#141414" stroke-width="0.5" stroke-dasharray="2 3" opacity="0.5"><line x1="114.7" y1="18" x2="114.7" y2="150"/><line x1="205.3" y1="18" x2="205.3" y2="150"/><line x1="24" y1="62" x2="296" y2="62"/><line x1="24" y1="106" x2="296" y2="106"/></g><text x="120" y="172" font-family="ui-monospace,monospace" font-size="10" fill="#141414">CU · push: atención</text></g>
+<g transform="translate(344,36)">
+<rect width="320" height="180" fill="#F4EFE6"/>
+<rect x="24" y="18" width="272" height="132" fill="none" stroke="#141414" stroke-width="1.5"/>
+<circle cx="112" cy="100" r="22" fill="none" stroke="#141414" stroke-width="5"/><circle cx="112" cy="100" r="24" fill="none" stroke="#141414" stroke-width="1" />
+<path d="M160 100 L135 100" stroke="#141414" stroke-width="1.5"/><path d="M141 96 L135 100 L141 104" fill="none" stroke="#141414"/>
+<path d="M190 100 L260 100" stroke="#141414" stroke-width="2"/><path d="M250 150 L220 150" stroke="#141414" stroke-dasharray="3 3"/>
+<text x="8" y="172" font-family="ui-monospace,monospace" font-size="11" fill="#141414">A2  2.0–4.0s</text>
+<text x="262" y="172" font-family="ui-monospace,monospace" font-size="11" fill="#141414">b5–8</text>
+<text x="30" y="32" font-family="ui-monospace,monospace" font-size="11" fill="#141414">CAMBIA</text>
+<g stroke="#141414" stroke-width="0.5" stroke-dasharray="2 3" opacity="0.5"><line x1="114.7" y1="18" x2="114.7" y2="150"/><line x1="205.3" y1="18" x2="205.3" y2="150"/><line x1="24" y1="62" x2="296" y2="62"/><line x1="24" y1="106" x2="296" y2="106"/></g><text x="120" y="172" font-family="ui-monospace,monospace" font-size="10" fill="#141414">MS · slide: seguir</text></g>
+<g transform="translate(672,36)">
+<rect width="320" height="180" fill="#F4EFE6"/>
+<rect x="24" y="18" width="272" height="132" fill="none" stroke="#141414" stroke-width="1.5"/>
+<circle cx="160" cy="84" r="58" fill="none" stroke="#141414" stroke-width="2"/><circle cx="160" cy="84" r="60" fill="none" stroke="#141414" stroke-width="1"/>
+<path d="M130 84 L190 84" stroke="#141414" stroke-width="2"/><path d="M225 40 L245 25" stroke="#141414" stroke-width="1.5"/><path d="M239 25 L245 25 L243 31" fill="none" stroke="#141414"/>
+<path d="M40 140 L60 130" stroke="#141414" stroke-dasharray="3 3"/><circle cx="160" cy="84" r="4" fill="#141414"/>
+<text x="8" y="172" font-family="ui-monospace,monospace" font-size="11" fill="#141414">A3  4.0–6.0s</text>
+<text x="262" y="172" font-family="ui-monospace,monospace" font-size="11" fill="#141414">b9–12</text>
+<text x="30" y="32" font-family="ui-monospace,monospace" font-size="11" fill="#141414">REVELA</text>
+<g stroke="#141414" stroke-width="0.5" stroke-dasharray="2 3" opacity="0.5"><line x1="114.7" y1="18" x2="114.7" y2="150"/><line x1="205.3" y1="18" x2="205.3" y2="150"/><line x1="24" y1="62" x2="296" y2="62"/><line x1="24" y1="106" x2="296" y2="106"/></g><text x="120" y="172" font-family="ui-monospace,monospace" font-size="10" fill="#141414">WS · pull: revelar</text></g>
+</svg>

@@ -1,0 +1,32 @@
+{
+  "name": "opus-studio",
+  "version": "4.0.0",
+  "private": true,
+  "license": "MIT",
+  "type": "module",
+  "description": "Motor de producción cinematográfica por código: dirección codificada + motor gráfico (Bézier, TeX real, scene graph, 2.5D, compositor) + montaje por fragmentos, índice semántico, sonido y crítico visual",
+  "scripts": {
+    "test": "node test/run.mjs",
+    "validate": "node engine/lint.mjs --only validate",
+    "lint": "node engine/lint.mjs",
+    "sheet": "node engine/render.mjs --stills --every 0.5",
+    "strips": "node engine/render.mjs --strip --around-cuts 8",
+    "animatic": "node engine/render.mjs --stills --every 0.5 --animatic --size 960x540",
+    "autocam": "node engine/autocam.mjs",
+    "sound": "node engine/sound.mjs --mix",
+    "review": "node engine/cut.mjs --review",
+    "master": "node engine/cut.mjs",
+    "plan": "node engine/cut.mjs --plan",
+    "index": "node engine/index.mjs",
+    "q": "node engine/q.mjs",
+    "critic": "node engine/critic.mjs",
+    "assets": "node engine/assets.mjs",
+    "docs": "node engine/doc.mjs",
+    "styles": "node engine/style.mjs --list",
+    "gallery": "node engine/gallery.mjs"
+  },
+  "dependencies": {
+    "canvas": "^3.1.0",
+    "mathjax-full": "^3.2.1"
+  }
+}

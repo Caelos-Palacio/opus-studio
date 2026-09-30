@@ -1,0 +1,74 @@
+{
+  "name": "noir",
+  "description": "Cinematográfico low-key: negro cálido, un ámbar, letterbox 2.39, grano y viñeta, cámara lenta y motivada. Trailers, marca premium, narrativa.",
+  "mood": [
+    "tenso",
+    "íntimo",
+    "elegante"
+  ],
+  "defaultProfile": "cinematic",
+  "palette": {
+    "paper": "#0B0A0C",
+    "ink": "#ECE6DA",
+    "accent": "#C9873A",
+    "accent2": "#4F7C8A",
+    "shade": "#2A2624"
+  },
+  "typeface": {
+    "family": "Georgia",
+    "fallback": "'Times New Roman', serif",
+    "weights": [
+      400,
+      700
+    ],
+    "scale": 1.6,
+    "base": 30,
+    "case": "upper",
+    "tracking": 0.14
+  },
+  "motion": {
+    "spring": {
+      "omega": 8,
+      "zeta": 0.95
+    },
+    "ease": "cinema",
+    "stagger": 0.12
+  },
+  "camera": {
+    "amount": 0.04,
+    "ease": "cinema",
+    "maxZoomPerSec": 0.1,
+    "maxPanPerSec": 0.2,
+    "maxRotPerSec": 2,
+    "shake": 0.0012,
+    "maxShake": 0.003,
+    "slide": 0.03
+  },
+  "grade": {
+    "vignette": 0.55,
+    "grain": 0.07,
+    "letterbox": 2.39,
+    "fade": {
+      "in": 0.8,
+      "out": 1.2,
+      "color": "paper"
+    }
+  },
+  "compose": {
+    "anchor": "thirds",
+    "anchorTol": 0.14,
+    "negativeSpace": 0.5
+  },
+  "rules": {
+    "glow": true,
+    "gradients": false,
+    "maxColors": 5,
+    "maxChroma": 0.14
+  },
+  "light": {
+    "enabled": true,
+    "az": 50,
+    "shadow": 0.35,
+    "highlight": 0.3
+  }
+}

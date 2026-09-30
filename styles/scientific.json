@@ -1,0 +1,62 @@
+{
+  "name": "scientific",
+  "description": "Oscuro, líneas finas, color como lenguaje (cada color = una categoría conceptual). Divulgación, física, datos, ideas que evolucionan.",
+  "mood": [
+    "contemplativo",
+    "riguroso",
+    "profundo"
+  ],
+  "defaultProfile": "explainer",
+  "palette": {
+    "paper": "#07080B",
+    "ink": "#E8E3D8",
+    "accent": "#F0C468",
+    "accent2": "#84AFE0",
+    "quant": "#D88CC2",
+    "anom": "#EC6A52",
+    "shade": "#3A3F4B"
+  },
+  "typeface": {
+    "family": "STIX Two Text",
+    "fallback": "Georgia, 'Times New Roman', serif",
+    "weights": [
+      400,
+      400
+    ],
+    "scale": 1.5,
+    "base": 30,
+    "case": "none",
+    "tracking": 0
+  },
+  "motion": {
+    "spring": {
+      "omega": 10,
+      "zeta": 0.9
+    },
+    "ease": "inOut",
+    "stagger": 0.1
+  },
+  "camera": {
+    "amount": 0.05,
+    "ease": "inOut",
+    "maxZoomPerSec": 0.12,
+    "maxPanPerSec": 0.25,
+    "maxRotPerSec": 3,
+    "slide": 0.03
+  },
+  "grade": {
+    "vignette": 0.35,
+    "grain": 0.02,
+    "letterbox": 0
+  },
+  "compose": {
+    "anchor": "free",
+    "negativeSpace": 0.45
+  },
+  "rules": {
+    "glow": true,
+    "gradients": false,
+    "maxColors": 7,
+    "maxChroma": 0.2
+  }
+}

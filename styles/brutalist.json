@@ -1,0 +1,61 @@
+{
+  "name": "brutalist",
+  "description": "Crudo: mono, mayúsculas, gris + un rojo y un azul primarios, movimiento por pasos, cámara lineal. Arte, cultura, anti-marca.",
+  "mood": [
+    "crudo",
+    "directo",
+    "irónico"
+  ],
+  "defaultProfile": "reel",
+  "palette": {
+    "paper": "#EDEDED",
+    "ink": "#000000",
+    "accent": "#FF2E00",
+    "accent2": "#0038FF",
+    "shade": "#BDBDBD"
+  },
+  "typeface": {
+    "family": "Courier New",
+    "fallback": "monospace",
+    "weights": [
+      400,
+      700
+    ],
+    "scale": 1.5,
+    "base": 34,
+    "case": "upper",
+    "tracking": 0.02
+  },
+  "motion": {
+    "spring": {
+      "omega": 30,
+      "zeta": 1
+    },
+    "ease": "step",
+    "stagger": 0.05
+  },
+  "camera": {
+    "amount": 0.1,
+    "ease": "linear",
+    "maxZoomPerSec": 0.6,
+    "maxPanPerSec": 1.0,
+    "maxRotPerSec": 15,
+    "slide": 0.06
+  },
+  "grade": {
+    "vignette": 0,
+    "grain": 0,
+    "letterbox": 0
+  },
+  "compose": {
+    "anchor": "free",
+    "negativeSpace": 0.3
+  },
+  "rules": {
+    "glow": false,
+    "gradients": false,
+    "maxColors": 5,
+    "maxChroma": 0.32,
+    "popRatio": 99
+  }
+}

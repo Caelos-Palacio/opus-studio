@@ -1,0 +1,67 @@
+{
+  "name": "soft",
+  "description": "Suave y amable: pastel, degradados permitidos, muelles blandos, cámara lenta. Producto SaaS, bienestar, onboarding.",
+  "mood": [
+    "amable",
+    "limpio",
+    "ligero"
+  ],
+  "defaultProfile": "reel",
+  "palette": {
+    "paper": "#F7F3FB",
+    "ink": "#1E1B2E",
+    "accent": "#7B61FF",
+    "accent2": "#E2607B",
+    "shade": "#E4DDF3"
+  },
+  "typeface": {
+    "family": "Helvetica",
+    "fallback": "sans-serif",
+    "weights": [
+      500,
+      700
+    ],
+    "scale": 1.4,
+    "base": 34,
+    "case": "none",
+    "tracking": 0
+  },
+  "motion": {
+    "spring": {
+      "omega": 9,
+      "zeta": 0.8
+    },
+    "ease": "cinema",
+    "stagger": 0.09
+  },
+  "camera": {
+    "amount": 0.05,
+    "ease": "cinema",
+    "maxZoomPerSec": 0.15,
+    "maxPanPerSec": 0.3,
+    "maxRotPerSec": 4,
+    "slide": 0.04
+  },
+  "grade": {
+    "vignette": 0,
+    "grain": 0,
+    "letterbox": 0
+  },
+  "compose": {
+    "anchor": "thirds",
+    "anchorTol": 0.14,
+    "negativeSpace": 0.45
+  },
+  "rules": {
+    "glow": false,
+    "gradients": true,
+    "maxColors": 5,
+    "maxChroma": 0.24
+  },
+  "light": {
+    "enabled": true,
+    "az": 120,
+    "shadow": 0.12,
+    "highlight": 0.25
+  }
+}
