@@ -1,0 +1,149 @@
+{
+ "title": "showcase v4 — del satélite a la ecuación",
+ "style": "cosmos",
+ "profile": "cinematic",
+ "fps": 30,
+ "width": 1280,
+ "height": 720,
+ "duration": 17.5,
+ "autoSfx": {
+  "morph": true,
+  "beat": "pop",
+  "cut": true
+ },
+ "handoffs": [],
+ "shots": [
+  {
+   "id": "S1",
+   "t": [
+    0,
+    3.5
+   ],
+   "size": "WS",
+   "action": "globo que gira; un satélite deja estela de partículas con bloom",
+   "text": "ÓRBITA BAJA",
+   "cam": {
+    "move": "push",
+    "why": "approach",
+    "amount": 0.1
+   },
+   "transition_out": "cut",
+   "sfx": [
+    {
+     "at": 0.1,
+     "type": "drone",
+     "dur": 3.4,
+     "gain": 0.5
+    }
+   ]
+  },
+  {
+   "id": "S2",
+   "t": [
+    3.5,
+    7
+   ],
+   "size": "MS",
+   "action": "scene graph: sol → planeta → luna (a 8 fps); estrellas en 3 profundidades con niebla y DOF; la cámara sigue al planeta",
+   "text": "JERARQUÍA",
+   "cam": {
+    "move": "static",
+    "track": {
+     "node": "planet",
+     "k": 0.35,
+     "smooth": 0.3
+    }
+   },
+   "transition_out": "cut",
+   "sfx": [
+    {
+     "at": 0.2,
+     "type": "whoosh",
+     "dur": 0.9,
+     "gain": 0.4
+    }
+   ]
+  },
+  {
+   "id": "S3",
+   "t": [
+    7,
+    10.5
+   ],
+   "size": "WS",
+   "action": "campo gravitatorio de dos masas: flechas + líneas de corriente que fluyen; la ley se escribe",
+   "text": "",
+   "cam": {
+    "move": "slide",
+    "why": "compare",
+    "dir": [
+     -1,
+     0
+    ],
+    "amount": 0.03
+   },
+   "transition_out": "cut",
+   "sfx": [
+    {
+     "at": 0.4,
+     "type": "shimmer",
+     "gain": 0.4
+    }
+   ]
+  },
+  {
+   "id": "S4",
+   "t": [
+    10.5,
+    14
+   ],
+   "size": "MS",
+   "action": "Euler–Lagrange se transforma glifo a glifo en la ecuación de Newton; el potencial se dibuja y una partícula oscila",
+   "text": "",
+   "cam": {
+    "move": "auto",
+    "fill": 0.22,
+    "why": "follow"
+   },
+   "transition_out": "cut",
+   "sfx": [
+    {
+     "at": 0.0,
+     "type": "riser",
+     "dur": 1.2,
+     "gain": 0.45
+    },
+    {
+     "at": 1.2,
+     "type": "impact",
+     "gain": 0.6
+    }
+   ]
+  },
+  {
+   "id": "S5",
+   "t": [
+    14,
+    17.5
+   ],
+   "size": "CU",
+   "action": "una tarjeta gira en 3D y se asienta con L = T − V; detrás, la red de conceptos se revela",
+   "text": "",
+   "cam": {
+    "move": "pull",
+    "why": "reveal",
+    "amount": 0.12
+   },
+   "transition_out": "cut",
+   "sfx": [
+    {
+     "at": 1.6,
+     "type": "shimmer",
+     "gain": 0.5
+    }
+   ]
+  }
+ ],
+ "end_hold_ok": true,
+ "rhyme": false
+}

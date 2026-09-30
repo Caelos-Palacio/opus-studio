@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1336 260">
+  <rect width="1336" height="260" fill="#E8E0D4"/>
+  <!-- regla de beats: 15s * 120bpm / 60 = 30 beats. ticks cada 2s de película ≈ 4 beats -->
+  <line x1="16" y1="20" x2="1320" y2="20" stroke="#141414" stroke-width="1"/>
+  <!-- paneles: x = 16 + i*(320+8) -->
+  <g transform="translate(16,36)">
+    <rect width="320" height="180" fill="#F4EFE6" stroke="#141414"/>
+    <text x="8" y="198" font-family="ui-monospace,monospace" font-size="12">A1  0–2s</text>
+  </g>
+  <g transform="translate(344,36)">
+    <rect width="320" height="180" fill="#F4EFE6" stroke="#141414"/>
+    <text x="8" y="198" font-family="ui-monospace,monospace" font-size="12">A2  2–4s</text>
+  </g>
+  <g transform="translate(672,36)">
+    <rect width="320" height="180" fill="#F4EFE6" stroke="#141414"/>
+    <text x="8" y="198" font-family="ui-monospace,monospace" font-size="12">A3  4–6s</text>
+  </g>
+  <g transform="translate(1000,36)">
+    <rect width="320" height="180" fill="#F4EFE6" stroke="#141414"/>
+    <text x="8" y="198" font-family="ui-monospace,monospace" font-size="12">A4  6–8s</text>
+  </g>
+</svg>

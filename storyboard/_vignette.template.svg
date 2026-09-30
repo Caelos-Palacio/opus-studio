@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 180">
+  <rect width="320" height="180" fill="#F4EFE6"/>
+  <!-- caja de cámara -->
+  <rect x="24" y="18" width="272" height="132" fill="none" stroke="#141414" stroke-width="1.5"/>
+  <!-- masas: reemplazar -->
+  <path d="M80 120 L160 70 L240 120" fill="none" stroke="#141414" stroke-width="2"/>
+  <!-- flecha de acción -->
+  <path d="M90 100 L150 90" fill="none" stroke="#141414" stroke-width="1.5"/>
+  <path d="M142 84 L150 90 L140 94" fill="none" stroke="#141414" stroke-width="1.5"/>
+  <!-- flecha de cámara (punteada) -->
+  <path d="M40 160 L80 140" fill="none" stroke="#141414" stroke-width="1" stroke-dasharray="3 3"/>
+  <!-- hit -->
+  <circle cx="160" cy="70" r="4" fill="none" stroke="#141414" stroke-width="1.5"/>
+  <text x="8" y="172" font-family="ui-monospace,monospace" font-size="11" fill="#141414">A1  0.0–2.0s</text>
+  <text x="250" y="172" font-family="ui-monospace,monospace" font-size="11" fill="#141414">b1–4</text>
+  <text x="28" y="34" font-family="ui-monospace,monospace" font-size="11" fill="#141414">WORD</text>
+</svg>

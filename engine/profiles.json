@@ -1,0 +1,59 @@
+{
+  "reel": {
+    "maxHold": 0.8,
+    "cutOnBeat": true,
+    "shotLen": [
+      1.5,
+      3.0
+    ],
+    "safe": {
+      "top": 0.08,
+      "bottom": 0.12,
+      "side": 0.05
+    },
+    "minFontPx": 34,
+    "requireCausality": false,
+    "requireFacts": false,
+    "holdEnergy": 0.0005,
+    "popRatio": 3,
+    "readCps": 17
+  },
+  "explainer": {
+    "maxHold": 4.0,
+    "cutOnBeat": false,
+    "shotLen": [
+      3.0,
+      40.0
+    ],
+    "safe": {
+      "top": 0.05,
+      "bottom": 0.06,
+      "side": 0.04
+    },
+    "minFontPx": 18,
+    "requireCausality": true,
+    "requireFacts": true,
+    "holdEnergy": 0.0002,
+    "popRatio": 3,
+    "readCps": 13
+  },
+  "cinematic": {
+    "maxHold": 6.0,
+    "cutOnBeat": false,
+    "shotLen": [
+      2.5,
+      20.0
+    ],
+    "safe": {
+      "top": 0.06,
+      "bottom": 0.08,
+      "side": 0.06
+    },
+    "minFontPx": 24,
+    "requireCausality": false,
+    "requireFacts": false,
+    "holdEnergy": 0.0002,
+    "popRatio": 3,
+    "readCps": 12
+  }
+}

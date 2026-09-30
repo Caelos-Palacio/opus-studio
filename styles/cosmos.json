@@ -1,0 +1,93 @@
+{
+ "name": "cosmos",
+ "description": "Divulgación científica nocturna: papel azul-negro teñido, un ámbar y un cian, bloom físico (solo lo brillante florece), profundidad con niebla y DOF, grade cálido con dither anti-banding.",
+ "mood": [
+  "asombro",
+  "preciso",
+  "nocturno"
+ ],
+ "defaultProfile": "cinematic",
+ "palette": {
+  "paper": "#0C0E16",
+  "ink": "#E9E6EF",
+  "accent": "#F2A650",
+  "accent2": "#5FA8CF",
+  "shade": "#3A4160"
+ },
+ "typeface": {
+  "family": "Helvetica",
+  "fallback": "'DejaVu Sans', sans-serif",
+  "weights": [
+   400,
+   700
+  ],
+  "scale": 1.5,
+  "base": 30,
+  "case": "upper",
+  "tracking": 0.12
+ },
+ "motion": {
+  "spring": {
+   "omega": 9,
+   "zeta": 0.9
+  },
+  "ease": "cinema",
+  "stagger": 0.1
+ },
+ "camera": {
+  "amount": 0.06,
+  "ease": "cinema",
+  "maxZoomPerSec": 0.12,
+  "maxPanPerSec": 0.25,
+  "maxRotPerSec": 3,
+  "shake": 0,
+  "maxShake": 0.003,
+  "slide": 0.04
+ },
+ "grade": {
+  "vignette": 0.35,
+  "grain": 0.03,
+  "fade": {
+   "in": 0.6,
+   "out": 0.9,
+   "color": "paper"
+  },
+  "post": {
+   "bloom": {
+    "threshold": 0.62,
+    "strength": 0.7,
+    "radius": 26
+   },
+   "chroma": 2.5,
+   "color": {
+    "lift": 0.015,
+    "gamma": 1.04,
+    "gain": 1.0,
+    "temp": 0.25,
+    "sat": 1.05,
+    "dither": 2
+   }
+  }
+ },
+ "depth": {
+  "focal": 1.2,
+  "fog": 0.9,
+  "dof": 2.2,
+  "focusZ": 0
+ },
+ "compose": {
+  "anchor": "thirds",
+  "anchorTol": 0.16,
+  "negativeSpace": 0.45
+ },
+ "rules": {
+  "glow": true,
+  "gradients": false,
+  "maxColors": 5,
+  "maxChroma": 0.16,
+  "holdEnergy": 0.00015
+ },
+ "light": {
+  "enabled": false
+ }
+}

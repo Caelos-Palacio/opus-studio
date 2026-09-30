@@ -1,0 +1,27 @@
+import { parsePath, shapes, morphPlan, morphPolys, bbox, area, resample, flatten, WARPS, warpShape } from '../engine/geom.mjs';
+import { texReady, compileTexSync } from '../engine/tex.mjs';
+let n = 0, bad = 0; const ok = (c, m) => { n++; if (!c) { bad++; console.log('  ✗ unidad:', m); } };
+const sq = parsePath('M0 0 L10 0 L10 10 L0 10 Z'); ok(sq.contours.length === 1 && sq.contours[0].closed, 'parse cuadrado');
+ok(Math.abs(bbox(shapes.circle(5, 5, 5)).w - 10) < 1e-6, 'bbox círculo');
+const arc = parsePath('M0 0 A10 10 0 0 1 20 0'); ok(Math.abs(bbox(arc).h - 10) < 0.2, 'arco SVG');
+const A = shapes.circle(0, 0, 50), B = shapes.star(0, 0, 60, 5), P0 = morphPolys(A, B, 0), P1 = morphPolys(A, B, 1);
+ok(Math.abs(Math.abs(area(P0[0])) - Math.PI * 2500) / (Math.PI * 2500) < 0.03, 'morph u=0 conserva el área');
+ok(Math.abs(Math.abs(area(P1[0])) - Math.abs(area(resample(flatten(B.contours[0]), 72, true)))) < 60, 'morph u=1 llega a la estrella');
+ok(morphPlan(A, B) === morphPlan(A, B), 'plan memorizado');
+const R = shapes.ring(0, 0, 50, 10), M = morphPolys(R, A, 0.5); ok(M.length === 2, 'agujero sobrante colapsa (2 pistas)');
+const w = warpShape(sq, WARPS.bulge({ cx: 5, cy: 5, r: 20, k: 0.5 })); ok(bbox(w).w > 10, 'warp bulge expande');
+await texReady(); const T = compileTexSync('E=mc^2'); ok(T.glyphs.length >= 4 && T.w > 1, 'TeX → glifos');
+let threw = false; try { compileTexSync('\\frac{'); } catch { threw = true; } ok(threw, 'TeX inválido lanza error claro');
+// v4 · matemática y semántica
+const { texMorphPlan } = await import('../engine/prims.mjs'), F = { };
+const TA = compileTexSync(String.raw`\frac{\partial L}{\partial q}=0`), TB = compileTexSync(String.raw`\frac{\partial V}{\partial q}=0`), MP = texMorphPlan(F, TA, TB);
+ok(MP.pairs.length >= TA.glyphs.length - 2 && MP.gaps.some(([a, b]) => a.length && b.length), 'LCS de glifos: ∂,q,=,0 anclados; L↔V en un hueco');
+const { smooth2 } = await import('../engine/autocam.mjs'), st = smooth2(Array.from({ length: 40 }, (_, i) => (i < 20 ? 0 : 1)), 50);
+ok(Math.abs(st.reduce((a, b) => a + b, 0) - 20) < 1e-6 && Math.max(...st) < 1.05 && Math.min(...st) > -0.05, 'suavizado 2º orden: conserva masa; sobreoscilación < 5% (Whittaker ≈ 3.3%)');
+const lin = smooth2(Array.from({ length: 30 }, (_, i) => 3 * i + 1), 1e6); ok(lin.every((v, i) => Math.abs(v - (3 * i + 1)) < 1e-4), 'suavizado: rectas en el núcleo (no desplaza tendencias)');
+const wz = smooth2([0, 0, 99, 0, 0, 0], 1, [1, 1, 0, 1, 1, 1]); ok(Math.abs(wz[2]) < 1, 'WLS: peso 0 ignora el dato atípico');
+const { symbolSet } = await import('../engine/semantic.mjs'), sy = symbolSet(String.raw`m\ddot q=-\frac{\partial V}{\partial q}`);
+ok(sy.includes('q̈') && sy.includes('q') && sy.includes('∂') && !sy.includes('\\frac'), 'semántica TeX: q̈ ≠ q, ∂ operador, \\frac descartado');
+const { chroma } = await import('../engine/fx.mjs'), cvs = (await import('canvas')).default.createCanvas(64, 64), cx2 = cvs.getContext('2d'); cx2.fillStyle = '#fff'; cx2.fillRect(31, 0, 2, 64); const before = cx2.getImageData(30, 30, 4, 4).data.join(); chroma(cvs, 3);
+ok(cx2.getImageData(30, 30, 4, 4).data.join() === before, 'aberración radial: centro intacto');
+console.log(`${bad ? '✗' : '✓'} unidades       ${n - bad}/${n}`); process.exit(bad ? 1 : 0);

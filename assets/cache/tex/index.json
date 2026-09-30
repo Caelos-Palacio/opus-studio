@@ -1,0 +1,18 @@
+{
+ "1uchuur": {
+  "tex": "\\nabla\\cdot\\mathbf{g}=-4\\pi G\\rho",
+  "display": true
+ },
+ "1wvf8qn": {
+  "tex": "\\frac{d}{dt}\\frac{\\partial L}{\\partial \\dot q}=\\frac{\\partial L}{\\partial q}",
+  "display": true
+ },
+ "69k1f": {
+  "tex": "m\\ddot q=-\\frac{\\partial V}{\\partial q}",
+  "display": true
+ },
+ "17xuzb3": {
+  "tex": "L = T - V",
+  "display": true
+ }
+}

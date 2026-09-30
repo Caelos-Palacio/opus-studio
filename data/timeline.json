@@ -1,0 +1,126 @@
+{
+  "title": "demo",
+  "style": "editorial",
+  "profileOverrides": {},
+  "fps": 60,
+  "width": 1280,
+  "height": 720,
+  "bpm": 120,
+  "beatOffset": 0,
+  "duration": 6,
+  "audio": "data/audio.wav",
+  "handoffs": [
+    {
+      "from": "A1",
+      "to": "A2",
+      "entity": "dot",
+      "at": 2.0,
+      "tol": 2
+    },
+    {
+      "from": "A2",
+      "to": "A3",
+      "entity": "dot",
+      "at": 4.0,
+      "tol": 2
+    }
+  ],
+  "shots": [
+    {
+      "id": "A1",
+      "t": [
+        0.0,
+        2.0
+      ],
+      "layer": 0,
+      "size": "CU",
+      "action": "un punto aparece y late en cada beat",
+      "on_beat": "el punto crece por muelle",
+      "on_beat_at": [
+        1.0,
+        1.5
+      ],
+      "text": "UNA IDEA",
+      "transition_out": "morph",
+      "must_read_mute": true,
+      "vignette": "storyboard/A1.svg",
+      "after": null,
+      "premise": "",
+      "anomaly": "",
+      "facts": [],
+      "cues": [],
+      "hold_ok": [],
+      "cam": {
+        "move": "push",
+        "why": "approach"
+      },
+      "motifState": "dot"
+    },
+    {
+      "id": "A2",
+      "t": [
+        2.0,
+        4.0
+      ],
+      "size": "MS",
+      "action": "el punto se desplaza y se abre en anillo",
+      "on_beat": "cada beat abre más el anillo",
+      "text": "CAMBIA DE FORMA",
+      "transition_out": "morph",
+      "vignette": "storyboard/A2.svg",
+      "after": "A1",
+      "cam": {
+        "move": "slide",
+        "dir": [
+          -1,
+          0
+        ],
+        "chain": true,
+        "delay": 0.4,
+        "why": "follow"
+      },
+      "motifState": "ring"
+    },
+    {
+      "id": "A3",
+      "t": [
+        4.0,
+        6.0
+      ],
+      "size": "WS",
+      "action": "el anillo se expande y revela el marco",
+      "on_beat": "tick de acento",
+      "text": "Y REVELA OTRA",
+      "transition_out": "cut",
+      "vignette": "storyboard/A3.svg",
+      "after": "A2",
+      "hold_ok": [
+        [
+          0.9,
+          2.0
+        ]
+      ],
+      "cam": {
+        "move": "pull",
+        "chain": true,
+        "recenter": true,
+        "delay": 0.4,
+        "why": "reveal"
+      },
+      "motifState": "frame",
+      "on_beat_at": [
+        1.0,
+        1.5
+      ]
+    }
+  ],
+  "motif": {
+    "id": "seed",
+    "states": [
+      "dot",
+      "ring",
+      "frame"
+    ],
+    "roleColor": "ink"
+  }
+}

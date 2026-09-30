@@ -1,0 +1,67 @@
+{
+  "name": "mi-estilo",
+  "description": "Describe la emoción, el uso y qué lo distingue.",
+  "mood": [
+    "..."
+  ],
+  "defaultProfile": "reel",
+  "palette": {
+    "paper": "#F4EFE6",
+    "ink": "#141414",
+    "accent": "#E23D28",
+    "accent2": "#2F5D8A",
+    "shade": "#C9BBA8"
+  },
+  "typeface": {
+    "family": "Helvetica",
+    "fallback": "sans-serif",
+    "weights": [
+      500,
+      800
+    ],
+    "scale": 1.5,
+    "base": 34,
+    "case": "none",
+    "tracking": 0
+  },
+  "motion": {
+    "spring": {
+      "omega": 14,
+      "zeta": 0.62
+    },
+    "ease": "inOut",
+    "stagger": 0.06,
+    "stepFps": 0,
+    "smear": 0
+  },
+  "camera": {
+    "amount": 0.08,
+    "ease": "inOut",
+    "maxZoomPerSec": 0.25,
+    "maxPanPerSec": 0.5,
+    "maxRotPerSec": 8,
+    "slide": 0.05
+  },
+  "grade": {
+    "vignette": 0,
+    "grain": 0,
+    "letterbox": 0
+  },
+  "compose": {
+    "anchor": "thirds",
+    "anchorTol": 0.14,
+    "negativeSpace": 0.4
+  },
+  "rules": {
+    "glow": false,
+    "gradients": false,
+    "maxColors": 5,
+    "maxChroma": 0.22
+  },
+  "light": {
+    "enabled": false,
+    "az": 135,
+    "shadow": 0.18,
+    "highlight": 0.3
+  }
+}

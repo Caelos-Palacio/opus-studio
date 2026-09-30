@@ -1,0 +1,63 @@
+{
+  "name": "kinetic",
+  "description": "Energía alta: tipografía pesada en mayúsculas, negro + ácido, cortes duros, cámara con impacto (outExpo). Hype, música, lanzamientos, social.",
+  "mood": [
+    "agresivo",
+    "rápido",
+    "juvenil"
+  ],
+  "defaultProfile": "reel",
+  "palette": {
+    "paper": "#0D0D0D",
+    "ink": "#F5F5F0",
+    "accent": "#D8FF3C",
+    "accent2": "#FF4D8D",
+    "shade": "#2B2B2B"
+  },
+  "typeface": {
+    "family": "Helvetica",
+    "fallback": "sans-serif",
+    "weights": [
+      700,
+      900
+    ],
+    "scale": 1.8,
+    "base": 34,
+    "case": "upper",
+    "tracking": -0.01
+  },
+  "motion": {
+    "spring": {
+      "omega": 24,
+      "zeta": 0.48
+    },
+    "ease": "outExpo",
+    "stagger": 0.035
+  },
+  "camera": {
+    "amount": 0.18,
+    "ease": "outExpo",
+    "maxZoomPerSec": 1.2,
+    "maxPanPerSec": 2.5,
+    "maxRotPerSec": 60,
+    "maxShake": 0.01,
+    "slide": 0.1
+  },
+  "grade": {
+    "vignette": 0,
+    "grain": 0.03,
+    "letterbox": 0
+  },
+  "compose": {
+    "anchor": "thirds",
+    "anchorTol": 0.2,
+    "negativeSpace": 0.3
+  },
+  "rules": {
+    "glow": false,
+    "gradients": false,
+    "maxColors": 5,
+    "maxChroma": 0.3,
+    "popRatio": 6
+  }
+}
