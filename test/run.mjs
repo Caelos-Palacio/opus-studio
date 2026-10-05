@@ -21,6 +21,13 @@ const MUT = [
   { name: 'fuga-transform', file: 'shots/A2.mjs', edit: inject('ctx.translate(3,0);'), expect: { fix: /fuga de transform/ }, quick: 'layout' },
   { name: 'sin-foco', file: 'shots/A1.mjs', edit: (s) => s.replace(/api\.morph\([^;]*\);/, "ctx.fillStyle=api.color('ink'); ctx.beginPath(); ctx.arc(d.x,d.y,d.s/2,0,6.28); ctx.fill();"), expect: { fix: /no registra ningún foco/, shot: 'A1' }, quick: 'layout' },
   { name: 'camara-falsa', file: 'shots/A2.mjs', edit: (s) => s.replace("api.glow(d.x", "ctx.save(); const zz = 1 + 0.4 * u; ctx.translate(640,360); ctx.scale(zz,zz); ctx.translate(-640,-360); for (let q = 0; q < 10; q++) { ctx.fillStyle = api.color('shade'); ctx.fillRect(100 + q * 90, 600, 30, 30); } ctx.restore(); api.glow(d.x"), expect: { warn: /cámara falsa/ }, quick: 'layout' },
+  // E7: evasiones de la guardia (AST + sandbox). Todas FIX; en ejecución el sandbox las bloquea sin tumbar el lint.
+  { name: 'eval', file: 'shots/A2.mjs', edit: inject("eval('0');"), expect: { fix: /^eval en shots\/A2/ }, quick: 'validate' },
+  { name: 'new-function', file: 'shots/A2.mjs', edit: inject("new Function('return 0')();"), expect: { fix: /Function \(código desde string\) en shots\/A2/ }, quick: 'validate' },
+  { name: 'import-fs', file: 'shots/A2.mjs', edit: (s) => "import fs from 'node:fs';\n" + s, expect: { fix: /import prohibido 'node:fs' en shots\/A2/ }, quick: 'validate' },
+  { name: 'globalthis-comp', file: 'shots/A2.mjs', edit: inject("globalThis['ev'+'al']('0');"), expect: { fix: /globalThis en shots\/A2/ }, quick: 'validate' },
+  { name: 'alias-eval', file: 'shots/A2.mjs', edit: (s) => inject("E('0');")(s.replace('export default {', 'const E = eval;\nexport default {')), expect: { fix: /eval \(alias E\) en shots\/A2/ }, quick: 'validate' },
+  { name: 'estado-indentado', file: 'shots/A2.mjs', edit: (s) => inject('n++;')(s.replace('export default {', '    let n = 0;\nexport default {')), expect: { fix: /estado de módulo mutable reasignado/, shot: 'A2' }, quick: 'validate' },
   { name: 'texto-fuera', file: 'shots/A3.mjs', edit: (s) => s.replace("api.text(shot.text, d.x, d.y,", "api.text(shot.text, 20, d.y,"), expect: { fix: /fuera de safe area/ }, quick: 'layout' },
 ];
 const sel = (name) => !only || only === name;
@@ -54,7 +61,7 @@ async function fixture() {
   finally { rmrf(d); }
 }
 // Scripts autónomos (imprimen sus propias líneas ✓/✗; el código de salida decide).
-const script = (file, args = []) => async () => { const r = await run([path.join(ROOT, file), ...args]); return { ok: r.status === 0, line: (r.stdout + r.stderr).trimEnd() }; };
+const script = (file, args = [], { stderr = true } = {}) => async () => { const r = await run([path.join(ROOT, file), ...args]); return { ok: r.status === 0, line: (r.stdout + (stderr || r.status ? r.stderr : '')).trimEnd() }; };
 
 const t0 = Date.now(), P = pool(jobs), tasks = [];
 for (const m of MUT) if (sel(m.name) && (!fast || m.quick)) tasks.push(P(() => mutation(m)));
@@ -62,7 +69,7 @@ if (!fast && sel('fixture')) tasks.push(P(fixture));
 if (sel('golden')) tasks.push(P(script('test/golden.mjs')));
 if (!fast && sel('cut')) tasks.push(P(script('test/cut-render.mjs')));
 tasks.push(P(script('test/unit.mjs')));
-for (const t of ['schema', 'critic', 'gov']) if (sel(t)) tasks.push(P(script(`test/${t}.mjs`)));   // esquema (E8), crítico honesto (E4), gobernanza (F1)                                   // unidades puras (geometría, partículas, sims): siempre
+for (const t of ['schema', 'critic', 'gov', 'guard']) if (sel(t)) tasks.push(P(script(`test/${t}.mjs`, [], { stderr: t !== 'guard' })));   // guard: su stderr son los bloqueos esperados del sandbox   // esquema (E8), crítico honesto (E4), gobernanza (F1), guardia AST (E7)                                   // unidades puras (geometría, partículas, sims): siempre
 let fail = 0;
 for (const t of tasks) { const r = await t; console.log(r.line); if (!r.ok) fail++; }
 console.log(`\n${fail ? `${fail} fallos` : 'Todo verde'}  (${((Date.now() - t0) / 1000).toFixed(1)} s, ${jobs} en paralelo${fast ? ', --fast' : ''})`);

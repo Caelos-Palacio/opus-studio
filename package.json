@@ -29,6 +29,8 @@
     "gallery": "node engine/gallery.mjs"
   },
   "dependencies": {
+    "acorn": "^8.18.0",
+    "acorn-walk": "^8.3.5",
     "canvas": "^3.1.0",
     "mathjax-full": "^3.2.1"
   }
