@@ -26,9 +26,23 @@ export function analyzeFilm(tl, mem, style, opts = {}) {
   const impacts = sfx.filter((e) => e.type === 'impact').map((e) => ({ t: e.t, gain: e.gain ?? 0.8 })).sort((a, b) => a.t - b.t);
   const main = impacts.reduce((m, e) => (!m || e.gain >= m.gain ? e : m), null);
   const hit = main?.t ?? opts.arc?.measures?.energy?.peakT ?? SE.peakFallback * DUR;
+  const TP = style.tempo.points; let KT = 1;                                    // KT: escala global del tempo (solo con tempo.snapStart)
+  const bpmAt = (t) => {
+    const u = clamp((hit - t) / hit, 0, 1);
+    if (u >= TP[0][0]) return TP[0][1] * KT;
+    for (let i = 0; i < TP.length - 1; i++) { const [u0, b0] = TP[i], [u1, b1] = TP[i + 1]; if (u <= u0 && u >= u1) { const p = (u0 - u) / (u0 - u1); return (b0 + (b1 - b0) * (i === TP.length - 2 ? p ** style.tempo.curve : p)) * KT; } }
+    return TP.at(-1)[1] * KT;
+  };
+  const beatsBack = (stopN = -Infinity) => { const o = []; for (let n = 0, t = hit; t > -style.tempo.preroll && n >= stopN; n--) { o.push({ t, n }); t -= 60 / bpmAt(t); } return o; };
+  if (style.tempo.snapStart) {                                                  // el film empieza EN pulso: KT (≈ 1) tal que el primer pulso con t ≥ 0 caiga exactamente en 0
+    const first = beatsBack().filter((b) => b.t >= -1e-9).at(-1), tN = (k) => { KT = k; return beatsBack(first.n).at(-1).t; };
+    let lo = 0.8, hi = 1.25; for (let i = 0; i < 60; i++) { const mid = (lo + hi) / 2; if (tN(mid) > 0) hi = mid; else lo = mid; }   // más rápido (KT↑) ⇒ pulsos más cortos ⇒ t_n sube
+    KT = (lo + hi) / 2;
+  }
+  const restBpm = style.tempo.rest === 'hit' ? bpmAt(hit) : style.tempo.rest;   // 'hit': el reposo sigue al tempo del golpe (el groove del final no cambia de velocidad)
   const holds = shots.flatMap((s) => (s.hold_ok ?? []).map((h) => [s.t[0] + h[0], s.t[0] + h[1]]));
   const hold = holds.find((h) => h[1] > hit && h[0] >= hit - 1) ?? [hit + SE.holdFallback[0], hit + SE.holdFallback[1]];
-  const rev0 = hold[1];
+  const rev0 = style.tempo.snapHold ? hit + Math.max(1, Math.round((hold[1] - hit) / (60 / restBpm))) * (60 / restBpm) : hold[1];   // snapHold: el respiro dura un número entero de pulsos del golpe y el groove vuelve EN rejilla
   if (!mem?.conceptos?.length) mem = { version: 1, titulo: tl.title ?? '', conceptos: [{ id: 'tema', label: tl.title ?? 'tema', kind: 'motivo', saliencia: 0.9, planta: true, anclas: [{ t: [0, DUR * SE.introFrac] }] }], reinterpretaciones: [] };
   const giros = (mem.reinterpretaciones ?? []).map((g) => ({ id: g.id, en: g.en, por: g.por, objetivo: g.objetivo, tramo: g.tramo }));
   const post = giros.filter((g) => g.en >= rev0 - 0.5).sort((a, b) => a.en - b.en)[0];
@@ -56,15 +70,8 @@ export function analyzeFilm(tl, mem, style, opts = {}) {
   };
   const E = opts.energy, intensity = E ? (t) => { const b = base(t), a = clamp(E.v[Math.min(E.v.length - 1, Math.max(0, Math.round(t * E.hz)))] ?? b); return t < hit ? lerp(b, a, II.arcWeight) : b; } : base;
   // tempo: puntos [fracción del tiempo hasta el golpe, bpm]; la última rampa (hacia el pico) lleva curva
-  const TP = style.tempo.points, bpmAt = (t) => {
-    const u = clamp((hit - t) / hit, 0, 1);
-    if (u >= TP[0][0]) return TP[0][1];
-    for (let i = 0; i < TP.length - 1; i++) { const [u0, b0] = TP[i], [u1, b1] = TP[i + 1]; if (u <= u0 && u >= u1) { const p = (u0 - u) / (u0 - u1); return b0 + (b1 - b0) * (i === TP.length - 2 ? p ** style.tempo.curve : p); } }
-    return TP.at(-1)[1];
-  };
-  const beats = []; for (let n = 0, t = hit; t > -style.tempo.preroll; n--) { beats.push({ t, n }); t -= 60 / bpmAt(t); }
-  beats.reverse();
-  const restBeats = []; for (let n = 0, t = rev0; t < DUR + 2; n++, t += 60 / style.tempo.rest) restBeats.push({ t, n });
+  const beats = beatsBack(); beats.reverse();
+  const restBeats = []; for (let n = 0, t = rev0; t < DUR + 2; n++, t += 60 / restBpm) restBeats.push({ t, n });
   // compases: cada 4 pulsos desde el golpe hacia atrás; la armonía cicla con el índice de compás (el último = dominante)
   const cyc = style.harmony.build, bars = [], bs = beats.filter((b) => ((b.n % 4) + 4) % 4 === 0), sym = (bar) => cyc[((bar % cyc.length) + cyc.length) % cyc.length];
   bs.forEach((b, i) => { const t1 = bs[i + 1]?.t ?? hit; if (t1 > b.t + 1e-6) bars.push({ t0: b.t, t1, ch: sym(Math.floor(b.n / 4)), sec: 'build' }); });
@@ -75,7 +82,7 @@ export function analyzeFilm(tl, mem, style, opts = {}) {
   const ctx = contexto(mem, { timeline: tl });
   const concepts = mem.conceptos.map((c) => ({ id: c.id, kind: c.kind, saliencia: c.saliencia ?? 0.8, planta: !!c.planta, first: primeraVez(mem, c, ctx) ?? 0 }));
   const sections = [['intro', 0, introEnd], ['exposición', introEnd, midT], ['construcción', midT, crescStart], ['crescendo', crescStart, hit - style.impact.vacuum], ['vacío', hit - style.impact.vacuum, hit], ['golpe', hit, hold[0]], ['silencio', hold[0], rev0], ['revelación', rev0, descent], ['descenso', descent, ret], ['regreso', ret, DUR]].map(([name, t0, t1]) => ({ name, t0, t1 }));
-  return { dur: DUR, hit, impacts, hold, rev0, rev, ret, descent, introEnd, midT, crescStart, crescWin, vac: style.impact.vacuum, intensity, bpmAt, beats, restBeats, bars: [...bars, ...post_], sections, giros, concepts, lead, mem, ctx, sfx, shots };
+  return { dur: DUR, hit, tempoScale: KT, restBpm, impacts, hold, rev0, rev, ret, descent, introEnd, midT, crescStart, crescWin, vac: style.impact.vacuum, intensity, bpmAt, beats, restBeats, bars: [...bars, ...post_], sections, giros, concepts, lead, mem, ctx, sfx, shots };
 }
 
 // ───────── 2. armonía y motivos ─────────
@@ -116,11 +123,12 @@ export function transformMotif(mo, ops, key) {
 export function composeScore(plan, style) {
   const { hit, hold, rev0, rev, ret, descent, introEnd, midT, crescStart, crescWin, vac, intensity: I, dur } = plan;
   const L = style.layers, M = style.motif, key = style.key, notes = [], add = (n) => notes.push(n), mem = plan.mem, ctx = plan.ctx;
+  const LV = M.voice ?? 'lead';                                   // voz del leitmotiv (epico: campana FM; contemplativo: piano). Capas ausentes en el estilo = apagadas.
   const tonic = chordNotes(style.harmony.build[0], key, 0.2);
   const motifs = Object.fromEntries(plan.concepts.map((c) => [c.id, { kind: c.kind, original: deriveMotif(c.id, key) }]));
   const w = (id, t) => 0.65 + 0.7 * peso(mem, id, Math.min(t, dur), ctx);                       // el leitmotiv suena más si el concepto está vivo en la memoria
   // presentación de un motivo (original o transformado) sobre notas del leitmotiv del concepto
-  function motif(concept, t0, unit, { ops = [], tr = 0, oct = false, bright = 1, pan = 0, send = 0.55, sust = 0.9, head = 99, g = 0.15, voice = 'lead' } = {}) {
+  function motif(concept, t0, unit, { ops = [], tr = 0, oct = false, bright = 1, pan = 0, send = 0.55, sust = 0.9, head = 99, g = 0.15, voice = LV } = {}) {
     const mo = ops.length ? transformMotif(motifs[concept].original, ops, key) : motifs[concept].original, label = ops.length ? ops.join('+') : 'original';
     let t = t0; const gg = g * w(concept, t0), n = Math.min(head, mo.degrees.length);
     for (let i = 0; i < n; i++) {
@@ -137,22 +145,24 @@ export function composeScore(plan, style) {
     if (b.t0 >= dur || b.t1 <= b.t0) continue;
     const mid = (b.t0 + b.t1) / 2, inten = I(mid), ch = chordNotes(b.ch, key, inten), len = b.t1 - b.t0, end = Math.min(b.t1, hit - vac);
     if (end <= b.t0) continue;
-    add({ v: 'pad', t0: b.t0, t1: end, notes: ch.pad, g: L.pad.gain[0] + L.pad.gain[1] * inten, atk: Math.min(1.8, 0.5 + len * 0.3), rel: 0.9, bright: 'I' });
+    add({ v: 'pad', t0: b.t0, t1: end, notes: ch.pad.map((m) => m + (L.pad.shift ?? 0)), g: L.pad.gain[0] + L.pad.gain[1] * inten, atk: Math.min(L.pad.atk ?? 1.8, 0.5 + len * 0.3), rel: L.pad.rel ?? 0.9, bright: 'I', fcMax: L.pad.fcMax });
     if (b.t0 >= introEnd || b.t0 >= rev0) add({ v: 'bass', t: b.t0, d: Math.min(len, 3), m: ch.bass, g: L.bass.gain[0] + L.bass.gain[1] * inten });
   }
   // 3b. pulso/arpegio/percusión sobre la rejilla (tempo que acelera hacia el golpe): capas que entran por intensidad
-  const rollWin = L.roll.frac * crescWin, riseWin = L.riser.frac * crescWin, stepsFor = (x) => L.arp.steps.reduce((s, [thr, n]) => (x >= thr ? n : s), 0);
+  const rollWin = (L.roll?.frac ?? 0) * crescWin, riseWin = (L.riser?.frac ?? 0) * crescWin, stepsFor = (x) => (L.arp?.steps ?? []).reduce((s, [thr, n]) => (x >= thr ? n : s), 0), AV = L.arp?.voice ?? 'pluck', ASEQ = L.arp?.seq ?? [0, 1, 2, 3];
   plan.beats.forEach((b, bi) => {
     const t = b.t, len = (plan.beats[bi + 1]?.t ?? hit) - t; if (t < 0 || t >= hit - vac - 0.02) return;
     const inten = I(t), ch = chordNotes(plan.bars.find((q) => t >= q.t0 && t < q.t1)?.ch ?? style.harmony.build[0], key, inten), sub = stepsFor(inten);
-    if (sub === 1 && b.n % 2 === 0) add({ v: 'pluck', t, d: 1.0, m: ch.arp[0] + 12, g: 0.05 + 0.05 * inten, pan: -0.3, send: 0.45 });
-    else if (sub > 1) for (let j = 0; j < sub; j++) add({ v: 'pluck', t: t + (j * len) / sub, d: 0.45, m: ch.arp[L.arp.seq[(bi * sub + j) % L.arp.seq.length]] + (inten > 0.65 ? 12 : 0) + 12, g: L.arp.gain[0] + L.arp.gain[1] * inten, pan: Math.sin(bi + j) * 0.5, send: 0.45 });
-    if (inten >= L.kick.thr) add({ v: 'kick', t, g: lerp(L.kick.gain[0], L.kick.gain[1], clamp((t - crescStart) / crescWin) ** 1.2) });
-    if (inten >= L.hat.thr) { add({ v: 'hat', t: t + len / 2, g: L.hat.gain[0] + L.hat.gain[1] * inten }); if (inten >= L.hat.thr2) { add({ v: 'hat', t: t + len / 4, g: 0.04 + 0.06 * inten }); add({ v: 'hat', t: t + (3 * len) / 4, g: 0.04 + 0.06 * inten }); } }
-    if (inten >= L.tom.thr && b.n % 2 === 0) add({ v: 'tom', t: t + len / 2, g: L.tom.gain[0] + L.tom.gain[1] * inten, f0: mtof(tonic.bass + 12) });
+    if (sub === 1 && b.n % 2 === 0) add({ v: AV, t, d: 1.0, m: ch.arp[0] + 12, g: 0.05 + 0.05 * inten, pan: -0.3, send: 0.45 });
+    else if (sub > 1) for (let j = 0; j < sub; j++) add({ v: AV, t: t + (j * len) / sub, d: AV === 'piano' ? 1.2 : 0.45, m: ch.arp[ASEQ[(bi * sub + j) % ASEQ.length]] + (inten > 0.65 ? 12 : 0) + 12, g: L.arp.gain[0] + L.arp.gain[1] * inten, pan: Math.sin(bi + j) * 0.5, send: 0.45 });
+    if (L.bass?.pulse && inten >= L.bass.pulse.thr) add({ v: 'bass', t: t + len / 2, d: len * 0.42, m: ch.bass, g: L.bass.pulse.gain * (0.6 + 0.6 * inten) });   // bajo en el contratiempo (estilos percusivos)
+    if (L.kick && inten >= L.kick.thr) add({ v: 'kick', t, g: lerp(L.kick.gain[0], L.kick.gain[1], clamp((t - crescStart) / crescWin) ** 1.2) });
+    if (L.kick?.ghost && inten >= L.kick.thr && b.n % 2 !== 0) add({ v: 'kick', t: t + len * 0.75, g: L.kick.ghost * lerp(L.kick.gain[0], L.kick.gain[1], clamp((t - crescStart) / crescWin) ** 1.2) });   // síncopa: kick fantasma (estilos percusivos)
+    if (L.hat && inten >= L.hat.thr) { add({ v: 'hat', t: t + len / 2, g: L.hat.gain[0] + L.hat.gain[1] * inten }); if (inten >= L.hat.thr2) { add({ v: 'hat', t: t + len / 4, g: 0.04 + 0.06 * inten }); add({ v: 'hat', t: t + (3 * len) / 4, g: 0.04 + 0.06 * inten }); } }
+    if (L.tom && inten >= L.tom.thr && b.n % 2 === 0) add({ v: 'tom', t: t + len / 2, g: L.tom.gain[0] + L.tom.gain[1] * inten, f0: mtof(tonic.bass + 12) });
   });
-  for (let t = hit - vac - rollWin, step = 0.5; t < hit - vac - 0.05; step = Math.max(0.045, step * 0.84), t += step) add({ v: 'snare', t, g: L.roll.gain[0] + L.roll.gain[1] * ((t - (hit - vac - rollWin)) / rollWin) ** 1.5 });
-  add({ v: 'swell', t0: hit - vac - riseWin, t1: hit - vac, g: L.riser.gain, f0: 400, f1: 9000 });
+  if (L.roll) for (let t = hit - vac - rollWin, step = 0.5; t < hit - vac - 0.05; step = Math.max(0.045, step * 0.84), t += step) add({ v: 'snare', t, g: L.roll.gain[0] + L.roll.gain[1] * ((t - (hit - vac - rollWin)) / rollWin) ** 1.5 });
+  if (L.riser) add({ v: 'swell', t0: hit - vac - riseWin, t1: hit - vac, g: L.riser.gain, f0: 400, f1: 9000 });
   // 3c. leitmotiv del concepto principal: presentaciones que crecen hacia el golpe (diminución, +3, +7 semitonos)
   const lead = plan.lead, first = plan.concepts.find((c) => c.id === lead)?.first ?? 0;
   if (lead) {
@@ -163,36 +173,52 @@ export function composeScore(plan, style) {
   }
   // 3d. golpe (parte musical: el cuerpo percusivo y el sub los pone el diseño sonoro): acorde grande que NO resuelve
   {
-    const ch = chordNotes(style.harmony.climax, key, 1);
-    add({ v: 'kick', t: hit, g: 0.6 }); add({ v: 'crash', t: hit, g: 0.3, d: 1.4 });
-    add({ v: 'brass', t: hit, d: 2.2, dec: 4, notes: [...ch.pad, ...ch.pad.slice(2).map((m) => m + 12)], g: 0.6, bright: 1 }); add({ v: 'choir', t: hit, d: 2.2, dec: 4, notes: ch.pad.slice(2), g: 0.7 });
-    for (const m of ch.pad) add({ v: 'pluck', t: hit, d: 0.7, m: m + 12, g: 0.13, send: 0.5 });
+    const ch = chordNotes(style.harmony.climax, key, 1), HT = { kick: 0.6, crash: 0.3, brass: 0.6, choir: 0.7, pluck: 0.13, piano: 0, ...(style.hit ?? {}) };   // epico: percusión, metales y coro; contemplativo: un acorde de piano
+    if (HT.kick) add({ v: 'kick', t: hit, g: HT.kick }); if (HT.crash) add({ v: 'crash', t: hit, g: HT.crash, d: 1.4 });
+    if (HT.brass) add({ v: 'brass', t: hit, d: 2.2, dec: 4, notes: [...ch.pad, ...ch.pad.slice(2).map((m) => m + 12)], g: HT.brass, bright: 1 }); if (HT.choir) add({ v: 'choir', t: hit, d: 2.2, dec: 4, notes: ch.pad.slice(2), g: HT.choir });
+    if (HT.pluck) for (const m of ch.pad) add({ v: 'pluck', t: hit, d: 0.7, m: m + 12, g: HT.pluck, send: 0.5 });
+    if (HT.piano) ch.pad.forEach((m, i) => add({ v: 'piano', t: hit + i * (HT.spread ?? 0.06), d: HT.pianoD ?? 3.5, m: m + 12, g: HT.piano / Math.sqrt(ch.pad.length) * 1.6, bright: 0.9, pan: ((i % 3) - 1) * 0.3, send: 0.75 }));
     if (lead) motif(lead, hit, M.climax.unit, { g: M.climax.g, bright: M.climax.bright, head: M.climax.head, sust: M.climax.sust, send: M.climax.send, oct: true });
   }
   // 3e. revelación: respiración, restart suave, el MISMO leitmotiv transformado en cada reinterpretación (en t), floración
   {
     const pre = chordNotes(style.harmony.prelude, key, 0.2), bl = chordNotes(style.harmony.bloom, key, 1);
     add({ v: 'pad', t0: rev0 - style.sections.breathLead, t1: rev0 + 0.5, notes: [pre.bass + 12, pre.bass + 19], g: 0.1, atk: 0.8, rel: 0.8, bright: 0.25 });
-    add({ v: 'kick', t: rev0, g: 0.5 });
+    const RV = { kick: 0.5, choir: 0.07, brass: 0.05, piano: 0, ...(style.rev ?? style.revel ?? {}) };
+    if (RV.kick) add({ v: 'kick', t: rev0, g: RV.kick });
     for (const g of plan.giros.filter((q) => q.en >= rev0 - 0.5 && q.en <= descent)) {
       const c = plan.concepts.find((q) => q.id === g.objetivo); if (!c) continue;
       const bk = M.byKind[c.kind] ?? M.byKind.default;
       motif(c.id, g.en, M.reinterpret.unit, { ops: bk.ops, voice: bk.voice, g: M.reinterpret.g * (bk.voice === 'pluck' ? 0.5 : 1), bright: M.reinterpret.bright, send: M.reinterpret.send });
     }
-    add({ v: 'choir', t: rev, d: 4.5, notes: bl.pad.slice(0, 6), g: 0.07 }); add({ v: 'brass', t: rev, d: 3.2, notes: bl.pad.slice(2, 6), g: 0.05, bright: 0.9 });
-    const run = [0, 2, 4, 7].map((d) => toMidi(d, 'major', key) + 12); run.forEach((m, i) => add({ v: 'lead', t: rev + i * 0.1, d: 2.2, m, g: 0.04, bright: 1, pan: i * 0.3 - 0.5, send: 0.9, concept: lead, transform: 'floracion' }));
-    add({ v: 'lead', t: rev, d: 3.5, m: toMidi(7, 'major', key), g: 0.08, bright: 1.2, send: 0.9, concept: lead, transform: 'floracion' });
+    if (RV.choir) add({ v: 'choir', t: rev, d: 4.5, notes: bl.pad.slice(0, 6), g: RV.choir }); if (RV.brass) add({ v: 'brass', t: rev, d: 3.2, notes: bl.pad.slice(2, 6), g: RV.brass, bright: 0.9 });
+    if (RV.piano) bl.pad.slice(0, 6).forEach((m, i) => add({ v: 'piano', t: rev + i * 0.07, d: 4.5, m: m + 12, g: RV.piano, bright: 0.8, pan: ((i % 3) - 1) * 0.35, send: 0.85 }));
+    const run = [0, 2, 4, 7].map((d) => toMidi(d, 'major', key) + 12); run.forEach((m, i) => add({ v: LV, t: rev + i * 0.1, d: 2.2, m, g: 0.04, bright: 1, pan: i * 0.3 - 0.5, send: 0.9, concept: lead, transform: 'floracion' }));
+    add({ v: LV, t: rev, d: 3.5, m: toMidi(7, 'major', key), g: 0.08, bright: 1.2, send: 0.9, concept: lead, transform: 'floracion' });
   }
   // 3f. descenso: arpegio lento sobre la rejilla de reposo, sin percusión
   plan.restBeats.forEach((b, i) => {
     const t = b.t; if (t < descent || t >= ret) return;
     const ch = chordNotes(plan.bars.find((q) => t >= q.t0 && t < q.t1)?.ch ?? style.harmony.bloom, key, 0.4);
-    for (let j = 0; j < 2; j++) add({ v: 'pluck', t: t + j * 0.5, d: 0.8, m: ch.arp[L.arp.seq[(i * 2 + j) % L.arp.seq.length]] + 12, g: 0.05 * (1 - 0.5 * clamp((t - descent) / (ret - descent))), pan: Math.sin(i) * 0.4, send: 0.6 });
+    for (let j = 0; j < 2; j++) add({ v: AV, t: t + j * 0.5, d: AV === 'piano' ? 1.4 : 0.8, m: ch.arp[ASEQ[(i * 2 + j) % ASEQ.length]] + 12, g: 0.05 * (1 - 0.5 * clamp((t - descent) / (ret - descent))), pan: Math.sin(i) * 0.4, send: 0.6 });
   });
+  // 3f'. groove opcional (estilos percusivos): tras el respiro la rejilla de reposo vuelve con pulso (kick, hats, palmas, bajo) y la intensidad
+  //      I(t) lo dosifica; sin `style.groove` (épico) el descenso es solo el arpegio de arriba.
+  if (style.groove) {
+    const Gv = style.groove, nbeat = plan.restBeats.filter((b) => b.t >= rev0 && b.t < dur);
+    nbeat.forEach((b, i) => {
+      const t = b.t, len = 60 / plan.restBpm, inten = I(t), ch = chordNotes(plan.bars.find((q) => t >= q.t0 && t < q.t1)?.ch ?? style.harmony.bloom, key, inten), gk = Gv.kick?.gain ?? 0.3, down = i % 4 === 0;
+      if (Gv.kick && (Gv.kick.every === 1 || i % (Gv.kick.every ?? 1) === 0)) add({ v: 'kick', t, g: gk * (0.6 + 0.6 * inten) * (down ? 1.15 : 1) });
+      if (Gv.hat && inten >= (Gv.hat.thr ?? 0)) { add({ v: 'hat', t: t + len / 2, g: Gv.hat.gain * (0.6 + 0.6 * inten) }); if (Gv.hat.sub) add({ v: 'hat', t: t + len * 0.75, g: Gv.hat.gain * 0.45 }); }
+      if (Gv.clap && i % 2 === 1) add({ v: 'snare', t, g: Gv.clap.gain * (0.6 + 0.6 * inten) });
+      if (Gv.bass && i % (Gv.bass.every ?? 2) === 0) add({ v: 'bass', t, d: Math.min(len * (Gv.bass.every ?? 2) * 0.9, 1.2), m: ch.bass, g: Gv.bass.gain * (0.6 + 0.6 * inten) });
+      if (Gv.arp && inten >= (Gv.arp.thr ?? 0)) for (let j = 0; j < (Gv.arp.sub ?? 2); j++) add({ v: 'pluck', t: t + (j * len) / (Gv.arp.sub ?? 2), d: 0.4, m: ch.arp[L.arp.seq[(i * (Gv.arp.sub ?? 2) + j) % L.arp.seq.length]] + 12, g: Gv.arp.gain * (0.6 + 0.6 * inten), pan: Math.sin(i + j) * 0.5, send: 0.4 });
+    });
+  }
   // 3g. regreso a casa: el motivo ORIGINAL (menor) y, al final, la resolución en mayor
   if (lead) {
     const len = motif(lead, ret + M.return.delay, M.return.unit, { g: M.return.g, send: M.return.send, sust: 1, head: M.return.head }), tf = ret + M.return.delay + len + 0.4;
-    [0, 2, 4, 7].forEach((d, i) => add({ v: 'lead', t: tf, d: 1.9, m: toMidi(d, 'major', key), g: [0.14, 0.1, 0.1, 0.07][i], bright: 0.8, pan: [0, 0.3, -0.3, 0][i], send: 0.9, concept: lead, transform: 'resolucion' }));
+    [0, 2, 4, 7].forEach((d, i) => add({ v: LV, t: tf, d: 1.9, m: toMidi(d, 'major', key), g: [0.14, 0.1, 0.1, 0.07][i], bright: 0.8, pan: [0, 0.3, -0.3, 0][i], send: 0.9, concept: lead, transform: 'resolucion' }));
   }
   const bpmAtHit = 60 / (plan.beats.find((b) => b.n === 0).t - plan.beats.find((b) => b.n === -1).t);
   return { meta: { style: style.name, hit, rev, ret, key: style.key }, bpmAtHit, bars: plan.bars, beats: plan.beats.map((b) => b.t), motifs, notes };
@@ -214,7 +240,7 @@ export function renderScore(part, plan, style, { N = Math.ceil((plan.dur + 1.5) 
       for (let k = s0; k < s1; k++) {
         const t = k / SR, e = Math.min(clamp((t - (n.t0 - n.atk)) / n.atk), clamp((n.t1 + n.rel - t) / n.rel)), env = e * e * (3 - 2 * e); let l = 0, r = 0;
         for (let v = 0; v < voices.length; v++) { ph[v] += voices[v][0] / SR; if (ph[v] >= 1) ph[v] -= 1; const x = 2 * ph[v] - 1, p = voices[v][1]; l += x * (0.5 - 0.5 * p); r += x * (0.5 + 0.5 * p); }
-        const fc = 180 + 3800 * brightF(t) ** 1.5, a = 1 - Math.exp((-TAU * fc) / SR); l1 += a * (l - l1); l2 += a * (l1 - l2); r1 += a * (r - r1); r2 += a * (r1 - r2);
+        const fc = 180 + (n.fcMax ?? 3800) * brightF(t) ** 1.5, a = 1 - Math.exp((-TAU * fc) / SR); l1 += a * (l - l1); l2 += a * (l1 - l2); r1 += a * (r - r1); r2 += a * (r1 - r2);
         const g = (n.g * env) / Math.sqrt(voices.length); dL[k] += l2 * g; dR[k] += r2 * g; W[seg].L[k] += l2 * g * 0.5; W[seg].R[k] += r2 * g * 0.5;
       }
     },
@@ -224,6 +250,18 @@ export function renderScore(part, plan, style, { N = Math.ceil((plan.dur + 1.5) 
       const f = mtof(n.m), bright = n.bright ?? 1; for (let i = 0; i < (n.d + 1.2) * SR; i++) {
         const t = i / SR, a = clamp(t / 0.015), rl = t < n.d ? 1 : Math.exp(-(t - n.d) / 0.35), dec = 0.35 + 0.65 * Math.exp(-t / (0.9 + n.d * 0.5)), idx = (0.6 + 1.6 * bright) * Math.exp(-t / 0.6), vib = 1 + 0.002 * Math.sin(TAU * 5.2 * t) * clamp(t / 0.4), ph = TAU * f * vib * t;
         put(n.t, i, n.g * a * rl * dec * (Math.sin(ph + idx * Math.sin(ph)) * 0.8 + 0.25 * Math.sin(2 * ph)), n.pan ?? 0, n.send ?? 0.55);
+      }
+    },
+    piano(n) { // piano suave sintético (estilo contemplativo): parciales algo inarmónicos con decaimiento propio, dos cuerdas, fieltro y pedal
+      const f = mtof(n.m), br = n.bright ?? 1, len = Math.min(8, n.d * 1.2 + 1.8), tau0 = 0.9 + 5.5 * Math.exp(-(n.m - 36) / 20), K = Math.max(3, Math.min(14, Math.floor((4200 + 3200 * br) / f))), hold = n.d * 1.15;
+      const parts = []; for (let k = 1; k <= K; k++) { const a = (1 / k ** 1.12) * Math.exp(-(((f * k) / (1400 + 2300 * br)) ** 2)) * (k === 2 ? 1.1 : 1), tau = tau0 / (1 + 0.5 * (k - 1)); if (a > 0.004) parts.push([f * k * Math.sqrt(1 + 0.00018 * k * k), a, tau, R() * TAU, Math.min(len, tau * 5 * 9.2 * 0.5)]); }
+      const ph2 = R() * TAU, N = Math.floor(len * SR);
+      for (let i = 0; i < N; i++) {
+        const t = i / SR, rel = t < hold ? 1 : Math.exp(-(t - hold) / 0.9); let v = 0;
+        for (const [fk, a, tau, ph, tmax] of parts) { if (t > tmax) continue; v += a * (0.62 * Math.exp(-t / tau) + 0.38 * Math.exp(-t / (5 * tau))) * Math.sin(TAU * fk * t + ph); }
+        v += 0.42 * parts[0][1] * (0.62 * Math.exp(-t / parts[0][2]) + 0.38 * Math.exp(-t / (5 * parts[0][2]))) * Math.sin(TAU * f * 1.0006 * t + ph2);   // segunda cuerda
+        v += 0.05 * br * (R() * 2 - 1) * Math.exp(-t / 0.014);                                                                                         // fieltro
+        put(n.t, i, n.g * 0.5 * v * rel * clamp(t / 0.0025), n.pan ?? 0, n.send ?? 0.6);
       }
     },
     kick(n) { let ph = 0; for (let i = 0; i < 0.35 * SR; i++) { const t = i / SR; ph += (48 + 110 * Math.exp(-t * 28)) / SR; put(n.t, i, n.g * Math.sin(TAU * ph) * Math.exp(-t / 0.12) * clamp(t / 0.002), 0, 0.05); } },

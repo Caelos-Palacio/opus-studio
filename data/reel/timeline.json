@@ -1,0 +1,1752 @@
+{
+ "title": "Pulso — ¿Qué suena cuando todo se rompe?",
+ "style": "pulso",
+ "profile": "reel",
+ "profileOverrides": {
+  "shotLen": [
+   0.4,
+   3.2
+  ],
+  "readCps": 20
+ },
+ "fps": 30,
+ "width": 1080,
+ "height": 1920,
+ "duration": 30,
+ "end_hold_ok": true,
+ "sound": {
+  "style": "electro",
+  "memoria": "data/reel/memoria.json",
+  "overrides": {
+   "impact": {
+    "vacuum": 0.4385
+   }
+  }
+ },
+ "signals": {
+  "kick": {
+   "op": "audio",
+   "feature": "onsets",
+   "track": "kick",
+   "decay": 0.14,
+   "attack": 0.004,
+   "description": "envolvente de los bombos de la partitura (audio.json.tracks.kick)"
+  },
+  "snare": {
+   "op": "audio",
+   "feature": "onsets",
+   "track": "snare",
+   "decay": 0.1,
+   "attack": 0.003,
+   "description": "cajas, palmas y redoble"
+  },
+  "hat": {
+   "op": "audio",
+   "feature": "onsets",
+   "track": "hat",
+   "decay": 0.05,
+   "attack": 0.002,
+   "description": "hats"
+  },
+  "tom": {
+   "op": "audio",
+   "feature": "onsets",
+   "track": "tom",
+   "decay": 0.18,
+   "attack": 0.004,
+   "description": "toms"
+  },
+  "chaos": {
+   "op": "keys",
+   "description": "del ruido al orden: 1 = caos, 0 = rejilla; se desordena de golpe en el pico",
+   "keys": [
+    {
+     "t": 0,
+     "v": 1
+    },
+    {
+     "t": 4.9114,
+     "v": 1,
+     "ease": "inOut"
+    },
+    {
+     "t": 9.7848,
+     "v": 0.7,
+     "ease": "inOut"
+    },
+    {
+     "t": 14.2473,
+     "v": 0.3,
+     "ease": "inOut"
+    },
+    {
+     "t": 18.319,
+     "v": 0.12,
+     "ease": "in"
+    },
+    {
+     "t": 21.117,
+     "v": 0.65,
+     "ease": "out"
+    },
+    {
+     "t": 21.5615,
+     "v": 0
+    },
+    {
+     "t": 22,
+     "v": 1
+    },
+    {
+     "t": 22.877,
+     "v": 0.4,
+     "ease": "out"
+    },
+    {
+     "t": 24.1926,
+     "v": 0.2,
+     "ease": "out"
+    },
+    {
+     "t": 25.0696,
+     "v": 0
+    }
+   ]
+  },
+  "lock": {
+   "op": "keys",
+   "description": "cuánto se pega todo a la rejilla (sube durante el enganche, se suelta en el golpe)",
+   "keys": [
+    {
+     "t": 0,
+     "v": 0
+    },
+    {
+     "t": 7.3671,
+     "v": 0,
+     "ease": "inOut"
+    },
+    {
+     "t": 9.7848,
+     "v": 0.3,
+     "ease": "inOut"
+    },
+    {
+     "t": 13.1736,
+     "v": 0.8,
+     "ease": "inOut"
+    },
+    {
+     "t": 16.3266,
+     "v": 1
+    },
+    {
+     "t": 21.999,
+     "v": 1
+    },
+    {
+     "t": 22,
+     "v": 0
+    }
+   ]
+  },
+  "shock": {
+   "op": "env",
+   "at": [
+    22,
+    24.1926
+   ],
+   "attack": 0,
+   "decay": 0.5,
+   "peak": 1.4,
+   "description": "onda de choque: el golpe y el reencaje"
+  },
+  "tension": {
+   "op": "keys",
+   "description": "tensión del crescendo: sube hasta el aire retenido y se vacía",
+   "keys": [
+    {
+     "t": 0,
+     "v": 0
+    },
+    {
+     "t": 14.2473,
+     "v": 0.1,
+     "ease": "in"
+    },
+    {
+     "t": 18.319,
+     "v": 0.5,
+     "ease": "in"
+    },
+    {
+     "t": 21.117,
+     "v": 1.3
+    },
+    {
+     "t": 21.5615,
+     "v": 0
+    }
+   ]
+  },
+  "drift": {
+   "op": "lfo",
+   "freq": 0.31,
+   "amp": 1,
+   "shape": "sine",
+   "description": "respiración lenta"
+  },
+  "nivel": {
+   "op": "audio",
+   "feature": "rms",
+   "gain": 6,
+   "description": "nivel de la mezcla (audio.json.rms; lo escribe engine/grid.mjs --mix)"
+  },
+  "pulso": {
+   "op": "expr",
+   "expr": "clamp(sig('kick') + 0.5 * sig('snare'), 0, 1.5)",
+   "description": "impulso total de percusión"
+  }
+ },
+ "shots": [
+  {
+   "id": "K01",
+   "t": [
+    0,
+    0.63333
+   ],
+   "size": "ECU",
+   "action": "una ¿ lima gigante golpea el primer pulso y se asienta",
+   "on_beat": "el golpe de la ¿ es el primer pulso del film",
+   "on_beat_at": [
+    0
+   ],
+   "text": "¿",
+   "transition_out": "cut",
+   "must_read_mute": true,
+   "cam": {
+    "move": "push",
+    "why": "approach",
+    "amount": 0.05,
+    "ease": "outExpo"
+   },
+   "sakuga": "normal",
+   "params": {
+    "kick": {
+     "$sig": "kick"
+    },
+    "snare": {
+     "$sig": "snare"
+    },
+    "hat": {
+     "$sig": "hat"
+    },
+    "tom": {
+     "$sig": "tom"
+    },
+    "chaos": {
+     "$sig": "chaos"
+    },
+    "lock": {
+     "$sig": "lock"
+    },
+    "shock": {
+     "$sig": "shock"
+    },
+    "tension": {
+     "$sig": "tension"
+    },
+    "drift": {
+     "$sig": "drift"
+    }
+   },
+   "meta": {
+    "pulso": [
+     0,
+     1
+    ],
+    "compases": 0.25
+   }
+  },
+  {
+   "id": "K02",
+   "t": [
+    0.63333,
+    1.23333
+   ],
+   "size": "ECU",
+   "action": "QUÉ entra a golpe, tembloroso (ruido); la ¿ queda de viñeta",
+   "on_beat": "QUÉ cae en el pulso",
+   "on_beat_at": [
+    0
+   ],
+   "text": "QUÉ",
+   "transition_out": "cut",
+   "must_read_mute": true,
+   "cam": {
+    "move": "push",
+    "why": "approach",
+    "amount": 0.05,
+    "ease": "outExpo"
+   },
+   "sakuga": "normal",
+   "params": {
+    "kick": {
+     "$sig": "kick"
+    },
+    "snare": {
+     "$sig": "snare"
+    },
+    "hat": {
+     "$sig": "hat"
+    },
+    "tom": {
+     "$sig": "tom"
+    },
+    "chaos": {
+     "$sig": "chaos"
+    },
+    "lock": {
+     "$sig": "lock"
+    },
+    "shock": {
+     "$sig": "shock"
+    },
+    "tension": {
+     "$sig": "tension"
+    },
+    "drift": {
+     "$sig": "drift"
+    }
+   },
+   "meta": {
+    "pulso": [
+     1,
+     2
+    ],
+    "compases": 0.25
+   }
+  },
+  {
+   "id": "K03",
+   "t": [
+    1.23333,
+    2.46667
+   ],
+   "size": "CU",
+   "action": "SUENA tiembla; en el 2.º pulso se parte en tiras y canales",
+   "on_beat": "pulso 1 entra; pulso 2 glitch",
+   "on_beat_at": [
+    0,
+    0.6085
+   ],
+   "text": "SUENA",
+   "transition_out": "cut",
+   "must_read_mute": true,
+   "cam": {
+    "move": "push",
+    "why": "approach",
+    "amount": 0.06,
+    "ease": "outExpo"
+   },
+   "sakuga": "normal",
+   "params": {
+    "kick": {
+     "$sig": "kick"
+    },
+    "snare": {
+     "$sig": "snare"
+    },
+    "hat": {
+     "$sig": "hat"
+    },
+    "tom": {
+     "$sig": "tom"
+    },
+    "chaos": {
+     "$sig": "chaos"
+    },
+    "lock": {
+     "$sig": "lock"
+    },
+    "shock": {
+     "$sig": "shock"
+    },
+    "tension": {
+     "$sig": "tension"
+    },
+    "drift": {
+     "$sig": "drift"
+    }
+   },
+   "meta": {
+    "pulso": [
+     2,
+     4
+    ],
+    "compases": 0.5
+   }
+  },
+  {
+   "id": "K04",
+   "t": [
+    2.46667,
+    3.1
+   ],
+   "size": "ECU",
+   "action": "CUANDO barre de izquierda a derecha en un pulso",
+   "on_beat": "el barrido termina en el pulso",
+   "on_beat_at": [
+    0
+   ],
+   "text": "CUANDO",
+   "transition_out": "cut",
+   "must_read_mute": true,
+   "cam": {
+    "move": "push",
+    "why": "approach",
+    "amount": 0.04,
+    "ease": "outExpo"
+   },
+   "sakuga": "normal",
+   "params": {
+    "kick": {
+     "$sig": "kick"
+    },
+    "snare": {
+     "$sig": "snare"
+    },
+    "hat": {
+     "$sig": "hat"
+    },
+    "tom": {
+     "$sig": "tom"
+    },
+    "chaos": {
+     "$sig": "chaos"
+    },
+    "lock": {
+     "$sig": "lock"
+    },
+    "shock": {
+     "$sig": "shock"
+    },
+    "tension": {
+     "$sig": "tension"
+    },
+    "drift": {
+     "$sig": "drift"
+    }
+   },
+   "meta": {
+    "pulso": [
+     4,
+     5
+    ],
+    "compases": 0.25
+   }
+  },
+  {
+   "id": "K05",
+   "t": [
+    3.1,
+    3.7
+   ],
+   "size": "MS",
+   "action": "TODO y SE caen letra a letra",
+   "on_beat": "las letras de TODO caen escalonadas",
+   "on_beat_at": [
+    0
+   ],
+   "text": "TODO SE",
+   "transition_out": "cut",
+   "must_read_mute": true,
+   "cam": {
+    "move": "push",
+    "why": "approach",
+    "amount": 0.04,
+    "ease": "outExpo"
+   },
+   "sakuga": "normal",
+   "params": {
+    "kick": {
+     "$sig": "kick"
+    },
+    "snare": {
+     "$sig": "snare"
+    },
+    "hat": {
+     "$sig": "hat"
+    },
+    "tom": {
+     "$sig": "tom"
+    },
+    "chaos": {
+     "$sig": "chaos"
+    },
+    "lock": {
+     "$sig": "lock"
+    },
+    "shock": {
+     "$sig": "shock"
+    },
+    "tension": {
+     "$sig": "tension"
+    },
+    "drift": {
+     "$sig": "drift"
+    }
+   },
+   "meta": {
+    "pulso": [
+     5,
+     6
+    ],
+    "compases": 0.25
+   }
+  },
+  {
+   "id": "K06",
+   "t": [
+    3.7,
+    4.93333
+   ],
+   "size": "CU",
+   "action": "ROMPE aparece; en el 2.º pulso se agrieta y cae la ? lima",
+   "on_beat": "pulso 2: grietas y la ? golpea",
+   "on_beat_at": [
+    0,
+    0.5975
+   ],
+   "text": "ROMPE",
+   "transition_out": "cut",
+   "must_read_mute": true,
+   "cam": {
+    "move": "push",
+    "why": "approach",
+    "amount": 0.06,
+    "ease": "outExpo"
+   },
+   "sakuga": "normal",
+   "params": {
+    "kick": {
+     "$sig": "kick"
+    },
+    "snare": {
+     "$sig": "snare"
+    },
+    "hat": {
+     "$sig": "hat"
+    },
+    "tom": {
+     "$sig": "tom"
+    },
+    "chaos": {
+     "$sig": "chaos"
+    },
+    "lock": {
+     "$sig": "lock"
+    },
+    "shock": {
+     "$sig": "shock"
+    },
+    "tension": {
+     "$sig": "tension"
+    },
+    "drift": {
+     "$sig": "drift"
+    }
+   },
+   "meta": {
+    "pulso": [
+     6,
+     8
+    ],
+    "compases": 0.5
+   }
+  },
+  {
+   "id": "K07",
+   "t": [
+    4.93333,
+    7.4
+   ],
+   "size": "WS",
+   "action": "golpes sueltos (onomatopeyas) en síncopa 3+3+4+3+3 semicorcheas: ruido",
+   "on_beat": "cada golpe cae en una semicorchea fuera del pulso",
+   "on_beat_at": [
+    0
+   ],
+   "text": "CRAC TAC PUM CLIC BUM",
+   "transition_out": "cut",
+   "must_read_mute": true,
+   "cam": {
+    "move": "static"
+   },
+   "sakuga": "normal",
+   "sfx": [
+    {
+     "at": -0.0219,
+     "type": "click",
+     "gain": 0.9
+    },
+    {
+     "at": 0.4385,
+     "type": "tick",
+     "gain": 0.8
+    },
+    {
+     "at": 0.899,
+     "type": "pop",
+     "gain": 0.9
+    },
+    {
+     "at": 1.5129,
+     "type": "click",
+     "gain": 0.8
+    },
+    {
+     "at": 1.9733,
+     "type": "pop",
+     "gain": 1.1
+    }
+   ],
+   "params": {
+    "kick": {
+     "$sig": "kick"
+    },
+    "snare": {
+     "$sig": "snare"
+    },
+    "hat": {
+     "$sig": "hat"
+    },
+    "tom": {
+     "$sig": "tom"
+    },
+    "chaos": {
+     "$sig": "chaos"
+    },
+    "lock": {
+     "$sig": "lock"
+    },
+    "shock": {
+     "$sig": "shock"
+    },
+    "tension": {
+     "$sig": "tension"
+    },
+    "drift": {
+     "$sig": "drift"
+    }
+   },
+   "meta": {
+    "pulso": [
+     8,
+     12
+    ],
+    "compases": 1
+   }
+  },
+  {
+   "id": "K08",
+   "t": [
+    7.4,
+    9.8
+   ],
+   "size": "WS",
+   "action": "ocho golpes en corcheas con síncopa: el ruido empieza a repetirse y la rejilla asoma",
+   "on_beat": "corcheas con acentos que rotan",
+   "on_beat_at": [
+    0
+   ],
+   "text": "TIC TAC TIC CLAC TIC TAC PUM CRAC",
+   "transition_out": "cut",
+   "must_read_mute": true,
+   "cam": {
+    "move": "static"
+   },
+   "sakuga": "normal",
+   "sfx": [
+    {
+     "at": -0.0329,
+     "type": "tick",
+     "gain": 0.8
+    },
+    {
+     "at": 0.274,
+     "type": "click",
+     "gain": 0.7
+    },
+    {
+     "at": 0.581,
+     "type": "tick",
+     "gain": 0.8
+    },
+    {
+     "at": 1.0388,
+     "type": "pop",
+     "gain": 0.9
+    },
+    {
+     "at": 1.1914,
+     "type": "tick",
+     "gain": 0.8
+    },
+    {
+     "at": 1.492,
+     "type": "click",
+     "gain": 0.7
+    },
+    {
+     "at": 1.9406,
+     "type": "pop",
+     "gain": 1
+    },
+    {
+     "at": 2.0886,
+     "type": "click",
+     "gain": 0.9
+    }
+   ],
+   "params": {
+    "kick": {
+     "$sig": "kick"
+    },
+    "snare": {
+     "$sig": "snare"
+    },
+    "hat": {
+     "$sig": "hat"
+    },
+    "tom": {
+     "$sig": "tom"
+    },
+    "chaos": {
+     "$sig": "chaos"
+    },
+    "lock": {
+     "$sig": "lock"
+    },
+    "shock": {
+     "$sig": "shock"
+    },
+    "tension": {
+     "$sig": "tension"
+    },
+    "drift": {
+     "$sig": "drift"
+    }
+   },
+   "meta": {
+    "pulso": [
+     12,
+     16
+    ],
+    "compases": 1
+   }
+  },
+  {
+   "id": "K09",
+   "t": [
+    9.8,
+    12.1
+   ],
+   "size": "WS",
+   "action": "cuatro filas de secuenciador entran una por pulso; cada una se enciende con su instrumento",
+   "on_beat": "una fila nueva por pulso",
+   "on_beat_at": [
+    0
+   ],
+   "text": "PUM TIC CLAC TOC",
+   "transition_out": "cut",
+   "must_read_mute": true,
+   "cam": {
+    "move": "push",
+    "why": "approach",
+    "amount": 0.04,
+    "ease": "outExpo"
+   },
+   "sakuga": "normal",
+   "params": {
+    "kick": {
+     "$sig": "kick"
+    },
+    "snare": {
+     "$sig": "snare"
+    },
+    "hat": {
+     "$sig": "hat"
+    },
+    "tom": {
+     "$sig": "tom"
+    },
+    "chaos": {
+     "$sig": "chaos"
+    },
+    "lock": {
+     "$sig": "lock"
+    },
+    "shock": {
+     "$sig": "shock"
+    },
+    "tension": {
+     "$sig": "tension"
+    },
+    "drift": {
+     "$sig": "drift"
+    }
+   },
+   "meta": {
+    "pulso": [
+     16,
+     20
+    ],
+    "compases": 1
+   }
+  },
+  {
+   "id": "K10",
+   "t": [
+    12.1,
+    14.26667
+   ],
+   "size": "WS",
+   "action": "las cuatro filas ya clavadas a la rejilla laten con bombo, hats, caja y toms",
+   "on_beat": "cada fila reacciona a su pista de audio",
+   "on_beat_at": [
+    0
+   ],
+   "text": "PUM TIC CLAC TOC",
+   "transition_out": "cut",
+   "must_read_mute": true,
+   "cam": {
+    "move": "push",
+    "why": "approach",
+    "amount": 0.05,
+    "ease": "outExpo"
+   },
+   "sakuga": "normal",
+   "params": {
+    "kick": {
+     "$sig": "kick"
+    },
+    "snare": {
+     "$sig": "snare"
+    },
+    "hat": {
+     "$sig": "hat"
+    },
+    "tom": {
+     "$sig": "tom"
+    },
+    "chaos": {
+     "$expr": "sig('chaos') * (1 - 0.6 * sig('kick'))"
+    },
+    "lock": {
+     "$expr": "min(1, sig('lock') + 0.25 * sig('hat'))"
+    },
+    "shock": {
+     "$sig": "shock"
+    },
+    "tension": {
+     "$sig": "tension"
+    },
+    "drift": {
+     "$sig": "drift"
+    }
+   },
+   "meta": {
+    "pulso": [
+     20,
+     24
+    ],
+    "compases": 1
+   }
+  },
+  {
+   "id": "K11",
+   "t": [
+    14.26667,
+    16.33333
+   ],
+   "size": "MS",
+   "action": "cuenta atrás de filas: 4, 3, 2, 1; las que quedan crecen",
+   "on_beat": "en cada pulso se va una fila",
+   "on_beat_at": [
+    0,
+    1.0294
+   ],
+   "text": "PUM TIC CLAC TOC",
+   "transition_out": "cut",
+   "must_read_mute": true,
+   "cam": {
+    "move": "push",
+    "why": "approach",
+    "amount": 0.06,
+    "ease": "outExpo"
+   },
+   "sakuga": "normal",
+   "params": {
+    "kick": {
+     "$sig": "kick"
+    },
+    "snare": {
+     "$sig": "snare"
+    },
+    "hat": {
+     "$sig": "hat"
+    },
+    "tom": {
+     "$sig": "tom"
+    },
+    "chaos": {
+     "$sig": "chaos"
+    },
+    "lock": {
+     "$sig": "lock"
+    },
+    "shock": {
+     "$sig": "shock"
+    },
+    "tension": {
+     "$sig": "tension"
+    },
+    "drift": {
+     "$sig": "drift"
+    }
+   },
+   "meta": {
+    "pulso": [
+     24,
+     28
+    ],
+    "compases": 1
+   }
+  },
+  {
+   "id": "K12",
+   "t": [
+    16.33333,
+    18.33333
+   ],
+   "size": "CU",
+   "action": "A COMPÁS; un cursor lima barre el compás y numera sus 4 pulsos",
+   "on_beat": "1 2 3 4: un barrido por pulso",
+   "on_beat_at": [
+    0
+   ],
+   "text": "A COMPÁS",
+   "transition_out": "cut",
+   "must_read_mute": true,
+   "cam": {
+    "move": "push",
+    "why": "approach",
+    "amount": 0.08,
+    "ease": "outExpo"
+   },
+   "sakuga": "normal",
+   "params": {
+    "kick": {
+     "$sig": "kick"
+    },
+    "snare": {
+     "$sig": "snare"
+    },
+    "hat": {
+     "$sig": "hat"
+    },
+    "tom": {
+     "$sig": "tom"
+    },
+    "chaos": {
+     "$sig": "chaos"
+    },
+    "lock": {
+     "$sig": "lock"
+    },
+    "shock": {
+     "$sig": "shock"
+    },
+    "tension": {
+     "$sig": "tension"
+    },
+    "drift": {
+     "$sig": "drift"
+    }
+   },
+   "meta": {
+    "pulso": [
+     28,
+     32
+    ],
+    "compases": 1
+   }
+  },
+  {
+   "id": "K13",
+   "t": [
+    18.33333,
+    19.3
+   ],
+   "size": "ECU",
+   "action": "TODO a pantalla completa; entra con el crescendo y se tensa",
+   "on_beat": "pulso 1 golpe; pulso 2 estroboscopio",
+   "on_beat_at": [
+    0,
+    0.468
+   ],
+   "text": "TODO",
+   "transition_out": "cut",
+   "must_read_mute": true,
+   "cam": {
+    "move": "push",
+    "why": "approach",
+    "amount": 0.14,
+    "ease": "outExpo"
+   },
+   "sakuga": "normal",
+   "params": {
+    "kick": {
+     "$sig": "kick"
+    },
+    "snare": {
+     "$sig": "snare"
+    },
+    "hat": {
+     "$sig": "hat"
+    },
+    "tom": {
+     "$sig": "tom"
+    },
+    "chaos": {
+     "$sig": "chaos"
+    },
+    "lock": {
+     "$sig": "lock"
+    },
+    "shock": {
+     "$sig": "shock"
+    },
+    "tension": {
+     "$expr": "sig('tension') * (0.7 + 0.3 * sig('kick'))"
+    },
+    "drift": {
+     "$sig": "drift"
+    }
+   },
+   "meta": {
+    "pulso": [
+     32,
+     34
+    ],
+    "compases": 0.5
+   }
+  },
+  {
+   "id": "K14",
+   "t": [
+    19.3,
+    20.23333
+   ],
+   "size": "ECU",
+   "action": "SE más grande que la pantalla; vibra sin parar",
+   "on_beat": "pulso 1 golpe; pulso 2 estroboscopio",
+   "on_beat_at": [
+    0,
+    0.4466
+   ],
+   "text": "SE",
+   "transition_out": "cut",
+   "must_read_mute": true,
+   "cam": {
+    "move": "push",
+    "why": "approach",
+    "amount": 0.16,
+    "ease": "outExpo"
+   },
+   "sakuga": "normal",
+   "params": {
+    "kick": {
+     "$sig": "kick"
+    },
+    "snare": {
+     "$sig": "snare"
+    },
+    "hat": {
+     "$sig": "hat"
+    },
+    "tom": {
+     "$sig": "tom"
+    },
+    "chaos": {
+     "$sig": "chaos"
+    },
+    "lock": {
+     "$sig": "lock"
+    },
+    "shock": {
+     "$sig": "shock"
+    },
+    "tension": {
+     "$expr": "sig('tension') * (0.7 + 0.3 * sig('kick'))"
+    },
+    "drift": {
+     "$sig": "drift"
+    }
+   },
+   "meta": {
+    "pulso": [
+     34,
+     36
+    ],
+    "compases": 0.5
+   }
+  },
+  {
+   "id": "K15",
+   "t": [
+    20.23333,
+    21.13333
+   ],
+   "size": "ECU",
+   "action": "R-O-M-P-E, una letra por semicorchea, y la palabra entera titila",
+   "on_beat": "cinco golpes en semicorcheas",
+   "text": "ROMPE",
+   "transition_out": "cut",
+   "must_read_mute": true,
+   "cam": {
+    "move": "static"
+   },
+   "sakuga": "normal",
+   "sfx": [
+    {
+     "at": -0.0237,
+     "type": "tick",
+     "gain": 0.8
+    },
+    {
+     "at": 0.0676,
+     "type": "tick",
+     "gain": 0.8
+    },
+    {
+     "at": 0.159,
+     "type": "tick",
+     "gain": 0.85
+    },
+    {
+     "at": 0.2504,
+     "type": "tick",
+     "gain": 0.9
+    },
+    {
+     "at": 0.3417,
+     "type": "tick",
+     "gain": 1
+    }
+   ],
+   "params": {
+    "kick": {
+     "$sig": "kick"
+    },
+    "snare": {
+     "$sig": "snare"
+    },
+    "hat": {
+     "$sig": "hat"
+    },
+    "tom": {
+     "$sig": "tom"
+    },
+    "chaos": {
+     "$sig": "chaos"
+    },
+    "lock": {
+     "$sig": "lock"
+    },
+    "shock": {
+     "$sig": "shock"
+    },
+    "tension": {
+     "$sig": "tension"
+    },
+    "drift": {
+     "$sig": "drift"
+    }
+   },
+   "meta": {
+    "pulso": [
+     36,
+     38
+    ],
+    "compases": 0.5
+   }
+  },
+  {
+   "id": "K16",
+   "t": [
+    21.13333,
+    21.56667
+   ],
+   "size": "WS",
+   "action": "la palabra se contrae hasta un punto: el aire se retira",
+   "on_beat": "inspiración: todo converge en el punto",
+   "text": "ROMPE",
+   "transition_out": "cut",
+   "must_read_mute": true,
+   "cam": {
+    "move": "static"
+   },
+   "sakuga": "simple",
+   "params": {
+    "kick": {
+     "$sig": "kick"
+    },
+    "snare": {
+     "$sig": "snare"
+    },
+    "hat": {
+     "$sig": "hat"
+    },
+    "tom": {
+     "$sig": "tom"
+    },
+    "chaos": {
+     "$sig": "chaos"
+    },
+    "lock": {
+     "$sig": "lock"
+    },
+    "shock": {
+     "$sig": "shock"
+    },
+    "tension": {
+     "$sig": "tension"
+    },
+    "drift": {
+     "$sig": "drift"
+    }
+   },
+   "meta": {
+    "pulso": [
+     38,
+     39
+    ],
+    "compases": 0.25
+   }
+  },
+  {
+   "id": "K17",
+   "t": [
+    21.56667,
+    22
+   ],
+   "size": "EWS",
+   "action": "negro y un punto lima: el vacío antes del golpe",
+   "on_beat": "silencio",
+   "text": ".",
+   "transition_out": "cut",
+   "must_read_mute": true,
+   "hold_ok": [
+    [
+     0,
+     0.4233
+    ]
+   ],
+   "cam": {
+    "move": "static"
+   },
+   "sakuga": "simple",
+   "params": {
+    "kick": {
+     "$sig": "kick"
+    },
+    "snare": {
+     "$sig": "snare"
+    },
+    "hat": {
+     "$sig": "hat"
+    },
+    "tom": {
+     "$sig": "tom"
+    },
+    "chaos": {
+     "$sig": "chaos"
+    },
+    "lock": {
+     "$sig": "lock"
+    },
+    "shock": {
+     "$sig": "shock"
+    },
+    "tension": {
+     "$sig": "tension"
+    },
+    "drift": {
+     "$sig": "drift"
+    }
+   },
+   "meta": {
+    "pulso": [
+     39,
+     40
+    ],
+    "compases": 0.25
+   }
+  },
+  {
+   "id": "K18",
+   "t": [
+    22,
+    22.9
+   ],
+   "size": "ECU",
+   "action": "impact frame: ROMPE negro sobre blanco, estalla en esquirlas con smear y canales; onda de choque lima",
+   "on_beat": "el golpe: fotograma 0 negativo, 1 rayos, 2.. esquirlas",
+   "on_beat_at": [
+    0
+   ],
+   "text": "ROMPE",
+   "transition_out": "cut",
+   "must_read_mute": true,
+   "cam": {
+    "move": "pull",
+    "why": "reveal",
+    "amount": 0.12,
+    "ease": "outExpo"
+   },
+   "sakuga": "hero",
+   "sfx": [
+    {
+     "at": 0,
+     "type": "impact",
+     "gain": 1
+    },
+    {
+     "at": 0,
+     "type": "riser",
+     "gain": 0.38,
+     "dur": 3.6
+    }
+   ],
+   "params": {
+    "kick": {
+     "$sig": "kick"
+    },
+    "snare": {
+     "$sig": "snare"
+    },
+    "hat": {
+     "$sig": "hat"
+    },
+    "tom": {
+     "$sig": "tom"
+    },
+    "chaos": {
+     "$sig": "chaos"
+    },
+    "lock": {
+     "$sig": "lock"
+    },
+    "shock": {
+     "$expr": "sig('shock') + 0.25 * sig('kick')"
+    },
+    "tension": {
+     "$sig": "tension"
+    },
+    "drift": {
+     "$sig": "drift"
+    }
+   },
+   "meta": {
+    "pulso": [
+     40,
+     42
+    ],
+    "compases": 0.5
+   }
+  },
+  {
+   "id": "K19",
+   "t": [
+    22.9,
+    24.2
+   ],
+   "size": "WS",
+   "action": "respiro: las esquirlas flotan casi quietas; un punto lima respira",
+   "on_beat": "silencio",
+   "text": "",
+   "transition_out": "cut",
+   "must_read_mute": true,
+   "hold_ok": [
+    [
+     0,
+     1.3
+    ]
+   ],
+   "cam": {
+    "move": "static"
+   },
+   "sakuga": "simple",
+   "on": 3,
+   "params": {
+    "kick": {
+     "$sig": "kick"
+    },
+    "snare": {
+     "$sig": "snare"
+    },
+    "hat": {
+     "$sig": "hat"
+    },
+    "tom": {
+     "$sig": "tom"
+    },
+    "chaos": {
+     "$sig": "chaos"
+    },
+    "lock": {
+     "$sig": "lock"
+    },
+    "shock": {
+     "$sig": "shock"
+    },
+    "tension": {
+     "$sig": "tension"
+    },
+    "drift": {
+     "$sig": "drift"
+    }
+   },
+   "meta": {
+    "pulso": [
+     42,
+     45
+    ],
+    "compases": 0.75
+   }
+  },
+  {
+   "id": "K20",
+   "t": [
+    24.2,
+    25.1
+   ],
+   "size": "MS",
+   "action": "esquirlas de LO ROTO vuelan de vuelta y se encajan en el pulso 3",
+   "on_beat": "el groove vuelve; LO ROTO encaja",
+   "on_beat_at": [
+    0,
+    0.6942
+   ],
+   "text": "LO ROTO",
+   "transition_out": "cut",
+   "must_read_mute": true,
+   "cam": {
+    "move": "push",
+    "why": "approach",
+    "amount": 0.05,
+    "ease": "outExpo"
+   },
+   "sakuga": "normal",
+   "sfx": [
+    {
+     "at": 0.6503,
+     "type": "whoosh",
+     "gain": 0.7,
+     "dur": 0.9
+    }
+   ],
+   "params": {
+    "kick": {
+     "$sig": "kick"
+    },
+    "snare": {
+     "$sig": "snare"
+    },
+    "hat": {
+     "$sig": "hat"
+    },
+    "tom": {
+     "$sig": "tom"
+    },
+    "chaos": {
+     "$sig": "chaos"
+    },
+    "lock": {
+     "$sig": "lock"
+    },
+    "shock": {
+     "$sig": "shock"
+    },
+    "tension": {
+     "$sig": "tension"
+    },
+    "drift": {
+     "$sig": "drift"
+    }
+   },
+   "meta": {
+    "pulso": [
+     45,
+     47
+    ],
+    "compases": 0.5
+   }
+  },
+  {
+   "id": "K21",
+   "t": [
+    25.1,
+    25.96667
+   ],
+   "size": "MS",
+   "action": "VUELVE entra desde la izquierda y se pega bajo LO ROTO",
+   "on_beat": "VUELVE golpea en el pulso",
+   "on_beat_at": [
+    0
+   ],
+   "text": "LO ROTO VUELVE",
+   "transition_out": "cut",
+   "must_read_mute": true,
+   "cam": {
+    "move": "push",
+    "why": "approach",
+    "amount": 0.04,
+    "ease": "outExpo"
+   },
+   "sakuga": "normal",
+   "params": {
+    "kick": {
+     "$sig": "kick"
+    },
+    "snare": {
+     "$sig": "snare"
+    },
+    "hat": {
+     "$sig": "hat"
+    },
+    "tom": {
+     "$sig": "tom"
+    },
+    "chaos": {
+     "$sig": "chaos"
+    },
+    "lock": {
+     "$sig": "lock"
+    },
+    "shock": {
+     "$sig": "shock"
+    },
+    "tension": {
+     "$sig": "tension"
+    },
+    "drift": {
+     "$sig": "drift"
+    }
+   },
+   "meta": {
+    "pulso": [
+     47,
+     49
+    ],
+    "compases": 0.5
+   }
+  },
+  {
+   "id": "K22",
+   "t": [
+    25.96667,
+    26.83333
+   ],
+   "size": "MS",
+   "action": "A SONAR entra desde la derecha y cierra el bloque justificado",
+   "on_beat": "A SONAR golpea en el pulso",
+   "on_beat_at": [
+    0
+   ],
+   "text": "LO ROTO VUELVE A SONAR",
+   "transition_out": "cut",
+   "must_read_mute": true,
+   "cam": {
+    "move": "push",
+    "why": "approach",
+    "amount": 0.04,
+    "ease": "outExpo"
+   },
+   "sakuga": "normal",
+   "params": {
+    "kick": {
+     "$sig": "kick"
+    },
+    "snare": {
+     "$sig": "snare"
+    },
+    "hat": {
+     "$sig": "hat"
+    },
+    "tom": {
+     "$sig": "tom"
+    },
+    "chaos": {
+     "$sig": "chaos"
+    },
+    "lock": {
+     "$sig": "lock"
+    },
+    "shock": {
+     "$sig": "shock"
+    },
+    "tension": {
+     "$sig": "tension"
+    },
+    "drift": {
+     "$sig": "drift"
+    }
+   },
+   "meta": {
+    "pulso": [
+     49,
+     51
+    ],
+    "compases": 0.5
+   }
+  },
+  {
+   "id": "K23",
+   "t": [
+    26.83333,
+    28.6
+   ],
+   "size": "MS",
+   "action": "la frase completa late con el groove; una ola lima recorre las letras",
+   "on_beat": "ola lima por letra al compás",
+   "on_beat_at": [
+    0,
+    0.8674
+   ],
+   "text": "LO ROTO VUELVE A SONAR",
+   "transition_out": "cut",
+   "must_read_mute": true,
+   "cam": {
+    "move": "pull",
+    "why": "reveal",
+    "amount": 0.05,
+    "ease": "outExpo"
+   },
+   "sakuga": "normal",
+   "params": {
+    "kick": {
+     "$sig": "kick"
+    },
+    "snare": {
+     "$sig": "snare"
+    },
+    "hat": {
+     "$sig": "hat"
+    },
+    "tom": {
+     "$sig": "tom"
+    },
+    "chaos": {
+     "$sig": "chaos"
+    },
+    "lock": {
+     "$sig": "lock"
+    },
+    "shock": {
+     "$sig": "shock"
+    },
+    "tension": {
+     "$sig": "tension"
+    },
+    "drift": {
+     "$expr": "sig('drift') * 0.5 + sig('kick') * 0.5"
+    }
+   },
+   "meta": {
+    "pulso": [
+     51,
+     55
+    ],
+    "compases": 1
+   }
+  },
+  {
+   "id": "K24",
+   "t": [
+    28.6,
+    30
+   ],
+   "size": "CU",
+   "action": "la frase se contrae en un punto lima: respuesta y cierre (rima con la ¿)",
+   "on_beat": "último golpe: el punto",
+   "on_beat_at": [
+    0
+   ],
+   "text": ".",
+   "transition_out": "cut",
+   "must_read_mute": true,
+   "hold_ok": [
+    [
+     1,
+     1.4
+    ]
+   ],
+   "cam": {
+    "move": "static"
+   },
+   "sakuga": "simple",
+   "sfx": [
+    {
+     "at": -0.0222,
+     "type": "shimmer",
+     "gain": 0.7
+    }
+   ],
+   "params": {
+    "kick": {
+     "$sig": "kick"
+    },
+    "snare": {
+     "$sig": "snare"
+    },
+    "hat": {
+     "$sig": "hat"
+    },
+    "tom": {
+     "$sig": "tom"
+    },
+    "chaos": {
+     "$sig": "chaos"
+    },
+    "lock": {
+     "$sig": "lock"
+    },
+    "shock": {
+     "$sig": "shock"
+    },
+    "tension": {
+     "$sig": "tension"
+    },
+    "drift": {
+     "$sig": "drift"
+    }
+   },
+   "meta": {
+    "pulso": [
+     55,
+     59
+    ],
+    "compases": 1
+   }
+  }
+ ],
+ "meta": {
+  "generado": "data/reel/build.mjs desde data/reel/audio.json (rejilla de engine/grid.mjs)",
+  "bpmGolpe": 136.82,
+  "golpe": 22,
+  "respiroHasta": 24.1926
+ }
+}

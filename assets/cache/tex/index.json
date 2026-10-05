@@ -182,5 +182,53 @@
  "vklh26": {
   "tex": "7{,}7\\times10^{8}\\,\\mathrm{m}",
   "display": true
+ },
+ "1yci2h6": {
+  "tex": "e^{i\\pi}",
+  "display": true
+ },
+ "r3byqp": {
+  "tex": "e^{2}=e\\cdot e",
+  "display": true
+ },
+ "eubc1e": {
+  "tex": "e^{i\\pi}=e\\cdot e\\cdots",
+  "display": true
+ },
+ "pvzgok": {
+  "tex": "\\frac{dz}{dt}=z",
+  "display": true
+ },
+ "fx3hm8": {
+  "tex": "z(t)=e^{t}",
+  "display": true
+ },
+ "zbh6ad": {
+  "tex": "\\frac{dz}{dt}=i\\,z",
+  "display": true
+ },
+ "138ybbl": {
+  "tex": "z(t)=e^{it}",
+  "display": true
+ },
+ "1rlt60i": {
+  "tex": "z_{k+1}=\\left(1+\\frac{i\\pi}{n}\\right)z_k",
+  "display": true
+ },
+ "1sdwxsl": {
+  "tex": "z_{n}=\\left(1+\\frac{i\\pi}{n}\\right)^{n}",
+  "display": true
+ },
+ "1ny6kzl": {
+  "tex": "\\lim_{n\\to\\infty}\\left(1+\\frac{i\\pi}{n}\\right)^{n}=e^{i\\pi}",
+  "display": true
+ },
+ "l8rpaz": {
+  "tex": "e^{i\\pi}=-1",
+  "display": true
+ },
+ "193oicj": {
+  "tex": "e^{i\\pi}+1=0",
+  "display": true
  }
 }

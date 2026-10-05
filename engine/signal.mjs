@@ -74,7 +74,7 @@ function makeSignal(name, d, ctx, value) {
         const R = A.rms; if (!R?.values?.length) return () => 0;   // sin análisis: silencio (documentado en docs/PARAMS.md)
         const h = R.hop, V = R.values; return (t) => { const x = t / h, i = Math.floor(x); if (i < 0) return g * V[0]; if (i >= V.length - 1) return g * V[V.length - 1]; return g * lerp(V[i], V[i + 1], x - i); };
       }
-      const times = [...(d.feature === 'beats' ? ctx.beatTimes ?? [] : A.onsets ?? [])].sort((a, b) => a - b), att = d.attack ?? 0.005;
+      const times = [...(d.feature === 'beats' ? ctx.beatTimes ?? [] : d.track ? A.tracks?.[d.track] ?? [] : A.onsets ?? [])].sort((a, b) => a - b), att = d.attack ?? 0.005;   // track: lista nombrada de audio.json.tracks (kick, hat…)
       return (t) => g * trains(times, t, (x) => (x < att ? x / att : Math.exp(-(x - att) / dec)));
     }
     case 'expr': { const c = compileExpr(d.expr, { path: `/signals/${name}/expr` }); return (t) => c.fn({ t, lt: t, u: ctx.duration ? t / ctx.duration : 0, dur: ctx.duration ?? 0, sig: value }); }

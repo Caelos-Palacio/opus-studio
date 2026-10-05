@@ -20,7 +20,9 @@ export function compile(film, profiles, styles, audioInfo = null) {
   film.bpm = audioInfo?.bpm ?? film.bpm ?? 0;
   film.beatOffset = audioInfo?.offset ?? film.beatOffset ?? 0;
   film.beatTimes = [];
-  if (film.bpm > 0) for (let b = film.beatOffset; b <= film.duration + 1e-9; b += 60 / film.bpm) film.beatTimes.push(+b.toFixed(6));
+  if (audioInfo?.beats?.length) film.beatTimes = audioInfo.beats.filter((b) => b >= 0 && b <= film.duration + 1e-9);   // rejilla EXPLÍCITA (tempo variable: engine/grid.mjs); manda sobre bpm+offset
+  else if (film.bpm > 0) for (let b = film.beatOffset; b <= film.duration + 1e-9; b += 60 / film.bpm) film.beatTimes.push(+b.toFixed(6));
+  film.gridTimes = audioInfo?.grid?.length ? [...new Set([...film.beatTimes, ...audioInfo.grid.filter((b) => b >= 0 && b <= film.duration + 1e-9)])].sort((a, b) => a - b) : film.beatTimes;   // dónde puede caer un corte (pulsos + subdivisiones)
   film.silences = audioInfo?.silences ?? [];
   film.mods = film.mods ?? {};
   bindParams(film);                                                         // F4: film.meta aparte; film.param/params/signal

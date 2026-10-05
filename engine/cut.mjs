@@ -24,9 +24,10 @@ import { withLock, writeAtomic } from './lock.mjs';
 import { record } from './ledger.mjs';
 import { masterGate } from './gate.mjs';
 import { cookEntry } from './resolve.mjs';
+import { filmId } from './filmid.mjs';
 
 const argv = process.argv.slice(2), has = (k) => argv.includes(k), arg = (k, d) => { const i = argv.indexOf(k); return i >= 0 && argv[i + 1] && !argv[i + 1].startsWith('--') ? argv[i + 1] : d; };
-export const filmName = (tlPath = timelinePath()) => (path.basename(tlPath, '.json') === 'timeline' ? 'main' : path.basename(tlPath, '.json'));
+export const filmName = (tlPath = timelinePath()) => filmId(tlPath);
 export { shotHash };
 // ids de los shots que el código de `id` importa (transitivo, sin él mismo).
 function shotImports(id, seen = new Set()) {

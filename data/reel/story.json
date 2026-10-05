@@ -1,0 +1,14 @@
+{
+  "idea": "Lo roto no se pierde: el ruido tiene compás, y al romperse del todo vuelve a sonar.",
+  "question": { "text": "¿Qué suena cuando todo se rompe?", "posed_at": 0.63, "answered_at": 24.2, "on_screen": true },
+  "beats": [
+    { "id": "b1", "t": 0.63, "text": "Una ¿ lima pregunta: ¿qué suena cuando todo se rompe?" },
+    { "id": "b2", "t": 4.93, "text": "pero solo contesta ruido: golpes sueltos fuera de compás", "link": "pero" },
+    { "id": "b3", "t": 9.8, "text": "por lo tanto el ruido se engancha a la rejilla y se vuelve secuenciador", "link": "por lo tanto" },
+    { "id": "b4", "t": 18.33, "text": "por lo tanto lo que cae a compás también se rompe a compás: tensión", "link": "por lo tanto" },
+    { "id": "b5", "t": 22.0, "text": "pero el golpe lo parte todo", "link": "pero" },
+    { "id": "b6", "t": 24.2, "text": "por lo tanto las esquirlas se recomponen: lo roto vuelve a sonar", "link": "por lo tanto" }
+  ],
+  "accommodation": { "t": 22.0, "type": "idea", "text": "romper del todo no destruye: libera las piezas de la frase" },
+  "accent": { "means": "el pulso y la respuesta (lima); la rotura es magenta" }
+}

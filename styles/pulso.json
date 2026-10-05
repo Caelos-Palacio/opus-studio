@@ -1,0 +1,76 @@
+{
+  "name": "pulso",
+  "description": "Tipografía cinética vertical guiada por el pulso: negro azulado + lima ácida + magenta, Lato Black en mayúsculas gigantes, muelle seco y duro, cortes en rejilla de tempo, impact frames y smear solo en el golpe. Reels 9:16, hype, música.",
+  "mood": [
+    "percusivo",
+    "tenso",
+    "vibrante"
+  ],
+  "defaultProfile": "reel",
+  "palette": {
+    "paper": "#0A0A0F",
+    "ink": "#F5F4EE",
+    "accent": "#D8FF3C",
+    "accent2": "#FF3D7F",
+    "shade": "#26262F"
+  },
+  "typeface": {
+    "family": "Lato",
+    "fallback": "'Nimbus Sans', sans-serif",
+    "weights": [
+      700,
+      900
+    ],
+    "scale": 1.8,
+    "base": 34,
+    "case": "upper",
+    "tracking": -0.015
+  },
+  "motion": {
+    "spring": {
+      "omega": 30,
+      "zeta": 0.46
+    },
+    "ease": "outExpo",
+    "stagger": 0.03,
+    "smear": 0.4
+  },
+  "camera": {
+    "amount": 0.2,
+    "ease": "outExpo",
+    "maxZoomPerSec": 2.4,
+    "maxPanPerSec": 3,
+    "maxRotPerSec": 90,
+    "maxShake": 0.02,
+    "slide": 0.12
+  },
+  "grade": {
+    "vignette": 0,
+    "grain": 0.025,
+    "letterbox": 0,
+    "post": {
+      "chroma": 2.2,
+      "color": {
+        "lift": 0.01,
+        "gamma": 1.02,
+        "gain": 1,
+        "temp": 0,
+        "sat": 1.06,
+        "dither": 2
+      }
+    }
+  },
+  "compose": {
+    "anchor": "thirds",
+    "anchorTol": 0.28,
+    "negativeSpace": 0.22,
+    "edgeMargin": 0.03
+  },
+  "rules": {
+    "glow": false,
+    "gradients": false,
+    "maxColors": 5,
+    "maxChroma": 0.3,
+    "popRatio": 6
+  }
+}
