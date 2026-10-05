@@ -1,0 +1,126 @@
+{
+ "film": "fixture",
+ "size": [
+  1280,
+  720
+ ],
+ "grid": [
+  160,
+  90
+ ],
+ "fingerprint": {
+  "canvas": "3.2.3",
+  "cairo": "1.16.0",
+  "pango": "1.48.0",
+  "freetype": "2.10.4",
+  "platform": "linux-x64",
+  "fonts": "558.633 558.633 529.805"
+ },
+ "frames": [
+  {
+   "shot": "S1",
+   "at": "in",
+   "t": 0,
+   "sha": "7a81b4077ac94cbfdeaf",
+   "png": "fixture/S1_in.png"
+  },
+  {
+   "shot": "S1",
+   "at": "mid",
+   "t": 1.733333,
+   "sha": "0f2eae70fbb97498a884",
+   "png": "fixture/S1_mid.png"
+  },
+  {
+   "shot": "S1",
+   "at": "out",
+   "t": 3.466667,
+   "sha": "e8ac13dc5c1e51a948ea",
+   "png": "fixture/S1_out.png"
+  },
+  {
+   "shot": "S2",
+   "at": "in",
+   "t": 3.5,
+   "sha": "8032c07d62f5c08b339b",
+   "png": "fixture/S2_in.png"
+  },
+  {
+   "shot": "S2",
+   "at": "mid",
+   "t": 5.233333,
+   "sha": "7461bc1cf064a8c36f82",
+   "png": "fixture/S2_mid.png"
+  },
+  {
+   "shot": "S2",
+   "at": "out",
+   "t": 6.966667,
+   "sha": "4b7d2c0298660cf2c3b5",
+   "png": "fixture/S2_out.png"
+  },
+  {
+   "shot": "S3",
+   "at": "in",
+   "t": 7,
+   "sha": "3a52c52d92772c146ad2",
+   "png": "fixture/S3_in.png"
+  },
+  {
+   "shot": "S3",
+   "at": "mid",
+   "t": 8.733333,
+   "sha": "aed56f0dbb2c6ac0cbcc",
+   "png": "fixture/S3_mid.png"
+  },
+  {
+   "shot": "S3",
+   "at": "out",
+   "t": 10.466667,
+   "sha": "72b03183c6e3ad4b0678",
+   "png": "fixture/S3_out.png"
+  },
+  {
+   "shot": "S4",
+   "at": "in",
+   "t": 10.5,
+   "sha": "0c8c18e4ba3f69aacd41",
+   "png": "fixture/S4_in.png"
+  },
+  {
+   "shot": "S4",
+   "at": "mid",
+   "t": 12.233333,
+   "sha": "d883c29cd7470757ec25",
+   "png": "fixture/S4_mid.png"
+  },
+  {
+   "shot": "S4",
+   "at": "out",
+   "t": 13.966667,
+   "sha": "a1320bf10cb7ac9548d7",
+   "png": "fixture/S4_out.png"
+  },
+  {
+   "shot": "S5",
+   "at": "in",
+   "t": 14,
+   "sha": "2a610a6ec0db655916b9",
+   "png": "fixture/S5_in.png"
+  },
+  {
+   "shot": "S5",
+   "at": "mid",
+   "t": 15.733333,
+   "sha": "f5145771a0e9b72d2849",
+   "png": "fixture/S5_mid.png"
+  },
+  {
+   "shot": "S5",
+   "at": "out",
+   "t": 17.466667,
+   "sha": "a3749f4ee21beb3a48fe",
+   "png": "fixture/S5_out.png"
+  }
+ ]
+}
