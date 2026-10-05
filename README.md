@@ -41,7 +41,7 @@ editorial · scientific · noir · kinetic · soft · brutalist · stopmo · **c
 - **2.5D**: perspectiva por z, niebla, DOF (subárboles agrupados en una capa), tarjetas con giro 3D real.
 - **Compositor** (`fx.mjs`): blur por cadena de reducción, bloom con umbral, motion blur por supermuestreo temporal exacto, trails, blur direccional, aberración radial, displacement, mesh warp, grade LUT + dither TPDF.
 - **Autocámara** (`autocam.mjs`): mínimos cuadrados ponderados con regularización de 2º orden, λ mínimo por bisección que cumple los límites del estilo y proyección que mantiene el texto en el área segura.
-- **Montaje** (`cut.mjs`): fragmentos con hash de contenido (solo se re-renderiza lo que cambió) y EDL no destructiva: velocidad, reversa y congelado re-renderizados desde la fuente.
+- **Montaje** (`cut.mjs`): fragmentos con hash de contenido (solo se re-renderiza lo que cambió) y EDL no destructiva: velocidad, reversa y congelado re-renderizados desde la fuente. El hash (`engine/hash.mjs`) sigue el grafo real de imports del motor y de cada shot, y mide assets, fuentes y mezcla por sha256 de contenido (un `touch` no invalida nada). `render --mp4` está retirado: redirige a `cut`.
 - **Sonido** (`sound.mjs`): voces deterministas, auto-SFX desde el timeline, música con ducking, limitador.
 - **Índice semántico** (`index.mjs`, `q.mjs`): cajas, cámara, primitivas, nodos, colores→rol, símbolos físicos (q̇ ≠ q), sfx, hashes de caducidad. Los agentes consultan en vez de re-mirar.
 - **Guardia** (`guard.mjs`): escaneo estático con archivo:línea + Proxy de ctx en lint (texto crudo, transforms absolutas, fugas, cámara falsa). Foco obligatorio por shot, determinismo atribuido por shot, prominencia (“el ojo va a otro sitio”).

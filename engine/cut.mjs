@@ -7,50 +7,36 @@
 // Concurrencia (F1): cada fragmento se renderiza a un archivo de staging y SOLO se registra si el hash del plan sigue igual tras el
 //   render (TOCTOU: otro agente pudo editar el shot mientras el worker lo importaba). Manifest, limpieza de huérfanos, list y concat
 //   van bajo lock "fragments/<film>" y re-verifican el plan dentro del lock. Staging/.part.mp4 de procesos muertos se borran.
-// Hash de un fragmento = motor (archivos que afectan píxeles) + estilo + perfil + tamaño/fps + entradas de timeline de sus shots
-//   (+ la del shot previo si hay cam.chain) + código de sus shots y dependencias importadas + assets + duración/grade.
+// Hash de un fragmento (E5, todo por contenido, engine/hash.mjs) = motor (cierre REAL de imports de render+autocam, mismo
+//   cálculo que verdict.engineHash) + paquetes@versión + estilo + perfil + fuentes resueltas + assets + audio.json + tamaño/fps
+//   + entradas de timeline de sus shots (+ la del previo si hay cam.chain) + su cámara auto horneada + cierre de imports de sus shots.
+// Audio: la mezcla se regenera solo si cambia el hash de sus entradas (timeline, música, código de sound) — no por mtime.
 // Problemas que evita: re-render total por un cambio de 1 shot; concat roto por parámetros distintos (todos iguales, cada
 // fragmento empieza en IDR); espacio de color sin etiquetar (bt709 explícito); fragmentos huérfanos (manifest por film).
 import fs from 'node:fs';
 import path from 'node:path';
 import os from 'node:os';
-import crypto from 'node:crypto';
 import { spawn, spawnSync } from 'node:child_process';
 import { ROOT, loadFilm, timelinePath } from './film.mjs';
-import { mix, mixName } from './sound.mjs';
+import { ensureMix, mixName } from './sound.mjs';
+import { sha, engineSig, assetsSig, fontSig, shotDeps, shotHash } from './hash.mjs';
 import { withLock, writeAtomic } from './lock.mjs';
 import { record } from './ledger.mjs';
 import { masterGate } from './gate.mjs';
 
 const argv = process.argv.slice(2), has = (k) => argv.includes(k), arg = (k, d) => { const i = argv.indexOf(k); return i >= 0 && argv[i + 1] && !argv[i + 1].startsWith('--') ? argv[i + 1] : d; };
-const sha = (...xs) => crypto.createHash('sha1').update(xs.map((x) => (typeof x === 'string' ? x : JSON.stringify(x))).join('\u0000')).digest('hex').slice(0, 12);
-const rd = (p) => fs.readFileSync(path.join(ROOT, p), 'utf8');
-const PIXEL_ENGINE = ['core', 'api', 'prims', 'geom', 'fx', 'scene', 'seek', 'camera', 'grade', 'styles', 'color', 'shapes', 'tex', 'film', 'render'];
 export const filmName = (tlPath = timelinePath()) => (path.basename(tlPath, '.json') === 'timeline' ? 'main' : path.basename(tlPath, '.json'));
-
-function shotDeps(id, seen = new Set()) {
-  if (seen.has(id)) return ''; seen.add(id);
-  const f = path.join(ROOT, 'shots', id + '.mjs'); if (!fs.existsSync(f)) return '';
-  const src = fs.readFileSync(f, 'utf8'); let out = src;
-  for (const [, dep] of src.matchAll(/from\s+['"]\.\/([\w-]+)\.mjs['"]/g)) out += shotDeps(dep, seen);
-  return out;
-}
-function assetsSig() {
-  const d = path.join(ROOT, 'assets'); if (!fs.existsSync(d)) return '';
-  const acc = []; const walk = (p) => { for (const e of fs.readdirSync(p, { withFileTypes: true })) { const q = path.join(p, e.name); if (e.isDirectory()) { if (!q.includes(path.join('cache', 'tex'))) walk(q); } else if (/meta\.json$|\.(png|jpe?g|webp|svg|json)$/.test(e.name) && !/\d{6}\.jpg$/.test(e.name)) { const s = fs.statSync(q); acc.push(q + s.size + s.mtimeMs); } } };
-  walk(d); return sha(acc.sort());
-}
+export { shotHash };
 // Segmentos: grupos de shots que se solapan (morphs) no se parten; cortes limpios sí.
-// Hash del contenido de UN shot (su entrada + código + deps), independiente del motor: lo usa autocam para invalidarse.
-export const shotHash = (film, id) => { const s = film.shots.find((x) => x.id === id), { cam, ...rest } = s; return sha(rest, cam?.move === 'auto' ? { ...cam } : cam, shotDeps(id), film.width, film.height, JSON.stringify(film.S.camera), JSON.stringify(film.P.safe)); };
 export function plan(film, { fps, size, chunk = 900 }) {
-  const engine = sha(...PIXEL_ENGINE.map((m) => rd(`engine/${m}.mjs`)), rd('engine/profiles.json'), JSON.stringify(film.S), JSON.stringify(JSON.parse(fs.readFileSync(path.join(ROOT, 'node_modules/canvas/package.json'), 'utf8')).version));
-  const glob = sha(engine, assetsSig(), film.width, film.height, film.duration, film.fps, film.motif, film.handoffs, film.profileName, film.P, fps, size, film.edit?.items ?? null);
+  const engine = sha(engineSig(), JSON.stringify(film.S), fontSig([film.S.typeface]));
+  const glob = sha(engine, assetsSig(), film.audioInfo ?? null, film.width, film.height, film.duration, film.fps, film.motif, film.handoffs, film.profileName, film.P, fps, size, film.edit?.items ?? null);
   const N = Math.round(film.duration * fps) + 1, jobs = [];
   const entry = (s) => { const { t, ...rest } = s; return { ...rest, t }; };
   const push = (a, b, ids, extra) => {
-    const shots = ids.map((id) => film.shots.find((s) => s.id === id)), prevChain = shots.flatMap((s) => { const i = film.shots.indexOf(s); return s.cam?.chain && i > 0 ? [entry(film.shots[i - 1])] : []; });
-    const h = sha(glob, shots.map(entry), prevChain, ids.map((id) => shotDeps(id)), extra ?? '');
+    const shots = ids.map((id) => film.shots.find((s) => s.id === id)), ac = (s) => film.autocam?.[s.id] ?? null;
+    const prevChain = shots.flatMap((s) => { const i = film.shots.indexOf(s); return s.cam?.chain && i > 0 ? [entry(film.shots[i - 1]), ac(film.shots[i - 1])] : []; });
+    const h = sha(glob, shots.map(entry), shots.map(ac), prevChain, ids.map((id) => shotDeps(id)), extra ?? '');
     for (let x = a; x < b; x += chunk) { const y = Math.min(b, x + chunk), id = `${ids.join('+')}${b - a > chunk ? '.' + Math.floor((x - a) / chunk) : ''}`; jobs.push({ id, shots: ids, a: x, b: y, hash: sha(h, x, y) }); }
   };
   if (film.edit) {                                                          // montaje: un fragmento por ítem de la EDL
@@ -123,9 +109,9 @@ async function main() {
     return false;
   }, { waitMs: 600000 });
   if (stale) { console.log('El film cambió mientras se montaba (otro agente editó shots/timeline): relanza el mismo comando.'); process.exitCode = 1; return; }
-  // audio: mezcla del timeline fuente (regenerada si el timeline es más nuevo); en montaje, recortada/re-temporizada por ítem
+  // audio: mezcla del timeline fuente (regenerada si cambia el hash de sus entradas); en montaje, recortada/re-temporizada por ítem
   const tlp = path.join(ROOT, timelinePath()), mixf = path.join(ROOT, `data/mix${mixName()}.wav`);
-  await withLock(`mix${mixName()}`, () => { if (!fs.existsSync(mixf) || fs.statSync(mixf).mtimeMs < fs.statSync(tlp).mtimeMs) mix(JSON.parse(fs.readFileSync(tlp, 'utf8'))); });
+  await withLock(`mix${mixName()}`, () => ensureMix(JSON.parse(fs.readFileSync(tlp, 'utf8'))));
   let audio = mixf;
   if (film.edit) {
     const parts = film.edit.items.map((it, i) => { let f = `[0:a]atrim=${it.t0}:${it.t1 + 1e-4},asetpts=PTS-STARTPTS`; let s = it.sp; while (s > 2) { f += ',atempo=2'; s /= 2; } while (s < 0.5) { f += ',atempo=0.5'; s /= 0.5; } if (s !== 1) f += `,atempo=${s}`; if (it.reverse) f += ',areverse'; if (it.hold) f += `,apad=pad_dur=${it.hold}`; return f + `[a${i}]`; });

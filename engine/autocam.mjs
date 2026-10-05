@@ -12,7 +12,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { ROOT, timelinePath } from './film.mjs';
 import { makeRenderer } from './render.mjs';
-import { shotHash } from './cut.mjs';
+import { shotHash } from './hash.mjs';
 import { barHeight } from './grade.mjs';
 import { withLock, writeAtomic } from './lock.mjs';
 
