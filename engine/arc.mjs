@@ -5,12 +5,14 @@
 // Sin story.json: un WARN y los medibles como información (nunca FIX: el demo no cambia de veredicto sin intención).
 // Umbrales: engine/arc.json (priors por perfil) + data/arc.calib.json (observaciones de obras aprobadas, --record)
 // con calibración bayesiana con clamp (docs/research/02). Lo no medible va a engine/arc.rubric.mjs (crítico).
+import './help.mjs';
+import { announceFilm } from './filmid.mjs';
 import fs from 'node:fs';
 import path from 'node:path';
 import { ROOT, timelinePath } from './film.mjs';
 import { specOf, camState } from './camera.mjs';
 import { collectEvents } from './sound.mjs';
-import { filmId, sibling } from './filmid.mjs';
+import { filmId, sibling, filmFile } from './filmid.mjs';
 
 const CFG = JSON.parse(fs.readFileSync(path.join(ROOT, 'engine/arc.json'), 'utf8'));
 export const LINKS_OK = ['pero', 'por lo tanto', 'but', 'therefore'];
@@ -55,7 +57,7 @@ export function validateStory(st) {
 }
 export function storyPath(film, explicit) {
   const argv = process.argv, i = argv.indexOf('--story');
-  const p = explicit ?? (i >= 0 ? argv[i + 1] : null) ?? process.env.OPUS_STORY ?? film?.story ?? sibling('story.json', filmId() === 'main' ? 'data/story.json' : null, timelinePath());
+  const p = explicit ?? (i >= 0 ? argv[i + 1] : null) ?? process.env.OPUS_STORY ?? film?.story ?? filmFile('story.json', filmId() === 'main' ? 'data/story.json' : null, timelinePath());
   return p && fs.existsSync(path.join(ROOT, p)) ? p : null;
 }
 
@@ -274,8 +276,10 @@ export async function runArc({ fps = 12, story: sp, record = false, write = true
 }
 
 if (import.meta.url === `file://${process.argv[1]}`) {
+  announceFilm();
   const argv = process.argv.slice(2), arg = (k, d) => { const i = argv.indexOf(k); return i >= 0 ? argv[i + 1] : d; };
   const r = await runArc({ fps: +arg('--fps', 12), record: argv.includes('--record') });
+  console.log(`story: ${r.story ?? '— (sin story.json)'}`);
   const e = r.measures.energy;
   if (e) console.log(`energía: pico ${e.ratio}× mediana en ${e.peakT}s (${(e.peakPos * 100).toFixed(0)}%) · calma previa ${e.calm}× · final ${(e.endDrop * 100).toFixed(0)}% del pico · hold junto al pico ${e.longestHoldNearPeak}s`);
   for (const x of r.issues) console.log(`${x.level.padEnd(4)}  ${String(x.shot).padEnd(6)} ${x.t.toFixed(2).padStart(7)}s  ${x.problem}  →  ${x.remedy}`);

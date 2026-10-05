@@ -13,6 +13,8 @@
 // Audio: la mezcla se regenera solo si cambia el hash de sus entradas (timeline, música, código de sound) — no por mtime.
 // Problemas que evita: re-render total por un cambio de 1 shot; concat roto por parámetros distintos (todos iguales, cada
 // fragmento empieza en IDR); espacio de color sin etiquetar (bt709 explícito); fragmentos huérfanos (manifest por film).
+import './help.mjs';
+import { announceFilm } from './filmid.mjs';
 import fs from 'node:fs';
 import path from 'node:path';
 import os from 'node:os';
@@ -29,6 +31,8 @@ import { filmId } from './filmid.mjs';
 const argv = process.argv.slice(2), has = (k) => argv.includes(k), arg = (k, d) => { const i = argv.indexOf(k); return i >= 0 && argv[i + 1] && !argv[i + 1].startsWith('--') ? argv[i + 1] : d; };
 export const filmName = (tlPath = timelinePath()) => filmId(tlPath);
 export { shotHash };
+// P2: el master se llama como el film (out/mate.mp4); el demo conserva out/master.mp4 por compatibilidad.
+export const masterFile = (name, review = false) => `out/${name === 'main' ? 'master' : name}${review ? '.review' : ''}.mp4`;
 // ids de los shots que el código de `id` importa (transitivo, sin él mismo).
 function shotImports(id, seen = new Set()) {
   if (seen.has(id)) return []; seen.add(id);
@@ -130,7 +134,7 @@ async function main() {
     audio = path.join(ROOT, 'out', `${name}.${process.pid}_audio.wav`);
     await sh(['-y', '-loglevel', 'error', '-i', mixf, '-filter_complex', parts.join(';') + ';' + film.edit.items.map((_, i) => `[a${i}]`).join('') + `concat=n=${film.edit.items.length}:v=0:a=1[o]`, '-map', '[o]', audio]);
   }
-  const final = path.join(ROOT, 'out', `${name === 'main' ? 'master' : name}${review ? '.review' : ''}.mp4`);
+  const final = path.join(ROOT, masterFile(name, review));
   // Soundtrack v2 (spec 002): la mezcla ya sale masterizada (−14 LUFS, LRA ≥8, TP ≤ −1,5). loudnorm con LRA=7 la comprimiría (modo dinámico
   // cuando LRA > 7), así que se respeta tal cual. En montaje (EDL) el audio se recorta/re-temporiza y vuelve al camino clásico.
   let mastered = false; try { mastered = !film.edit && !!JSON.parse(fs.readFileSync(path.join(ROOT, `out/sfx${mixName()}.json`), 'utf8')).mastered; } catch {}
@@ -147,4 +151,4 @@ async function main() {
   record({ action: review ? 'review' : 'master', target: path.relative(ROOT, final), hash_after: sha(P.jobs.map((j) => j.hash)), verdict: 'ok' });
   console.log('→', path.relative(ROOT, final), silent ? '(audio silencioso)' : mastered ? '(mezcla v2 masterizada, −14 LUFS)' : '(−14 LUFS)');
 }
-if (import.meta.url === `file://${process.argv[1]}`) main().catch((e) => { console.error(e.message); process.exit(1); });
+if (import.meta.url === `file://${process.argv[1]}`) { announceFilm(); main().catch((e) => { console.error(e.message); process.exit(1); });  }

@@ -13,10 +13,10 @@ import { engineSig, PIXEL_ROOTS, JUDGE_ROOTS, shotDeps, assetsSig, fontSig, flus
 import { DEFAULTS as STYLE_DEFAULTS } from './styles.mjs';
 
 import { effectiveTimeline } from './params.mjs';
-import { filmId, sibling } from './filmid.mjs';
+import { filmId, sibling, activeTimeline } from './filmid.mjs';
 for (const k of ['style', 'profile', 'timeline', 'edit', 'variant', 'layers']) { const i = process.argv.indexOf('--' + k); if (i >= 0 && process.argv[i + 1]) process.env['OPUS_' + k.toUpperCase()] = process.argv[i + 1]; }
 const rdB = (p) => { try { return fs.readFileSync(path.join(ROOT, p)); } catch { return ''; } };
-const tlPath = () => process.env.OPUS_TIMELINE ?? 'data/timeline.json';
+const tlPath = () => activeTimeline();
 export const filmKey = () => filmId(tlPath()) + (process.env.OPUS_EDIT ? '.edit' : '');
 const autocamName = (tl) => (filmId(tl) === 'main' ? path.basename(tl) : filmId(tl) + '.json');
 export const lintDir = () => path.join(ROOT, 'out/lint', filmKey());

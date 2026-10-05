@@ -7,6 +7,8 @@
 //   node engine/grid.mjs --list [--from 0 --to 30]    imprime pulsos y compases (índice de pulso respecto al golpe: n=0)
 // Formato extendido de audio.json (lo lee film.mjs/seek.mjs): beats [t…] (rejilla de pulsos; manda sobre bpm+offset), grid [t…] (subdivisiones donde
 // puede caer un corte: lint beats), tracks {kick, snare, hat, tom, bass, pluck, lead, impact: [t…]} (señal audio con `track`), onsets, silences, rms.
+import './help.mjs';
+import { announceFilm } from './filmid.mjs';
 import fs from 'node:fs';
 import path from 'node:path';
 import { ROOT, timelinePath } from './film.mjs';
@@ -47,6 +49,7 @@ export function gridOf(tl) {
 }
 
 if (import.meta.url === `file://${process.argv[1]}`) {
+  announceFilm();
   const tp = timelinePath(), tl = JSON.parse(fs.readFileSync(path.join(ROOT, tp), 'utf8'));
   if (!tl.sound) { console.error('el timeline no declara `sound`: no hay partitura de la que sacar la rejilla'); process.exit(1); }
   const G = gridOf(tl), out = path.resolve(ROOT, arg('--out', sibling('audio.json', 'data/audio.json', tp)));

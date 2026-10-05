@@ -7,6 +7,8 @@
 //   --mp4 → RETIRADO (E5): montaba bloques sin hash de contenido (caché obsoleta tras editar un shot, sin gate de lint).
 //           Se redirige a `node engine/cut.mjs` con los mismos argumentos (fragmentos con hash, gate, mezcla sellada).
 //   --animatic                      ignora shots/*.mjs y dibuja placeholders
+import './help.mjs';
+import { announceFilm } from './filmid.mjs';
 import fs from 'node:fs';
 import path from 'node:path';
 import { spawn, spawnSync } from 'node:child_process';
@@ -130,6 +132,7 @@ async function one() {
 }
 
 if (import.meta.url === `file://${process.argv[1]}`) {
+  announceFilm();
   const main = has('--range') ? rangeWorker : has('--still') ? one : has('--stills') ? stills : has('--strip') ? strips : has('--mp4') ? mp4 : null;
   if (!main) console.log('Uso: ver cabecera de engine/render.mjs');
   else main().catch((e) => { console.error(e.message); process.exit(1); });

@@ -12,6 +12,8 @@
 // (score.mjs) + diseño sonoro (sounddesign.mjs) + mezcla/master a −14 LUFS (mixer.mjs). Sin `sound` todo sigue como v1.
 // Problemas que evita: SFX pegados a mano que se desincronizan al mover un shot; música que tapa los acentos (ducking);
 // aleatoriedad no reproducible (ruido sembrado por evento); clipping (limitador suave + techo −1 dBFS).
+import './help.mjs';
+import { announceFilm } from './filmid.mjs';
 import fs from 'node:fs';
 import path from 'node:path';
 import { spawnSync } from 'node:child_process';
@@ -120,6 +122,7 @@ export function mix(tl, suffix = mixName()) {
 }
 
 if (import.meta.url === `file://${process.argv[1]}`) {
+  announceFilm();
   const A = process.argv, ai = (k) => A[A.indexOf(k) + 1];
   if (A.includes('--mux')) {
     const tl = JSON.parse(fs.readFileSync(path.join(ROOT, timelinePath()), 'utf8')), rem = ensureMix(tl), out = ai('--out');

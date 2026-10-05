@@ -9,6 +9,9 @@
 // Honestidad (E4): respuesta inválida = voto FIX (fail-closed); todas inválidas nunca = SHIP; el pase de coherencia que falla
 // es FIX, no se traga; caché con clave = modelo + sistema + rúbrica + prompt + esquema + hash del plan + N; no corre con lint en FIX.
 // Lámina: 3 columnas (in · mid · out) × 3 filas (color · grises · anotada: focos, texto, tercios, área segura).
+import './help.mjs';
+import { announceFilm } from './filmid.mjs';
+import { activeTimeline } from './filmid.mjs';
 import { lintState } from './verdict.mjs';
 import fs from 'node:fs';
 import path from 'node:path';
@@ -77,7 +80,7 @@ export async function judge(client, { model, prompt, images = [], n = 3, retries
 
 // ── lint vigente ─────────────────────────────────────────────────────────────────────────────────────────────────
 // El crítico no corre sobre un film que el lint no aprueba: ausente, en FIX o más viejo que el timeline/shots = no corre.
-export function lintGate(root = ROOT, tlPath = process.env.OPUS_TIMELINE ?? 'data/timeline.json') {
+export function lintGate(root = ROOT, tlPath = activeTimeline()) {
   const f = path.join(root, 'out/lint.json');
   if (!fs.existsSync(f)) return { ok: false, reason: 'no hay out/lint.json: corre `npm run lint` antes del crítico' };
   let L; try { L = JSON.parse(fs.readFileSync(f, 'utf8')); } catch { return { ok: false, reason: 'out/lint.json ilegible' }; }
@@ -244,4 +247,5 @@ async function evalMain() {
   return 0;
 }
 
+if (import.meta.url === `file://${process.argv[1]}`) announceFilm();
 if (import.meta.url === `file://${process.argv[1]}`) (has('--eval') ? evalMain() : main()).then((code) => process.exit(code ?? 0), (e) => { console.error(e.message); process.exit(2); });

@@ -7,6 +7,9 @@
 //   renderScore(part, plan, style) → bus de música estéreo 48 kHz (con reverb), sin masterizar
 //   node engine/score.mjs [--timeline X] [--memoria Y] [--style epico] [--wav out/score.wav] [--json out/score.json]
 // Proceso y decisiones: docs/MUSICA.md. Spec: docs/specs/002-soundtrack.md.
+import './help.mjs';
+import { announceFilm } from './filmid.mjs';
+import { activeTimeline } from './filmid.mjs';
 import fs from 'node:fs';
 import path from 'node:path';
 import { SR, TAU, clamp, lerp, ramp, mtof, db2lin, rng, hashStr, reverb, wavBuffer, bq, filt } from './dsp.mjs';
@@ -305,8 +308,9 @@ export const holdGate = (plan, style) => (t) => {
 
 // ───────── CLI ─────────
 if (import.meta.url === `file://${process.argv[1]}`) {
+  announceFilm();
   const argv = process.argv.slice(2), arg = (k, d) => { const i = argv.indexOf(k); return i >= 0 ? argv[i + 1] : d; };
-  const tl = JSON.parse(fs.readFileSync(path.resolve(ROOT, arg('--timeline', process.env.OPUS_TIMELINE ?? 'data/timeline.json')), 'utf8'));
+  const tl = JSON.parse(fs.readFileSync(path.resolve(ROOT, arg('--timeline', activeTimeline())), 'utf8'));
   const mp = arg('--memoria', tl.sound?.memoria ?? null), mem = mp && fs.existsSync(path.resolve(ROOT, mp)) ? JSON.parse(fs.readFileSync(path.resolve(ROOT, mp), 'utf8')) : null;
   const style = loadSoundStyle(arg('--style', tl.sound?.style ?? 'epico'), tl.sound?.overrides ?? {}), plan = analyzeFilm(tl, mem, style), part = composeScore(plan, style), out = renderScore(part, plan, style);
   const wav = arg('--wav', 'out/score.wav'); fs.mkdirSync(path.dirname(path.resolve(ROOT, wav)), { recursive: true }); fs.writeFileSync(path.resolve(ROOT, wav), wavBuffer(out.L, out.R));

@@ -8,6 +8,8 @@
 // 3) Suavizado: min_s ‖s − s*‖² + λ‖D₂s‖² ⇒ (I + λD₂ᵀD₂)s = s*  (sistema pentadiagonal, eliminación en banda O(n)).
 // 4) λ mínimo que cumple los límites de velocidad del estilo (zoom/s, paneo/s): bisección en log λ (la velocidad pico es
 //    monótona decreciente en λ). Es decir: la cámara más fiel al sujeto que NO marea.
+import './help.mjs';
+import { announceFilm } from './filmid.mjs';
 import fs from 'node:fs';
 import path from 'node:path';
 import { ROOT, timelinePath } from './film.mjs';
@@ -30,7 +32,9 @@ export function smooth2(b, lam, w = null) {                                  // 
 }
 const peak = (xs, fps, rel) => { let m = 0; for (let i = 1; i < xs.length; i++) m = Math.max(m, Math.abs(xs[i] - xs[i - 1]) * fps / (rel ? xs[i - 1] : 1)); return m; };
 
-async function main() {                                                       // un horneado por timeline a la vez (salida única compartida)
+async function main() {
+  announceFilm();
+                                                       // un horneado por timeline a la vez (salida única compartida)
   await withLock(`autocam/${acName(timelinePath())}`, bake, { ttlMs: 60000, waitMs: 1800000 });
 }
 async function bake() {

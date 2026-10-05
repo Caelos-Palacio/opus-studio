@@ -12,7 +12,7 @@ import { makeTexStore, texReady } from './tex.mjs';
 import { assertTimeline } from './schema.mjs';
 import { resolveTimeline, assertParams } from './params.mjs';
 import { bindParams } from './signal.mjs';
-import { filmId, sibling } from './filmid.mjs';
+import { filmId, sibling, activeTimeline, announceFilm, filmFile, resolveFilm } from './filmid.mjs';
 export { seek, activeShots, shotBeats } from './seek.mjs';
 const { createCanvas, Image } = canvasPkg;
 
@@ -25,7 +25,8 @@ export function loadStyles() {
   for (const f of fs.readdirSync(path.join(ROOT, 'styles'))) if (f.endsWith('.json') && !f.startsWith('_')) o[f.slice(0, -5)] = rd('styles/' + f);
   return o;
 }
-export const timelinePath = () => process.env.OPUS_TIMELINE ?? 'data/timeline.json';
+export const timelinePath = () => activeTimeline();
+export { announceFilm, filmFile, resolveFilm };
 
 // LRU pequeño: el footage puede tener miles de fotogramas; nunca más de N decodificados en memoria.
 function lru(n) { const m = new Map(); return { get(k, make) { if (m.has(k)) { const v = m.get(k); m.delete(k); m.set(k, v); return v; } const v = make(); m.set(k, v); if (m.size > n) m.delete(m.keys().next().value); return v; } }; }

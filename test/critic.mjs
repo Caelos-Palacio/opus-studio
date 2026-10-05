@@ -69,13 +69,13 @@ ok('severidad fuera del enum → inválido con ruta', !c.ok && /\/shots\/0\/issu
   const d = fs.mkdtempSync(path.join(os.tmpdir(), 'opus-gate-')), w = (p, x) => { fs.mkdirSync(path.dirname(path.join(d, p)), { recursive: true }); fs.writeFileSync(path.join(d, p), typeof x === 'string' ? x : JSON.stringify(x)); };
   try {
     w('data/timeline.json', '{}');
-    ok('sin lint.json → no corre', !lintGate(d).ok);
+    ok('sin lint.json → no corre', !lintGate(d, 'data/timeline.json').ok);
     w('out/lint.json', { verdict: 'FIX', issues: [{ level: 'FIX' }] });
-    ok('lint en FIX → no corre', /FIX/.test(lintGate(d).reason ?? ''));
+    ok('lint en FIX → no corre', /FIX/.test(lintGate(d, 'data/timeline.json').reason ?? ''));
     w('out/lint.json', { verdict: 'SHIP', issues: [] });
-    ok('lint SHIP vigente → corre', lintGate(d).ok);
+    ok('lint SHIP vigente → corre', lintGate(d, 'data/timeline.json').ok);
     const later = new Date(Date.now() + 5000); fs.utimesSync(path.join(d, 'data/timeline.json'), later, later);
-    ok('timeline más nuevo que el lint → caducado', /caducado/.test(lintGate(d).reason ?? ''));
+    ok('timeline más nuevo que el lint → caducado', /caducado/.test(lintGate(d, 'data/timeline.json').reason ?? ''));
   } finally { fs.rmSync(d, { recursive: true, force: true }); }
 }
 
