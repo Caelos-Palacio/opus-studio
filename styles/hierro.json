@@ -1,0 +1,62 @@
+{
+  "name": "hierro",
+  "description": "Oscuro y contundente: acero negro, hueso, un rojo de golpe y un oro de adaptación; tipo condensado en mayúsculas, bloom físico + aberración + grano, cámara pesada con inercia. Trailers de combate, narrativa de poder.",
+  "mood": ["contundente", "tenso", "épico"],
+  "defaultProfile": "cinematic",
+  "palette": {
+    "paper": "#0A0B0E",
+    "ink": "#E8E3D9",
+    "accent": "#E5391D",
+    "accent2": "#E0B04A",
+    "shade": "#2A2F39"
+  },
+  "typeface": {
+    "family": "Liberation Sans Narrow",
+    "fallback": "'Nimbus Sans Narrow', 'DejaVu Sans Condensed', sans-serif",
+    "mono": "DejaVu Sans Mono",
+    "weights": [400, 700],
+    "scale": 1.6,
+    "base": 40,
+    "case": "upper",
+    "tracking": 0.16
+  },
+  "motion": {
+    "spring": { "omega": 22, "zeta": 0.5 },
+    "ease": "cinema",
+    "stagger": 0.05
+  },
+  "camera": {
+    "amount": 0.05,
+    "slide": 0.04,
+    "ease": "cinema",
+    "maxZoomPerSec": 0.4,
+    "maxPanPerSec": 0.3,
+    "maxRotPerSec": 3,
+    "shake": 0.0012,
+    "maxShake": 0.006
+  },
+  "grade": {
+    "vignette": 0.5,
+    "grain": 0.05,
+    "letterbox": 0,
+    "fade": { "in": 0.5, "out": 1.6, "color": "paper" },
+    "post": {
+      "bloom": { "threshold": 0.6, "strength": 0.85, "radius": 30 },
+      "chroma": 1.5,
+      "color": { "lift": 0.01, "gamma": 1.0, "gain": 1.02, "temp": 0.1, "sat": 1.0, "dither": 2 }
+    }
+  },
+  "compose": {
+    "anchor": "center",
+    "anchorTol": 0.18,
+    "negativeSpace": 0.3
+  },
+  "rules": {
+    "glow": true,
+    "gradients": false,
+    "maxColors": 5,
+    "maxChroma": 0.26,
+    "popRatio": 8
+  },
+  "bans": ["crossfade", "blur-in", "brightness", "3d flip", "flip", "dissolve"]
+}

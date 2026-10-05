@@ -1,0 +1,647 @@
+{
+ "title": "Regla — lo que parecía daño era aprendizaje",
+ "style": "hierro",
+ "profile": "cinematic",
+ "profileOverrides": {
+  "shotLen": [
+   1.2,
+   20
+  ]
+ },
+ "fps": 30,
+ "width": 1280,
+ "height": 720,
+ "duration": 60,
+ "autoSfx": false,
+ "music": null,
+ "sound": {
+  "style": "forja",
+  "memoria": "data/regla/memoria.json"
+ },
+ "motif": {
+  "id": "rueda",
+  "states": [
+   "ring",
+   "orbit",
+   "frame"
+  ],
+  "roleColor": "ink"
+ },
+ "end_hold_ok": true,
+ "signals": {
+  "tension": {
+   "op": "keys",
+   "description": "la carga del golpe final crece de 0 a 1 entre R10 y el golpe",
+   "keys": [
+    {
+     "t": 33.8,
+     "v": 0,
+     "ease": "in"
+    },
+    {
+     "t": 41.6,
+     "v": 1
+    }
+   ]
+  }
+ },
+ "handoffs": [
+  {
+   "from": "R11",
+   "to": "R12",
+   "entity": "rueda",
+   "at": 47,
+   "tol": 2
+  }
+ ],
+ "shots": [
+  {
+   "id": "R01",
+   "t": [
+    0,
+    6
+   ],
+   "size": "WS",
+   "action": "de noche, una criatura de placas inmóvil bajo una rueda de ocho radios; en el borde izquierdo, un hilo rojo; la pregunta se plantea",
+   "text": "¿POR QUÉ GIRA LA RUEDA?",
+   "transition_out": "cut",
+   "after": null,
+   "cam": {
+    "move": "push",
+    "why": "approach",
+    "amount": 0.05
+   },
+   "motifState": "ring",
+   "params": {},
+   "sakuga": "simple",
+   "sfx": [
+    {
+     "at": 0,
+     "type": "drone",
+     "dur": 12,
+     "gain": 0.35
+    }
+   ]
+  },
+  {
+   "id": "R02",
+   "t": [
+    6,
+    12
+   ],
+   "size": "MS",
+   "action": "primer golpe: un corte la parte en diagonal; las placas se desplazan; la rueda da un paso",
+   "on_beat": "el corte (7,9 s)",
+   "text": "CORTE",
+   "transition_out": "cut",
+   "after": "R01",
+   "anomaly": "el golpe parece herirla",
+   "cam": {
+    "move": "push",
+    "why": "approach",
+    "amount": 0.04
+   },
+   "motifState": "ring",
+   "params": {},
+   "sakuga": "normal",
+   "sfx": [
+    {
+     "at": 1.9,
+     "type": "whoosh",
+     "dur": 0.55,
+     "gain": 0.5
+    },
+    {
+     "at": 1.9,
+     "type": "impact",
+     "gain": 0.55
+    },
+    {
+     "at": 2.25,
+     "type": "tick",
+     "gain": 0.4
+    }
+   ]
+  },
+  {
+   "id": "R03",
+   "t": [
+    12,
+    17
+   ],
+   "size": "CU",
+   "action": "segundo golpe: percusión; ondas de choque y grietas desde el centro; la rueda da un paso",
+   "text": "IMPACTO",
+   "transition_out": "cut",
+   "after": "R02",
+   "cam": {
+    "move": "push",
+    "why": "approach",
+    "amount": 0.06
+   },
+   "motifState": "ring",
+   "params": {},
+   "sakuga": "normal",
+   "sfx": [
+    {
+     "at": 1.4,
+     "type": "impact",
+     "gain": 0.62
+    },
+    {
+     "at": 1.4,
+     "type": "anom",
+     "gain": 0.25
+    },
+    {
+     "at": 1.75,
+     "type": "tick",
+     "gain": 0.4
+    }
+   ]
+  },
+  {
+   "id": "R04",
+   "t": [
+    17,
+    21
+   ],
+   "size": "MS",
+   "action": "tercer golpe: calor; las placas se ponen al rojo y arden; la rueda da un paso",
+   "text": "CALOR",
+   "transition_out": "cut",
+   "after": "R03",
+   "cam": {
+    "move": "slide",
+    "why": "follow",
+    "dir": [
+     1,
+     0
+    ],
+    "amount": 0.03
+   },
+   "motifState": "ring",
+   "params": {},
+   "sakuga": "normal",
+   "sfx": [
+    {
+     "at": 0.1,
+     "type": "whoosh",
+     "dur": 1,
+     "gain": 0.45
+    },
+    {
+     "at": 1.1,
+     "type": "impact",
+     "gain": 0.68
+    },
+    {
+     "at": 1.45,
+     "type": "tick",
+     "gain": 0.4
+    }
+   ]
+  },
+  {
+   "id": "R05",
+   "t": [
+    21,
+    24.5
+   ],
+   "size": "WS",
+   "action": "cuarto golpe: espinas desde los bordes la atraviesan; la rueda da un paso",
+   "text": "ESPINAS",
+   "transition_out": "cut",
+   "after": "R04",
+   "cam": {
+    "move": "pull",
+    "why": "reveal",
+    "amount": 0.05
+   },
+   "motifState": "ring",
+   "params": {},
+   "sakuga": "normal",
+   "sfx": [
+    {
+     "at": 0.55,
+     "type": "pop",
+     "gain": 0.5
+    },
+    {
+     "at": 0.68,
+     "type": "pop",
+     "gain": 0.55
+    },
+    {
+     "at": 0.78,
+     "type": "pop",
+     "gain": 0.6
+    },
+    {
+     "at": 0.9,
+     "type": "impact",
+     "gain": 0.75
+    },
+    {
+     "at": 1.25,
+     "type": "tick",
+     "gain": 0.4
+    }
+   ]
+  },
+  {
+   "id": "R06",
+   "t": [
+    24.5,
+    27.5
+   ],
+   "size": "MS",
+   "action": "quinto golpe: dos planchas la aplastan; la rueda da un paso",
+   "text": "PRENSA",
+   "transition_out": "cut",
+   "after": "R05",
+   "cam": {
+    "move": "push",
+    "why": "approach",
+    "amount": 0.05
+   },
+   "motifState": "ring",
+   "params": {},
+   "sakuga": "normal",
+   "sfx": [
+    {
+     "at": 0.55,
+     "type": "riser",
+     "dur": 0.55,
+     "gain": 0.4
+    },
+    {
+     "at": 0.55,
+     "type": "impact",
+     "gain": 0.8
+    },
+    {
+     "at": 0.9,
+     "type": "tick",
+     "gain": 0.4
+    }
+   ]
+  },
+  {
+   "id": "R07",
+   "t": [
+    27.5,
+    30.4
+   ],
+   "size": "WS",
+   "action": "ráfaga I: corte, impacto y espina en 1,8 s; la criatura se hunde un poco más cada vez; la rueda da un paso",
+   "text": "",
+   "transition_out": "cut",
+   "after": "R06",
+   "cam": {
+    "move": "static"
+   },
+   "motifState": "ring",
+   "params": {},
+   "sakuga": "hero",
+   "sfx": [
+    {
+     "at": 0.85,
+     "type": "whoosh",
+     "dur": 0.4,
+     "gain": 0.35
+    },
+    {
+     "at": 0.85,
+     "type": "impact",
+     "gain": 0.55
+    },
+    {
+     "at": 1.6,
+     "type": "whoosh",
+     "dur": 0.4,
+     "gain": 0.35
+    },
+    {
+     "at": 1.6,
+     "type": "impact",
+     "gain": 0.6
+    },
+    {
+     "at": 2.65,
+     "type": "whoosh",
+     "dur": 0.4,
+     "gain": 0.4
+    },
+    {
+     "at": 2.65,
+     "type": "impact",
+     "gain": 0.65
+    },
+    {
+     "at": 2.78,
+     "type": "tick",
+     "gain": 0.4
+    }
+   ]
+  },
+  {
+   "id": "R08",
+   "t": [
+    30.4,
+    32.4
+   ],
+   "size": "CU",
+   "action": "ráfaga II: dos golpes seguidos sobre las placas desde la izquierda",
+   "text": "",
+   "transition_out": "cut",
+   "after": "R07",
+   "cam": {
+    "move": "slide",
+    "why": "follow",
+    "dir": [
+     -1,
+     0
+    ],
+    "amount": 0.04
+   },
+   "compose": "free",
+   "motifState": "ring",
+   "params": {},
+   "sakuga": "hero",
+   "sfx": [
+    {
+     "at": 0.5,
+     "type": "whoosh",
+     "dur": 0.4,
+     "gain": 0.4
+    },
+    {
+     "at": 0.5,
+     "type": "impact",
+     "gain": 0.7
+    },
+    {
+     "at": 1.78,
+     "type": "whoosh",
+     "dur": 0.4,
+     "gain": 0.4
+    },
+    {
+     "at": 1.78,
+     "type": "impact",
+     "gain": 0.75
+    }
+   ]
+  },
+  {
+   "id": "R09",
+   "t": [
+    32.4,
+    33.8
+   ],
+   "size": "ECU",
+   "action": "ráfaga III: dos golpes sobre la rueda y el núcleo; la rueda da el séptimo paso",
+   "text": "",
+   "transition_out": "cut",
+   "after": "R08",
+   "cam": {
+    "move": "push",
+    "why": "approach",
+    "amount": 0.08
+   },
+   "compose": "free",
+   "motifState": "ring",
+   "params": {},
+   "sakuga": "hero",
+   "sfx": [
+    {
+     "at": 0.3,
+     "type": "whoosh",
+     "dur": 0.3,
+     "gain": 0.4
+    },
+    {
+     "at": 0.3,
+     "type": "impact",
+     "gain": 0.8
+    },
+    {
+     "at": 1.18,
+     "type": "whoosh",
+     "dur": 0.3,
+     "gain": 0.4
+    },
+    {
+     "at": 1.18,
+     "type": "impact",
+     "gain": 0.85
+    },
+    {
+     "at": 1.3,
+     "type": "tick",
+     "gain": 0.45
+    }
+   ]
+  },
+  {
+   "id": "R10",
+   "t": [
+    33.8,
+    40
+   ],
+   "size": "WS",
+   "action": "carga: la criatura de rodillas, casi caída; una hoja de luz se forma sobre ella y las líneas convergen; el mundo se oscurece",
+   "text": "",
+   "transition_out": "hold-cut",
+   "after": "R09",
+   "cam": {
+    "move": "push",
+    "why": "approach",
+    "amount": 0.12
+   },
+   "motifState": "ring",
+   "params": {
+    "tension": {
+     "$sig": "tension"
+    }
+   },
+   "sakuga": "normal",
+   "sfx": [
+    {
+     "at": 0.2,
+     "type": "drone",
+     "dur": 8,
+     "gain": 0.4
+    }
+   ]
+  },
+  {
+   "id": "R11",
+   "t": [
+    40,
+    47
+   ],
+   "size": "WS",
+   "action": "golpe final: la hoja cae; el cuadro se vuelve blanco; la criatura estalla en placas y desaparece; polvo, silencio y la rueda sola en la oscuridad; el octavo paso, en oro",
+   "on_beat": "la hoja cae (41,6 s)",
+   "text": "",
+   "transition_out": "morph",
+   "after": "R10",
+   "anomaly": "el golpe definitivo no deja nada: parece el final",
+   "cam": {
+    "move": "static"
+   },
+   "motifState": "ring",
+   "params": {},
+   "sakuga": "hero",
+   "hold_ok": [
+    [
+     2,
+     6.4
+    ]
+   ],
+   "sfx": [
+    {
+     "at": 1.6,
+     "type": "riser",
+     "dur": 6,
+     "gain": 0.45
+    },
+    {
+     "at": 1.6,
+     "type": "impact",
+     "gain": 1
+    },
+    {
+     "at": 6,
+     "type": "tick",
+     "gain": 0.5
+    }
+   ]
+  },
+  {
+   "id": "R12",
+   "t": [
+    47,
+    53.3
+   ],
+   "size": "MS",
+   "action": "revelación: las placas vuelven a su sitio en reversa; los cortes son costuras de oro; cada golpe se repite en oro y la rueda es un contador; la respuesta aparece",
+   "on_beat": "la rueda se enciende (47,2 s)",
+   "text": "CADA GOLPE, UNA LECCIÓN",
+   "transition_out": "cut",
+   "after": "R11",
+   "premise": "lo que parecía daño era aprendizaje",
+   "cam": {
+    "move": "pull",
+    "why": "reveal",
+    "amount": 0.06,
+    "chain": true,
+    "delay": 0.4
+   },
+   "motifState": "orbit",
+   "params": {},
+   "sakuga": "normal",
+   "sfx": [
+    {
+     "at": 0.2,
+     "type": "rev",
+     "gain": 0.85
+    },
+    {
+     "at": 0.2,
+     "type": "shimmer",
+     "gain": 0.3
+    },
+    {
+     "at": 1.6,
+     "type": "tick",
+     "gain": 0.3
+    },
+    {
+     "at": 1.93,
+     "type": "tick",
+     "gain": 0.3
+    },
+    {
+     "at": 2.26,
+     "type": "tick",
+     "gain": 0.3
+    },
+    {
+     "at": 2.59,
+     "type": "tick",
+     "gain": 0.3
+    },
+    {
+     "at": 2.92,
+     "type": "tick",
+     "gain": 0.3
+    },
+    {
+     "at": 3.25,
+     "type": "tick",
+     "gain": 0.3
+    },
+    {
+     "at": 3.58,
+     "type": "tick",
+     "gain": 0.3
+    }
+   ]
+  },
+  {
+   "id": "R13",
+   "t": [
+    53.3,
+    56.5
+   ],
+   "size": "MS",
+   "action": "el hilo rojo del atacante regresa por la izquierda y se detiene ante la criatura",
+   "text": "SE ADAPTA.",
+   "transition_out": "cut",
+   "after": "R12",
+   "premise": "si se adapta, ¿cómo se le gana?",
+   "cam": {
+    "move": "slide",
+    "why": "follow",
+    "dir": [
+     1,
+     0
+    ],
+    "amount": 0.03
+   },
+   "motifState": "orbit",
+   "params": {},
+   "sakuga": "simple",
+   "sfx": [
+    {
+     "at": 0.2,
+     "type": "whoosh",
+     "dur": 2.2,
+     "gain": 0.3
+    }
+   ]
+  },
+  {
+   "id": "R14",
+   "t": [
+    56.5,
+    60
+   ],
+   "size": "WS",
+   "action": "rima con el primer plano: la criatura y la rueda, ahora de oro, ante el hilo rojo; la pregunta queda abierta",
+   "text": "¿CÓMO SE LE GANA?",
+   "transition_out": "cut",
+   "after": "R13",
+   "cam": {
+    "move": "static"
+   },
+   "motifState": "frame",
+   "params": {},
+   "sakuga": "simple",
+   "sfx": []
+  }
+ ]
+}

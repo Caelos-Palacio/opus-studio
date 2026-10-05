@@ -1,0 +1,16 @@
+{
+  "idea": "Lo que parecía daño era aprendizaje: la criatura se adaptaba a cada golpe, y la rueda que la acompañaba era el contador.",
+  "question": { "text": "¿Por qué gira la rueda?", "posed_at": 3.0, "answered_at": 50.6, "on_screen": true },
+  "beats": [
+    { "id": "b1", "t": 0.3, "text": "Una criatura de placas, inmóvil bajo una rueda" },
+    { "id": "b2", "t": 7.9, "text": "pero algo la golpea y cada golpe parece herirla", "link": "pero" },
+    { "id": "b3", "t": 18.1, "text": "por lo tanto los golpes se multiplican y ella cede", "link": "por lo tanto" },
+    { "id": "b4", "t": 28.35, "text": "por lo tanto una ráfaga la hunde de rodillas", "link": "por lo tanto" },
+    { "id": "b5", "t": 41.6, "text": "por lo tanto el golpe final la borra del cuadro", "link": "por lo tanto" },
+    { "id": "b6", "t": 47.2, "text": "pero vuelve intacta: se adaptaba", "link": "pero" },
+    { "id": "b7", "t": 50.6, "text": "por lo tanto cada golpe era una lección y la rueda un contador", "link": "por lo tanto" },
+    { "id": "b8", "t": 53.3, "text": "pero si se adapta, ¿cómo se le gana?", "link": "pero" }
+  ],
+  "accommodation": { "t": 47.2, "type": "regla", "text": "la criatura se adaptaba: lo que parecía daño era aprendizaje" },
+  "accent": { "means": "rojo = golpe (el atacante); oro = adaptación (lo aprendido)" }
+}
