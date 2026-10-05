@@ -14,6 +14,7 @@ import path from 'node:path';
 import { spawn, spawnSync } from 'node:child_process';
 import canvasPkg from 'canvas';
 import { loadFilm, seek, activeShots, shotBeats, ROOT } from './film.mjs';
+import { x264Args } from './encode.mjs';
 const { createCanvas, registerFont } = canvasPkg;
 
 const argv = process.argv.slice(2);
@@ -98,7 +99,7 @@ async function rangeWorker() {
   const [a, b] = arg('--range').split(':').map(Number), fps = +arg('--fps'), out = arg('--out');
   const R = await makeRenderer({ size: arg('--size') });
   const ff = spawn('ffmpeg', ['-y', '-loglevel', 'error', '-f', 'rawvideo', '-pix_fmt', 'bgra', '-s', `${R.W}x${R.H}`, '-r', String(fps), '-i', 'pipe:0',
-    '-c:v', 'libx264', '-preset', 'medium', '-crf', arg('--crf', '16'), '-pix_fmt', 'yuv420p', '-colorspace', 'bt709', '-color_primaries', 'bt709', '-color_trc', 'bt709', '-color_range', 'tv', out + '.part.mp4'], { stdio: ['pipe', 'inherit', 'inherit'] });
+    ...x264Args({ crf: arg('--crf', '16'), preset: arg('--preset', process.env.OPUS_PRESET ?? 'medium'), threads: +arg('--threads', 0) }), out + '.part.mp4'], { stdio: ['pipe', 'inherit', 'inherit'] });
   let i = a;
   await new Promise((res) => {
     const pump = () => {

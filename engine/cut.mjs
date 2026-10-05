@@ -27,6 +27,7 @@ import { record } from './ledger.mjs';
 import { masterGate } from './gate.mjs';
 import { cookEntry } from './resolve.mjs';
 import { filmId } from './filmid.mjs';
+import { workerThreads } from './encode.mjs';
 
 const argv = process.argv.slice(2), has = (k) => argv.includes(k), arg = (k, d) => { const i = argv.indexOf(k); return i >= 0 && argv[i + 1] && !argv[i + 1].startsWith('--') ? argv[i + 1] : d; };
 export const filmName = (tlPath = timelinePath()) => filmId(tlPath);
@@ -41,9 +42,9 @@ function shotImports(id, seen = new Set()) {
   return [...seen].filter((x) => x !== id);
 }
 // Segmentos: grupos de shots que se solapan (morphs) no se parten; cortes limpios sí.
-export function plan(film, { fps, size, chunk = 900 }) {
+export function plan(film, { fps, size, chunk = 900, preset = 'medium' }) {
   const engine = sha(engineSig(), JSON.stringify(film.S), fontSig([film.S.typeface]));
-  const glob = sha(engine, assetsSig(), film.audioInfo ?? null, film.width, film.height, film.duration, film.fps, film.motif, film.handoffs, film.profileName, film.P, fps, size, film.edit?.items ?? null);
+  const glob = sha(engine, assetsSig(), film.audioInfo ?? null, film.width, film.height, film.duration, film.fps, film.motif, film.handoffs, film.profileName, film.P, fps, size, film.edit?.items ?? null, ...(preset !== 'medium' ? [preset] : []));
   const N = Math.round(film.duration * fps) + 1, jobs = [];
   // F4 cookKey: entrada RESUELTA del shot (params tras capas + señales que usa; sin meta) + la de los shots cuyo código
   // importa (sus entidades leen los parámetros de ese shot: A2 hereda el punto de A1).
@@ -90,7 +91,7 @@ async function main() {
   const film = await loadFilm(), review = has('--review'), name = filmName() + (film.edit ? '.edit' : '');
   const fps = +arg('--fps', review ? 12 : film.fps), size = arg('--size', review ? `${Math.round((540 * film.width) / film.height / 2) * 2}x540` : `${film.width}x${film.height}`);
   const dir = path.join(ROOT, 'out/fragments', name); fs.mkdirSync(dir, { recursive: true });
-  const opts = { fps, size, chunk: +arg('--chunk', 900) }, P = plan(film, opts), file = (j) => path.join(dir, `${j.id}_${j.hash}_${fps}_${size}.mp4`);
+  const preset = arg('--preset', process.env.OPUS_PRESET ?? 'medium'), opts = { fps, size, chunk: +arg('--chunk', 900), preset }, P = plan(film, opts), file = (j) => path.join(dir, `${j.id}_${j.hash}_${fps}_${size}.mp4`);
   const todo = P.jobs.filter((j) => !fs.existsSync(file(j)));
   console.log(`${film.edit ? 'montaje' : 'film'} "${name}" · ${P.N} frames @${fps} ${size} · ${P.jobs.length} fragmentos · ${P.jobs.length - todo.length} en caché · ${todo.length} por renderizar`);
   if (has('--plan')) { for (const j of P.jobs) console.log(`  ${fs.existsSync(file(j)) ? '✓' : '·'} ${j.id.padEnd(14)} [${j.a},${j.b})  ${j.hash}`); return; }
@@ -99,10 +100,10 @@ async function main() {
     if (g.forced) console.log(`! master FORZADO: ${g.reasons.join(' · ')}`); };
   await gate();
   cleanPartials(dir);
-  const workers = +arg('--workers', Math.max(1, os.cpus().length)), q = [...todo], render = path.join(ROOT, 'engine/render.mjs');
+  const threads = arg('--threads', process.env.OPUS_THREADS ?? '0'), workers = +arg('--workers', Math.max(1, os.cpus().length)), q = [...todo], render = path.join(ROOT, 'engine/render.mjs');
   const run = (j) => new Promise((res, rej) => {
     const stage = path.join(dir, `.${j.id}_${j.hash}.stage-${process.pid}-${Math.random().toString(36).slice(2, 8)}.tmp.mp4`);
-    const p = spawn(process.execPath, [render, '--range', `${j.a}:${j.b}`, '--fps', String(fps), '--size', size, '--out', stage, '--crf', review ? '23' : '16'], { stdio: 'inherit', env: process.env });
+    const p = spawn(process.execPath, [render, '--range', `${j.a}:${j.b}`, '--fps', String(fps), '--size', size, '--out', stage, '--crf', review ? '23' : '16', '--preset', preset, '--threads', String(threads === 'auto' ? workerThreads(Math.min(workers, todo.length)) : +threads || 0)], { stdio: 'inherit', env: process.env });
     p.on('close', async (c) => { if (c !== 0) { fs.rmSync(stage, { force: true }); fs.rmSync(stage + '.part.mp4', { force: true }); return rej(new Error('fragmento falló ' + j.id)); }
       try { if (await commitFragment(stage, file(j), j, opts)) console.log('  ✓', j.id, `[${j.a},${j.b})`); else console.log('  ✗', j.id, 'cambió durante el render: descartado (relanza)'); res(); } catch (e) { rej(e); } });
   });

@@ -5,6 +5,7 @@
 //  · warps de raster (texto, footage): malla de triángulos con transform afín por celda (sin WebGL).
 //  · banding en fondos oscuros: dither determinista en el grade.
 import { clamp, noise1, hash2 } from './core.mjs';
+import { span, run } from './perf.mjs';
 
 // Pool de lienzos por tamaño: evita crear miles de canvas por render. Se reinicia en cada seek (sin estado visible).
 export function pool(film) {
@@ -21,32 +22,46 @@ export function pool(film) {
 }
 export function releasePool(film) { const P = film._pool; if (!P) return; for (const [k, c] of P.used) { if (!P.free.has(k)) P.free.set(k, []); P.free.get(k).push(c); } P.used = []; }
 
+
+// R3 (opt-in, film.P.fxFast): reescalado barato de capas ya desenfocadas. La subida bilinear a resolución completa cuesta ~15 ms
+// por llamada en cairo (sin SIMD); con fxFast se sube bilinear a ½ del destino (4× menos píxeles) y de ahí 'nearest' al tamaño completo.
+// Por defecto (fxFast ausente) = drawImage exacto de siempre: golden intacto.
+const fast = (film) => !!film?.P?.fxFast;
+function drawUp(film, ctx, src, W, H) {
+  if (!fast(film) || src.width >= W) { ctx.drawImage(src, 0, 0, W, H); return; }
+  const hw = Math.max(1, Math.ceil(W / 2)), hh = Math.max(1, Math.ceil(H / 2));
+  let cur = src;
+  if (src.width < hw) { const c = pool(film).get(hw, hh), x = c.getContext('2d'); x.imageSmoothingEnabled = true; x.drawImage(src, 0, 0, hw, hh); cur = c; }
+  const keep = ctx.imageSmoothingEnabled; ctx.imageSmoothingEnabled = false; ctx.drawImage(cur, 0, 0, W, H); ctx.imageSmoothingEnabled = keep;
+}
+
 // Blur ≈ gaussiano de radio r (px de dispositivo): reducir a escala 1/f en pasos de 2 y volver a ampliar (bilineal).
-export function blurCanvas(film, src, r, { small = false } = {}) {
+function blurCanvas_(film, src, r, { small = false } = {}) {
   if (r < 0.75) return src;
   const W = src.width, H = src.height, pl = pool(film), steps = Math.max(1, Math.min(6, Math.round(Math.log2(r * 1.2))));
   let cur = src, w = W, h = H; const chain = [];
   for (let i = 0; i < steps; i++) { w = Math.max(1, w >> 1); h = Math.max(1, h >> 1); const c = pl.get(w, h), x = c.getContext('2d'); x.imageSmoothingEnabled = true; x.drawImage(cur, 0, 0, w, h); chain.push(c); cur = c; }
   if (small) return cur;                                                     // quien compone puede ampliar al dibujar (1 pasada menos)
   for (let i = steps - 2; i >= 0; i--) { const c = pl.get(chain[i].width, chain[i].height), x = c.getContext('2d'); x.drawImage(cur, 0, 0, c.width, c.height); cur = c; }
-  const out = pl.get(W, H), ox = out.getContext('2d'); ox.imageSmoothingEnabled = true; ox.drawImage(cur, 0, 0, W, H); return out;
+  const out = pl.get(W, H), ox = out.getContext('2d'); ox.imageSmoothingEnabled = true; drawUp(film, ox, cur, W, H); return out;
 }
 // Bloom: umbral de luminancia a 1/4, blur, suma aditiva. Solo lo brillante florece (no "glow" genérico sobre todo).
-export function bloom(film, ctx, src, { threshold = 0.72, strength = 0.8, radius = 24 } = {}) {
+function bloom_(film, ctx, src, { threshold = 0.72, strength = 0.8, radius = 24 } = {}) {
   const pl = pool(film), w = Math.max(1, src.width >> 2), h = Math.max(1, src.height >> 2), c = pl.get(w, h), x = c.getContext('2d');
-  x.drawImage(src, 0, 0, w, h);
+  if (fast(film) && src.width >= 4 * w) { const c2 = pl.get(src.width >> 1, src.height >> 1); c2.getContext('2d').drawImage(src, 0, 0, c2.width, c2.height); x.drawImage(c2, 0, 0, w, h); }   // 2 pasos ×2 (≈1 ms) en vez de 1 paso ×4 (≈11 ms)
+  else x.drawImage(src, 0, 0, w, h);
   const im = x.getImageData(0, 0, w, h), d = im.data, th = threshold * 255;
   for (let i = 0; i < d.length; i += 4) { const L = 0.2126 * d[i] + 0.7152 * d[i + 1] + 0.0722 * d[i + 2], k = L > th ? (L - th) / (255 - th + 1e-6) : 0; d[i] *= k; d[i + 1] *= k; d[i + 2] *= k; }
   x.putImageData(im, 0, 0);
   const b = blurCanvas(film, c, radius / 4, { small: true }), st = clamp(strength, 0, 2);
   ctx.save(); ctx.setTransform(1, 0, 0, 1, 0, 0); ctx.globalCompositeOperation = 'lighter'; ctx.imageSmoothingEnabled = true;
-  ctx.globalAlpha = Math.min(1, st); ctx.drawImage(b, 0, 0, src.width, src.height); if (st > 1) { ctx.globalAlpha = st - 1; ctx.drawImage(b, 0, 0, src.width, src.height); } ctx.restore();
+  ctx.globalAlpha = Math.min(1, st); drawUp(film, ctx, b, src.width, src.height); if (st > 1) { ctx.globalAlpha = st - 1; drawUp(film, ctx, b, src.width, src.height); } ctx.restore();
 }
 // Operaciones por píxel sobre la capa (in-place).
 // Aberración cromática RADIAL (modelo de lente: desplazamiento ∝ r², nulo en el centro). La uniforme hace parpadear de color
 // las líneas finas al moverse la cámara (la fase subpíxel cambia cada frame); la radial deja limpio el centro, donde vive el sujeto.
 const CHROMA = new Map();                                                   // tablas de índices por (W,H,px): cálculo una vez, lookup después
-export function chroma(c, px = 2) {
+function chroma_(c, px = 2) {
   if (!px) return; const x = c.getContext('2d'), W = c.width, H = c.height, key = `${W}x${H}:${px}`;
   let T = CHROMA.get(key);
   if (!T) {
@@ -62,7 +77,7 @@ export function chroma(c, px = 2) {
   for (let q = 0; q < idx.length; q++) { d[idx[q]] = s[rs[q]]; d[idx[q] + 2] = s[bs[q]]; }
   im.data.set(d); x.putImageData(im, 0, 0);
 }
-export function displace(c, { amp = 8, scale = 0.012, t = 0, seed = 3 } = {}) {
+function displace_(c, { amp = 8, scale = 0.012, t = 0, seed = 3 } = {}) {
   const x = c.getContext('2d'), W = c.width, H = c.height, im = x.getImageData(0, 0, W, H), s = new Uint8ClampedArray(im.data), d = im.data;
   const gx = new Float32Array(W), gy = new Float32Array(H);                   // campo separable: O(W+H) ruidos, no O(W·H)
   for (let X = 0; X < W; X++) gx[X] = noise1(X * scale + t, seed);
@@ -74,7 +89,7 @@ export function displace(c, { amp = 8, scale = 0.012, t = 0, seed = 3 } = {}) {
   x.putImageData(im, 0, 0);
 }
 // Warp de malla (raster): la capa src se redibuja deformada por warp(x,y)→[x',y'] con una rejilla de n×n celdas.
-export function meshWarp(ctx, src, warp, n = 24) {
+function meshWarp_(ctx, src, warp, n = 24) {
   const W = src.width, H = src.height, cw = W / n, ch = H / n, P = [];
   for (let j = 0; j <= n; j++) for (let i = 0; i <= n; i++) P.push(warp(i * cw, j * ch));
   const tri = (s0, s1, s2, d0, d1, d2) => {
@@ -100,7 +115,7 @@ export function meshWarp(ctx, src, warp, n = 24) {
 // Tesela 64×64 de ruido triangular (TPDF, media 0): dither sin hash por píxel; el desfase por frame evita patrón fijo.
 const DTILE = Float32Array.from({ length: 4096 }, (_, i) => hash2(i, 91) + hash2(i, 92) - 1), LUTS = new Map();
 // Grade de color por LUT (lift/gamma/gain, temperatura, saturación) + dither. ~6 ms a 720p.
-export function colorGrade(ctx, W, H, g, t) {
+function colorGrade_(ctx, W, H, g, t) {
   if (!g) return;
   const { lift = 0, gamma = 1, gain = 1, temp = 0, sat = 1, dither = 0 } = g;
   if (!lift && gamma === 1 && gain === 1 && !temp && sat === 1 && !dither) return;
@@ -120,17 +135,17 @@ export function colorGrade(ctx, W, H, g, t) {
 // Capa con efectos. draw(ctxCapa, tCapa, apiCapa). spec:
 //  { blur, bloom:{threshold,strength,radius}, motionBlur:{shutter:0.5, samples:6}, trail:{length:0.4, samples:6, decay:0.6},
 //    dirBlur:{angle,dist,samples}, chroma:px, displace:{amp,scale}, warp:(x,y)=>[x',y'], mask:(ctx,api)=>void, opacity, blend, fps }
-export function layer(film, mainCtx, spec, t, draw) {
+function layer_(film, mainCtx, spec, t, draw) {
   const W = mainCtx.canvas.width, H = mainCtx.canvas.height, pl = pool(film), m = mainCtx.getTransform();
   const q = (tt) => (spec.fps ? Math.floor(tt * spec.fps + 1e-9) / spec.fps : tt);
   // Capa solo-blur: se renderiza a 1/f (f ≈ r/2 potencia de 2): el contenido desenfocado no tiene frecuencias que perder (Nyquist).
   const sm = Math.hypot(m.a, m.b), rDev = (spec.blur ?? 0) * sm, onlyBlur = rDev >= 4 && !spec.motionBlur && !spec.trail && !spec.dirBlur && !spec.chroma && !spec.displace && !spec.mask && !spec.warp && !spec.bloom;
   const f = onlyBlur ? Math.min(8, 2 ** Math.floor(Math.log2(rDev / 2))) : 1, LW = Math.ceil(W / f), LH = Math.ceil(H / f);
-  const render = (tt) => { const c = pl.get(LW, LH), x = c.getContext('2d'); x.setTransform(m.a / f, m.b / f, m.c / f, m.d / f, m.e / f, m.f / f); draw(x, tt); return c; };
+  const render = (tt) => { const c = pl.get(LW, LH), x = c.getContext('2d'); x.setTransform(m.a / f, m.b / f, m.c / f, m.d / f, m.e / f, m.f / f); run('shot', draw, x, tt); return c; };
   if (onlyBlur) {
     const b = blurCanvas(film, render(q(t)), rDev / f, { small: true });
     mainCtx.save(); mainCtx.setTransform(1, 0, 0, 1, 0, 0); mainCtx.globalAlpha = spec.opacity ?? 1; if (spec.blend) mainCtx.globalCompositeOperation = spec.blend; mainCtx.imageSmoothingEnabled = true;
-    mainCtx.drawImage(b, 0, 0, W, H); mainCtx.restore(); return;
+    drawUp(film, mainCtx, b, W, H); mainCtx.restore(); return;
   }
   let img;
   const mb = spec.motionBlur, tr = spec.trail;
@@ -154,3 +169,11 @@ export function layer(film, mainCtx, spec, t, draw) {
   mainCtx.restore();
   if (spec.bloom) bloom(film, mainCtx, img, spec.bloom);
 }
+
+export const blurCanvas = span('fx.blur', blurCanvas_);
+export const bloom = span('fx.bloom', bloom_);
+export const chroma = span('fx.chroma', chroma_);
+export const displace = span('fx.displace', displace_);
+export const meshWarp = span('fx.warp', meshWarp_);
+export const colorGrade = span('grade.color', colorGrade_);
+export const layer = span('fx.layer', layer_);

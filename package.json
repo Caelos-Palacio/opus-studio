@@ -30,7 +30,8 @@
     "assets": "node engine/assets.mjs",
     "docs": "node engine/doc.mjs",
     "styles": "node engine/style.mjs --list",
-    "gallery": "node engine/gallery.mjs"
+    "gallery": "node engine/gallery.mjs",
+    "profile": "node engine/profile.mjs"
   },
   "dependencies": {
     "acorn": "^8.18.0",
