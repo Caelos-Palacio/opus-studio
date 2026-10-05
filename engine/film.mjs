@@ -3,9 +3,9 @@
 //   (o env OPUS_STYLE / OPUS_PROFILE / OPUS_TIMELINE / OPUS_EDIT)
 import fs from 'node:fs';
 import path from 'node:path';
-import { pathToFileURL } from 'node:url';
 import canvasPkg from 'canvas';
 import { compile } from './seek.mjs';
+import { makeSandbox } from './sandbox.mjs';
 import { makeTexStore, texReady } from './tex.mjs';
 import { assertTimeline } from './schema.mjs';
 export { seek, activeShots, shotBeats } from './seek.mjs';
@@ -59,9 +59,12 @@ export async function loadFilm({ timeline = timelinePath(), animatic = false, st
   film.timelinePath = timeline;
   film.assets = makeAssets(ROOT);
   film.canvas = (w, h) => createCanvas(w, h);
-  if (!animatic) for (const s of film.shots) {
-    const f = path.join(ROOT, 'shots', `${s.id}.mjs`);
-    if (fs.existsSync(f)) film.mods[s.id] = (await import(pathToFileURL(f).href)).default;
+  if (!animatic) {
+    const sb = makeSandbox(ROOT); film.sandboxLog = sb.log;                         // carga y ejecución de shots en sandbox (engine/sandbox.mjs)
+    for (const s of film.shots) {
+      const f = path.join(ROOT, 'shots', `${s.id}.mjs`);
+      if (fs.existsSync(f)) film.mods[s.id] = sb.wrap(await sb.importShot(f, s.id), s.id);
+    }
   }
   const ac = path.join(ROOT, 'data/autocam', path.basename(timeline));                 // cámaras 'auto' horneadas (válidas solo si el hash coincide)
   if (fs.existsSync(ac)) { const A = JSON.parse(fs.readFileSync(ac, 'utf8')), { shotHash } = await import('./cut.mjs'); film.autocam = {};
