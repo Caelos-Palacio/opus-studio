@@ -12,6 +12,7 @@ import { camState, specOf } from './camera.mjs';
 import { plan, filmName } from './cut.mjs';
 import { hex2rgb } from './color.mjs';
 import { symbolSet } from './semantic.mjs';
+import { withLock, writeAtomic } from './lock.mjs';
 const { createCanvas } = canvasPkg;
 
 const argv = process.argv.slice(2), arg = (k, d) => { const i = argv.indexOf(k); return i >= 0 ? argv[i + 1] : d; };
@@ -27,7 +28,12 @@ function colors(ctx, W, H, palette) {                                       // c
 const lum = (ctx, W, H) => { const d = ctx.getImageData(0, 0, W, H).data; let s = 0, n = 0; for (let i = 0; i < d.length; i += 64) { s += 0.299 * d[i] + 0.587 * d[i + 1] + 0.114 * d[i + 2]; n++; } return r3(s / n / 255); };
 
 async function main() {
-  const R = await makeRenderer({ size: arg('--size', '640x360') }), { film, W, H } = R, name = filmName() + (film.edit ? '.edit' : '');
+  const R = await makeRenderer({ size: arg('--size', '640x360') }), { film } = R, name = filmName() + (film.edit ? '.edit' : '');
+  // RMW de film.json (lee el índice previo, reescribe): un indexador por film a la vez; los demás esperan.
+  await withLock(`index/${name}`, () => build(R, name), { ttlMs: 60000, waitMs: 1800000 });
+}
+async function build(R, name) {
+  const { film, W, H } = R;
   const dir = path.join(ROOT, 'out/index', name); for (const s of ['shots', 'thumbs']) fs.mkdirSync(path.join(dir, s), { recursive: true });
   const fps = +arg('--fps', 4), P = plan(film, { fps: film.fps, size: `${film.width}x${film.height}` }), hashOf = (id) => P.jobs.filter((j) => j.shots.includes(id)).map((j) => j.hash).join('.');
   const prevF = path.join(dir, 'film.json'), prev = fs.existsSync(prevF) ? JSON.parse(fs.readFileSync(prevF, 'utf8')) : null;
@@ -58,12 +64,12 @@ async function main() {
     const row = { id: s.id, hash: h, t: s.t, size: s.size ?? null, action: s.action ?? '', text: [...texts], cam: s.cam ?? null, transition_out: s.transition_out ?? null, motifState: s.motifState ?? null,
       prims: [...prims].filter((p) => p !== 'node'), symbols: Object.fromEntries(sym), nodes: [...nodes], tags: [...tags].sort(), palette: pal, beats: shotBeats(film, s).map(r3), on_beat_at: s.on_beat_at ?? [],
       sfx: sfx.filter((e) => e.t >= s.t[0] && e.t < s.t[1]).map((e) => ({ t: r3(e.t), type: e.type, src: e.src })), lum: { min: Math.min(...samples.map((x) => x.lum)), max: Math.max(...samples.map((x) => x.lum)) }, thumbs, detail: `out/index/${name}/shots/${s.id}.json` };
-    fs.writeFileSync(path.join(dir, 'shots', s.id + '.json'), JSON.stringify({ id: s.id, fps, samples }));
+    writeAtomic(path.join(dir, 'shots', s.id + '.json'), JSON.stringify({ id: s.id, fps, samples }));
     shots.push(row); console.log('  ✓', s.id, row.tags.join(' '));
   }
   const motion = fs.existsSync(path.join(ROOT, 'out/motion.json')) ? JSON.parse(fs.readFileSync(path.join(ROOT, 'out/motion.json'), 'utf8')) : null;
   const lint = fs.existsSync(path.join(ROOT, 'out/lint.json')) ? JSON.parse(fs.readFileSync(path.join(ROOT, 'out/lint.json'), 'utf8')) : null;
-  fs.writeFileSync(prevF, JSON.stringify({ film: name, title: film.title, style: film.S.name, profile: film.profileName, duration: film.duration, fps: film.fps, size: [film.width, film.height], palette: film.palette,
+  writeAtomic(prevF, JSON.stringify({ film: name, title: film.title, style: film.S.name, profile: film.profileName, duration: film.duration, fps: film.fps, size: [film.width, film.height], palette: film.palette,
     motif: film.motif ?? null, handoffs: film.handoffs ?? [], edit: film.edit?.items ?? null, lint: lint ? { verdict: lint.verdict, issues: lint.issues.length } : null, energy: motion ? { fps: motion.fps, n: motion.energy.length } : null, shots }, null, 1));
   console.log('→', path.relative(ROOT, prevF), `(${shots.length} shots)`);
 }

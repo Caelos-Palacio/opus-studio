@@ -43,3 +43,19 @@ Contrasta cada afirmación visible con `facts.json`. Marca analogías presentada
 Ve la hoja (también en **escala de grises**) y los strips. Solo juzga lo que el lint no mide, con `CINE.md`:
 sujeto legible por valor, lead room y headroom, tamaño de plano que sirve a la idea (no tres iguales seguidos), la cámara ayuda a entender (no decora), temperatura/contraste entre planos, luz motivada (glow/viñeta/grano en su medida), rima primer/último frame.
 Salida: `shot  t  problema  arreglo mínimo`.
+
+## Gobernanza en código (F1)
+La regla de alcance ya no es solo prosa. Cada agente se identifica por env: `OPUS_AGENT=<nombre> OPUS_ROLE=<rol>` (`animator:A1+A2` para IDs).
+- **Ledger** `out/ledger.jsonl` (append-only, solo digests): lint, gates, force, claims, robos de lease, descartes, master. `node engine/ledger.mjs --tail 20`.
+- **Claims**: `node engine/lock.mjs claim shots/A2.mjs [--ttl ms]` · `release` · `list`. Lease caducado = liberable. Los procesos usan `withLock` en montaje, índice, autocam, TeX y footage.
+- **Roles**: `roles.json` (rol → globs; `mode: observer|enforce`). `node engine/roles.mjs check <ruta> --role animator:A2`. En observer solo se registra `would_allow/would_deny`; se pasa a enforce cuando los falsos positivos del ledger sean ~0.
+- **Veredictos**: `out/lint.json` solo lo escribe un `npm run lint` completo; `lint --shot ID` escribe `out/lint/<film>/<ID>.json` (+ vecinos); `--only X` es parcial y nunca escribe el global. Todos llevan `{engineHash, filmHash, shotHash}`: si no coinciden con lo actual, **no existen**.
+- **Gates**: `gates.json` = `criterio::comando`. `node engine/gate.mjs close <gate>` (exit 0 de todos o queda abierto; 2 fallos seguidos → detente y reporta) · `--force "razón"` (queda en el ledger) · `status` · `restore <gate> [n]` (snapshot git `opus/gate/<gate>/<n>`, sin tocar HEAD; antes guarda `opus/backup/*`).
+- **Master**: `npm run master` exige lint SHIP vigente y crítico sin FIX vigente; si no, falla salvo `--force "razón"`.
+- `assets --footage` sobre un id existente mueve lo anterior a `.trash/` (recuperable).
+
+Hook opcional de Claude Code (NO activado): añade a `.claude/settings.json`
+```json
+{"hooks":{"PreToolUse":[{"matcher":"Write|Edit|MultiEdit|NotebookEdit","hooks":[{"type":"command","command":"node \"$CLAUDE_PROJECT_DIR/.claude/hooks/opus-roles.mjs\""}]}]}}
+```
+Aplica `roles.json` + claims de otros agentes; en observer nunca bloquea; ante cualquier error del hook, deja pasar.

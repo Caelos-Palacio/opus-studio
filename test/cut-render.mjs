@@ -43,7 +43,7 @@ const dist = (a, b) => {
 async function main() {
   const d = copyRepo(), env = { FONTCONFIG_FILE: FONTS_CONF };
   try {
-    const c = await run(['engine/cut.mjs', '--fps', String(FPS), '--size', `${W}x${H}`, '--workers', '2'], { cwd: d, env });
+    const c = await run(['engine/cut.mjs', '--fps', String(FPS), '--size', `${W}x${H}`, '--workers', '2', '--force', 'test cut=render: compara píxeles, no juzga el film'], { cwd: d, env });
     const master = path.join(d, 'out/master.mp4'), man = path.join(d, 'out/fragments/main/manifest.json');
     if (c.status || !fs.existsSync(master) || !fs.existsSync(man)) throw new Error('cut falló: ' + (c.stderr || c.stdout).slice(-600));
     const M = JSON.parse(fs.readFileSync(man, 'utf8'));

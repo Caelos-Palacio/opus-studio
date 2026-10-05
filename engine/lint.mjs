@@ -1,7 +1,8 @@
 #!/usr/bin/env node
 // Escalera de verificación determinista (barata → cara). Sin VLM. Aplica el gusto del estilo activo.
-//   node engine/lint.mjs [--only validate|determinism|layout|camera|transitions|beats|handoffs|motion|rhythm] [--fps 12] [--style X] [--profile Y]
-// Salida: out/lint.json + veredicto SHIP / FIX (shot  t  problema  arreglo)
+//   node engine/lint.mjs [--only validate|determinism|layout|camera|transitions|beats|handoffs|motion|rhythm] [--shot ID] [--fps 12] [--style X] [--profile Y]
+// Salida: out/lint.json (solo pasada completa) + out/lint/<film>/<ID>.json + veredicto SHIP / FIX (shot  t  problema  arreglo)
+//   --shot ID: ID + vecinos inmediatos del timeline; escribe solo sus veredictos por shot. --only X: parcial, nunca el global.
 import fs from 'node:fs';
 import path from 'node:path';
 import { makeRenderer } from './render.mjs';
@@ -13,6 +14,9 @@ import { checkPalette } from './styles.mjs';
 import { luminance } from './color.mjs';
 import { guardCtx, scanShots } from './guard.mjs';
 import { activeShots } from './seek.mjs';
+import { currentHashes, stamp, neighbors, lintDir } from './verdict.mjs';
+import { writeAtomic } from './lock.mjs';
+import { record } from './ledger.mjs';
 
 const argv = process.argv.slice(2);
 const arg = (k, d) => { const i = argv.indexOf(k); return i >= 0 ? argv[i + 1] : d; };
@@ -33,7 +37,10 @@ const tOf = (s) => (s.transition_out ?? '').toLowerCase().trim();
   for (const x of sch) (x.level === 'FIX' ? fix : warn)(x.shot, x.t, x.problem, x.remedy);
   if (sch.some((x) => x.kind === 'schema' && x.level === 'FIX')) {
     fs.mkdirSync(path.join(ROOT, 'out'), { recursive: true });
-    fs.writeFileSync(path.join(ROOT, 'out/lint.json'), JSON.stringify({ style: tl.style ?? null, profile: tl.profile ?? null, verdict: 'FIX', issues }, null, 2));
+    // FIX sellado (F1): bloquea master/crítico también tras --only; nunca deja un SHIP viejo vigente.
+    const H = currentHashes(), body = JSON.stringify({ style: tl.style ?? null, profile: tl.profile ?? null, checks: 'schema', verdict: 'FIX', partial: false, ...stamp(H), issues }, null, 2);
+    writeAtomic(path.join(ROOT, 'out/lint.json'), body);
+    record({ action: 'lint', target: `lint/${H.film}/schema`, hash_after: H.filmHash, verdict: 'FIX', why: 'timeline no valida el esquema' });
     for (const x of issues) console.log(`${x.level.padEnd(4)}  ${String(x.shot).padEnd(6)} ${x.t.toFixed(2).padStart(7)}s  ${x.problem}  →  ${x.remedy}`);
     console.log(`\nFIX (${issues.filter((x) => x.level === 'FIX').length})  [esquema: ${tp} no valida data/timeline.schema.json]`);
     process.exit(1);
@@ -108,7 +115,7 @@ function motifCheck(film) {
 
 // Determinismo con atribución: se muestrea el centro de CADA shot (y extremos); el fallo nombra los shots activos.
 function determinism(R) {
-  const f = R.film, ts = [0, 0.37, f.duration, ...f.shots.map((s) => (s.t[0] + s.t[1]) / 2)], seen = new Set();
+  const f = R.film, sc = f.lintScope, ts = sc ? f.shots.filter((s) => sc.ids.has(s.id)).map((s) => (s.t[0] + s.t[1]) / 2) : [0, 0.37, f.duration, ...f.shots.map((s) => (s.t[0] + s.t[1]) / 2)], seen = new Set();
   for (const t of ts) {
     R.frame(t); const a = R.cv.toBuffer('raw');
     R.frame(f.duration * 0.2); R.frame(t); const b = R.cv.toBuffer('raw');
@@ -167,7 +174,9 @@ function layout(R, fps) {
   const minPx = (P.minFontPx * Math.min(W, H)) / 1080, seen = new Set(), once = (k, f) => { if (!seen.has(k)) { seen.add(k); f(); } };
   const safe = { x0: W * P.safe.side, x1: W * (1 - P.safe.side), y0: bar + H * P.safe.top, y1: H - bar - H * P.safe.bottom };
   const vis = new Map(); // etiqueta → {first,last,chars,shot}: tiempo de lectura
+  const sc = film.lintScope;                                                 // --shot: solo la ventana del shot y sus vecinos
   for (let i = 0; i <= film.duration * fps; i++) {
+    if (sc && (i / fps < sc.t0 || i / fps > sc.t1)) continue;
     const t = i / fps, boxes = R.frame(t), texts = boxes.filter((b) => b.kind === 'text'), foci = boxes.filter((b) => b.kind === 'focus');
     const sizes = [];
     for (let a = 0; a < texts.length; a++) {
@@ -193,7 +202,7 @@ function layout(R, fps) {
   // Composición por shot (fotograma central): bordes, anclaje a puntos de poder, espacio negativo.
   const cm = S.compose, m = cm.edgeMargin;
   for (const s of film.shots) {
-    if (s.compose === 'free') continue;
+    if (s.compose === 'free' || (sc && !sc.ids.has(s.id))) continue;
     const tm = (s.t[0] + s.t[1]) / 2, all = R.frame(tm), foci = all.filter((b) => b.kind === 'focus' && b.shot === s.id);
     if (!foci.length) { if (film.mods[s.id]) fix(s.id, tm, 'el shot no registra ningún foco (composición y tipo sobre sujeto no se pueden medir)', 'api.focus(...) o una primitiva que lo registre (morph, path, plot, tex…)'); continue; }
     for (const f of foci) if (!f.bleed && (f.x < W * m || f.x + f.w > W * (1 - m) || f.y < bar + visH * m || f.y + f.h > H - bar - visH * m))
@@ -301,7 +310,7 @@ async function motion(fps, film) {
   }
   { const nn = E.length, k = Math.max(2, Math.round(nn * 0.08)), last = E.slice(-k).reduce((a, b) => a + b, 0) / k, p70 = [...E].sort((a, b) => a - b)[Math.floor(nn * 0.7)];
     if (!film.end_hold_ok && last < p70) warn('-', film.duration * 0.92, `final apagado: energía del último 8% (${(last * 1000).toFixed(2)}) < p70 del film (${(p70 * 1000).toFixed(2)})`, 'peak-end: cerrar con energía o declarar end_hold_ok:true'); }
-  fs.writeFileSync(path.join(ROOT, 'out/motion.json'), JSON.stringify({ fps, energy: E.map((e) => +e.toFixed(5)) }));
+  writeAtomic(path.join(ROOT, 'out/motion.json'), JSON.stringify({ fps, energy: E.map((e) => +e.toFixed(5)) }));
 }
 
 // Rima: el primer y el último frame dialogan (mismo tipo de masa/lugar) sin ser un clon.
@@ -337,10 +346,28 @@ async function rhythm(film) {
   }
 }
 
+// Salidas (F1): veredicto global out/lint.json SOLO en una pasada completa; por shot en out/lint/<film>/<ID>.json.
+// Todo veredicto lleva los hashes tomados ANTES de los checks (si algo cambia durante el lint, nace caducado: isFresh=false).
+const shotArg = arg('--shot'), H0 = currentHashes(), partial = !!(only || shotArg);
+const emit = (film, error) => {
+  const fixes = issues.filter((x) => x.level === 'FIX'), meta = { style: film?.S?.name ?? null, profile: film?.profileName ?? null, checks: only ?? 'all' };
+  const ids = shotArg ? [shotArg, ...neighbors(H0, shotArg)] : H0.order, perShot = (id) => issues.filter((x) => x.shot === id);
+  if (only) writeAtomic(path.join(lintDir(), `_only-${only}.json`), JSON.stringify({ partial: true, ...meta, verdict: fixes.length ? 'FIX' : 'PASS', ...stamp(H0), issues }, null, 1));
+  else {
+    for (const id of ids) { const mine = perShot(id), v = error || mine.some((x) => x.level === 'FIX') ? 'FIX' : 'SHIP'; writeAtomic(path.join(lintDir(), `${id}.json`), JSON.stringify({ ...meta, verdict: v, ...stamp(H0, id), issues: error ? [...mine, ...issues.filter((x) => x.shot === '-')] : mine }, null, 1)); }
+    if (!shotArg) writeAtomic(path.join(ROOT, 'out/lint.json'), JSON.stringify({ ...meta, verdict: fixes.length ? 'FIX' : 'SHIP', partial: false, ...stamp(H0), issues }, null, 2));
+  }
+  record({ action: 'lint', target: `lint/${H0.film}${shotArg ? '/' + shotArg : ''}${only ? '/only:' + only : ''}`, hash_after: H0.filmHash, verdict: fixes.length ? 'FIX' : only ? 'PASS' : 'SHIP', why: error ? 'lint abortado: ' + error : null });
+  return fixes;
+};
 let R;
-try { R = await makeRenderer({ size: arg('--size', undefined), grade: false }); } catch (e) { console.error('FIX  ' + e.message); process.exit(1); }
+try { R = await makeRenderer({ size: arg('--size', undefined), grade: false }); } catch (e) { console.error('FIX  ' + e.message); fix('-', 0, `el film no carga: ${e.message}`.slice(0, 300), 'arreglar el error y relanzar'); emit(null, e.message); process.exit(1); }
+if (shotArg && !R.film.shots.some((s) => s.id === shotArg)) { console.error(`FIX  --shot ${shotArg}: no existe en el timeline`); process.exit(1); }
+if (shotArg) { const sc = R.film.shots.filter((s) => s.id === shotArg || neighbors(H0, shotArg).includes(s.id)); R.film.lintScope = { ids: new Set(sc.map((s) => s.id)), t0: Math.min(...sc.map((s) => s.t[0])), t1: Math.max(...sc.map((s) => s.t[1])) }; }
 const lfps = +arg('--fps', 12);
 fs.mkdirSync(path.join(ROOT, 'out'), { recursive: true });
+let aborted = null;
+try {
 if (want('validate')) { validate(R.film); for (const x of scanShots(ROOT, R.film.shots.map((s) => s.id))) (x.level === 'FIX' ? fix : warn)(x.shot, 0, x.problem, x.remedy); fonts(R); }
 if (want('determinism')) determinism(await makeRenderer({ size: arg('--size', undefined), grade: true }));
 if (want('layout')) { R.film.guard = guardCtx; R.film.guardLog = []; layout(R, Math.min(lfps, 8)); R.film.guard = null; guardReport(R.film); }
@@ -350,8 +377,9 @@ if (want('beats')) beats(R.film);
 if (want('handoffs')) handoffs(R.film);
 if (want('motion')) await motion(lfps, R.film);
 if (want('rhythm')) { rima(R); await rhythm(R.film); }
-const fixes = issues.filter((x) => x.level === 'FIX');
-fs.writeFileSync(path.join(ROOT, 'out/lint.json'), JSON.stringify({ style: R.film.S.name, profile: R.film.profileName, verdict: fixes.length ? 'FIX' : 'SHIP', issues }, null, 2));
+} catch (e) { aborted = e.message; fix('-', 0, `lint abortado: ${e.message}`.slice(0, 300), 'arreglar el error y relanzar'); }
+const fixes = emit(R.film, aborted);
 for (const x of issues) console.log(`${x.level.padEnd(4)}  ${String(x.shot).padEnd(6)} ${x.t.toFixed(2).padStart(7)}s  ${x.problem}  →  ${x.remedy}`);
-console.log(fixes.length ? `\nFIX (${fixes.length})  [${R.film.S.name}/${R.film.profileName}]` : `\nSHIP${issues.length ? ` (${issues.length} avisos)` : ''}  [${R.film.S.name}/${R.film.profileName}]`);
+const tag = `[${R.film.S.name}/${R.film.profileName}]${only ? ` (parcial: --only ${only}; no escribe out/lint.json)` : shotArg ? ` (shot ${shotArg} + vecinos → out/lint/${H0.film}/)` : ''}`;
+console.log(fixes.length ? `\nFIX (${fixes.length})  ${tag}` : `\n${only ? 'PASS' : 'SHIP'}${issues.length ? ` (${issues.length} avisos)` : ''}  ${tag}`);
 process.exit(fixes.length ? 1 : 0);
