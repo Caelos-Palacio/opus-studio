@@ -53,6 +53,7 @@ editorial · scientific · noir · kinetic · soft · brutalist · stopmo · **c
 | `CRAFT.md` · `CINE.md` · `STYLES.md` | principios, gusto cinematográfico con números, estilos |
 | `MOTOR.md` | arquitectura v4, algoritmos y problemas de sistemas parecidos que se parchean |
 | `docs/API.md` | referencia de primitivas **generada** (`npm run docs`) |
+| `STATUS.md` | estado real **generado** (`node engine/status.mjs`); mapa de docs en `docs/current/README.md` |
 | `ORQUESTADOR.md` · `AGENTES.md` · `PROMPTS.md` · `REVIEW.md` | arranque, roles, prompts por etapa, checklist |
 | `FUNDAMENTOS.md` | por qué este diseño |
 | `data/` | `timeline.json` (demo), `timeline.template.json` (vacío), `edit.example.json` (EDL) |

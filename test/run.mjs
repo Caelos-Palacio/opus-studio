@@ -75,4 +75,5 @@ for (const t of ['schema', 'critic', 'gov', 'guard', 'hash', 'params', 'memoria'
 let fail = 0;
 for (const t of tasks) { const r = await t; console.log(r.line); if (!r.ok) fail++; }
 console.log(`\n${fail ? `${fail} fallos` : 'Todo verde'}  (${((Date.now() - t0) / 1000).toFixed(1)} s, ${jobs} en paralelo${fast ? ', --fast' : ''})`);
+try { fs.mkdirSync(path.join(ROOT, 'out'), { recursive: true }); fs.writeFileSync(path.join(ROOT, 'out/tests.json'), JSON.stringify({ ts: new Date().toISOString(), fail, fast, only })); } catch {}   // lo lee engine/status.mjs (STATUS.md)
 process.exit(fail ? 1 : 0);

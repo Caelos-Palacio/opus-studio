@@ -1,5 +1,7 @@
 # Proceso de guionistas, directores, animadores y divulgadores
 
+> HISTÓRICO: documento fechado; puede no reflejar el estado actual (ver [STATUS.md](/STATUS.md)).
+
 [W] = verificado en la web; [C] = conocimiento previo sin verificar (hipótesis).
 
 | quién | proceso / artefacto | valida | rechaza |

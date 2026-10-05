@@ -1,5 +1,7 @@
 # 09 — Métricas de los 6 films (spec 005)
 
+> HISTÓRICO: documento fechado; puede no reflejar el estado actual (ver [STATUS.md](/STATUS.md)).
+
 Generado con `node engine/metrics.mjs table main mate mate_papel reel regla potencias`. Valor ±semianchura del IC95 (o rango leave-one-out en drama.*). `main` = demo. Convenciones y definiciones: docs/METRICAS.md. Muestreo adaptativo (≤~400 muestras).
 
 | métrica | unidad | main | mate | mate_papel | reel | regla | potencias |

@@ -5,7 +5,7 @@
 terminar metido en un anime."
 
 ## Diagnóstico (por qué el 3D "se nota")
-Spike (docs/research/07-webgl.md): headless-gl + three r160–r162 (llvmpipe), determinista, ~80–115 ms/fotograma CPU.
+Spike (docs/history/research/07-webgl.md): headless-gl + three r160–r162 (llvmpipe), determinista, ~80–115 ms/fotograma CPU.
 Defectos del prototipo: bordes dentados (sin AA), luces planas, sin bloom, superficie limpia sin el grano del film.
 Causas típicas del "CG pegado": aliasing; iluminación y paleta propias del 3D; textura limpia frente a 2D con grano;
 movimiento perfecto a 30 fps junto a 2D en "twos"; recorte duro sin atmósfera ni sombra de contacto; cámara 3D

@@ -1,5 +1,5 @@
 # Handoff — perf (R0, R3, R4, R5)
-Rama `perf` (worktree .claude/worktrees/perf). Sin push. Detalle y tablas: docs/research/08-perfil.md.
+Rama `perf` (worktree .claude/worktrees/perf). Sin push. Detalle y tablas: docs/history/research/08-perfil.md.
 
 ## Hecho
 - **R0** `npm run profile -- [--timeline X | --fixture dir] [--frames N] [--fx-fast] [--no-encode] [--json f] [--md f]` (engine/profile.mjs). Instrumentación en engine/perf.mjs (apagada por defecto; ganchos `span()` en fx.mjs, grade.mjs, prims.tex y seek).

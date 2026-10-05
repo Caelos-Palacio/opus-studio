@@ -1,0 +1,7 @@
+{
+  "_doc": "Presupuestos leídos del ledger (engine/budget.mjs). warnAt = fracción que avisa; al llegar al 100 % checkBudget() devuelve level 'block'. Lo edita el Director.",
+  "warnAt": 0.8,
+  "tokens": { "perRole": { "animator": 400000, "td": 1500000, "productor": 1500000, "dp": 300000, "review": 200000 }, "perTask": { "default": 2000000 } },
+  "renderMinutes": { "default": 60, "perFilm": {} },
+  "iterations": { "perShot": 6, "perGate": 5 }
+}

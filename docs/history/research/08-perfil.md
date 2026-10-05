@@ -1,5 +1,7 @@
 # 08 — Perfil del motor (R0) y primeras optimizaciones
 
+> HISTÓRICO: documento fechado; puede no reflejar el estado actual (ver [STATUS.md](/STATUS.md)).
+
 Medido con `npm run profile -- [--timeline X | --fixture dir] [--frames N] [--fx-fast] [--no-encode] [--json f]`
 (engine/profile.mjs + instrumentación apagada por defecto en engine/perf.mjs). Máquina: 12 CPUs, node 22, node-canvas 3.2.3 (cairo 1.16).
 Tiempo EXCLUSIVO por categoría (el de un hijo no se suma al padre); `X+draw` / `X+px.read` = `drawImage` / `getImageData` ejecutados dentro de X.
