@@ -29,7 +29,7 @@ Definición (gates.json); el estado de cierre está en la parte viva.
 
 ## Motor
 
-- versión: 4.0.0 (package.json) · módulos engine/: 73
+- versión: 5.0.0 (package.json) · módulos engine/: 73
 - roles: modo `enforce` (*, director, dp, investigador, td, productor, animator, review) · digest `35a737817acffefa`
 - presupuestos: data/budgets.json digest `5290bbde06ea538a`
 
