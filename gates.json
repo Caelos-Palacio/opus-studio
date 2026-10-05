@@ -1,0 +1,7 @@
+{
+  "_doc": "Gate = lista de \"criterio::comando\". Se cierra solo si todos salen con exit 0 (node engine/gate.mjs close <gate>). Lo edita el Director.",
+  "validate": ["timeline válido y shots sin patrones prohibidos::node engine/lint.mjs --only validate"],
+  "animatic": ["cortes en beat::node engine/lint.mjs --only beats", "cámara dentro del estilo::node engine/lint.mjs --only camera"],
+  "lint": ["lint completo en SHIP::node engine/lint.mjs"],
+  "master": ["SHIP vigente y crítico sin FIX::node engine/gate.mjs verify"]
+}

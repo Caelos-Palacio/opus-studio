@@ -9,6 +9,7 @@
 // Honestidad (E4): respuesta inválida = voto FIX (fail-closed); todas inválidas nunca = SHIP; el pase de coherencia que falla
 // es FIX, no se traga; caché con clave = modelo + sistema + rúbrica + prompt + esquema + hash del plan + N; no corre con lint en FIX.
 // Lámina: 3 columnas (in · mid · out) × 3 filas (color · grises · anotada: focos, texto, tercios, área segura).
+import { lintState } from './verdict.mjs';
 import fs from 'node:fs';
 import path from 'node:path';
 import crypto from 'node:crypto';
@@ -81,6 +82,8 @@ export function lintGate(root = ROOT, tlPath = process.env.OPUS_TIMELINE ?? 'dat
   if (!fs.existsSync(f)) return { ok: false, reason: 'no hay out/lint.json: corre `npm run lint` antes del crítico' };
   let L; try { L = JSON.parse(fs.readFileSync(f, 'utf8')); } catch { return { ok: false, reason: 'out/lint.json ilegible' }; }
   if (L.verdict !== 'SHIP') return { ok: false, reason: `el lint vigente está en ${L.verdict ?? '?'} (${(L.issues ?? []).filter((i) => i.level === 'FIX').length} FIX): arréglalo antes de pedir juicio visual` };
+  // Veredicto sellado (F1/E3): vigencia por hash de contenido; parcial (--only/--shot) no vale. mtime solo como respaldo sin sello.
+  if (root === ROOT && L.engineHash) { const st = lintState(); return st.fresh ? { ok: true, lint: L } : { ok: false, reason: `lint caducado: ${st.why}; vuelve a correr \`npm run lint\`` }; }
   const lm = fs.statSync(f).mtimeMs, srcs = [path.join(root, tlPath), ...(fs.existsSync(path.join(root, 'shots')) ? fs.readdirSync(path.join(root, 'shots')).filter((x) => x.endsWith('.mjs')).map((x) => path.join(root, 'shots', x)) : [])];
   const newer = srcs.filter((p) => fs.existsSync(p) && fs.statSync(p).mtimeMs > lm);
   if (newer.length) return { ok: false, reason: `lint caducado: ${newer.map((p) => path.relative(root, p)).slice(0, 3).join(', ')} cambió después de out/lint.json; vuelve a correr \`npm run lint\`` };

@@ -50,7 +50,7 @@ Espero OK o correcciones por viñeta.
 # Modo autónomo (sin humano)
 
 Cada GATE se sustituye por: `lint` SHIP + un pase de crítico VLM sobre la hoja/strip con la checklist de REVIEW.md (incluido Review-Cine).
-Registra en `out/gates.md` (etapa, evidencia, veredicto). Un GATE fallido dos veces seguidas → detente y reporta.
+Cierra cada GATE con `node engine/gate.mjs close <gate>` (criterios ejecutables de `gates.json`; estado en `out/gates.json`, traza en `out/ledger.jsonl`). Un GATE fallido dos veces seguidas → detente y reporta.
 
 # Límites de ejecución
 

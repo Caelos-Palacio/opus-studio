@@ -14,6 +14,7 @@ import { ROOT, timelinePath } from './film.mjs';
 import { makeRenderer } from './render.mjs';
 import { shotHash } from './cut.mjs';
 import { barHeight } from './grade.mjs';
+import { withLock, writeAtomic } from './lock.mjs';
 
 // (I + λ DᵀD) s = b con D = segunda diferencia: matriz simétrica de banda 2. Eliminación gaussiana en banda.
 export function smooth2(b, lam, w = null) {                                  // w: pesos por muestra (0 = dato ausente)
@@ -27,7 +28,10 @@ export function smooth2(b, lam, w = null) {                                  // 
 }
 const peak = (xs, fps, rel) => { let m = 0; for (let i = 1; i < xs.length; i++) m = Math.max(m, Math.abs(xs[i] - xs[i - 1]) * fps / (rel ? xs[i - 1] : 1)); return m; };
 
-async function main() {
+async function main() {                                                       // un horneado por timeline a la vez (salida única compartida)
+  await withLock(`autocam/${path.basename(timelinePath())}`, bake, { ttlMs: 60000, waitMs: 1800000 });
+}
+async function bake() {
   const R = await makeRenderer({ size: '640x360', grade: false }), { film, W, H } = R, C = film.S.camera, fps = 12, out = {};
   const file = path.join(ROOT, 'data/autocam', path.basename(timelinePath())); fs.mkdirSync(path.dirname(file), { recursive: true });
   film.autocam = {};                                                          // identidad mientras se mide
@@ -62,7 +66,7 @@ async function main() {
     out[s.id] = { hash: shotHash(film, s.id), fps, lambda: +(10 ** hi).toPrecision(3), anchor: [Px / Wf, Py / Hf], samples: S.z.map((z, i) => [+(s.t[0] + i / fps).toFixed(4), +z.toFixed(4), +(S.x[i] / Wf).toFixed(5), +(S.y[i] / Hf).toFixed(5)]) };
     console.log(`  ✓ ${s.id}: λ=${out[s.id].lambda}  ancla (${(Px / Wf).toFixed(2)}, ${(Py / Hf).toFixed(2)})  zoom ${Math.min(...S.z).toFixed(2)}–${Math.max(...S.z).toFixed(2)} · ${wts.filter((w) => !w).length} muestras sin sujeto (peso 0)`);
   }
-  fs.writeFileSync(file, JSON.stringify(out));
+  writeAtomic(file, JSON.stringify(out));
   console.log('→', path.relative(ROOT, file));
 }
 if (import.meta.url === `file://${process.argv[1]}`) main().catch((e) => { console.error(e.stack); process.exit(1); });

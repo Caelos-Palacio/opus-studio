@@ -29,11 +29,11 @@ async function mutation(m) {
   const d = copyRepo(), lint = ['engine/lint.mjs', ...(fast ? ['--only', m.quick] : [])];
   try {
     if (m.file) { const f = path.join(d, m.file), a = fs.readFileSync(f, 'utf8'), b = m.edit(a); if (a === b) throw new Error('la mutación no se aplicó'); fs.writeFileSync(f, b); }
-    const r = await run(lint, { cwd: d, timeout: 300000 }), lf = path.join(d, 'out/lint.json');
+    const r = await run(lint, { cwd: d, timeout: 300000 }), lf = path.join(d, fast ? `out/lint/main/_only-${m.quick}.json` : 'out/lint.json');   // --only nunca escribe el global (F1)
     if (!fs.existsSync(lf)) throw new Error('lint no escribió out/lint.json: ' + (r.stderr || r.stdout).slice(-400));
     const L = JSON.parse(fs.readFileSync(lf, 'utf8')), e = m.expect, fx = L.issues.filter((i) => i.level === 'FIX'), wn = L.issues.filter((i) => i.level === 'WARN');
     let ok = true;
-    if (e.verdict) ok &&= L.verdict === e.verdict;
+    if (e.verdict) ok &&= L.verdict === (fast && e.verdict === 'SHIP' ? 'PASS' : e.verdict);
     if (e.fix) ok &&= fx.some((i) => e.fix.test(i.problem) && (!e.shot || i.shot === e.shot));
     if (e.warn) ok &&= wn.some((i) => e.warn.test(i.problem));
     return { ok, line: `${ok ? '✓' : '✗'} ${m.name.padEnd(16)} ${L.verdict}${fast ? `  (lint --only ${m.quick})` : ''}  ${ok ? '' : r.stdout.split('\n').slice(-12).join('\n   ')}` };
@@ -62,7 +62,7 @@ if (!fast && sel('fixture')) tasks.push(P(fixture));
 if (sel('golden')) tasks.push(P(script('test/golden.mjs')));
 if (!fast && sel('cut')) tasks.push(P(script('test/cut-render.mjs')));
 tasks.push(P(script('test/unit.mjs')));
-for (const t of ['schema', 'critic']) if (sel(t)) tasks.push(P(script(`test/${t}.mjs`)));   // esquema (E8) y crítico honesto (E4, cliente simulado)                                   // unidades puras (geometría, partículas, sims): siempre
+for (const t of ['schema', 'critic', 'gov']) if (sel(t)) tasks.push(P(script(`test/${t}.mjs`)));   // esquema (E8), crítico honesto (E4), gobernanza (F1)                                   // unidades puras (geometría, partículas, sims): siempre
 let fail = 0;
 for (const t of tasks) { const r = await t; console.log(r.line); if (!r.ok) fail++; }
 console.log(`\n${fail ? `${fail} fallos` : 'Todo verde'}  (${((Date.now() - t0) / 1000).toFixed(1)} s, ${jobs} en paralelo${fast ? ', --fast' : ''})`);

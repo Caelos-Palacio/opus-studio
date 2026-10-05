@@ -6,6 +6,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { hashStr } from './core.mjs';
 import { parsePath, mapPts } from './geom.mjs';
+import { withLockSync, writeAtomic } from './lock.mjs';
 
 let MJ = null;
 async function boot() {
@@ -59,10 +60,14 @@ export function makeTexStore(root) {
     get(tex, display = true) {
       const k = texKey(tex, display); if (mem.has(k)) return mem.get(k);
       const f = path.join(dir, k + '.json'); let v;
-      if (fs.existsSync(f)) v = JSON.parse(fs.readFileSync(f, 'utf8'));
+      let hit = null; try { hit = JSON.parse(fs.readFileSync(f, 'utf8')); } catch {}
+      if (hit) v = hit;
       else {
-        v = compileTexSync(tex, display); fs.writeFileSync(f, JSON.stringify(v));
-        const ix = path.join(dir, 'index.json'), I = fs.existsSync(ix) ? JSON.parse(fs.readFileSync(ix, 'utf8')) : {}; I[k] = { tex, display }; fs.writeFileSync(ix, JSON.stringify(I, null, 1));   // manifiesto para el navegador
+        v = compileTexSync(tex, display); writeAtomic(f, JSON.stringify(v));
+        withLockSync('tex-cache', () => {                                     // RMW del manifiesto bajo lock: dos agentes no se pisan entradas
+          const ix = path.join(dir, 'index.json'); let I = {}; try { I = JSON.parse(fs.readFileSync(ix, 'utf8')); } catch {}
+          I[k] = { tex, display }; writeAtomic(ix, JSON.stringify(I, null, 1));   // manifiesto para el navegador
+        });
       }
       mem.set(k, v); return v;
     },
