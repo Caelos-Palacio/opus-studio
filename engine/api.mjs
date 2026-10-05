@@ -116,6 +116,7 @@ export function makeApi(ctx, film, shot, cx) {
     },
     glow(x, y, r, color = 'accent', alpha = 0.5) {                            // no-op si el estilo lo prohíbe
       if (!S.rules.glow) return;
+      r *= S.rules.glowScale ?? 1;                                              // medios (spec 003): el glow es sangrado de tinta; en claro necesita más masa para leerse como pico
       const g = ctx.createRadialGradient(x, y, 0, x, y, r); g.addColorStop(0, hexA(col(color), alpha)); g.addColorStop(1, hexA(col(color), 0));
       ctx.save(); ctx.fillStyle = g; ctx.fillRect(x - r, y - r, 2 * r, 2 * r); ctx.restore();
     },

@@ -1,0 +1,303 @@
+{
+ "version": 1,
+ "titulo": "e^{iπ}: elevar es girar",
+ "timeline": "data/mate_papel/timeline.json",
+ "memoria": {
+  "vidaMedia": 14,
+  "piso": 0.12,
+  "umbral": 0.15
+ },
+ "conceptos": [
+  {
+   "id": "punto",
+   "label": "el número 1: un punto sobre la recta",
+   "kind": "entidad",
+   "saliencia": 0.9,
+   "planta": true,
+   "anclas": [
+    {
+     "shot": "M01"
+    },
+    {
+     "shot": "M08"
+    }
+   ],
+   "estados": [
+    {
+     "t": [
+      0,
+      9
+     ],
+     "lectura": "un número cualquiera sobre una recta, con una potencia por descifrar",
+     "siente": "calma, curiosidad",
+     "espera": "que alguien lo calcule"
+    }
+   ]
+  },
+  {
+   "id": "que-es",
+   "label": "¿qué significa elevar e a iπ?",
+   "kind": "pregunta",
+   "saliencia": 0.95,
+   "abre": 3.0,
+   "resuelve": {
+    "t": 66.0,
+    "por": "aterrizaje"
+   },
+   "anclas": [
+    {
+     "shot": "M01"
+    },
+    {
+     "t": [
+      60,
+      66
+     ]
+    }
+   ],
+   "estados": [
+    {
+     "t": [
+      3,
+      66
+     ],
+     "lectura": "una potencia que no se sabe leer",
+     "siente": "intriga sostenida",
+     "espera": "una respuesta que reconcilie multiplicar con imaginario"
+    }
+   ]
+  },
+  {
+   "id": "multiplicar",
+   "label": "elevar es multiplicar e por sí mismo",
+   "kind": "regla",
+   "saliencia": 0.7,
+   "anclas": [
+    {
+     "shot": "M02"
+    }
+   ],
+   "estados": [
+    {
+     "t": [
+      9,
+      17
+     ],
+     "lectura": "elevar es repetir una multiplicación: ×e, ×e",
+     "siente": "seguridad",
+     "espera": "que iπ se pueda multiplicar"
+    }
+   ]
+  },
+  {
+   "id": "modelo-roto",
+   "label": "no se puede multiplicar iπ veces",
+   "kind": "tensión",
+   "saliencia": 0.85,
+   "abre": 17.4,
+   "resuelve": {
+    "t": 38.0,
+    "por": "girar"
+   },
+   "anclas": [
+    {
+     "t": [
+      17.4,
+      21
+     ]
+    }
+   ],
+   "estados": [
+    {
+     "t": [
+      17.4,
+      38
+     ],
+     "lectura": "el modelo de multiplicar no alcanza para un exponente imaginario",
+     "siente": "desconcierto sereno",
+     "espera": "otra manera de entender elevar"
+    }
+   ]
+  },
+  {
+   "id": "crecer",
+   "label": "elevar es dejar crecer: velocidad igual a posición",
+   "kind": "regla",
+   "saliencia": 0.75,
+   "anclas": [
+    {
+     "shot": "M03"
+    }
+   ],
+   "estados": [
+    {
+     "t": [
+      21,
+      34
+     ],
+     "lectura": "e^t es lo que crece con velocidad igual a lo que ya hay",
+     "siente": "claridad",
+     "espera": "que la regla funcione con otras tasas"
+    }
+   ]
+  },
+  {
+   "id": "girar",
+   "label": "si la velocidad apunta de lado, el punto gira",
+   "kind": "regla",
+   "saliencia": 0.9,
+   "anclas": [
+    {
+     "shot": "M04"
+    }
+   ],
+   "estados": [
+    {
+     "t": [
+      34,
+      47
+     ],
+     "lectura": "multiplicar por i es girar 90°: con tasa imaginaria el punto gira en vez de crecer",
+     "siente": "sorpresa suave",
+     "espera": "saber dónde termina tras media vuelta"
+    }
+   ]
+  },
+  {
+   "id": "pasos",
+   "label": "pasos pequeños: el polígono de Euler",
+   "kind": "motivo",
+   "saliencia": 0.6,
+   "anclas": [
+    {
+     "shot": "M05"
+    }
+   ],
+   "estados": [
+    {
+     "t": [
+      47,
+      60
+     ],
+     "lectura": "con n pasos el extremo se acerca a un mismo sitio, sin llegar",
+     "siente": "anticipación",
+     "espera": "que el sitio se confirme al agrandar n"
+    }
+   ]
+  },
+  {
+   "id": "aterrizaje",
+   "label": "el extremo aterriza exactamente en −1",
+   "kind": "revelación",
+   "saliencia": 1,
+   "anclas": [
+    {
+     "shot": "M06"
+    }
+   ],
+   "estados": [
+    {
+     "t": [
+      66,
+      72
+     ],
+     "lectura": "el polígono es un arco y el punto está en −1: exacto, no aproximado",
+     "siente": "asombro sereno",
+     "espera": "ver la ecuación que lo dice"
+    }
+   ]
+  },
+  {
+   "id": "identidad",
+   "label": "e^{iπ} + 1 = 0 dice «media vuelta»",
+   "kind": "tema",
+   "saliencia": 0.9,
+   "anclas": [
+    {
+     "shot": "M07"
+    }
+   ],
+   "estados": [
+    {
+     "t": [
+      72,
+      90
+     ],
+     "lectura": "la identidad no es magia: es media vuelta escrita como potencia",
+     "siente": "calma y cierre",
+     "espera": "volver a casa"
+    }
+   ]
+  }
+ ],
+ "relaciones": [
+  {
+   "id": "prepara-roto",
+   "tipo": "prepara",
+   "de": "multiplicar",
+   "a": "modelo-roto",
+   "t": 17.4,
+   "why": "repetir la multiplicación lleva a preguntarse cómo se repite iπ veces"
+  },
+  {
+   "id": "causa-girar",
+   "tipo": "causa",
+   "de": "crecer",
+   "a": "girar",
+   "t": 36,
+   "why": "si crecer es velocidad igual a posición, una tasa imaginaria desvía la velocidad de lado"
+  },
+  {
+   "id": "pasos-aterrizaje",
+   "tipo": "causa",
+   "de": "pasos",
+   "a": "aterrizaje",
+   "t": 62,
+   "why": "más pasos, más pequeños: el polígono converge a un arco y el extremo a −1"
+  },
+  {
+   "id": "rima-casa",
+   "tipo": "rima",
+   "de": "punto",
+   "a": "identidad",
+   "t": 82,
+   "why": "el punto vuelve a 1 y la recta del principio reaparece con la ecuación completa"
+  },
+  {
+   "id": "aterriza-responde",
+   "tipo": "revela",
+   "de": "aterrizaje",
+   "a": "que-es",
+   "t": 66,
+   "why": "el extremo cae en −1: la potencia imaginaria era un punto sobre una circunferencia, no un producto"
+  }
+ ],
+ "reinterpretaciones": [
+  {
+   "id": "elevar-es-girar",
+   "en": 77.2,
+   "por": "identidad",
+   "objetivo": "multiplicar",
+   "tramo": [
+    9,
+    17
+   ],
+   "antes": "elevar es multiplicar e por sí mismo",
+   "despues": "elevar es dejar crecer; con tasa imaginaria, girar",
+   "why": "los saltos ×e eran el caso entero de algo más general: una velocidad proporcional a la posición"
+  },
+  {
+   "id": "punto-origen",
+   "en": 79.6,
+   "por": "identidad",
+   "objetivo": "punto",
+   "tramo": [
+    0,
+    9
+   ],
+   "antes": "un número cualquiera sobre la recta",
+   "despues": "el origen del giro: el ángulo 0 desde el que se mide la media vuelta",
+   "why": "el 1 del principio no era un dato suelto sino el punto de partida de la rotación"
+  }
+ ]
+}

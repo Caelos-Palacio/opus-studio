@@ -1,0 +1,23 @@
+{
+  "idea": "Elevar e a un número imaginario es girar: un punto cuya velocidad apunta siempre de lado recorre media vuelta y aterriza en menos uno.",
+  "question": { "text": "¿Qué significa elevar e a iπ?", "posed_at": 3.0, "answered_at": 66.0, "on_screen": true },
+  "beats": [
+    { "id": "b1", "t": 0.6, "text": "Un punto sobre la recta en uno y una pregunta: qué significa elevar e a iπ", "shot": "M01" },
+    { "id": "b2", "t": 11.0, "text": "pero elevar es multiplicar e por sí mismo y no se puede multiplicar iπ veces; cada salto estira la recta", "link": "pero", "shot": "M02" },
+    { "id": "b3", "t": 22.0, "text": "por lo tanto miramos otra idea: elevar es dejar crecer, con la velocidad igual a la posición", "link": "por lo tanto", "shot": "M03" },
+    { "id": "b4", "t": 36.0, "text": "pero si la velocidad apunta de lado el punto no crece: gira (un giro de 90 grados cada instante)", "link": "pero", "shot": "M04" },
+    { "id": "b5", "t": 48.0, "text": "por lo tanto damos pasos pequeños de ese giro y vemos dónde termina el polígono de n pasos", "link": "por lo tanto", "shot": "M05" },
+    { "id": "b6", "t": 62.0, "text": "por lo tanto con más pasos cada vez más pequeños el polígono se vuelve un arco y el punto aterriza en menos uno", "link": "por lo tanto", "shot": "M06" },
+    { "id": "b7", "t": 73.0, "text": "por lo tanto el arco es media vuelta y la identidad dice e elevado a iπ más uno es cero", "link": "por lo tanto", "shot": "M07" },
+    { "id": "b8", "t": 82.0, "text": "pero la media vuelta se deshace: el punto vuelve a uno, donde empezó", "link": "pero", "shot": "M08" }
+  ],
+  "accommodation": { "t": 64.8, "type": "regla", "text": "elevar no es multiplicar: es girar" },
+  "accent": { "means": "el punto y la respuesta: lo que se sigue con la vista, el aterrizaje" },
+  "concepts": [
+    { "term": "estirar", "t": 11.4, "focus": "salto" },
+    { "term": "velocidad", "t": 23.6, "focus": "velocidad" },
+    { "term": "girar", "t": 36.8, "focus": "giro" },
+    { "term": "media vuelta", "t": 73.4, "focus": "arco" }
+  ],
+  "segments": [[0, 34], [34, 70], [70, 90]]
+}

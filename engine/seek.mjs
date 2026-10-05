@@ -3,16 +3,19 @@ import { clamp, stepT, onT } from './core.mjs';
 import { makeApi } from './api.mjs';
 import { camState, applyCam } from './camera.mjs';
 import { applyGrade } from './grade.mjs';
-import { resolveStyle } from './styles.mjs';
+import { resolveStyle, deepMerge } from './styles.mjs';
 import { releasePool } from './fx.mjs';
 import { nodeWorld, drawScene } from './scene.mjs';
 import { bindParams } from './signal.mjs';
 import { perf, enter, leave } from './perf.mjs';
+import { mediumState, mediumOverrides, paintBackdrop, compositeInk, postMedium, beginInk } from './medium.mjs';
 
 export function compile(film, profiles, styles, audioInfo = null) {
   const pack = styles[film.style ?? 'editorial'];
   if (!pack) throw new Error(`estilo "${film.style}" no existe (styles/${film.style}.json). Disponibles: ${Object.keys(styles).join(', ')}`);
-  film.S = resolveStyle(pack, film);
+  if (film.mediumDef) film.medium = film.mediumDef;                               // nombre (timeline) → definición
+  else if (typeof film.medium === 'string') throw new Error(`medio "${film.medium}" sin cargar (loadFilm lee styles/medios/)`);
+  film.S = resolveStyle(pack, film.medium ? { ...film, styleOverrides: deepMerge(mediumOverrides(film.medium), film.styleOverrides ?? {}) } : film);   // spec 003: el medio pone paleta/post/reglas; el timeline manda
   film.palette = film.S.palette; film.typeface = film.S.typeface;
   film.profileName = film.profile ?? film.S.defaultProfile ?? 'reel';
   film.P = { ...profiles[film.profileName], ...(film.profileOverrides ?? {}) };
@@ -43,8 +46,9 @@ export function seek(ctx, tOut, film, { grade = true } = {}) {
   const tStep = stepT(tReal, film);                                        // stop-motion: solo el dibujo se cuantiza
   ctx.save();
   const m = ctx.getTransform(), B = { a: m.a, b: m.b, c: m.c, d: m.d, e: m.e, f: m.f };
-  ctx.fillStyle = film.palette.paper;
-  ctx.fillRect(0, 0, film.width, film.height);
+  const out = ctx, MX = mediumState(film, ctx.canvas), act = MX && grade ? activeShots(film, tStep) : null, bgCam = MX && act?.length ? camState(act[act.length - 1], tStep, film) : { z: 1, x: 0, y: 0, r: 0, fx: 0.5, fy: 0.5 };
+  if (MX) { paintBackdrop(out, film, MX, bgCam, B); ctx = beginInk(MX, B); }                        // medio (spec 003): soporte + capas atrás; los shots dibujan en la capa de tinta
+  else { ctx.fillStyle = film.palette.paper; ctx.fillRect(0, 0, film.width, film.height); }
   const boxes = [], meta = []; boxes.meta = meta;
   for (const s of activeShots(film, tStep)) {
     const t = onT(tStep, s, film);                                         // shot.on: doses/treses solo en el dibujo (cámara a ones)
@@ -67,6 +71,7 @@ export function seek(ctx, tOut, film, { grade = true } = {}) {
     if (perf.on) { leave(); perf.shot = null; }
     ctx.restore();
   }
+  if (MX) { ctx = out; compositeInk(out, film, MX, bgCam, tReal, B, grade); if (grade) postMedium(out, film, MX, tReal); }
   if (grade) applyGrade(ctx, film, tOut);
   ctx.restore();
   releasePool(film);

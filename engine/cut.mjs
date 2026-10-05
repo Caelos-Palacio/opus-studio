@@ -43,7 +43,7 @@ function shotImports(id, seen = new Set()) {
 }
 // Segmentos: grupos de shots que se solapan (morphs) no se parten; cortes limpios sí.
 export function plan(film, { fps, size, chunk = 900, preset = 'medium' }) {
-  const engine = sha(engineSig(), JSON.stringify(film.S), fontSig([film.S.typeface]));
+  const engine = sha(engineSig(), JSON.stringify(film.S), ...(film.medium ? [JSON.stringify(film.medium)] : []), fontSig([film.S.typeface]));
   const glob = sha(engine, assetsSig(), film.audioInfo ?? null, film.width, film.height, film.duration, film.fps, film.motif, film.handoffs, film.profileName, film.P, fps, size, film.edit?.items ?? null, ...(preset !== 'medium' ? [preset] : []));
   const N = Math.round(film.duration * fps) + 1, jobs = [];
   // F4 cookKey: entrada RESUELTA del shot (params tras capas + señales que usa; sin meta) + la de los shots cuyo código

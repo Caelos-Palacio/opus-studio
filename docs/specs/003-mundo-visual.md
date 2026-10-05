@@ -44,3 +44,26 @@ Un MEDIO por vídeo aplicado a TODO (técnico-3D-con-acentos | papel/crayón | n
 color + grano + viñeta + 2–5 capas de parallax con fuga + paleta 1 neutro + 2 acentos + micro-detalle + jerarquía
 tipográfica. Mundo/entorno antes que más efectos sobre el vacío. Límite: 3D real con sombreado por píxel, volumétricos
 y PBR requieren WebGL (decisión pendiente: ¿añadir backend WebGL/Three.js?).
+
+## BDD — sistema de MEDIOS (rama `medios`; implementación: engine/medium.mjs + styles/medios/*.json; doc: docs/MEDIOS.md)
+Un MEDIO es la superficie y la materia de todo el film: soporte (papel crema con fibras y manchas…), tinta/textura (grano riso,
+erosión, desregistro, jitter de trazo, hatching), grano animado, viñeta, paleta cerrada, capas de parallax y reglas de composición.
+El film lo elige con `"medium": "<nombre>"` en el timeline. Sin `medium` el comportamiento es el de siempre (golden bit a bit).
+Todos los escenarios miden fotogramas reales (640×360) en los instantes 6, 30, 55, 85 s de *Mate*; test/medios.mjs.
+
+| # | Escenario | Medible | v1 (esperado) |
+|---|---|---|---|
+| M1 | Dado un film con medio, ningún fotograma tiene fondo plano | bloques 16 px de fondo: desviación de las medias ≥ 1,2/255 (luz/manchas) Y textura (media |Δ| entre vecinos) ≥ 1,5/255 | FALLA |
+| M2 | Paleta = 1 neutro + ≤ 2 acentos declarados | los píxeles saturados caen ≥ 92 % a ≤ 40° de un acento declarado; el medio declara ≤ 2 acentos | FALLA (4 matices) |
+| M3 | Hay grano animado | diferencia media entre dos fotogramas contiguos en un parche de fondo ≥ 0,8/255 | FALLA |
+| M4 | Hay profundidad | ≥ 2 capas de parallax con factor distinto y no nulo; con cámara desplazada sus desplazamientos difieren | FALLA |
+| M5 | Las texturas se precalculan una vez por seed | N fotogramas ⇒ 1 construcción por (medio, seed, tamaño) | — |
+| M6 | Mate v1 FALLA los criterios de medio (la regresión que motivó la spec) | M1 falla sobre data/mate/timeline.json | — |
+| M7 | Sin medio declarado no cambia nada | film sin `medium` ⇒ sin estado de medio; golden del demo intacto | — |
+| M8 | El esquema valida el medio | `medium` desconocido en el timeline ⇒ FIX con sugerencia | — |
+
+### Calificaciones
+| versión | nota | comentario |
+|---|---|---|
+| mate v1 (nocturno) | "bien, no wow" (hereda la crítica de 003) | fondo negro plano |
+| mate_papel (medio papel crema + tinta cobalto/violeta) | pendiente de calificación | A/B en out/ab/mate.jpg; falta el ojo del usuario |
