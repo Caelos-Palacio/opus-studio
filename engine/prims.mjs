@@ -4,6 +4,7 @@
 import { clamp, lerp, hash2, noise1, rng, hashStr, TAU } from './core.mjs';
 import { WARPS, parsePath, shapes, affine, tracePath, tracePolys, traceTrim, morphPolys, bbox, warpShape, mapPts } from './geom.mjs';
 import { layer as fxLayer } from './fx.mjs';
+import { span } from './perf.mjs';
 import { rgba, mix } from './color.mjs';
 
 export const DOC = {};
@@ -295,6 +296,7 @@ export function prims(ctx, api, film, shot, cx) {
       const xs = dst.map((p) => p[0]), ys = dst.map((p) => p[1]); api.focus(Math.min(...xs), Math.min(...ys), Math.max(...xs) - Math.min(...xs), Math.max(...ys) - Math.min(...ys), o.label ?? 'tarjeta', { hollow: o.hollow ?? 0.8, weight: o.weight ?? 1 });
     },
   };
+  P.tex = span('tex', P.tex);
   return P;
 }
 const WARPq = (src, dst) => WARPS.quad({ src, dst });

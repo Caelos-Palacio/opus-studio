@@ -7,6 +7,7 @@ import { resolveStyle } from './styles.mjs';
 import { releasePool } from './fx.mjs';
 import { nodeWorld, drawScene } from './scene.mjs';
 import { bindParams } from './signal.mjs';
+import { perf, enter, leave } from './perf.mjs';
 
 export function compile(film, profiles, styles, audioInfo = null) {
   const pack = styles[film.style ?? 'editorial'];
@@ -57,11 +58,13 @@ export function seek(ctx, tOut, film, { grade = true } = {}) {
     ctx.setTransform(B.a, B.b, B.c, B.d, B.e, B.f);
     applyCam(ctx, cam, film.width, film.height, 1);
     const rec = film.guard ? { violations: [], shot: s.id, t } : null, G = rec ? film.guard(ctx, rec) : null, dctx = G ? G.ctx : ctx;
+    if (perf.on) { perf.shot = s.id; enter('shot'); }
     const api = makeApi(ctx, film, s, { t, u, cam, base: B, boxes, meta, rec });
     if (mod?.scene) drawScene(ctx, sceneBuilder(mod, film, api), t, film, api);
     if (mod?.draw) mod.draw(dctx, t, u, s, film, api);
     if (!mod?.draw && !mod?.scene) placeholder(ctx, t, u, s, film, api);
     if (G) { G.end(); film.guardLog?.push(rec); }
+    if (perf.on) { leave(); perf.shot = null; }
     ctx.restore();
   }
   if (grade) applyGrade(ctx, film, tOut);

@@ -63,6 +63,7 @@ export async function loadFilm({ timeline = timelinePath(), animatic = false, st
   if (profile ?? process.env.OPUS_PROFILE) tl.profile = profile ?? process.env.OPUS_PROFILE;
   const film = compile(tl, rd('engine/profiles.json'), loadStyles(), fs.existsSync(aj) ? JSON.parse(fs.readFileSync(aj, 'utf8')) : null);
   film.timelinePath = timeline;
+  if (process.env.OPUS_FXFAST === '1') film.P.fxFast = true;                          // R3 opt-in (fx baratos): entra en el hash vía film.P; también por perfil/overrides
   film.resolution = R;
   film.assets = makeAssets(ROOT);
   film.canvas = (w, h) => createCanvas(w, h);
