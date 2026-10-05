@@ -6,7 +6,8 @@ Orden: **lint automático → ritmo → demo-IA → tipo → cine → rigor**. N
 | check | cómo se mide | perfil |
 |---|---|---|
 | determinismo | `seek(t)` dos veces, buffers idénticos | todos |
-| cobertura / ids / t | validación del timeline | todos |
+| esquema del timeline | `data/timeline.schema.json` (`additionalProperties:false`, enums de `cam.move/why`, `transition_out`, `size`, voces, curvas) validado **antes que todo**; error con ruta JSON y "¿quisiste decir…?". Estructura rota = FIX y el lint no sigue; `render`/`cut` se niegan a cargarla. `node engine/schema.mjs [archivo]` | todos |
+| cobertura / ids / t / referencias | huecos, ids duplicados, `t`, `after`, handoffs, estilo existente (engine/schema.mjs) | todos |
 | cámara de un eje, transiciones prohibidas | texto de `camera` / `transition_out` | todos |
 | causalidad | `after` apunta a un shot previo; `premise`/`anomaly` | explainer |
 | hechos con fuente | `facts` ∈ `facts.json` con `source` | explainer |
@@ -38,7 +39,10 @@ Orden: **lint automático → ritmo → demo-IA → tipo → cine → rigor**. N
 Escaneo estático de shots (Math.random, Date, timers, fetch, ctx.fillText, setTransform → FIX con archivo:línea) · Proxy de ctx (texto crudo, transforms absolutas, fugas de save/restore → FIX; cámara falsa → WARN) · shot sin foco → FIX · determinismo atribuido por shot · prominencia vs focos (WARN) · fuente ausente (WARN) · cam auto sin hornear → FIX.
 
 ## Crítico visual (`npm run critic [-- --api]`)
-Después del lint, nunca en su lugar. Láminas in/mid/out × color/grises/anotada + hechos medidos + rúbrica (framing, hierarchy, aesthetic, coherence, clarity). Sin `--api`, el agente con visión lee `out/review/<film>/*.png` y responde con el esquema de `packet.md`. Con `--api`, el veredicto se cachea por hash y FIX da exit 1.
+Después del lint, nunca en su lugar: **no corre** (exit 2) si `out/lint.json` falta, está en FIX o es más viejo que el timeline/shots. Láminas in/mid/out × color/grises/anotada + hechos medidos + rúbrica (framing, hierarchy, aesthetic, coherence, clarity).
+- Sin `--api`: el agente con visión lee `out/review/<film>/*.png` y entrega `node engine/critic.mjs --verdict v.json` (esquema en `packet.md`, con el `plan` del packet y todos los shots). Se valida, se persiste en `verdict.json` y el exit refleja el veredicto (0 SHIP · 1 FIX); inválido = FIX; sin veredicto vigente = exit 3 (pendiente, nunca SHIP).
+- Con `--api`: N muestras por shot (`--n`, por defecto 3), voto y mediana. **Fail-closed**: respuesta inválida (red, JSON, esquema) = voto FIX; empate = FIX; todas inválidas nunca SHIP; el pase de coherencia que falla es FIX. Caché por clave = modelo + sistema + rúbrica + prompt + esquema + hash del plan + N; lo inválido no se cachea.
+- Set dorado: `test/critic-golden/` (shots buenos + defectos inyectados envolviendo el shot original). `node engine/critic.mjs --eval [--n 3 --repeats 2]` → recall, especificidad, acierto de rúbrica y estabilidad en `out/critic-eval.json` (requiere API; `OPUS_CRITIC_CLIENT` inyecta un cliente simulado).
 
 ## Visual (lo que el lint no puede medir)
 - **Hoja de contacto** (`npm run sheet`): 1 still cada 0,5 s, etiqueta `t  shot  beat`. Si un panel se parece al siguiente sin intención, está muerto.

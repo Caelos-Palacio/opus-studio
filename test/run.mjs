@@ -59,4 +59,6 @@ if (!only || only === 'fixture') {
 }
 // Unidades puras (geometría, partículas, sims): sin render.
 const U = spawnSync(process.execPath, [path.join(ROOT, 'test/unit.mjs')], { encoding: 'utf8' }); process.stdout.write(U.stdout + U.stderr); if (U.status) fail++;
+// Esquema del timeline (E8) y crítico honesto (E4, cliente simulado).
+for (const t of ['schema', 'critic']) if (!only || only === t) { const X = spawnSync(process.execPath, [path.join(ROOT, `test/${t}.mjs`)], { encoding: 'utf8', timeout: 900000 }); process.stdout.write(X.stdout + X.stderr); if (X.status) fail++; }
 console.log(fail ? `\n${fail} fallos` : '\nTodo verde'); process.exit(fail ? 1 : 0);

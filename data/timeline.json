@@ -43,7 +43,6 @@
       "text": "UNA IDEA",
       "transition_out": "morph",
       "must_read_mute": true,
-      "vignette": "storyboard/A1.svg",
       "after": null,
       "premise": "",
       "anomaly": "",
@@ -67,7 +66,6 @@
       "on_beat": "cada beat abre más el anillo",
       "text": "CAMBIA DE FORMA",
       "transition_out": "morph",
-      "vignette": "storyboard/A2.svg",
       "after": "A1",
       "cam": {
         "move": "slide",
@@ -92,7 +90,6 @@
       "on_beat": "tick de acento",
       "text": "Y REVELA OTRA",
       "transition_out": "cut",
-      "vignette": "storyboard/A3.svg",
       "after": "A2",
       "hold_ok": [
         [

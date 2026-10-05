@@ -1,0 +1,145 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "opus-studio/timeline.schema.json",
+  "title": "opus-studio timeline",
+  "description": "Esquema cerrado del timeline (E8). Campos derivados de TODO lo que el motor lee (seek, camera, lint, autocam, sound, audio, cut, index, styles, film). Un campo que no está aquí no tiene consumidor: additionalProperties:false lo convierte en FIX con sugerencia. Enums sincronizados con el código por test/schema.mjs.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["duration", "shots"],
+  "properties": {
+    "$schema": { "type": "string" },
+    "title": { "type": "string" },
+    "style": { "type": "string", "description": "pack de styles/<nombre>.json (se comprueba contra el directorio)" },
+    "profile": { "enum": ["reel", "explainer", "cinematic"] },
+    "profileOverrides": { "$ref": "#/$defs/profileOverrides" },
+    "styleOverrides": { "$ref": "#/$defs/styleOverrides" },
+    "palette": { "type": "object", "description": "compat opus-studio 2 (styles.mjs resolveStyle)", "additionalProperties": { "type": "string" } },
+    "typeface": { "type": "object", "description": "compat opus-studio 2 (styles.mjs resolveStyle)" },
+    "fps": { "type": "integer", "minimum": 1, "maximum": 240 },
+    "width": { "type": "integer", "minimum": 2 },
+    "height": { "type": "integer", "minimum": 2 },
+    "bpm": { "type": "number", "minimum": 0 },
+    "beatOffset": { "type": "number" },
+    "duration": { "type": "number", "minimum": 0 },
+    "audio": { "type": ["string", "null"], "description": "pista para render/cut; música por defecto de sound.mjs" },
+    "music": { "anyOf": [{ "type": "null" }, { "$ref": "#/$defs/music" }] },
+    "autoSfx": { "anyOf": [{ "type": "boolean" }, { "$ref": "#/$defs/autoSfx" }] },
+    "handoffs": { "type": "array", "items": { "$ref": "#/$defs/handoff" } },
+    "motif": { "anyOf": [{ "type": "null" }, { "$ref": "#/$defs/motif" }] },
+    "rhyme": { "type": "boolean", "description": "false desactiva el aviso de rima (lint rima)" },
+    "end_hold_ok": { "type": "boolean", "description": "true permite un final en reposo (lint motion)" },
+    "shots": { "type": "array", "minItems": 1, "items": { "$ref": "#/$defs/shot" } }
+  },
+  "$defs": {
+    "num2": { "type": "array", "items": { "type": "number" }, "minItems": 2, "maxItems": 2 },
+    "unit2": { "type": "array", "items": { "type": "number", "minimum": 0, "maximum": 1 }, "minItems": 2, "maxItems": 2 },
+    "voice": { "enum": ["click", "tick", "pop", "whoosh", "impact", "riser", "shimmer", "drone", "rev", "anom"] },
+    "shot": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "t"],
+      "properties": {
+        "id": { "type": "string", "pattern": "^[A-Za-z0-9_-]+$", "description": "shots/<id>.mjs" },
+        "t": { "$ref": "#/$defs/num2" },
+        "layer": { "type": "number", "description": "orden de dibujo entre shots solapados (seek)" },
+        "size": { "enum": ["ECU", "CU", "MS", "WS", "EWS"], "description": "tamaño de plano (CINE.md); lint scale-cut" },
+        "action": { "type": "string" },
+        "on_beat": { "type": "string", "description": "descripción del acento (animatic/PROMPTS)" },
+        "on_beat_at": { "type": "array", "items": { "type": "number", "minimum": 0 } },
+        "text": { "type": "string" },
+        "year": { "type": ["string", "number"] },
+        "transition_out": { "enum": ["cut", "morph", "match", "wipe-obj", "scale-cut", "hold-cut"] },
+        "poi_out": { "$ref": "#/$defs/unit2" },
+        "poi_in": { "$ref": "#/$defs/unit2" },
+        "after": { "type": ["string", "null"], "description": "predecesor causal (perfil explainer)" },
+        "premise": { "type": "string" },
+        "anomaly": { "type": "string" },
+        "facts": { "type": "array", "items": { "type": "string" } },
+        "cues": { "type": "array", "items": { "$ref": "#/$defs/cue" }, "description": "legado explainer (sound/audio)" },
+        "sfx": { "type": "array", "items": { "$ref": "#/$defs/sfx" } },
+        "hold_ok": { "type": "array", "items": { "$ref": "#/$defs/num2" } },
+        "motifState": { "type": "string" },
+        "compose": { "enum": ["free"], "description": "\"free\" desactiva el lint de composición del shot" },
+        "saliency": { "type": "boolean", "description": "false desactiva el aviso de prominencia" },
+        "must_read_mute": { "type": "boolean", "description": "false desactiva el check de separación en grises (lint layout); true es el valor por defecto" },
+        "cam": { "$ref": "#/$defs/cam" },
+        "camera": { "type": "string", "description": "legado v2: texto libre que camera.mjs traduce a cam; preferir cam" },
+        "vignette": { "type": "string", "deprecated": true, "x-remedy": "quitar: nada lo lee; la viñeta vive en storyboard/<id>.svg por convención" }
+      }
+    },
+    "cam": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["move"],
+      "properties": {
+        "move": { "enum": ["static", "push", "pull", "slide", "pan", "tilt", "rotate", "auto"] },
+        "why": { "enum": ["approach", "reveal", "follow", "compare", "unease"] },
+        "amount": { "type": "number" },
+        "dir": { "$ref": "#/$defs/num2" },
+        "ease": { "enum": ["linear", "in", "out", "inOut", "inOutQuint", "outExpo", "outBack", "smooth", "step", "cinema"] },
+        "focus": { "$ref": "#/$defs/unit2" },
+        "chain": { "type": "boolean" },
+        "recenter": { "type": "boolean" },
+        "shake": { "type": "number", "minimum": 0 },
+        "whip": { "type": "boolean" },
+        "delay": { "type": "number", "minimum": 0 },
+        "track": {
+          "type": "object", "additionalProperties": false, "required": ["node"],
+          "properties": { "node": { "type": "string" }, "k": { "type": "number" }, "smooth": { "type": "number", "minimum": 0 } }
+        },
+        "subject": { "type": "string", "description": "autocam: etiqueta del foco a seguir" },
+        "fill": { "type": "number", "exclusiveMinimum": 0, "maximum": 1, "description": "autocam" },
+        "anchor": { "enum": ["thirds", "center", "free"], "description": "autocam" },
+        "minZoom": { "type": "number", "exclusiveMinimum": 0, "description": "autocam" },
+        "maxZoom": { "type": "number", "exclusiveMinimum": 0, "description": "autocam" }
+      }
+    },
+    "sfx": {
+      "type": "object", "additionalProperties": false, "required": ["at", "type"],
+      "properties": { "at": { "type": "number" }, "type": { "$ref": "#/$defs/voice" }, "gain": { "type": "number", "minimum": 0 }, "pan": { "type": "number", "minimum": -1, "maximum": 1 }, "dur": { "type": "number", "exclusiveMinimum": 0 } }
+    },
+    "cue": {
+      "type": "object", "additionalProperties": false, "required": ["at", "type"],
+      "properties": { "at": { "type": "number" }, "type": { "type": "string" } }
+    },
+    "handoff": {
+      "type": "object", "additionalProperties": false, "required": ["from", "to", "entity", "at"],
+      "properties": {
+        "from": { "type": "string" }, "to": { "type": "string" }, "entity": { "type": "string" }, "entityTo": { "type": "string" },
+        "at": { "type": "number" }, "tol": { "type": "number", "minimum": 0 }, "tolAngle": { "type": "number", "minimum": 0 },
+        "kind": { "enum": ["match"] }
+      }
+    },
+    "motif": {
+      "type": "object", "additionalProperties": false, "required": ["states"],
+      "properties": { "id": { "type": "string" }, "states": { "type": "array", "items": { "type": "string" } }, "roleColor": { "type": "string" } }
+    },
+    "music": {
+      "type": "object", "additionalProperties": false, "required": ["file"],
+      "properties": { "file": { "type": "string" }, "gain": { "type": "number" }, "duck": { "type": "number", "minimum": 0 }, "fadeIn": { "type": "number", "minimum": 0 }, "fadeOut": { "type": "number", "minimum": 0 } }
+    },
+    "autoSfx": {
+      "type": "object", "additionalProperties": false,
+      "properties": { "morph": { "type": "boolean" }, "cut": { "type": "boolean" }, "beat": { "anyOf": [{ "type": "boolean" }, { "$ref": "#/$defs/voice" }] } }
+    },
+    "profileOverrides": {
+      "type": "object", "additionalProperties": false,
+      "properties": {
+        "maxHold": { "type": "number", "minimum": 0 }, "cutOnBeat": { "type": "boolean" }, "shotLen": { "$ref": "#/$defs/num2" },
+        "safe": { "type": "object", "additionalProperties": false, "properties": { "top": { "type": "number" }, "bottom": { "type": "number" }, "side": { "type": "number" } } },
+        "minFontPx": { "type": "number", "minimum": 0 }, "requireCausality": { "type": "boolean" }, "requireFacts": { "type": "boolean" },
+        "holdEnergy": { "type": "number", "minimum": 0 }, "popRatio": { "type": "number", "minimum": 0 }, "readCps": { "type": "number", "exclusiveMinimum": 0 }
+      }
+    },
+    "styleOverrides": {
+      "type": "object", "additionalProperties": false,
+      "description": "se fusiona en profundidad sobre el pack (styles.mjs); claves de primer nivel = las de DEFAULTS",
+      "properties": {
+        "name": { "type": "string" }, "description": { "type": "string" }, "mood": { "type": "string" }, "defaultProfile": { "enum": ["reel", "explainer", "cinematic"] },
+        "palette": { "type": "object", "additionalProperties": { "type": "string" } }, "typeface": { "type": "object" }, "motion": { "type": "object" },
+        "camera": { "type": "object" }, "grade": { "type": "object" }, "depth": { "type": "object" }, "light": { "type": "object" },
+        "compose": { "type": "object" }, "rules": { "type": "object" }, "bans": { "type": "array", "items": { "type": "string" } }
+      }
+    }
+  }
+}

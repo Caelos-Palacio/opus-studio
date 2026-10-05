@@ -5,7 +5,8 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { makeRenderer } from './render.mjs';
-import { ROOT } from './film.mjs';
+import { ROOT, timelinePath } from './film.mjs';
+import { validateTimeline, ENUMS } from './schema.mjs';
 import { specOf, camStats, camState, camEnds } from './camera.mjs';
 import { barHeight } from './grade.mjs';
 import { checkPalette } from './styles.mjs';
@@ -20,32 +21,36 @@ const want = (k) => !only || only === k;
 const issues = [];
 const push = (level) => (shot, t, problem, remedy) => issues.push({ level, shot, t: +(+t).toFixed(3), problem, remedy });
 const fix = push('FIX'), warn = push('WARN');
-const WHY = ['approach', 'reveal', 'follow', 'compare', 'unease'];
+const WHY = ENUMS.why, TRANS = ENUMS.transition;   // fuente única: data/timeline.schema.json
 const WHY_MOVES = { approach: ['push'], reveal: ['pull', 'tilt'], follow: ['slide', 'pan', 'tilt', 'auto'], compare: ['slide', 'pan'], unease: ['rotate', 'push', 'pull', 'slide', 'pan', 'tilt'] };
-const TRANS = ['cut', 'morph', 'match', 'wipe-obj', 'scale-cut', 'hold-cut'];
 const tOf = (s) => (s.transition_out ?? '').toLowerCase().trim();
-const AXES = ['push', 'slide', 'rotate', 'pan', 'tilt', 'orbit'];
+
+// E8: esquema + referencias (ids, t, huecos, cobertura, handoffs, after, cam.why, estilo) ANTES que todo y con cualquier --only.
+// Si la estructura está rota el resto no corre (asume la forma): lint.json con los FIX del esquema y exit 1.
+{
+  const tp = timelinePath(), tl = JSON.parse(fs.readFileSync(path.join(ROOT, tp), 'utf8'));
+  const sch = validateTimeline(tl, { style: process.env.OPUS_STYLE });
+  for (const x of sch) (x.level === 'FIX' ? fix : warn)(x.shot, x.t, x.problem, x.remedy);
+  if (sch.some((x) => x.kind === 'schema' && x.level === 'FIX')) {
+    fs.mkdirSync(path.join(ROOT, 'out'), { recursive: true });
+    fs.writeFileSync(path.join(ROOT, 'out/lint.json'), JSON.stringify({ style: tl.style ?? null, profile: tl.profile ?? null, verdict: 'FIX', issues }, null, 2));
+    for (const x of issues) console.log(`${x.level.padEnd(4)}  ${String(x.shot).padEnd(6)} ${x.t.toFixed(2).padStart(7)}s  ${x.problem}  →  ${x.remedy}`);
+    console.log(`\nFIX (${issues.filter((x) => x.level === 'FIX').length})  [esquema: ${tp} no valida data/timeline.schema.json]`);
+    process.exit(1);
+  }
+}
 
 function validate(film) {
   const S = film.S, ids = new Set(), bans = S.bans.map((b) => b.toLowerCase());
-  let covered = 0;
   for (const p of checkPalette(S)) (p.level === 'FIX' ? fix : warn)('-', 0, `[estilo ${S.name}] ${p.problem}`, p.remedy);
   for (const s of film.shots) {
-    if (ids.has(s.id)) fix(s.id, s.t[0], 'id duplicado', 'renombrar');
     ids.add(s.id);
-    if (!(s.t[1] > s.t[0])) fix(s.id, s.t[0], 't inválido', 't[1] > t[0]');
-    if (s.t[0] > covered + 1e-6) fix(s.id, covered, `hueco ${covered.toFixed(2)}–${s.t[0].toFixed(2)}s sin shot`, 'extender shot previo o añadir uno');
-    covered = Math.max(covered, s.t[1]);
     const len = s.t[1] - s.t[0], [lo, hi] = film.P.shotLen;
     if (len < lo || len > hi) warn(s.id, s.t[0], `duración ${len.toFixed(2)}s fuera de [${lo},${hi}] (${film.profileName})`, 'ajustar o justificar');
-    if (!s.cam) {
-      const cam = (s.camera ?? '').toLowerCase(), n = AXES.filter((a) => cam.includes(a)).length;
-      if (n > 1) fix(s.id, s.t[0], `cámara con ${n} ejes: "${s.camera}"`, 'un solo eje por shot');
-    } else if (!['static', 'push', 'pull', 'slide', 'pan', 'tilt', 'rotate', 'auto'].includes(s.cam.move)) fix(s.id, s.t[0], `cam.move "${s.cam.move}" desconocido`, 'static|push|pull|slide|pan|tilt|rotate');
     const tr = (s.transition_out ?? '').toLowerCase();
     if (bans.some((b) => tr.includes(b))) fix(s.id, s.t[1], `transición prohibida en estilo ${S.name}: "${s.transition_out}"`, 'morph / wipe / iris / corte en beat');
     const sp = specOf(s, film);
-    if (sp.move !== 'static' && !WHY.includes(sp.why)) fix(s.id, s.t[0], `cam.why ${sp.why ? `"${sp.why}" no está en` : 'falta:'} enum (${WHY.join('|')})`, 'declarar por qué se mueve la cámara con una de las 5 razones');
+    if (!s.cam && sp.move !== 'static' && !WHY.includes(sp.why)) fix(s.id, s.t[0], `cámara legada "${s.camera}" sin cam.why`, `migrar a cam {move, why: ${WHY.join('|')}}`);   // con cam, lo garantiza el esquema
     if (WHY.includes(sp.why) && sp.move !== 'static' && !WHY_MOVES[sp.why].includes(sp.move)) warn(s.id, s.t[0], `why "${sp.why}" no casa con move "${sp.move}"`, `${sp.why} → ${WHY_MOVES[sp.why].join('/')}`);
     if (film.P.requireCausality && s !== film.shots[0]) {
       if (!s.after || !ids.has(s.after)) fix(s.id, s.t[0], 'sin predecesor causal ("after")', 'enlazar con el shot cuya idea modifica');
@@ -56,14 +61,12 @@ function validate(film) {
   motifCheck(film);
   const violent = film.shots.filter((s) => { const sp = specOf(s, film); return sp.whip || sp.move === 'rotate' || sp.why === 'unease'; });
   if (violent.length > Math.max(1, Math.ceil(film.shots.length / 8))) warn(violent[1].id, violent[1].t[0], `${violent.length} planos violentos (whip/rotate/unease): "si todos gritan, ninguno"`, 'máximo 1 por acto (~8 shots)');
-  if (covered < film.duration - 1e-6) fix('-', covered, 'el film termina sin shot', 'cubrir hasta duration');
   const fp = path.join(ROOT, 'data/facts.json'), facts = fs.existsSync(fp) ? JSON.parse(fs.readFileSync(fp, 'utf8')) : {};
   for (const s of film.shots) for (const f of s.facts ?? []) {
     if (!facts[f]) fix(s.id, s.t[0], `hecho "${f}" no está en facts.json`, 'añadir con fuente');
     else if (!facts[f].source) fix(s.id, s.t[0], `hecho "${f}" sin fuente`, 'añadir source');
   }
   if (film.P.requireFacts) for (const s of film.shots) if ((s.text || s.year) && !(s.facts ?? []).length) warn(s.id, s.t[0], 'texto/fecha sin hecho asociado', 'referenciar facts');
-  for (const h of film.handoffs ?? []) for (const k of ['from', 'to']) if (!ids.has(h[k])) fix(h[k], h.at, 'handoff referencia shot inexistente', 'corregir id');
 }
 
 const hoOf = (film, a, b) => (film.handoffs ?? []).filter((h) => h.from === a.id && h.to === b.id);
