@@ -12,7 +12,8 @@ import { ROOT, digest } from './ledger.mjs';
 import { engineSig, PIXEL_ROOTS, JUDGE_ROOTS, shotDeps, assetsSig, fontSig, flushDigests } from './hash.mjs';
 import { DEFAULTS as STYLE_DEFAULTS } from './styles.mjs';
 
-for (const k of ['style', 'profile', 'timeline', 'edit']) { const i = process.argv.indexOf('--' + k); if (i >= 0 && process.argv[i + 1]) process.env['OPUS_' + k.toUpperCase()] = process.argv[i + 1]; }
+import { effectiveTimeline } from './params.mjs';
+for (const k of ['style', 'profile', 'timeline', 'edit', 'variant', 'layers']) { const i = process.argv.indexOf('--' + k); if (i >= 0 && process.argv[i + 1]) process.env['OPUS_' + k.toUpperCase()] = process.argv[i + 1]; }
 const rdB = (p) => { try { return fs.readFileSync(path.join(ROOT, p)); } catch { return ''; } };
 const tlPath = () => process.env.OPUS_TIMELINE ?? 'data/timeline.json';
 export const filmKey = () => { const b = path.basename(tlPath(), '.json'); return (b === 'timeline' ? 'main' : b) + (process.env.OPUS_EDIT ? '.edit' : ''); };
@@ -21,16 +22,17 @@ export const lintDir = () => path.join(ROOT, 'out/lint', filmKey());
 export const engineHash = () => engineSig([...PIXEL_ROOTS, ...JUDGE_ROOTS]);
 // Hashes actuales (lo que un veredicto debe igualar para existir).
 export function currentHashes() {
-  const tlRaw = rdB(tlPath()), tl = (() => { try { return JSON.parse(tlRaw); } catch { return { shots: [] }; } })(), shots = Array.isArray(tl.shots) ? tl.shots : [];
+  // F4: hashes sobre el timeline EFECTIVO (capas data/layers + variantes); meta (shot y film) no cuenta: no cambia píxeles ni lint.
+  const tlRaw = rdB(tlPath()), tl = (() => { try { const raw = JSON.parse(tlRaw); return Array.isArray(raw.shots) ? effectiveTimeline(raw, tlPath()) : raw; } catch { return { shots: [] }; } })(), shots = Array.isArray(tl.shots) ? tl.shots : [];
   const sf = fs.existsSync(path.join(ROOT, 'styles')) ? fs.readdirSync(path.join(ROOT, 'styles')).filter((f) => f.endsWith('.json')).sort() : [];
   const styles = sf.map((f) => f + digest(rdB('styles/' + f)));
   const tfs = [STYLE_DEFAULTS.typeface, ...sf.map((f) => { try { return JSON.parse(rdB('styles/' + f)).typeface; } catch { return null; } })];   // fuentes que cualquier estilo puede pedir
   const env = ['OPUS_STYLE', 'OPUS_PROFILE', 'OPUS_EDIT'].map((k) => process.env[k] ?? '');
-  const byId = {}; for (const s of shots) if (s && s.id) byId[s.id] = digest(JSON.stringify(s) + '\u0000' + shotDeps(s.id));
-  const { shots: _, ...globals } = tl;
+  const byId = {}; for (const s of shots) if (s && s.id) { const { meta: _m, ...e } = s; byId[s.id] = digest(JSON.stringify(e) + '\u0000' + shotDeps(s.id)); }
+  const { shots: _, meta: _fm, ...globals } = tl;
   const ctxHash = digest([JSON.stringify(globals), styles.join(','), digest(rdB('data/audio.json')), digest(rdB('data/facts.json')), digest(rdB(path.join('data/autocam', path.basename(tlPath())))), process.env.OPUS_EDIT ? digest(rdB(process.env.OPUS_EDIT)) : '', env.join('|'), assetsSig(), fontSig(tfs)].join('\n'));
   const order = shots.map((s) => s?.id).filter(Boolean); flushDigests();
-  return { engineHash: engineHash(), filmHash: digest(ctxHash + order.map((id) => id + byId[id]).join('|') + digest(tlRaw)), ctxHash, shots: byId, order, film: filmKey() };
+  return { engineHash: engineHash(), filmHash: digest(ctxHash + order.map((id) => id + byId[id]).join('|') + digest(JSON.stringify({ ...tl, shots: shots.map(({ meta, ...e }) => e), meta: undefined }))), ctxHash, shots: byId, order, film: filmKey() };
 }
 export const neighbors = (cur, id) => { const i = cur.order.indexOf(id); return i < 0 ? [] : [cur.order[i - 1], cur.order[i + 1]].filter(Boolean); };
 // Sello que se embebe en el JSON del veredicto.

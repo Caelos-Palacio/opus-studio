@@ -69,7 +69,7 @@ function analyze(file) {
   best.bpm = +(60 / T).toFixed(2); off = o0 * fr;
   const silences = []; let st = -1; const thr = 0.01;
   for (let i = 0; i <= n; i++) { const q = i < n && rms[i] < thr; if (q && st < 0) st = i; if (!q && st >= 0) { if ((i - st) / fr >= 1.0) silences.push([+(st / fr).toFixed(2), +(i / fr).toFixed(2)]); st = -1; } }
-  return { bpm: best.bpm, offset: +(off / fr).toFixed(3), onsets, silences, source: path.relative(ROOT, file) };
+  return { bpm: best.bpm, offset: +(off / fr).toFixed(3), onsets, silences, source: path.relative(ROOT, file), rms: { hop: +(hop / SR).toFixed(6), values: Array.from(rms, (v) => +v.toFixed(4)) } };   // rms: señal audio/rms (docs/PARAMS.md)
 }
 
 const out = (o) => { fs.writeFileSync(path.join(ROOT, 'data/audio.json'), JSON.stringify(o, null, 2)); console.log('→ data/audio.json', `bpm ${o.bpm}, offset ${o.offset}s, ${o.onsets?.length ?? 0} onsets, ${o.silences.length} silencios`); };
