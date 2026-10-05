@@ -7,6 +7,7 @@ import { rgba as hexA, luminance } from './color.mjs';
 import { SHAPES, lerpShape } from './shapes.mjs';
 import { prims } from './prims.mjs';
 import { drawScene } from './scene.mjs';
+import { sakuga } from './sakuga.mjs';
 
 function rr(ctx, x, y, w, h, r) {
   r = Math.max(0, Math.min(r, w / 2, h / 2));
@@ -82,13 +83,6 @@ export function makeApi(ctx, film, shot, cx) {
       api.focus(x - w / 2, y - h / 2, w, h, o.label ?? 'motivo', { hollow: inner * 0.7 });
       return { x, y, w, h, r, th };
     },
-    // Estirado de stop-motion en el eje de la velocidad (px/s). No hace nada si el estilo no lo pide.
-    smear(x, y, vx, vy, fn) {
-      const kk = S.motion.smear || 0, sp = Math.hypot(vx, vy);
-      if (!kk || sp < 1) return fn();
-      const st = 1 + kk * clamp(sp / (W * 0.6)), an = Math.atan2(vy, vx);
-      ctx.save(); ctx.translate(x, y); ctx.rotate(an); ctx.scale(st, 1 / Math.sqrt(st)); ctx.rotate(-an); ctx.translate(-x, -y); fn(); ctx.restore();
-    },
     // Billboard 2.5D: giro en Y fingido con scaleX = cos θ (≤ 35°, más se ve carta). Devuelve cos θ para estirar la sombra.
     billboard(x, y, theta, fn) {
       const th = clamp(theta, -0.61, 0.61);
@@ -135,5 +129,6 @@ export function makeApi(ctx, film, shot, cx) {
     },
   };
   Object.assign(api, prims(ctx, api, film, shot, cx));
+  Object.assign(api, sakuga(ctx, api, film, shot, cx));                     // impact + smear (registran metadatos para arc)
   return api;
 }

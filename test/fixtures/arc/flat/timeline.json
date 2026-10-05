@@ -1,0 +1,16 @@
+{
+  "title": "arc A/B — PowerPoint (plana)",
+  "style": "editorial",
+  "profile": "reel",
+  "fps": 30,
+  "width": 1280,
+  "height": 720,
+  "duration": 8,
+  "handoffs": [],
+  "shots": [
+    { "id": "F1", "t": [0, 2], "size": "MS", "text": "¿CABE UNA ESCALA EN UN PUNTO?", "action": "persona y punto en órbita constante", "cam": { "move": "slide", "amount": 0.03, "ease": "linear", "why": "follow" }, "transition_out": "cut" },
+    { "id": "F2", "t": [2, 4], "size": "MS", "text": "SE MUEVE", "action": "el punto sigue en órbita constante", "cam": { "move": "slide", "amount": 0.03, "ease": "linear", "why": "follow" }, "transition_out": "cut" },
+    { "id": "F3", "t": [4, 6], "size": "MS", "text": "ES UNA ESCALA", "action": "el punto sigue en órbita constante", "cam": { "move": "slide", "amount": 0.03, "ease": "linear", "why": "follow" }, "transition_out": "cut" },
+    { "id": "F4", "t": [6, 8], "size": "MS", "text": "SÍ: TODO ES ESCALA", "action": "el punto sigue en órbita constante", "cam": { "move": "slide", "amount": 0.03, "ease": "linear", "why": "follow" }, "transition_out": "cut" }
+  ]
+}

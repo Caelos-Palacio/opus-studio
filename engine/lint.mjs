@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 // Escalera de verificación determinista (barata → cara). Sin VLM. Aplica el gusto del estilo activo.
-//   node engine/lint.mjs [--only validate|determinism|layout|camera|transitions|beats|handoffs|motion|rhythm] [--shot ID] [--fps 12] [--style X] [--profile Y]
+//   node engine/lint.mjs [--only validate|determinism|layout|camera|transitions|beats|handoffs|motion|rhythm|arc] [--shot ID] [--fps 12] [--style X] [--profile Y]
 // Salida: out/lint.json (solo pasada completa) + out/lint/<film>/<ID>.json + veredicto SHIP / FIX (shot  t  problema  arreglo)
 //   --shot ID: ID + vecinos inmediatos del timeline; escribe solo sus veredictos por shot. --only X: parcial, nunca el global.
 import fs from 'node:fs';
@@ -377,6 +377,10 @@ if (want('beats')) beats(R.film);
 if (want('handoffs')) handoffs(R.film);
 if (want('motion')) await motion(lfps, R.film);
 if (want('rhythm')) { rima(R); await rhythm(R.film); }
+if (want('arc')) {                                                         // F5: lint dramático, solo si hay story.json (sin story no cambia nada)
+  const A = await import('./arc.mjs');
+  if (A.storyPath(R.film)) { const r = await A.runArc({ fps: lfps }); for (const x of r.issues) push(x.level)(x.shot, x.t, `[arc] ${x.problem}`, x.remedy); }
+}
 } catch (e) { aborted = e.message; fix('-', 0, `lint abortado: ${e.message}`.slice(0, 300), 'arreglar el error y relanzar'); }
 const fixes = emit(R.film, aborted);
 for (const x of issues) console.log(`${x.level.padEnd(4)}  ${String(x.shot).padEnd(6)} ${x.t.toFixed(2).padStart(7)}s  ${x.problem}  →  ${x.remedy}`);

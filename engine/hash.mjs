@@ -21,7 +21,7 @@ import * as walk from 'acorn-walk';
 
 export const ROOT = path.resolve(path.dirname(new URL(import.meta.url).pathname), '..');
 // Herramientas de gobernanza/documentación: el cierre no las atraviesa (cambiarlas no re-renderiza ni caduca veredictos).
-export const NON_PIXEL = new Set(['ledger', 'lock', 'gate', 'roles', 'verdict', 'doc', 'gallery', 'q', 'orch']);
+export const NON_PIXEL = new Set(['ledger', 'lock', 'gate', 'roles', 'verdict', 'doc', 'gallery', 'q', 'orch', 'memoria']);
 // Lo que produce píxeles: el render (film → seek/api/… → shots) y la cámara automática (horneada a data/autocam).
 export const PIXEL_ROOTS = ['engine/render.mjs', 'engine/autocam.mjs'];
 // Lo que además decide un veredicto (lint + crítico).

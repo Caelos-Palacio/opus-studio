@@ -1,0 +1,123 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "opus-studio/memoria.schema.json",
+  "title": "Memoria conceptual del film",
+  "description": "Lo que un humano piensa cuando RECUERDA el vídeo: conceptos que coexisten, se modifican entre sí y cambian en el tiempo. No es un resumen de fotogramas (eso es el índice observado, engine/index.mjs). Validado por engine/memoria.mjs con el validador de engine/schema.mjs.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["version", "conceptos"],
+  "properties": {
+    "version": { "const": 1 },
+    "titulo": { "type": "string" },
+    "timeline": { "type": "string", "description": "ruta del timeline cuyos shots/entidades/params se anclan (por defecto el activo)" },
+    "duracion": { "type": "number", "exclusiveMinimum": 0, "description": "si falta, la del timeline" },
+    "memoria": {
+      "type": "object", "additionalProperties": false,
+      "properties": {
+        "vidaMedia": { "type": "number", "exclusiveMinimum": 0, "description": "segundos de film en que un recuerdo no reforzado pierde la mitad del peso" },
+        "piso": { "type": "number", "minimum": 0, "maximum": 1, "description": "residuo: lo visto nunca baja de piso·saliencia" },
+        "umbral": { "type": "number", "minimum": 0, "maximum": 1, "description": "peso mínimo para contar como activo" }
+      }
+    },
+    "conceptos": { "type": "array", "minItems": 1, "items": { "$ref": "#/$defs/concepto" } },
+    "relaciones": { "type": "array", "items": { "$ref": "#/$defs/relacion" } },
+    "reinterpretaciones": { "type": "array", "items": { "$ref": "#/$defs/reinterpretacion" } },
+    "direccion": {
+      "type": "object", "additionalProperties": false,
+      "properties": {
+        "prioridad": { "type": "number", "description": "prioridad de la capa generada (data/layers)" },
+        "reglas": { "type": "array", "items": { "$ref": "#/$defs/regla" } }
+      }
+    }
+  },
+  "$defs": {
+    "id": { "type": "string", "pattern": "^[a-z0-9][a-z0-9_-]*$" },
+    "tramo": { "type": "array", "items": { "type": "number", "minimum": 0 }, "minItems": 2, "maxItems": 2 },
+    "rol": { "enum": ["intensidad", "tamaño", "ritmo", "eco", "rima", "hold", "retencion", "enfasis"] },
+    "concepto": {
+      "type": "object", "additionalProperties": false,
+      "required": ["id", "label", "kind"],
+      "properties": {
+        "id": { "$ref": "#/$defs/id" },
+        "label": { "type": "string", "minLength": 1 },
+        "kind": { "enum": ["entidad", "regla", "pregunta", "tensión", "revelación", "emoción", "motivo", "tema"] },
+        "saliencia": { "type": "number", "minimum": 0, "maximum": 1, "description": "cuánto se graba (1 = inolvidable)" },
+        "vidaMedia": { "type": "number", "exclusiveMinimum": 0 },
+        "planta": { "type": "boolean", "description": "setup declarado (Chéjov): exige un payoff posterior" },
+        "anclas": { "type": "array", "items": { "$ref": "#/$defs/ancla" } },
+        "refuerzos": { "type": "array", "items": { "type": "number", "minimum": 0 }, "description": "instantes en que reaparece o se nombra sin estar anclado" },
+        "estados": { "type": "array", "items": { "$ref": "#/$defs/estado" } },
+        "abre": { "type": "number", "minimum": 0, "description": "pregunta/tensión: cuándo se abre" },
+        "resuelve": {
+          "type": "object", "additionalProperties": false, "required": ["t", "por"],
+          "properties": { "t": { "type": "number", "minimum": 0 }, "por": { "$ref": "#/$defs/id" } }
+        },
+        "abiertaAPropósito": { "type": "string", "minLength": 3, "description": "final abierto deliberado: por qué (silencia el lint)" },
+        "nota": { "type": "string" }
+      }
+    },
+    "estado": {
+      "type": "object", "additionalProperties": false,
+      "required": ["t", "lectura"],
+      "properties": {
+        "t": { "$ref": "#/$defs/tramo" },
+        "lectura": { "type": "string", "minLength": 1, "description": "qué cree el espectador que es/significa" },
+        "siente": { "type": "string" },
+        "espera": { "type": "string", "description": "qué anticipa que pasará" }
+      }
+    },
+    "ancla": {
+      "type": "object", "additionalProperties": false,
+      "description": "puntero verificable: al menos uno de shot | t | entidad | param",
+      "properties": {
+        "shot": { "type": "string" },
+        "t": { "$ref": "#/$defs/tramo" },
+        "entidad": { "type": "string" },
+        "param": { "type": "string", "pattern": "^/shots/[^/]+/params/[^/]+$" },
+        "rol": { "$ref": "#/$defs/rol" },
+        "base": { "type": "number", "description": "valor de referencia del parámetro (si el shot no lo declara)" },
+        "rango": { "type": "array", "items": { "type": "number" }, "minItems": 2, "maxItems": 2 }
+      }
+    },
+    "relacion": {
+      "type": "object", "additionalProperties": false,
+      "required": ["tipo", "de", "a"],
+      "properties": {
+        "id": { "$ref": "#/$defs/id" },
+        "tipo": { "enum": ["causa", "depende", "contradice", "reinterpreta", "revela", "escala", "rima", "resuelve", "prepara"] },
+        "de": { "$ref": "#/$defs/id" },
+        "a": { "$ref": "#/$defs/id" },
+        "t": { "type": "number", "minimum": 0, "description": "cuándo se percibe la relación (refuerza ambos extremos)" },
+        "why": { "type": "string" }
+      }
+    },
+    "reinterpretacion": {
+      "type": "object", "additionalProperties": false,
+      "required": ["id", "en", "por", "objetivo", "tramo", "despues"],
+      "properties": {
+        "id": { "$ref": "#/$defs/id" },
+        "en": { "type": "number", "minimum": 0, "description": "instante del giro" },
+        "por": { "$ref": "#/$defs/id", "description": "concepto que provoca el giro" },
+        "objetivo": { "$ref": "#/$defs/id", "description": "concepto cuya lectura pasada cambia" },
+        "tramo": { "$ref": "#/$defs/tramo", "description": "intervalo del pasado que se relee" },
+        "antes": { "type": "string" },
+        "despues": { "type": "string", "minLength": 1 },
+        "why": { "type": "string" }
+      }
+    },
+    "regla": {
+      "type": "object", "additionalProperties": false,
+      "required": ["id"],
+      "properties": {
+        "id": { "$ref": "#/$defs/id" },
+        "cuando": { "enum": ["escala", "reinterpreta", "rima", "pregunta", "peso"] },
+        "roles": { "type": "array", "items": { "$ref": "#/$defs/rol" }, "minItems": 1 },
+        "ganancia": { "type": "number" },
+        "valor": { "type": "number" },
+        "prioridad": { "type": "number" },
+        "why": { "type": "string", "minLength": 3, "description": "plantilla con {campos}" },
+        "off": { "type": "boolean" }
+      }
+    }
+  }
+}

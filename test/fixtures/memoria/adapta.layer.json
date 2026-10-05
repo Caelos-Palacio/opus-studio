@@ -1,0 +1,88 @@
+{
+ "name": "memoria",
+ "priority": 40,
+ "ops": [
+  {
+   "op": "add",
+   "path": "/shots/S4/params/rueda_brillo",
+   "value": 0.472,
+   "why": "peso de memoria de «rueda» a mitad de S4 = 0.472 (decae si no reaparece)",
+   "concepto": "rueda",
+   "regla": "peso-enfasis"
+  },
+  {
+   "op": "add",
+   "path": "/shots/S5/params/eco",
+   "value": [
+    {
+     "ref": "/shots/S2",
+     "tramo": [
+      5,
+      20
+     ],
+     "concepto": "golpes",
+     "giro": "aprendizaje",
+     "fuerza": 0.282
+    },
+    {
+     "ref": "/shots/S1",
+     "tramo": [
+      0,
+      32
+     ],
+     "concepto": "rueda",
+     "giro": "reloj",
+     "fuerza": 0.689
+    }
+   ],
+   "why": "giro aprendizaje en t=40: «adaptacion» relee «golpes» [5,20] → callback visual a S2 (fuerza 0.282: el recuerdo había caído a 0.718) | giro reloj en t=40: «adaptacion» relee «rueda» [0,32] → callback visual a S1 (fuerza 0.689: el recuerdo había caído a 0.311)",
+   "concepto": "adaptacion",
+   "regla": "giro-eco"
+  },
+  {
+   "op": "add",
+   "path": "/shots/S5/params/escala",
+   "value": 1.5,
+   "why": "«adaptacion» escala «golpes» (paso 1): intensidad ×1.5 para que el salto se sienta",
+   "concepto": "adaptacion",
+   "regla": "escala-intensidad"
+  },
+  {
+   "op": "add",
+   "path": "/shots/S5/params/hold",
+   "value": 0.6,
+   "why": "giro aprendizaje: sostener 0.6s para que el espectador relea «golpes» antes de seguir | giro reloj: sostener 0.6s para que el espectador relea «rueda» antes de seguir",
+   "concepto": "adaptacion",
+   "regla": "giro-hold"
+  },
+  {
+   "op": "add",
+   "path": "/shots/S5/params/revelar_en",
+   "value": 8,
+   "why": "pregunta «por-que-gira» abierta desde t=10: retener la respuesta hasta t=40 (8s dentro de S5)",
+   "concepto": "por-que-gira",
+   "regla": "pregunta-retencion"
+  },
+  {
+   "op": "add",
+   "path": "/shots/S6/params/intensidad",
+   "value": 2,
+   "why": "«amenaza» escala «adaptacion» (paso 2): intensidad ×2 para que el salto se sienta",
+   "concepto": "amenaza",
+   "regla": "escala-intensidad"
+  },
+  {
+   "op": "add",
+   "path": "/shots/S6/params/rima",
+   "value": [
+    {
+     "ref": "/shots/S5",
+     "concepto": "adaptacion"
+    }
+   ],
+   "why": "«contra-adaptacion» rima con «adaptacion»: repetir su forma/tiempo de S5",
+   "concepto": "contra-adaptacion",
+   "regla": "rima-eco"
+  }
+ ]
+}

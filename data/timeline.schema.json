@@ -63,6 +63,8 @@
         "hold_ok": { "type": "array", "items": { "$ref": "#/$defs/num2" } },
         "motifState": { "type": "string" },
         "compose": { "enum": ["free"], "description": "\"free\" desactiva el lint de composición del shot" },
+        "on": { "type": "integer", "minimum": 1, "maximum": 4, "description": "F5: frame-rate por intensidad: 1 = ones (por defecto), 2 = doses, 3 = treses; solo el dibujo, la cámara sigue a ones" },
+        "sakuga": { "enum": ["hero", "normal", "simple"], "description": "F5: presupuesto de esfuerzo del plano (hero en el pico, simple en la calma); engine/arc.mjs" },
         "saliency": { "type": "boolean", "description": "false desactiva el aviso de prominencia" },
         "must_read_mute": { "type": "boolean", "description": "false desactiva el check de separación en grises (lint layout); true es el valor por defecto" },
         "cam": { "$ref": "#/$defs/cam" },
@@ -89,7 +91,7 @@
     },
     "patchOp": {
       "type": "object", "additionalProperties": false, "required": ["op", "path"],
-      "properties": { "op": { "enum": ["add", "remove", "replace", "move", "copy", "test"] }, "path": { "type": "string", "pattern": "^/" }, "from": { "type": "string", "pattern": "^/" }, "value": true }
+      "properties": { "op": { "enum": ["add", "remove", "replace", "move", "copy", "test"] }, "path": { "type": "string", "pattern": "^/" }, "from": { "type": "string", "pattern": "^/" }, "value": true, "why": { "type": "string", "maxLength": 400 }, "concepto": { "type": "string" }, "regla": { "type": "string" } }
     },
     "variant": { "type": "object", "additionalProperties": false, "required": ["ops"], "properties": { "description": { "type": "string" }, "ops": { "type": "array", "items": { "$ref": "#/$defs/patchOp" } } } },
     "layer": {

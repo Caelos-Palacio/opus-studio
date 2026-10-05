@@ -1,0 +1,17 @@
+{
+ "title": "fixture · regla que se adapta (esquema tipo Sukuna vs Mahoraga, sin metraje)",
+ "duration": 60,
+ "handoffs": [
+  { "from": "S1", "to": "S2", "entity": "mahoraga", "at": 5 },
+  { "from": "S1", "to": "S2", "entity": "rueda", "at": 5 },
+  { "from": "S5", "to": "S6", "entity": "sukuna", "at": 44 }
+ ],
+ "shots": [
+  { "id": "S1", "t": [0, 5], "action": "invocación: aparece el shikigami con una rueda sobre la cabeza" },
+  { "id": "S2", "t": [5, 12], "action": "primer corte: el shikigami sangra; la rueda gira un paso" },
+  { "id": "S3", "t": [12, 20], "action": "segundo corte: herida menor; la rueda gira otro paso" },
+  { "id": "S4", "t": [20, 32], "action": "el corte ya cuesta: resiste; la rueda gira", "params": { "escala": 1, "rueda_brillo": 0.5 } },
+  { "id": "S5", "t": [32, 44], "action": "el corte no entra: se ha adaptado y contraataca", "params": { "escala": { "default": 1 }, "eco": {}, "hold": 0, "revelar_en": 0 } },
+  { "id": "S6", "t": [44, 60], "action": "el atacante cambia de técnica: adaptarse a la adaptación", "params": { "intensidad": 1, "rima": {} } }
+ ]
+}

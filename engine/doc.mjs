@@ -4,6 +4,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { DOC } from './prims.mjs';
+import './sakuga.mjs';                                                      // registra impact/smear en DOC
 import { VOICES } from './sound.mjs';
 import { RUBRIC } from './critic.mjs';
 import { WARPS } from './geom.mjs';

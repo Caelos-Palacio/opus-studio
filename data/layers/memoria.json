@@ -1,0 +1,22 @@
+{
+ "name": "memoria",
+ "priority": 40,
+ "ops": [
+  {
+   "op": "add",
+   "path": "/shots/A3/params/pulse",
+   "value": 0.3,
+   "why": "«marco» escala «forma» (paso 1): intensidad ×1.5 para que el salto se sienta",
+   "concepto": "marco",
+   "regla": "escala-intensidad"
+  },
+  {
+   "op": "add",
+   "path": "/shots/A3/params/textIn",
+   "value": 0.7,
+   "why": "pregunta «identidad» abierta desde t=2.3: retener la respuesta hasta t=4.7 (0.7s dentro de A3)",
+   "concepto": "identidad",
+   "regla": "pregunta-retencion"
+  }
+ ]
+}

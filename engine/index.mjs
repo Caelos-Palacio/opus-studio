@@ -70,7 +70,11 @@ async function build(R, name) {
   const motion = fs.existsSync(path.join(ROOT, 'out/motion.json')) ? JSON.parse(fs.readFileSync(path.join(ROOT, 'out/motion.json'), 'utf8')) : null;
   const lint = fs.existsSync(path.join(ROOT, 'out/lint.json')) ? JSON.parse(fs.readFileSync(path.join(ROOT, 'out/lint.json'), 'utf8')) : null;
   writeAtomic(prevF, JSON.stringify({ film: name, title: film.title, style: film.S.name, profile: film.profileName, duration: film.duration, fps: film.fps, size: [film.width, film.height], palette: film.palette,
-    motif: film.motif ?? null, handoffs: film.handoffs ?? [], edit: film.edit?.items ?? null, lint: lint ? { verdict: lint.verdict, issues: lint.issues.length } : null, energy: motion ? { fps: motion.fps, n: motion.energy.length } : null, shots }, null, 1));
+    motif: film.motif ?? null, handoffs: film.handoffs ?? [], edit: film.edit?.items ?? null, memoria: await memoriaPtr(), lint: lint ? { verdict: lint.verdict, issues: lint.issues.length } : null, energy: motion ? { fps: motion.fps, n: motion.energy.length } : null, shots }, null, 1));
   console.log('→', path.relative(ROOT, prevF), `(${shots.length} shots)`);
+}
+// La capa conceptual (data/memoria.json) NO se copia al índice observado: solo un puntero con hash (q memoria la muestra aparte).
+async function memoriaPtr() {
+  try { const M = await import('./memoria.mjs'), { mem, file } = M.loadMemoria(); return { src: file, hash: M.memHash(mem), conceptos: mem.conceptos.length, ver: 'node engine/q.mjs memoria [t]' }; } catch { return null; }
 }
 main().catch((e) => { console.error(e.stack); process.exit(1); });

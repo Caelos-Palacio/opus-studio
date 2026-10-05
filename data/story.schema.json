@@ -1,0 +1,46 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "opus-studio/story.schema.json",
+  "title": "story.json — spine dramático (F5, engine/arc.mjs)",
+  "description": "Capa de dramaturgia sobre el timeline. Tiempos en segundos de film. Lo declarado aquí se CONTRASTA con lo medido (energía, cajas, audio); declarar no basta para pasar.",
+  "type": "object",
+  "required": ["idea", "question", "beats", "accommodation"],
+  "properties": {
+    "idea": { "type": "string", "minLength": 3, "description": "idea central en una frase" },
+    "question": {
+      "type": "object", "description": "brecha de información (Loewenstein): la pregunta del gancho",
+      "required": ["text", "posed_at", "answered_at"],
+      "properties": {
+        "text": { "type": "string", "minLength": 3 },
+        "posed_at": { "type": "number", "minimum": 0 },
+        "answered_at": { "type": "number", "minimum": 0 },
+        "on_screen": { "type": "boolean", "description": "true: arc exige ver en pantalla un texto con palabras de la pregunta en el primer 10 %" }
+      }
+    },
+    "beats": {
+      "type": "array", "minItems": 2, "description": "spine (Parker/Stone): link = conector con el beat ANTERIOR",
+      "items": {
+        "type": "object", "required": ["t", "text"],
+        "properties": {
+          "id": { "type": "string" }, "t": { "type": "number", "minimum": 0 }, "text": { "type": "string" }, "shot": { "type": "string" },
+          "link": { "enum": ["pero", "por lo tanto", "but", "therefore", "y luego", "and then", null] }
+        }
+      }
+    },
+    "accommodation": {
+      "type": "object", "description": "modelo roto (Keltner/Haidt): el momento en que el espectador reorganiza su modelo",
+      "required": ["t", "type"],
+      "properties": { "t": { "type": "number", "minimum": 0 }, "type": { "enum": ["regla", "escala", "idea"] }, "text": { "type": "string" } }
+    },
+    "scale": {
+      "type": "array", "description": "saltos de escala y su referencia humana previa",
+      "items": { "type": "object", "required": ["at"], "properties": { "at": { "type": "number" }, "ref_at": { "type": "number" }, "ref": { "type": "string" } } }
+    },
+    "impacts": { "type": "array", "description": "impactos declarados además de los registrados por api.impact", "items": { "type": "object", "required": ["t"], "properties": { "t": { "type": "number" }, "shot": { "type": "string" } } } },
+    "sakuga": { "type": "object", "description": "id de shot → hero|normal|simple (alternativa a shot.sakuga en el timeline)", "additionalProperties": { "enum": ["hero", "normal", "simple"] } },
+    "accent": { "type": "object", "properties": { "means": { "type": "string", "description": "qué significa el acento (color con función)" } } },
+    "narration": { "type": "array", "description": "frases del guion/voz con tiempo (pedagogía: coherencia, redundancia)", "items": { "type": "object", "required": ["t", "text"], "properties": { "t": { "type": "number" }, "end": { "type": "number" }, "text": { "type": "string" } } } },
+    "concepts": { "type": "array", "description": "términos nuevos y cuándo se nombran (señalización, contigüidad, carga)", "items": { "type": "object", "required": ["term", "t"], "properties": { "term": { "type": "string" }, "t": { "type": "number" }, "focus": { "type": "string", "description": "label del api.focus/primitiva que representa el concepto" } } } },
+    "segments": { "type": "array", "description": "segmentos de una idea [a,b] (explainer: 20–90 s)", "items": { "type": "array", "minItems": 2, "maxItems": 2, "items": { "type": "number" } } }
+  }
+}
