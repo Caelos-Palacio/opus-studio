@@ -2,13 +2,13 @@
   "title": "TÍTULO",
   "style": "editorial",
   "profile": "reel",
-  "fps": 30, "width": 1920, "height": 1080, "duration": 0,
+  "fps": 30, "width": 1920, "height": 1080, "duration": 2,
   "autoSfx": { "morph": true, "beat": "pop", "cut": true },
   "music": null,
   "motif": null,
   "handoffs": [],
   "shots": [
-    { "id": "S1", "t": [0, 0], "size": "WS", "action": "qué pasa (una idea)", "text": "",
+    { "id": "S1", "t": [0, 2], "size": "WS", "action": "qué pasa (una idea)", "text": "",
       "cam": { "move": "static" }, "transition_out": "cut", "sfx": [] }
   ]
 }

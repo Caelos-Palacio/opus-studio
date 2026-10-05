@@ -1,0 +1,10 @@
+[
+  { "id": "A1-bueno", "shot": "A1", "module": null, "expect": "SHIP", "rubric": [], "defect": "ninguno: shot del demo tal cual" },
+  { "id": "A2-bueno", "shot": "A2", "module": null, "expect": "SHIP", "rubric": [], "defect": "ninguno: shot del demo tal cual" },
+  { "id": "A3-bueno", "shot": "A3", "module": null, "expect": "SHIP", "rubric": [], "defect": "ninguno: shot del demo tal cual" },
+  { "id": "A1-texto-sobre-sujeto", "shot": "A1", "module": "A1-texto-sobre-sujeto.mjs", "expect": "FIX", "rubric": ["hierarchy", "clarity"], "defect": "un rótulo grande tapa el punto: tipo sobre el sujeto" },
+  { "id": "A2-foco-competidor", "shot": "A2", "module": "A2-foco-competidor.mjs", "expect": "FIX", "rubric": ["hierarchy"], "defect": "un segundo disco del mismo tamaño y más contraste compite con el anillo" },
+  { "id": "A3-sujeto-al-borde", "shot": "A3", "module": "A3-sujeto-al-borde.mjs", "expect": "FIX", "rubric": ["framing"], "defect": "todo el plano desplazado: el marco se corta en el borde derecho, sin aire" },
+  { "id": "A2-texto-ilegible", "shot": "A2", "module": "A2-texto-ilegible.mjs", "expect": "FIX", "rubric": ["clarity"], "defect": "el texto pasa a color sombra sobre papel (sin contraste), pequeño y en la esquina" },
+  { "id": "A1-plantilla", "shot": "A1", "module": "A1-plantilla.mjs", "expect": "FIX", "rubric": ["aesthetic"], "defect": "look de plantilla: degradado a pantalla completa, glow gratuito y partículas decorativas" }
+]

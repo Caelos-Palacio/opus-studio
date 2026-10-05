@@ -7,6 +7,7 @@ import { pathToFileURL } from 'node:url';
 import canvasPkg from 'canvas';
 import { compile } from './seek.mjs';
 import { makeTexStore, texReady } from './tex.mjs';
+import { assertTimeline } from './schema.mjs';
 export { seek, activeShots, shotBeats } from './seek.mjs';
 const { createCanvas, Image } = canvasPkg;
 
@@ -51,7 +52,7 @@ export function buildTimeMap(edit, film) {
 
 export async function loadFilm({ timeline = timelinePath(), animatic = false, style, profile, edit = process.env.OPUS_EDIT } = {}) {
   await texReady();
-  const aj = path.join(ROOT, 'data/audio.json'), tl = rd(timeline);
+  const aj = path.join(ROOT, 'data/audio.json'), tl = assertTimeline(rd(timeline), timeline);   // E8: estructura rota no se renderiza
   tl.style = style ?? process.env.OPUS_STYLE ?? tl.style ?? 'editorial';
   if (profile ?? process.env.OPUS_PROFILE) tl.profile = profile ?? process.env.OPUS_PROFILE;
   const film = compile(tl, rd('engine/profiles.json'), loadStyles(), fs.existsSync(aj) ? JSON.parse(fs.readFileSync(aj, 'utf8')) : null);
