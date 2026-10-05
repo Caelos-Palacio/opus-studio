@@ -1,0 +1,27 @@
+{
+  "hooks": {
+    "SubagentStop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node \"$CLAUDE_PROJECT_DIR/tools/agentes.mjs\" wip --quiet",
+            "timeout": 60,
+            "statusMessage": "Guardando WIP de los worktrees de agentes"
+          }
+        ]
+      }
+    ],
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node \"$CLAUDE_PROJECT_DIR/tools/agentes.mjs\" wip --quiet",
+            "timeout": 60
+          }
+        ]
+      }
+    ]
+  }
+}
