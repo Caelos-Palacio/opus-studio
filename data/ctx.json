@@ -1,0 +1,16 @@
+{
+  "_doc": "Fuente de los paquetes de contexto por rol (node engine/ctx.mjs → docs/ctx/<rol>.md, ≤1500 tokens). read = rutas que SÍ hay que leer (se anota su digest: puntero verificado); cmds = IDs de data/commands.json o scripts de package.json; traps = trampas conocidas.",
+  "maxTokens": 1500,
+  "common": {
+    "read": ["CLAUDE.md", "docs/HANDOFF.md"],
+    "traps": ["Las CLIs apuntan al film activo: lee la 1.ª línea `film: <clave>`; fíjalo con `npm run use -- <film>`.", "Evidencias y criterios de gate sin shell: argv [\"node\",\"engine/x.mjs\",…] o ID de data/commands.json.", "Nunca push; commits WIP + docs/handoff/<tarea>.md; `npm test -- --fast` mientras iteras."]
+  },
+  "roles": {
+    "director": { "read": ["docs/ROADMAP.md", "ORQUESTADOR.md", "gates.json", "orch.json"], "cmds": ["gate", "orch", "lint", "test"], "traps": ["Solo el Director decide propuestas, reabre gates y descongela.", "`master` sin --force; el audio con techo −3 dBTP."] },
+    "dp": { "read": ["CINE.md", "CRAFT.md", "STYLES.md", "storyboard/README.md"], "cmds": ["peek", "lint"], "traps": ["No codees el film hasta que el STRIP esté OK; mira `peek` antes de entregar."] },
+    "investigador": { "read": ["docs/MEMORIA.md"], "cmds": ["memoria", "q"], "traps": ["Solo data/facts.json es tuyo; cita fuentes."] },
+    "td": { "read": ["MOTOR.md", "docs/API.md", "docs/EFICIENCIA.md"], "cmds": ["test", "lint", "arc", "metrics"], "traps": ["Todo cambio de motor exige test en rojo primero (3DD).", "Tocar engine/ caduca los veredictos: relintea una vez, no por cambio."] },
+    "animator": { "read": ["CRAFT.md", "docs/API.md", "AGENTES.md"], "cmds": ["lint", "q", "peek", "orch"], "traps": ["Solo tus shots (roles.json); lo demás: `orch propose`.", "Antes de tocar: `q impact <ID>`; itera con `lint --shot <ID>`; entrega con `orch accept` → `orch deliver`.", "Sin Math.random, eval, estado de módulo ni import de node:*."] },
+    "review": { "read": ["REVIEW.md", "docs/MEDIOS.md"], "cmds": ["peek", "critic", "metrics"], "traps": ["Solo diagnóstico `{shot, problem, evidence[]}` con `orch note`: nada de prescribir arreglos."] }
+  }
+}

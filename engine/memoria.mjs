@@ -12,6 +12,7 @@
 //   opciones: --mem data/memoria.json  --timeline X  --json
 //
 // Todo es puro y determinista (sin reloj, sin azar): misma memoria + mismo timeline → mismos bytes.
+import './summary.mjs';   // T2: --summary / OPUS_SUMMARY=1 / OPUS_AGENT=1
 import './help.mjs';
 import { isMain, rootFrom } from './paths.mjs';
 import { announceFilm } from './filmid.mjs';

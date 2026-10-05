@@ -99,7 +99,7 @@ test('oscilacion', async () => {
     r = run(d, ['engine/orch.mjs', 'unfreeze', 'shot/A2', '--why', 'nuevo enfoque acordado'], DIR);
     ok(r.status === 0 && !O.isFrozen('shot/A2') && O.budgetUsed('A2') === 0, 'unfreeze del Director: descongela y repone el presupuesto');
     // gates: 2 cierres fallidos seguidos → congelado
-    W(d, 'gates.json', { no: ['nunca::node -e "process.exit(3)"'] });
+    W(d, 'out/exit3.mjs', 'process.exit(3)'); W(d, 'gates.json', { no: [{ criterion: 'nunca', argv: ['node', 'out/exit3.mjs'] }] });
     run(d, ['engine/gate.mjs', 'close', 'no']); run(d, ['engine/gate.mjs', 'close', 'no']);
     r = run(d, ['engine/gate.mjs', 'close', 'no']);
     ok(r.status === 2 && /congelado/.test(r.stderr) && ledger(d).some((e) => e.action === 'gate.frozen'), 'gate: agotado el presupuesto (2) no se reintenta: se congela y escala');
@@ -113,7 +113,7 @@ test('contratos', async () => {
   const d = copy();
   try {
     const AN = { OPUS_AGENT: 'tor', OPUS_ROLE: 'animator:A2' }, tl0 = fs.readFileSync(path.join(d, 'data/timeline.json'), 'utf8');
-    W(d, 'gates.json', { animatic: ['ok::node -e 0'] });
+    W(d, 'out/ok.mjs', 'process.exit(0)'); W(d, 'gates.json', { animatic: [{ criterion: 'ok', argv: ['node', 'out/ok.mjs'] }] });
     let r = run(d, ['engine/gate.mjs', 'close', 'animatic'], DIR);
     const C = J(path.join(d, 'out/contracts/main.json'));
     ok(r.status === 0 && C.status === 'frozen' && /^[0-9a-f]{16}$/.test(C.hash) && C.boundaries.length === 2, 'contratos: cerrar el animatic congela una frontera por corte, con hash ' + r.stdout.slice(-300));
@@ -211,10 +211,11 @@ test('brief', async () => {
 test('entrega', async () => {
   const d = copy();
   try {
-    const D = { summary: 'A3 arreglado', changed: ['shots/A3.mjs'], evidence: [{ cmd: 'node -e "process.exit(0)"', exit: 0 }, { cmd: 'node -e "process.exit(4)"', exit: 4 }], risks: ['ninguno conocido'], confidence: 0.8, next: ['revisar ritmo'] };
+    for (const c of [0, 1, 4]) W(d, `out/exit${c}.mjs`, `process.exit(${c})`);
+    const D = { summary: 'A3 arreglado', changed: ['shots/A3.mjs'], evidence: [{ cmd: ['node', 'out/exit0.mjs'], exit: 0 }, { cmd: ['node', 'out/exit4.mjs'], exit: 4 }], risks: ['ninguno conocido'], confidence: 0.8, next: ['revisar ritmo'] };
     let r = run(d, ['engine/orch.mjs', 'deliver', W(d, 'out/d1.json', D)]);
     ok(r.status === 0 && /ACEPTADO/.test(r.stdout), 'entrega: evidencia reproducible → aceptada');
-    r = run(d, ['engine/orch.mjs', 'deliver', W(d, 'out/d2.json', { ...D, evidence: [{ cmd: 'node -e "process.exit(1)"', exit: 0 }] })]);
+    r = run(d, ['engine/orch.mjs', 'deliver', W(d, 'out/d2.json', { ...D, evidence: [{ cmd: ['node', 'out/exit1.mjs'], exit: 0 }] })]);
     ok(r.status === 1 && /dijo exit 0, da 1/.test(r.stdout), 'entrega: exit declarado ≠ real → rechazada');
     const { risks, ...sinRiesgos } = D;
     r = run(d, ['engine/orch.mjs', 'deliver', W(d, 'out/d3.json', sinRiesgos)]); ok(r.status === 1 && /risks/.test(r.stdout), 'entrega: sin campo obligatorio (risks) → rechazada');

@@ -7,6 +7,7 @@
 //   npm run metrics -- table k1 k2 …                            tabla comparativa (markdown) desde out/metrics/<clave>.json
 //   npm run metrics -- doc                                      regenera docs/METRICAS.md desde engine/metrics/registry.mjs
 // Film activo: `npm run use -- <film>` (o el nombre como argumento). Esquema: opus-metrics/1 (engine/metrics/registry.mjs).
+import './summary.mjs';   // T2: --summary / OPUS_SUMMARY=1 / OPUS_AGENT=1
 import './help.mjs';
 import { rootFrom } from './paths.mjs';
 import { assertNotas } from './inputs.mjs';

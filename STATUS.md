@@ -9,10 +9,10 @@ Definición (gates.json); el estado de cierre está en la parte viva.
 
 | gate | criterios | digest |
 |---|---|---|
-| validate | timeline válido y shots sin patrones prohibidos | `a93cc59d483e0c67` |
-| animatic | cortes en beat; cámara dentro del estilo | `be26d3a3071c7b85` |
-| lint | lint completo en SHIP | `b28987b62f7088d2` |
-| master | SHIP vigente y crítico sin FIX | `4f2848111ace06b4` |
+| validate | timeline válido y shots sin patrones prohibidos | `1d336c572b75cd9e` |
+| animatic | cortes en beat; cámara dentro del estilo | `f9639b9a3f487c6b` |
+| lint | lint completo en SHIP | `d89c1cce4b6920c0` |
+| master | SHIP vigente y crítico sin FIX | `d8c9278b351beea0` |
 
 ## Specs
 
@@ -23,25 +23,26 @@ Definición (gates.json); el estado de cierre está en la parte viva.
 | [003-mundo-visual.md](docs/specs/003-mundo-visual.md) | 003 — Mundo visual: personalidad y gusto (no fondo negro) | regla / reel / mate v1 · "bien, no wow" · fondo negro monótono; falta personalidad y gusto |
 | [004-world3d.md](docs/specs/004-world3d.md) | 004 — world3d: 3D real integrado sin costuras | world3d v1 (datacenter D01 + variante w3d de Potencias P03) · — · implementado (docs/handoff/world3d.md); pendiente de juicio de gusto |
 | [005-metricas.md](docs/specs/005-metricas.md) | 005 — Métricas con sentido: unidades reales y estandarizables | sin nota |
+| [007-orquestacion.md](docs/specs/007-orquestacion.md) | 007 · Orquestación al límite (paso 4 del roadmap) | sin nota |
 | [008-gobernanza.md](docs/specs/008-gobernanza.md) | 008 — Gobernanza al límite (roadmap paso 5) | sin nota |
 
 ## Motor
 
-- versión: 4.0.0 (package.json) · módulos engine/: 65
+- versión: 4.0.0 (package.json) · módulos engine/: 69
 - roles: modo `enforce` (*, director, dp, investigador, td, productor, animator, review) · digest `35a737817acffefa`
 - presupuestos: data/budgets.json digest `5290bbde06ea538a`
 
 ## Tests
 
-Archivos (test/*.mjs): `arc.mjs` `bench-skia.mjs` `critic.mjs` `cut-render.mjs` `film.mjs` `fuzz.mjs` `golden.mjs` `gov.mjs` `guard.mjs` `harness.mjs` `hash.mjs` `lib.mjs` `medios.mjs` `memoria.mjs` `metrics.mjs` `orch.mjs` `params.mjs` `perf.mjs` `run.mjs` `schema.mjs` `sound.mjs` `unit.mjs` `world3d.mjs`
+Archivos (test/*.mjs): `arc.mjs` `bench-skia.mjs` `critic.mjs` `cut-render.mjs` `film.mjs` `fuzz.mjs` `golden.mjs` `gov.mjs` `guard.mjs` `harness.mjs` `hash.mjs` `lib.mjs` `medios.mjs` `memoria.mjs` `metrics.mjs` `orch.mjs` `orquestacion.mjs` `params.mjs` `perf.mjs` `run.mjs` `schema.mjs` `sound.mjs` `unit.mjs` `world3d.mjs`
 <!-- estatico:fin -->
 
 ---
-## Estado vivo (2026-10-05T21:03Z, no verificado)
+## Estado vivo (2026-10-05T21:09Z, no verificado)
 
 ## Veredictos
 
-Film activo: `main` · engineHash `553c790a4d80e332b246c0e03bd07e7d0d78776306bd4c13a8260fb48492dc32` · filmHash `8ac843059ba51e5f`
+Film activo: `main` · engineHash `dcae96b470dff953f3775c2e924fdb52744d1754290c3051f1997d962dc1e6bc` · filmHash `8ac843059ba51e5f`
 
 - out/lint.json: SHIP · CADUCADO
 - out/critic.json: no existe
@@ -58,7 +59,7 @@ Film activo: `main` · engineHash `553c790a4d80e332b246c0e03bd07e7d0d78776306bd4
 
 ## Último run de tests
 
-- 2026-10-05T20:58:45.076Z: todo verde
+- 2026-10-05T21:08:16.081Z: todo verde
 
 ## Ledger
 

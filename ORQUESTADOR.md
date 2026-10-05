@@ -37,3 +37,10 @@ re-lintea el shot y sus vecinos y lo rechaza si algún check pasa de verde a roj
 - El master exige lint SHIP y veredicto del crítico vigentes (`out/critic.json` sellado o `out/review/<film>/verdict.json` con el plan de hoy), o `--force "razón"`.
 - Firma: lanza siempre con `OPUS_AGENT` y `OPUS_ROLE`; sin ellos el ledger avisa y firma "anon".
 Verificación: `node test/orch.mjs` (incluye la simulación de 4 agentes: la buena converge, el torpe es rechazado, el que oscila se congela).
+
+## Orquestación al límite (spec 007)
+- Gate transaccional: digest → criterios → freeze → verificación → commit; si algo falla no se cierra (`gate close`).
+- Sin shell: evidencias y criterios = argv `["node","engine/x.mjs",…]` o ID de `data/commands.json` (`lint --only validate`).
+- Reparto: `orch plan [--concurrency N --budget-tokens T --budget-minutes M]` → oleadas; `orch resume` tras un corte.
+- Continuidad: `orch beat <tarea> --step "…"` (latido + lease), `orch handoff <f.json>` (esquema tipado), `orch resume [nombre]`; ≥2 cortes → partir, ≥3 → escalar. `tools/agentes.mjs` es fachada (hook Stop = `wip`).
+- Contexto por rol: `node engine/ctx.mjs` → docs/ctx/<rol>.md (≤1,5 k tokens). Salida resumida: `--summary` | `OPUS_SUMMARY=1` | `OPUS_AGENT=1`. Costes: `orch cost`.

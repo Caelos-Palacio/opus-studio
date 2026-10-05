@@ -12,6 +12,7 @@
 // (score.mjs) + diseño sonoro (sounddesign.mjs) + mezcla/master a −14 LUFS (mixer.mjs). Sin `sound` todo sigue como v1.
 // Problemas que evita: SFX pegados a mano que se desincronizan al mover un shot; música que tapa los acentos (ducking);
 // aleatoriedad no reproducible (ruido sembrado por evento); clipping (limitador suave + techo −1 dBFS).
+import './summary.mjs';   // T2: --summary / OPUS_SUMMARY=1 / OPUS_AGENT=1
 import './help.mjs';
 import { isMain } from './paths.mjs';
 import { announceFilm } from './filmid.mjs';

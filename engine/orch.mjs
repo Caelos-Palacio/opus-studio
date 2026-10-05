@@ -9,8 +9,10 @@
 //                      orch unfreeze <shot/ID|gate/G> --why "…"   (Director)
 //   6 críticos         orch note <nota.json> ({shot, problem, evidence[], tag?}: sin prescripción) · orch list notes
 //   7 contexto         orch brief <agente> <tarea>  (≤ briefTokens, determinista) · orch run [--lines N] -- <cmd …>
-//   8 entrega          orch deliver <entrega.json>  (re-ejecuta evidence[].cmd y exige el mismo exit)
+//   8 entrega          orch deliver <entrega.json>  (re-ejecuta evidence[].cmd SIN shell: argv o ID de data/commands.json; exige el mismo exit)
+//   9 scheduler        orch plan (oleadas por dependencias, concurrencia y presupuesto) · orch resume (handoff+ledger+plan) · orch cost (T9, out/costs.jsonl)
 // Configuración: orch.json (K, gateBudget, theta, quorum, briefTokens, toolLines, lintArgs, contractsGate).
+import { isMain } from './paths.mjs';
 import fs from 'node:fs';
 import path from 'node:path';
 import { spawnSync } from 'node:child_process';
@@ -19,9 +21,11 @@ import { withLock, withLockSync, writeAtomic, holder, listLocks } from './lock.m
 import { currentHashes, isFresh, lintDir, filmKey, readJSON } from './verdict.mjs';
 import { canWrite, rel } from './roles.mjs';
 import { validate } from './schema.mjs';
+import { resolveCommand, display } from './command.mjs';
+import * as CT from './continuity.mjs';
 import { contractFile, readContract, contractHash, boundariesOf, contractIssues } from './contract.mjs';
 
-const DEF = { K: 3, gateBudget: 2, theta: 0.5, quorum: 2, briefTokens: 500, toolLines: 20, lintArgs: [], contractsGate: 'animatic' };
+const DEF = { K: 3, gateBudget: 2, theta: 0.5, quorum: 2, briefTokens: 500, toolLines: 20, lintArgs: [], contractsGate: 'animatic', beatTtlMs: 900000, maxCuts: 2, taskBudget: 3, concurrency: 3, tokensPerShot: 20000, tokensPerLoc: 30, renderMinPerSec: 0.12 };
 export const config = () => ({ ...DEF, ...(readJSON(path.join(ROOT, 'orch.json')) ?? {}) });
 const SCHEMA = JSON.parse(fs.readFileSync(path.join(ROOT, 'data/orch.schema.json'), 'utf8'));
 export const schemaErrors = (kind, v) => validate(v, SCHEMA.$defs[kind], SCHEMA).filter((e) => e.level === 'FIX').map((e) => `${e.path}: ${e.message}${e.remedy ? ' → ' + e.remedy : ''}`);
@@ -37,10 +41,11 @@ const needDirector = (what) => { if (!isDirector()) die(`${what}: solo el Direct
 
 // ── 7. salidas de herramientas: veredicto + N líneas + ruta al log (el resto nunca entra en el contexto) ────────────────
 export function runLogged(cmd, { lines = config().toolLines, env = {} } = {}) {
-  const opt = { cwd: ROOT, encoding: 'utf8', env: { ...process.env, ...env }, maxBuffer: 256 << 20 };
-  const r = Array.isArray(cmd) ? spawnSync(cmd[0], cmd.slice(1), opt) : spawnSync(cmd, { ...opt, shell: true });
+  const opt = { cwd: ROOT, encoding: 'utf8', env: { ...process.env, ...env }, maxBuffer: 256 << 20, shell: false };
+  if (!Array.isArray(cmd)) { const q = resolveCommand(cmd); if (!q.ok) return { status: -1, verdict: '', text: `exit -1 · comando rechazado (sin shell): ${q.why}`, log: null, rejected: q.why }; cmd = q.argv; }   // string → solo ID de la allowlist
+  const r = spawnSync(cmd[0], cmd.slice(1), opt);
   const all = (r.stdout ?? '') + (r.stderr ?? '') + (r.error ? String(r.error) : ''), status = r.status ?? -1;
-  const label = Array.isArray(cmd) ? cmd.map((a) => (a === process.execPath ? 'node' : a)).join(' ') : cmd;
+  const label = cmd.map((a) => (a === process.execPath ? 'node' : a)).join(' ');
   const log = path.join(ROOT, 'out/logs', `${Date.now().toString(36)}-${process.pid}-${digest(label + Math.random()).slice(0, 6)}.log`);
   fs.mkdirSync(path.dirname(log), { recursive: true }); fs.writeFileSync(log, `$ ${label}\n${all}\n[exit ${status}]\n`);
   const L = all.split('\n').filter((l) => l.trim());
@@ -373,14 +378,98 @@ export function brief(agent, task, { budget = config().briefTokens } = {}) {
 export function deliver(D) {
   const bad = schemaErrors('delivery', D);
   if (bad.length) { record({ action: 'orch.deliver', target: 'entrega', verdict: 'rejected', why: clip('inválida: ' + bad.join('; '), 140) }); return { ok: false, reasons: bad, results: [] }; }
-  const results = D.evidence.map((e) => { const r = runLogged(e.cmd, { lines: 3 }); return { cmd: e.cmd, claimed: e.exit, got: r.status, log: r.log }; });
-  const off = results.filter((r) => r.claimed !== r.got), ok = !off.length, reasons = off.map((r) => `"${r.cmd}" dijo exit ${r.claimed}, da ${r.got} (log ${r.log})`);
+  const results = D.evidence.map((e) => {
+    const q = resolveCommand(e.cmd), shown = display(e.cmd);
+    if (!q.ok) return { cmd: shown, claimed: e.exit, got: null, log: null, rejected: q.why };      // nunca se ejecuta
+    const r = runLogged(q.argv, { lines: 3 }); return { cmd: shown, claimed: e.exit, got: r.status, log: r.log };
+  });
+  const off = results.filter((r) => r.claimed !== r.got), ok = !off.length, reasons = off.map((r) => (r.rejected ? `"${clip(r.cmd, 60)}" no permitido (sin shell): ${r.rejected}` : `"${r.cmd}" dijo exit ${r.claimed}, da ${r.got} (log ${r.log})`));
   record({ action: 'orch.deliver', target: clip(D.summary, 100), hash_after: digest(D), verdict: ok ? 'accepted' : 'rejected', why: ok ? `${results.length} evidencias reproducidas · confianza ${D.confidence}` : clip(reasons.join('; '), 140) });
+  if (ok && D.task) { CT.beat(D.task, null, { end: true }); }                       // entrega aceptada = tarea hecha: libera el lease
   return { ok, reasons, results };
 }
 
+// ── 3b. scheduler: oleadas paralelas por dependencias reales, con concurrencia y presupuesto ─────────────────────────
+// Estimación determinista: tokens = tokensPerShot + tokensPerLoc · líneas de shots/<ID>.mjs; render = duración · renderMinPerSec.
+export function estimate(id, tl = readJSON(abs(tlPath())), cfg = config()) {
+  const sh = (tl?.shots ?? []).find((x) => x.id === id), f = abs(`shots/${id}.mjs`), loc = fs.existsSync(f) ? fs.readFileSync(f, 'utf8').split('\n').length : 0;
+  return { tokens: Math.round(cfg.tokensPerShot + cfg.tokensPerLoc * loc), minutes: +(Math.max(0, (sh?.t?.[1] ?? 0) - (sh?.t?.[0] ?? 0)) * cfg.renderMinPerSec).toFixed(2) };
+}
+export function schedule({ ids, G = depGraph(), concurrency = config().concurrency, budgetTokens = null, budgetMinutes = null, est = (id) => estimate(id) } = {}) {
+  const sel = new Set(ids ?? G.ids), S = { ...G, ids: G.ids.filter((i) => sel.has(i)), edges: G.edges.filter((e) => sel.has(e.from) && sel.has(e.to)) };
+  const levels = S.ids.length ? execPlan(S) : [], waves = [], deferred = [], tot = { tokens: 0, minutes: 0 }, cut = new Set();
+  const cap = Math.max(1, concurrency | 0);
+  for (const lv of levels) {
+    const ok = [];
+    for (const id of lv) {
+      const e = est(id), dep = G.edges.some((x) => x.to === id && cut.has(x.from));                  // lo que depende de algo diferido también se difiere
+      if (dep || (budgetTokens != null && tot.tokens + e.tokens > budgetTokens) || (budgetMinutes != null && tot.minutes + e.minutes > budgetMinutes)) { cut.add(id); deferred.push({ id, why: dep ? 'depende de un shot diferido' : 'presupuesto' }); continue; }
+      tot.tokens += e.tokens; tot.minutes = +(tot.minutes + e.minutes).toFixed(2); ok.push({ id, ...e });
+    }
+    for (let i = 0; i < ok.length; i += cap) waves.push(ok.slice(i, i + cap));
+  }
+  return { concurrency: cap, budget: { tokens: budgetTokens, minutes: budgetMinutes }, waves: waves.map((w, i) => ({ n: i + 1, shots: w.map((x) => x.id), tokens: w.reduce((a, x) => a + x.tokens, 0), minutes: +w.reduce((a, x) => a + x.minutes, 0).toFixed(2) })), total: tot, deferred };
+}
+const PLAN = () => path.join(ROOT, 'out/orch/plan.json');
+export function plan({ shots, concurrency, budgetTokens, budgetMinutes } = {}) {
+  const G = depGraph(), H = currentHashes(), V = verdicts(G.ids, H);
+  const ids = shots ?? G.ids.filter((i) => nFix(V[i]) > 0);                                           // por defecto: lo que está rojo o caducado
+  const P = { film: H.film, ts: new Date().toISOString(), requested: ids, ...schedule({ ids, G, concurrency, budgetTokens, budgetMinutes }) };
+  writeAtomic(PLAN(), JSON.stringify(P, null, 1));
+  record({ action: 'orch.plan', target: `film/${H.film}`, verdict: 'planned', why: `${P.waves.length} oleadas · ${ids.length} shots · ~${P.total.tokens} tok · ${P.total.minutes} min · ${P.deferred.length} diferidos` });
+  return P;
+}
+// Reanudar tras un corte: último handoff + ledger + plan → qué oleada está hecha, cuál sigue.
+export function resume() {
+  const P = readJSON(PLAN()), dir = abs('docs/handoff'), hs = fs.existsSync(dir) ? fs.readdirSync(dir).filter((f) => f.endsWith('.md')).map((f) => ({ f, m: fs.statSync(path.join(dir, f)).mtimeMs })).sort((a, b) => b.m - a.m || a.f.localeCompare(b.f)) : [];
+  const handoff = hs.slice(0, 3).map((h) => { const t = fs.readFileSync(path.join(dir, h.f), 'utf8').split('\n'), i = t.findIndex((l) => /^#+\s*(pendiente|siguiente|next|por hacer)/i.test(l)); return { file: `docs/handoff/${h.f}`, title: clip(t.find((l) => l.trim()) ?? '', 80), pending: i < 0 ? [] : t.slice(i + 1, i + 7).filter((l) => l.trim()).map((l) => clip(l, 100)) }; });
+  const led = readLedger().filter((e) => /^(orch\.|gate\.|contract\.)/.test(e.action)).slice(-5).map((e) => `${e.action} ${clip(e.target, 30)} ${e.verdict ?? ''}`);
+  const H = currentHashes(), G = depGraph(), out = { handoff, ledger: led, plan: null, gates: [], tasks: CT.taskStates() };
+  const GS = readJSON(abs('out/gates.json')) ?? {};
+  out.gates = Object.keys(readJSON(abs('gates.json')) ?? {}).filter((k) => !k.startsWith('_') && !(GS[k] && ['closed', 'forced'].includes(GS[k].status) && isFresh(GS[k], H)));
+  if (P) {
+    const V = verdicts(G.ids, H), accepted = new Set(readLedger({ action: 'orch.state' }).filter((e) => e.verdict === 'accepted' && e.why === 'FIX 0' && e.ts >= P.ts).map((e) => e.target.replace('shot/', '')));
+    const done = (id) => accepted.has(id) || (V[id] && nFix(V[id]) === 0), frozen = (id) => isFrozen('shot/' + id);
+    const waves = P.waves.map((w) => ({ n: w.n, shots: w.shots, done: w.shots.filter(done), frozen: w.shots.filter((i) => !done(i) && frozen(i)), todo: w.shots.filter((i) => !done(i) && !frozen(i)) }));
+    const next = waves.find((w) => w.todo.length);
+    out.plan = { ts: P.ts, waves: waves.length, complete: waves.filter((w) => !w.todo.length && !w.frozen.length).length, next: next ? { n: next.n, shots: next.todo } : null, frozen: waves.flatMap((w) => w.frozen), deferred: P.deferred.map((d) => d.id) };
+  }
+  return out;
+}
+export function resumeText(R) {
+  const L = ['RESUME'];
+  for (const h of R.handoff) L.push(`handoff ${h.file} · ${h.title}${h.pending.length ? '\n  pendiente: ' + h.pending.join(' | ') : ''}`);
+  if (R.plan) L.push(`plan ${R.plan.ts}: ${R.plan.complete}/${R.plan.waves} oleadas hechas · ${R.plan.next ? `SIGUE oleada ${R.plan.next.n}: ${R.plan.next.shots.join(',')}` : 'completo'}${R.plan.frozen.length ? ` · congelados (escalar): ${R.plan.frozen.join(',')}` : ''}${R.plan.deferred.length ? ` · diferidos: ${R.plan.deferred.join(',')}` : ''}`);
+  else L.push('plan: ninguno (orch plan)');
+  for (const t of R.tasks ?? []) if (t.status !== 'hecho') L.push(`tarea ${t.tarea}: ${t.status.toUpperCase()} · ${t.cuts} cortes · último paso "${clip(t.lastStep, 60)}"${t.policy === 'escalar' ? ' · ESCALAR' : t.policy === 'partir' ? ' · PARTIR en subtareas' : ''}`);
+  L.push(`gates sin cerrar/caducados: ${R.gates.join(',') || '—'}`, `ledger: ${R.ledger.join(' ; ') || '—'}`);
+  return L.join('\n');
+}
+
+// ── 9. contabilidad (T9): tokens y minutos por tarea → out/costs.jsonl ────────────────────────────────────────────────
+const COSTS = () => path.join(ROOT, 'out/costs.jsonl');
+export function parseReport(txt) {
+  const n = (x) => +String(x).replace(/\.(?=\d{3}\b)/g, '').replace(',', '.');
+  const t = /(\d[\d.,]*)\s*(k)?\s*tokens?/i.exec(txt) ?? /tokens?\s*[:=]\s*(\d[\d.,]*)\s*(k)?/i.exec(txt), m = /(\d+(?:[.,]\d+)?)\s*min/i.exec(txt) ?? /min(?:utos)?\s*[:=]\s*(\d+(?:[.,]\d+)?)/i.exec(txt);
+  return { tokens: t ? Math.round(n(t[1]) * (t[2] ? 1000 : 1)) : null, minutes: m ? n(m[1]) : null };
+}
+export function cost({ task, film, tokens = null, minutes = null, report = null, note = null } = {}) {
+  if (report) { const r = parseReport(fs.readFileSync(path.resolve(report), 'utf8')); tokens ??= r.tokens; minutes ??= r.minutes; }
+  if (!task) die('uso: orch cost --task <tarea> [--film F] --tokens N --minutes M | --report informe.md');
+  if (!(tokens > 0) && !(minutes > 0)) die('cost: faltan tokens y/o minutos (o un informe con "N tokens"/"M min")');
+  const E = { ts: new Date().toISOString(), agent: who().agent, film: film ?? filmKey().replace(/\.edit$/, ''), task: clip(task, 80), tokens: tokens ? +tokens : 0, minutes: minutes ? +minutes : 0, ...(note ? { note: clip(note, 120) } : {}) };
+  fs.mkdirSync(path.dirname(COSTS()), { recursive: true }); fs.appendFileSync(COSTS(), JSON.stringify(E) + '\n');
+  record({ action: 'orch.cost', target: `task/${E.task}`, verdict: 'logged', why: `${E.film}: ${E.tokens} tok · ${E.minutes} min` });
+  return E;
+}
+export function costSummary() {
+  const rows = fs.existsSync(COSTS()) ? fs.readFileSync(COSTS(), 'utf8').split('\n').filter(Boolean).map((l) => { try { return JSON.parse(l); } catch { return null; } }).filter(Boolean) : [], by = {};
+  for (const r of rows) { const f = (by[r.film] ??= { film: r.film, tasks: 0, tokens: 0, minutes: 0 }); f.tasks++; f.tokens += r.tokens; f.minutes = +(f.minutes + r.minutes).toFixed(2); }
+  return { films: Object.values(by).sort((a, b) => a.film.localeCompare(b.film)), total: { tasks: rows.length, tokens: rows.reduce((a, r) => a + r.tokens, 0), minutes: +rows.reduce((a, r) => a + r.minutes, 0).toFixed(2) } };
+}
+
 // ── CLI ─────────────────────────────────────────────────────────────────────────────────────────────────────────────
-if (import.meta.url === `file://${process.argv[1]}`) {
+if (isMain(import.meta.url)) {
   const argv = process.argv.slice(2), dd = argv.indexOf('--'), rest = dd >= 0 ? argv.slice(dd + 1) : [], args = dd >= 0 ? argv.slice(0, dd) : argv;
   const flag = (k) => { const i = args.indexOf(k); return i >= 0 ? args[i + 1] : null; }, pos = args.filter((a, i) => !a.startsWith('--') && !(i > 0 && args[i - 1].startsWith('--')));
   const [cmd, a1, a2] = pos, J = (f) => { const v = readJSON(path.resolve(f)); if (!v) die(`no se puede leer JSON de ${f}`); return v; };
@@ -405,11 +494,26 @@ if (import.meta.url === `file://${process.argv[1]}`) {
       if (a1 !== 'notes') for (const p of P) console.log(`${p.id}  ${p.status.padEnd(8)} ${p.agent.padEnd(10)} ${p.target}  · ${clip(p.why, 80)}${p.decision_why ? '  ⇒ ' + clip(p.decision_why, 60) : ''}`);
       if (a1 !== 'proposals') { for (const n of N) console.log(`${n.id}  ${n.status.padEnd(8)} ${n.agent.padEnd(10)} ${n.shot}  ${clip(n.problem, 70)}  [${n.evidence.length} evid.]`); for (const c of consensus(N.filter((n) => n.status === 'pending'))) console.log(`  ${c.consensus ? '● consenso' : '○ sin consenso'}  ${c.key}  (${c.independent} independientes de ${c.notes.length})`); }
     } else if (cmd === 'brief' || cmd === 'status') console.log(brief(cmd === 'brief' ? a1 ?? who().agent : who().agent, cmd === 'brief' ? pos.slice(2).join(' ') || '—' : 'estado'));
-    else if (cmd === 'run') { if (!rest.length) die('uso: orch run [--lines N] -- <cmd …>'); const r = runLogged(rest, { lines: +(flag('--lines') ?? config().toolLines) }); console.log(r.text); process.exit(r.status); }
+    else if (cmd === 'plan') {
+      const sh = flag('--shots'), P = plan({ shots: sh ? sh.split(',') : undefined, concurrency: flag('--concurrency') ? +flag('--concurrency') : undefined, budgetTokens: flag('--budget-tokens') ? +flag('--budget-tokens') : null, budgetMinutes: flag('--budget-minutes') ? +flag('--budget-minutes') : null });
+      if (args.includes('--json')) console.log(JSON.stringify(P, null, 1));
+      else { for (const w of P.waves) console.log(`oleada ${w.n}: ${w.shots.join(' ')}  (~${w.tokens} tok, ${w.minutes} min render)`); for (const d of P.deferred) console.log(`diferido ${d.id}: ${d.why}`); console.log(`total ~${P.total.tokens} tok · ${P.total.minutes} min · concurrencia ${P.concurrency} → out/orch/plan.json`); }
+    } else if (cmd === 'resume') {
+      if (args.includes('--message') || a1) { const M = CT.resumeAll(ROOT, a1 ?? null); console.log(M.length ? M.map((m) => `-- ${m.name} (${m.status})\n${m.message}`).join('\n\n') : 'nada que reanudar'); }
+      else { console.log(resumeText(resume())); const M = CT.resumeAll(ROOT); for (const m of M) console.log(`\n-- ${m.name} (${m.status}${m.policy ? ', ' + m.policy : ''})\n${m.message}`); }
+    } else if (cmd === 'beat') { const r = CT.beat(a1, flag('--step'), { ttl: flag('--ttl') ? +flag('--ttl') : undefined, end: args.includes('--end') }); console.log(r.done ? `✓ tarea ${a1} cerrada` : `✓ latido ${a1}`); }
+    else if (cmd === 'handoff') {
+      if (args.includes('--show')) { const H = CT.readHandoff(a1); if (!H) die(`no hay docs/handoff/${a1}.json`); console.log(CT.renderMd(H)); }
+      else { const f = J(a1), p = CT.writeHandoff(f); console.log(`✓ handoff ${path.relative(ROOT, p)} (+ .md)`); }
+    } else if (cmd === 'wip') { const r = CT.wip(ROOT); console.log(r.done.length ? `WIP guardado: ${r.done.join(', ')}` : 'nada que guardar', r.skipped.length ? `· sin tocar: ${r.skipped.join(', ')}` : ''); }
+    else if (cmd === 'cost') {
+      if (flag('--task') || flag('--report')) { const E = cost({ task: flag('--task') ?? path.basename(flag('--report')), film: flag('--film'), tokens: flag('--tokens') ? +flag('--tokens') : null, minutes: flag('--minutes') ? +flag('--minutes') : null, report: flag('--report'), note: flag('--note') }); console.log(`✓ ${E.film}/${E.task}: ${E.tokens} tok · ${E.minutes} min`); }
+      else { const C = costSummary(); for (const f of C.films) console.log(`${f.film.padEnd(16)} ${String(f.tasks).padStart(3)} tareas  ${String(f.tokens).padStart(9)} tok  ${f.minutes} min`); console.log(`total ${C.total.tasks} tareas · ${C.total.tokens} tok · ${C.total.minutes} min`); }
+    } else if (cmd === 'run') { if (!rest.length) die('uso: orch run [--lines N] -- <cmd …>'); const r = runLogged(rest, { lines: +(flag('--lines') ?? config().toolLines) }); console.log(r.text); process.exit(r.status); }
     else if (cmd === 'deliver') {
       const r = deliver(J(a1)); for (const x of r.results) console.log(`  ${x.claimed === x.got ? '✓' : '✗'} ${x.cmd}  (exit ${x.got}, declarado ${x.claimed}) · ${x.log}`);
       console.log(r.ok ? 'ACEPTADO  entrega con evidencia reproducible' : 'RECHAZADO  ' + r.reasons.join('; ')); process.exit(r.ok ? 0 : 1);
     } else if (cmd === 'deps' || cmd === 'impact') { const r = spawnSync(process.execPath, [path.join(ROOT, 'engine/q.mjs'), ...argv], { stdio: 'inherit' }); process.exit(r.status ?? 1); }
-    else console.log('Uso: node engine/orch.mjs accept <change.json> | propose <ruta.json> <patch.json> --why "…" | decide <id> accept|reject|apply --why "…"\n  | note <nota.json> | list [proposals|notes] | freeze | contracts | reopen <gate> --why "…" | unfreeze <shot/ID|gate/G> --why "…"\n  | brief <agente> <tarea> | status | run [--lines N] -- <cmd …> | deliver <entrega.json>      (grafo: node engine/q.mjs deps | impact <ID>)');
-  } catch (e) { console.error('✗ ' + (e instanceof OrchError ? e.message : e.stack)); process.exit(2); }
+    else console.log('Uso: node engine/orch.mjs accept <change.json> | propose <ruta.json> <patch.json> --why "…" | decide <id> accept|reject|apply --why "…"\n  | note <nota.json> | list [proposals|notes] | freeze | contracts | reopen <gate> --why "…" | unfreeze <shot/ID|gate/G> --why "…"\n  | plan [--shots A,B] [--concurrency N] [--budget-tokens N] [--budget-minutes M] [--json] | resume [nombre] [--message] | beat <tarea> --step "…" [--ttl ms] [--end] | handoff <f.json> | handoff --show <tarea> | wip | cost [--task T --film F --tokens N --minutes M | --report f.md]\n  | brief <agente> <tarea> | status | run [--lines N] -- <cmd …> | deliver <entrega.json>      (grafo: node engine/q.mjs deps | impact <ID>)');
+  } catch (e) { console.error('✗ ' + (e instanceof OrchError || e instanceof CT.CErr ? e.message : e.stack)); process.exit(2); }
 }
