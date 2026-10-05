@@ -12,6 +12,8 @@ import { makeTexStore, texReady } from './tex.mjs';
 import { assertTimeline } from './schema.mjs';
 import { resolveTimeline, assertParams } from './params.mjs';
 import { bindParams } from './signal.mjs';
+import { createWorld3d } from './world3d/index.mjs';
+import { usesWorld3d } from './hash.mjs';
 import { filmId, sibling, activeTimeline, announceFilm, filmFile, resolveFilm } from './filmid.mjs';
 export { seek, activeShots, shotBeats } from './seek.mjs';
 const { createCanvas, Image } = canvasPkg;
@@ -68,6 +70,8 @@ export async function loadFilm({ timeline = timelinePath(), animatic = false, st
   film.resolution = R;
   film.assets = makeAssets(ROOT);
   film.canvas = (w, h) => createCanvas(w, h);
+  film.world3d = createWorld3d();                                                       // spec 004: backend 3D (gl/three solo se cargan si algún shot usa api.world3d)
+  if (!animatic && usesWorld3d(tl.shots.map((s) => s.id))) { film.world3d.available; film.world3d.sig(); }   // precarga FUERA del sandbox de shots (que congela process/Date); si falta, api.world3d degrada y lint da FIX
   if (!animatic) {
     const sb = makeSandbox(ROOT); film.sandboxLog = sb.log;                         // carga y ejecución de shots en sandbox (engine/sandbox.mjs)
     for (const s of film.shots) {

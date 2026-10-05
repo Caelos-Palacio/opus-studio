@@ -713,5 +713,12 @@
     }
    ]
   }
- ]
+ ],
+ "variants": {
+  "w3d": {
+   "ops": [
+    { "op": "add", "path": "/shots/P03/params", "value": { "w3d": true } }
+   ]
+  }
+ }
 }

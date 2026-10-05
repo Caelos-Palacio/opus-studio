@@ -21,7 +21,7 @@ import os from 'node:os';
 import { spawn, spawnSync } from 'node:child_process';
 import { ROOT, loadFilm, timelinePath } from './film.mjs';
 import { ensureMix, mixName } from './sound.mjs';
-import { sha, engineSig, assetsSig, fontSig, shotDeps, shotHash } from './hash.mjs';
+import { sha, engineSig, assetsSig, fontSig, shotDeps, shotHash, world3dSig, usesWorld3d } from './hash.mjs';
 import { withLock, writeAtomic } from './lock.mjs';
 import { record } from './ledger.mjs';
 import { masterGate } from './gate.mjs';
@@ -43,7 +43,7 @@ function shotImports(id, seen = new Set()) {
 }
 // Segmentos: grupos de shots que se solapan (morphs) no se parten; cortes limpios sí.
 export function plan(film, { fps, size, chunk = 900, preset = 'medium' }) {
-  const engine = sha(engineSig(), JSON.stringify(film.S), ...(film.medium ? [JSON.stringify(film.medium)] : []), fontSig([film.S.typeface]));
+  const engine = sha(engineSig(), JSON.stringify(film.S), ...(film.medium ? [JSON.stringify(film.medium)] : []), fontSig([film.S.typeface]), ...(usesWorld3d(film.shots.map((s) => s.id)) ? [world3dSig()] : []));   // spec 004: backend GL + Mesa en el hash solo si el film usa world3d
   const glob = sha(engine, assetsSig(), film.audioInfo ?? null, film.width, film.height, film.duration, film.fps, film.motif, film.handoffs, film.profileName, film.P, fps, size, film.edit?.items ?? null, ...(preset !== 'medium' ? [preset] : []));
   const N = Math.round(film.duration * fps) + 1, jobs = [];
   // F4 cookKey: entrada RESUELTA del shot (params tras capas + señales que usa; sin meta) + la de los shots cuyo código

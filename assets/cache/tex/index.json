@@ -1,4 +1,8 @@
 {
+ "1631504": {
+  "tex": "\\approx 1\\,\\mathrm{m}",
+  "display": true
+ },
  "1uchuur": {
   "tex": "\\nabla\\cdot\\mathbf{g}=-4\\pi G\\rho",
   "display": true
@@ -229,6 +233,18 @@
  },
  "193oicj": {
   "tex": "e^{i\\pi}+1=0",
+  "display": true
+ },
+ "z788jc": {
+  "tex": "\\approx 10\\,\\mathrm{m}",
+  "display": true
+ },
+ "6s5484": {
+  "tex": "\\approx 100\\,\\mathrm{m}",
+  "display": true
+ },
+ "135uba1": {
+  "tex": "\\approx 1\\,\\mathrm{km}",
   "display": true
  }
 }

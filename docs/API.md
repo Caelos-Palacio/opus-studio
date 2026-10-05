@@ -23,9 +23,12 @@ Todas registran cajas (lint) y metadatos (índice). Todas son funciones puras de
 | `api.image(id, x, y, w, h, {fit, alpha})` | Imagen de assets/ (síncrona en Node). |
 | `api.footage(id, tLocal, x, y, w, h, {loop, speed, fit})` | Vídeo real: fotogramas pre-extraídos (engine/assets.mjs --footage) con remapeo de tiempo. |
 | `api.layer(spec, (ctx, t, api) => ...)` | Capa compuesta con efectos (blur, bloom, motionBlur, trail, dirBlur, chroma, displace, warp, mask, fps, blend). |
+| `api.world3d(scene, {rect, t, u, cam, overrides, step, motionBlur, transparent, ssaa, alpha})` | 3D REAL como capa del compositor (backend aislado headless-gl+three): el shot declara la escena como DATOS ({id, background, fog, ground, camera, objects:[{shape|instances, size, pos, color, mat, outline}]}) y el motor la dibuja con el estilo (paleta forzada, luz clave S.light.az, bandas toon + contorno de tinta, niebla y sombra de contacto, SSAA). cam/overrides pueden ser funciones de t; step:'auto' sigue los twos del film. Se dibuja ANTES del grade/post/medio. Sin gl/Mesa: lint FIX. |
 | `api.p3(x, y, z) → [sx, sy, k]` | Proyección en perspectiva alrededor del foco de cámara (z>0 = lejos). k = escala. |
 | `api.card3d({x,y,w,h, rx, ry, z}, (ctx, api) => ...)` | Tarjeta con giro 3D real (homografía por malla) — ≤ 60° legible. |
 | `api.atmos(z) → {alpha, blur}` | Perspectiva atmosférica y DOF del estilo para una profundidad z. |
+| `api.impact(at, {frames, mode, x, y, color, rays})` | Impact frame: `frames` fotogramas (2 por defecto, a fps del film) desde `at` (s, relativo al shot). mode "invert" (negativo de todo el cuadro) | "burst" (rayos radiales desde x,y) | "both" (1.º invertido, resto rayos). Llamarlo SIEMPRE (no dentro de un if): fuera de su ventana no dibuja, pero registra el impacto para arc (presupuesto y sincronía con el audio). |
+| `api.smear(x, y, vx, vy, fn)` | Smear: estira el dibujo de fn en el eje de la velocidad (px/s) según motion.smear del estilo; no hace nada si el estilo no lo pide. Cuando estira, lo registra (arc mide segundos de smear por escena). |
 
 ## Deformaciones vectoriales (`WARPS`, en geom.mjs)
 `wave` · `bulge` · `twist` · `bend` · `noise` · `quad` — se aplican a puntos de control (resolución infinita); `compose(w1,w2)`; raster: `api.layer({warp})` en px de dispositivo.
