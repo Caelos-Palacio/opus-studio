@@ -1,0 +1,682 @@
+{
+ "version": 1,
+ "titulo": "Regla · lo que parecía daño era aprendizaje",
+ "timeline": "data/regla/regla.json",
+ "memoria": {
+  "vidaMedia": 9,
+  "piso": 0.1,
+  "umbral": 0.15
+ },
+ "conceptos": [
+  {
+   "id": "regla",
+   "label": "una criatura de placas, inmóvil bajo una rueda",
+   "kind": "entidad",
+   "saliencia": 0.8,
+   "anclas": [
+    {
+     "shot": "R01"
+    },
+    {
+     "shot": "R14"
+    },
+    {
+     "param": "/shots/R01/params/enfasis",
+     "rol": "enfasis"
+    }
+   ],
+   "estados": [
+    {
+     "t": [
+      0,
+      6
+     ],
+     "lectura": "un bloque inerte bajo una rueda: no hace nada",
+     "siente": "calma inquieta",
+     "espera": "que algo la golpee"
+    }
+   ]
+  },
+  {
+   "id": "rueda",
+   "label": "la rueda de ocho radios que da un paso tras cada golpe",
+   "kind": "motivo",
+   "saliencia": 0.55,
+   "planta": true,
+   "anclas": [
+    {
+     "shot": "R01"
+    },
+    {
+     "entidad": "rueda"
+    },
+    {
+     "param": "/shots/R14/params/enfasis",
+     "rol": "enfasis"
+    }
+   ],
+   "refuerzos": [
+    8.25,
+    13.75,
+    18.45,
+    22.25,
+    25.4,
+    30.25,
+    33.7
+   ],
+   "estados": [
+    {
+     "t": [
+      0,
+      46
+     ],
+     "lectura": "un adorno: la rueda gira cuando algo golpea",
+     "siente": "indiferencia",
+     "espera": "nada"
+    }
+   ]
+  },
+  {
+   "id": "por-que-gira",
+   "label": "¿por qué gira la rueda?",
+   "kind": "pregunta",
+   "saliencia": 0.6,
+   "abre": 3,
+   "resuelve": {
+    "t": 50.58,
+    "por": "adaptacion"
+   },
+   "anclas": [
+    {
+     "t": [
+      3,
+      50.58
+     ]
+    },
+    {
+     "param": "/shots/R12/params/revelar_en",
+     "rol": "retencion"
+    }
+   ],
+   "estados": [
+    {
+     "t": [
+      3,
+      50.58
+     ],
+     "lectura": "si es un adorno, ¿por qué se mueve con cada golpe?",
+     "espera": "una explicación tardía"
+    }
+   ]
+  },
+  {
+   "id": "victoria",
+   "label": "el atacante va ganando",
+   "kind": "tensión",
+   "saliencia": 0.85,
+   "abre": 7.9,
+   "resuelve": {
+    "t": 47.2,
+    "por": "adaptacion"
+   },
+   "anclas": [
+    {
+     "t": [
+      7.9,
+      41.6
+     ]
+    }
+   ],
+   "estados": [
+    {
+     "t": [
+      7.9,
+      27.5
+     ],
+     "lectura": "cada golpe la hiere: el atacante va ganando",
+     "siente": "dominio, alivio",
+     "espera": "que caiga"
+    },
+    {
+     "t": [
+      27.5,
+      41.6
+     ],
+     "lectura": "la criatura se hunde: el final está cerca",
+     "siente": "euforia amarga",
+     "espera": "el golpe definitivo"
+    }
+   ]
+  },
+  {
+   "id": "golpe-corte",
+   "label": "el corte que la parte en diagonal",
+   "kind": "entidad",
+   "saliencia": 0.8,
+   "anclas": [
+    {
+     "shot": "R02"
+    },
+    {
+     "param": "/shots/R02/params/fuerza",
+     "rol": "intensidad",
+     "rango": [
+      0.5,
+      4.5
+     ],
+     "base": 1
+    }
+   ],
+   "estados": [
+    {
+     "t": [
+      6,
+      12
+     ],
+     "lectura": "el corte la hiere: las placas ceden",
+     "siente": "alivio",
+     "espera": "que caiga"
+    }
+   ]
+  },
+  {
+   "id": "golpe-impacto",
+   "label": "la percusión que la agrieta",
+   "kind": "entidad",
+   "saliencia": 0.85,
+   "anclas": [
+    {
+     "shot": "R03"
+    },
+    {
+     "param": "/shots/R03/params/fuerza",
+     "rol": "intensidad",
+     "rango": [
+      0.5,
+      4.5
+     ],
+     "base": 1
+    }
+   ],
+   "estados": [
+    {
+     "t": [
+      12,
+      17
+     ],
+     "lectura": "el impacto la agrieta: está herida",
+     "siente": "dominio",
+     "espera": "más fuerte"
+    }
+   ]
+  },
+  {
+   "id": "golpe-calor",
+   "label": "el calor que la pone al rojo",
+   "kind": "entidad",
+   "saliencia": 0.85,
+   "anclas": [
+    {
+     "shot": "R04"
+    },
+    {
+     "param": "/shots/R04/params/fuerza",
+     "rol": "intensidad",
+     "rango": [
+      0.5,
+      4.5
+     ],
+     "base": 1
+    }
+   ],
+   "estados": [
+    {
+     "t": [
+      17,
+      21
+     ],
+     "lectura": "el calor la funde: no aguanta",
+     "siente": "euforia",
+     "espera": "que se derrita"
+    }
+   ]
+  },
+  {
+   "id": "golpe-espinas",
+   "label": "las espinas que la atraviesan",
+   "kind": "entidad",
+   "saliencia": 0.9,
+   "anclas": [
+    {
+     "shot": "R05"
+    },
+    {
+     "param": "/shots/R05/params/fuerza",
+     "rol": "intensidad",
+     "rango": [
+      0.5,
+      4.5
+     ],
+     "base": 1
+    }
+   ],
+   "estados": [
+    {
+     "t": [
+      21,
+      24.5
+     ],
+     "lectura": "las espinas la clavan: sin salida",
+     "siente": "crueldad",
+     "espera": "que ceda"
+    }
+   ]
+  },
+  {
+   "id": "golpe-prensa",
+   "label": "las planchas que la aplastan",
+   "kind": "entidad",
+   "saliencia": 0.9,
+   "anclas": [
+    {
+     "shot": "R06"
+    },
+    {
+     "param": "/shots/R06/params/fuerza",
+     "rol": "intensidad",
+     "rango": [
+      0.5,
+      4.5
+     ],
+     "base": 1
+    }
+   ],
+   "estados": [
+    {
+     "t": [
+      24.5,
+      27.5
+     ],
+     "lectura": "la prensa la aplasta: casi vencida",
+     "siente": "euforia amarga",
+     "espera": "el final"
+    }
+   ]
+  },
+  {
+   "id": "rafaga",
+   "label": "la ráfaga que la desborda y la hunde",
+   "kind": "entidad",
+   "saliencia": 0.9,
+   "anclas": [
+    {
+     "shot": "R07"
+    },
+    {
+     "shot": "R08"
+    },
+    {
+     "shot": "R09"
+    },
+    {
+     "param": "/shots/R07/params/fuerza",
+     "rol": "intensidad",
+     "rango": [
+      0.5,
+      4.5
+     ],
+     "base": 1
+    },
+    {
+     "param": "/shots/R08/params/fuerza",
+     "rol": "intensidad",
+     "rango": [
+      0.5,
+      4.5
+     ],
+     "base": 1
+    },
+    {
+     "param": "/shots/R09/params/fuerza",
+     "rol": "intensidad",
+     "rango": [
+      0.5,
+      4.5
+     ],
+     "base": 1
+    }
+   ],
+   "estados": [
+    {
+     "t": [
+      27.5,
+      33.8
+     ],
+     "lectura": "la ráfaga la desborda: cae de rodillas",
+     "siente": "vértigo",
+     "espera": "el golpe definitivo"
+    }
+   ]
+  },
+  {
+   "id": "golpe-final",
+   "label": "la hoja que la borra del cuadro",
+   "kind": "entidad",
+   "saliencia": 1,
+   "anclas": [
+    {
+     "shot": "R10",
+     "t": [
+      36,
+      40
+     ]
+    },
+    {
+     "shot": "R11",
+     "t": [
+      40,
+      44
+     ]
+    },
+    {
+     "param": "/shots/R11/params/fuerza",
+     "rol": "intensidad",
+     "rango": [
+      0.5,
+      4.5
+     ],
+     "base": 1
+    }
+   ],
+   "estados": [
+    {
+     "t": [
+      40,
+      47
+     ],
+     "lectura": "el golpe definitivo: no queda nada",
+     "siente": "silencio, duelo",
+     "espera": "el final"
+    }
+   ]
+  },
+  {
+   "id": "adaptacion",
+   "label": "la criatura aprende de cada golpe: lo que parecía daño era una lección",
+   "kind": "revelación",
+   "saliencia": 1,
+   "anclas": [
+    {
+     "shot": "R12"
+    },
+    {
+     "param": "/shots/R12/params/eco",
+     "rol": "eco"
+    },
+    {
+     "param": "/shots/R12/params/hold",
+     "rol": "hold"
+    }
+   ],
+   "estados": [
+    {
+     "t": [
+      47.2,
+      60
+     ],
+     "lectura": "la regla que la hace invencible: se adapta a cada golpe",
+     "siente": "sublime dinámico: un poder que supera",
+     "espera": "que nada funcione dos veces"
+    }
+   ]
+  },
+  {
+   "id": "amenaza",
+   "label": "si se adapta, ¿cómo se le gana?",
+   "kind": "tensión",
+   "saliencia": 0.9,
+   "abre": 53,
+   "abiertaAPropósito": "final abierto: la película termina en la pregunta, con el atacante de nuevo ante la criatura",
+   "anclas": [
+    {
+     "shot": "R13"
+    },
+    {
+     "shot": "R14"
+    },
+    {
+     "param": "/shots/R14/params/intensidad",
+     "rol": "intensidad",
+     "rango": [
+      0.5,
+      3
+     ],
+     "base": 1
+    },
+    {
+     "param": "/shots/R14/params/rima",
+     "rol": "rima"
+    }
+   ],
+   "estados": [
+    {
+     "t": [
+      53,
+      60
+     ],
+     "lectura": "el atacante vuelve: no se puede repetir nada",
+     "siente": "tensión serena",
+     "espera": "una técnica nueva"
+    }
+   ]
+  }
+ ],
+ "relaciones": [
+  {
+   "id": "crece-1",
+   "tipo": "escala",
+   "de": "golpe-corte",
+   "a": "golpe-impacto",
+   "t": 13.4,
+   "why": "el segundo golpe es más fuerte que el primero"
+  },
+  {
+   "id": "crece-2",
+   "tipo": "escala",
+   "de": "golpe-impacto",
+   "a": "golpe-calor",
+   "t": 18.1,
+   "why": "el tercero lo supera"
+  },
+  {
+   "id": "crece-3",
+   "tipo": "escala",
+   "de": "golpe-calor",
+   "a": "golpe-espinas",
+   "t": 21.9,
+   "why": "cada golpe pega más fuerte"
+  },
+  {
+   "id": "crece-4",
+   "tipo": "escala",
+   "de": "golpe-espinas",
+   "a": "golpe-prensa",
+   "t": 25.05,
+   "why": "la prensa es el golpe más pesado hasta ahora"
+  },
+  {
+   "id": "crece-5",
+   "tipo": "escala",
+   "de": "golpe-prensa",
+   "a": "rafaga",
+   "t": 28.35,
+   "why": "los golpes se multiplican y se aceleran"
+  },
+  {
+   "id": "crece-6",
+   "tipo": "escala",
+   "de": "rafaga",
+   "a": "golpe-final",
+   "t": 41.6,
+   "why": "la ráfaga prepara el golpe que lo decide todo"
+  },
+  {
+   "id": "gira-1",
+   "tipo": "causa",
+   "de": "golpe-corte",
+   "a": "rueda",
+   "t": 8.25,
+   "why": "tras cada golpe, la rueda da un paso"
+  },
+  {
+   "id": "gira-2",
+   "tipo": "causa",
+   "de": "golpe-prensa",
+   "a": "rueda",
+   "t": 25.4,
+   "why": "la rueda sigue contando"
+  },
+  {
+   "id": "prepara-final",
+   "tipo": "prepara",
+   "de": "rafaga",
+   "a": "golpe-final",
+   "t": 33.8,
+   "why": "la carga final nace de la ráfaga"
+  },
+  {
+   "id": "contador",
+   "tipo": "revela",
+   "de": "adaptacion",
+   "a": "rueda",
+   "t": 47.2,
+   "why": "la rueda era el contador: ocho pasos, ocho lecciones"
+  },
+  {
+   "id": "engano",
+   "tipo": "contradice",
+   "de": "adaptacion",
+   "a": "victoria",
+   "t": 47.2,
+   "why": "el atacante no ganaba: enseñaba"
+  },
+  {
+   "id": "sin-salida",
+   "tipo": "escala",
+   "de": "adaptacion",
+   "a": "amenaza",
+   "t": 53,
+   "why": "si aprende de todo, el tiempo juega en contra del atacante"
+  },
+  {
+   "id": "vuelve",
+   "tipo": "rima",
+   "de": "regla",
+   "a": "amenaza",
+   "t": 57.5,
+   "why": "el último plano repite el primero: el mismo bloque y la misma rueda, ya no son lo mismo"
+  }
+ ],
+ "reinterpretaciones": [
+  {
+   "id": "g-corte",
+   "en": 48.6,
+   "por": "adaptacion",
+   "objetivo": "golpe-corte",
+   "tramo": [
+    6,
+    12
+   ],
+   "antes": "el corte la hiere",
+   "despues": "el corte era una lección: ahora no la toca",
+   "why": "la adaptación convierte el daño aparente en la causa de la invulnerabilidad"
+  },
+  {
+   "id": "g-impacto",
+   "en": 48.93,
+   "por": "adaptacion",
+   "objetivo": "golpe-impacto",
+   "tramo": [
+    12,
+    17
+   ],
+   "antes": "el impacto la agrieta",
+   "despues": "las grietas eran costuras: el impacto ya no pesa",
+   "why": "la adaptación convierte el daño aparente en la causa de la invulnerabilidad"
+  },
+  {
+   "id": "g-calor",
+   "en": 49.26,
+   "por": "adaptacion",
+   "objetivo": "golpe-calor",
+   "tramo": [
+    17,
+    21
+   ],
+   "antes": "el calor la funde",
+   "despues": "el calor era temple: ahora el rojo no quema",
+   "why": "la adaptación convierte el daño aparente en la causa de la invulnerabilidad"
+  },
+  {
+   "id": "g-espinas",
+   "en": 49.59,
+   "por": "adaptacion",
+   "objetivo": "golpe-espinas",
+   "tramo": [
+    21,
+    24.5
+   ],
+   "antes": "las espinas la clavan",
+   "despues": "las espinas abrieron los huecos de su armadura",
+   "why": "la adaptación convierte el daño aparente en la causa de la invulnerabilidad"
+  },
+  {
+   "id": "g-prensa",
+   "en": 49.92,
+   "por": "adaptacion",
+   "objetivo": "golpe-prensa",
+   "tramo": [
+    24.5,
+    27.5
+   ],
+   "antes": "la prensa la aplasta",
+   "despues": "la prensa fijó el grosor de sus placas",
+   "why": "la adaptación convierte el daño aparente en la causa de la invulnerabilidad"
+  },
+  {
+   "id": "g-rafaga",
+   "en": 50.25,
+   "por": "adaptacion",
+   "objetivo": "rafaga",
+   "tramo": [
+    27.5,
+    33.8
+   ],
+   "antes": "la ráfaga la desborda",
+   "despues": "la ráfaga repetía lo ya aprendido: ninguna daba",
+   "why": "la adaptación convierte el daño aparente en la causa de la invulnerabilidad"
+  },
+  {
+   "id": "g-rueda",
+   "en": 50.58,
+   "por": "adaptacion",
+   "objetivo": "rueda",
+   "tramo": [
+    0,
+    46
+   ],
+   "antes": "un adorno: la rueda gira",
+   "despues": "un contador: ocho giros, ocho lecciones aprendidas",
+   "why": "el motivo de fondo era el marcador de la pelea"
+  }
+ ],
+ "direccion": {
+  "prioridad": 40,
+  "reglas": [
+   {
+    "id": "escala-intensidad",
+    "ganancia": 0.45
+   }
+  ]
+ }
+}

@@ -11,7 +11,7 @@ export const SIGNAL_OPS = ['keys', 'lfo', 'env', 'noise', 'audio', 'expr'];
 // Parámetros que reflejan un campo del shot en el timeline (lo leen lint/crítico/índice): el valor resuelto se escribe
 // también en shot.<campo>. Default = el campo; override = /shots/<id>/params/<campo>.
 export const FIELD_PARAMS = ['text'];
-export const PARAM_TYPES = ['number', 'integer', 'string', 'color', 'boolean', 'enum'];
+export const PARAM_TYPES = ['number', 'integer', 'string', 'color', 'boolean', 'enum', 'json'];   // json: lista/objeto sin enlaces (los callbacks eco/rima de la memoria)
 export const isBinding = (v) => !!v && typeof v === 'object' && !Array.isArray(v) && ('$sig' in v || '$expr' in v);
 export const bindingSrc = (v) => ('$expr' in v ? String(v.$expr) : `sig('${String(v.$sig)}')`);
 // Dependencias (nombres de señal) de un valor de parámetro. Lanza ExprError con ruta si la expresión no parsea.

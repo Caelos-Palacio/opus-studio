@@ -52,6 +52,7 @@ const typeOk = (sch, v) => {
     case 'integer': return Number.isInteger(v);
     case 'string': case 'color': return typeof v === 'string';
     case 'boolean': return typeof v === 'boolean';
+    case 'json': return v !== undefined && v !== null && typeof v === 'object';
     case 'enum': return (sch.values ?? []).includes(v);
   }
   return false;

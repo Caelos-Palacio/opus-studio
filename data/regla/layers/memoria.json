@@ -1,0 +1,202 @@
+{
+ "name": "memoria",
+ "priority": 40,
+ "ops": [
+  {
+   "op": "add",
+   "path": "/shots/R01/params/enfasis",
+   "value": 0.8,
+   "why": "peso de memoria de «regla» a mitad de R01 = 0.8 (decae si no reaparece)",
+   "concepto": "regla",
+   "regla": "peso-enfasis"
+  },
+  {
+   "op": "add",
+   "path": "/shots/R03/params/fuerza",
+   "value": 1.45,
+   "why": "«golpe-impacto» escala «golpe-corte» (paso 1): intensidad ×1.45 para que el salto se sienta",
+   "concepto": "golpe-impacto",
+   "regla": "escala-intensidad"
+  },
+  {
+   "op": "add",
+   "path": "/shots/R04/params/fuerza",
+   "value": 1.9,
+   "why": "«golpe-calor» escala «golpe-impacto» (paso 2): intensidad ×1.9 para que el salto se sienta",
+   "concepto": "golpe-calor",
+   "regla": "escala-intensidad"
+  },
+  {
+   "op": "add",
+   "path": "/shots/R05/params/fuerza",
+   "value": 2.35,
+   "why": "«golpe-espinas» escala «golpe-calor» (paso 3): intensidad ×2.35 para que el salto se sienta",
+   "concepto": "golpe-espinas",
+   "regla": "escala-intensidad"
+  },
+  {
+   "op": "add",
+   "path": "/shots/R06/params/fuerza",
+   "value": 2.8,
+   "why": "«golpe-prensa» escala «golpe-espinas» (paso 4): intensidad ×2.8 para que el salto se sienta",
+   "concepto": "golpe-prensa",
+   "regla": "escala-intensidad"
+  },
+  {
+   "op": "add",
+   "path": "/shots/R07/params/fuerza",
+   "value": 3.25,
+   "why": "«rafaga» escala «golpe-prensa» (paso 5): intensidad ×3.25 para que el salto se sienta",
+   "concepto": "rafaga",
+   "regla": "escala-intensidad"
+  },
+  {
+   "op": "add",
+   "path": "/shots/R08/params/fuerza",
+   "value": 3.25,
+   "why": "«rafaga» escala «golpe-prensa» (paso 5): intensidad ×3.25 para que el salto se sienta",
+   "concepto": "rafaga",
+   "regla": "escala-intensidad"
+  },
+  {
+   "op": "add",
+   "path": "/shots/R09/params/fuerza",
+   "value": 3.25,
+   "why": "«rafaga» escala «golpe-prensa» (paso 5): intensidad ×3.25 para que el salto se sienta",
+   "concepto": "rafaga",
+   "regla": "escala-intensidad"
+  },
+  {
+   "op": "add",
+   "path": "/shots/R11/params/fuerza",
+   "value": 3.7,
+   "why": "«golpe-final» escala «rafaga» (paso 6): intensidad ×3.7 para que el salto se sienta",
+   "concepto": "golpe-final",
+   "regla": "escala-intensidad"
+  },
+  {
+   "op": "add",
+   "path": "/shots/R12/params/eco",
+   "value": [
+    {
+     "ref": "/shots/R04",
+     "tramo": [
+      17,
+      21
+     ],
+     "concepto": "golpe-calor",
+     "giro": "g-calor",
+     "fuerza": 0.748
+    },
+    {
+     "ref": "/shots/R02",
+     "tramo": [
+      6,
+      12
+     ],
+     "concepto": "golpe-corte",
+     "giro": "g-corte",
+     "fuerza": 0.869
+    },
+    {
+     "ref": "/shots/R05",
+     "tramo": [
+      21,
+      24.5
+     ],
+     "concepto": "golpe-espinas",
+     "giro": "g-espinas",
+     "fuerza": 0.671
+    },
+    {
+     "ref": "/shots/R03",
+     "tramo": [
+      12,
+      17
+     ],
+     "concepto": "golpe-impacto",
+     "giro": "g-impacto",
+     "fuerza": 0.807
+    },
+    {
+     "ref": "/shots/R06",
+     "tramo": [
+      24.5,
+      27.5
+     ],
+     "concepto": "golpe-prensa",
+     "giro": "g-prensa",
+     "fuerza": 0.522
+    },
+    {
+     "ref": "/shots/R07",
+     "tramo": [
+      27.5,
+      33.8
+     ],
+     "concepto": "rafaga",
+     "giro": "g-rafaga",
+     "fuerza": 0.25
+    },
+    {
+     "ref": "/shots/R01",
+     "tramo": [
+      0,
+      46
+     ],
+     "concepto": "rueda",
+     "giro": "g-rueda",
+     "fuerza": 0.299
+    }
+   ],
+   "why": "giro g-calor en t=49.26: «adaptacion» relee «golpe-calor» [17,21] → callback visual a R04 (fuerza 0.748: el recuerdo había caído a 0.252) | giro g-corte en t=48.6: «adaptacion» relee «golpe-corte» [6,12] → callback visual a R02 (fuerza 0.869: el recuerdo había caído a 0.131) | giro g-espinas en t=49.59: «adaptacion» relee «golpe-espinas» [21,24.5] → callback visual a R05 (fuerza 0.671: el recuerdo había caído a 0.329) | giro g-impacto en t=48.93: «adaptacion» relee «golpe-imp",
+   "concepto": "adaptacion",
+   "regla": "giro-eco"
+  },
+  {
+   "op": "add",
+   "path": "/shots/R12/params/hold",
+   "value": 0.6,
+   "why": "giro g-calor: sostener 0.6s para que el espectador relea «golpe-calor» antes de seguir | giro g-corte: sostener 0.6s para que el espectador relea «golpe-corte» antes de seguir | giro g-espinas: sostener 0.6s para que el espectador relea «golpe-espinas» antes de seguir | giro g-impacto: sostener 0.6s para que el espectador relea «golpe-impacto» antes de seguir | giro g-prensa: sostener 0.6s para que el espectador relea «golpe-prensa» antes de seguir | giro g-rafaga: sostener 0",
+   "concepto": "adaptacion",
+   "regla": "giro-hold"
+  },
+  {
+   "op": "add",
+   "path": "/shots/R12/params/revelar_en",
+   "value": 3.58,
+   "why": "pregunta «por-que-gira» abierta desde t=3: retener la respuesta hasta t=50.58 (3.58s dentro de R12)",
+   "concepto": "por-que-gira",
+   "regla": "pregunta-retencion"
+  },
+  {
+   "op": "add",
+   "path": "/shots/R14/params/enfasis",
+   "value": 0.627,
+   "why": "peso de memoria de «rueda» a mitad de R14 = 0.627 (decae si no reaparece)",
+   "concepto": "rueda",
+   "regla": "peso-enfasis"
+  },
+  {
+   "op": "add",
+   "path": "/shots/R14/params/intensidad",
+   "value": 1.45,
+   "why": "«amenaza» escala «adaptacion» (paso 1): intensidad ×1.45 para que el salto se sienta",
+   "concepto": "amenaza",
+   "regla": "escala-intensidad"
+  },
+  {
+   "op": "add",
+   "path": "/shots/R14/params/rima",
+   "value": [
+    {
+     "ref": "/shots/R01",
+     "concepto": "regla"
+    }
+   ],
+   "why": "«amenaza» rima con «regla»: repetir su forma/tiempo de R01",
+   "concepto": "amenaza",
+   "regla": "rima-eco"
+  }
+ ]
+}

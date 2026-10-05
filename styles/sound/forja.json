@@ -1,0 +1,52 @@
+{
+  "name": "forja",
+  "description": "Forja: fa menor frigio, tempo 46→70→150 bpm que acelera con los golpes, percusión pesada y temprana, vacío corto y seco antes de cada impacto, revelación en bVI add9 (oscura y ancha, no luminosa), regreso al menor y un único destello mayor al final. Todo en fracciones del film.",
+  "key": { "root": "F", "mode": "minor" },
+  "tempo": { "points": [[0.66, 46], [0.3, 70], [0, 150]], "curve": 1.5, "rest": 54, "preroll": 3 },
+  "sections": { "introFrac": 0.1, "midFrac": 0.22, "revLen": 3, "returnMinorLen": 3, "peakFallback": 0.69, "holdFallback": [0.2, 4.6], "revDelay": 2.2, "breathLead": 0.8, "endFade": 4 },
+  "intensity": {
+    "intro": [0.12, 0.2], "exposition": [0.2, 0.32], "construction": [0.32, 0.46],
+    "crescendo": { "from": 0.46, "top": 0.62, "frac": 0.5, "maxSec": 26, "pow": 1.5 },
+    "breath": [0.04, 0.3], "revelation": { "start": 0.35, "peak": [0.32, 0.4] }, "descent": [0.6, 0.3], "tail": [0.3, 0.1], "arcWeight": 0.25
+  },
+  "dynamics": { "floorDb": -19, "pow": 0.85, "revDb": -2 },
+  "harmony": {
+    "build": ["i", "bII", "bVI", "V"], "climax": "bII/i", "prelude": "i", "bloom": "bVIadd9",
+    "descent": ["bVI", "iv", "i"], "return": ["i", "bVIadd9"]
+  },
+  "layers": {
+    "drone": { "gain": 0.16 }, "pad": { "gain": [0.14, 0.2] }, "bass": { "gain": [0.24, 0.3], "from": "introEnd" },
+    "arp": { "steps": [[0.22, 1], [0.32, 2], [0.4, 3], [0.48, 4], [0.56, 5], [0.64, 6]], "seq": [0, 2, 1, 3, 2, 1, 0, 3], "gain": [0.04, 0.1] },
+    "kick": { "thr": 0.34, "gain": [0.18, 0.6] }, "hat": { "thr": 0.6, "thr2": 0.7, "gain": [0.04, 0.08] }, "tom": { "thr": 0.46, "gain": [0.2, 0.36] },
+    "roll": { "frac": 0.25, "gain": [0.08, 0.34] }, "riser": { "frac": 0.45, "gain": 0.2 }
+  },
+  "motif": {
+    "introDelay": 4.2, "refWin": 21,
+    "intro": { "unit": 1.1, "g": 0.15, "send": 0.85, "head": 6 },
+    "mid": { "delay": 0.8, "unit": 0.55, "g": 0.14, "pan": -0.3, "bright": 0.7 },
+    "build": [
+      { "f": 1.4, "unit": 0.42, "tr": 0, "oct": true, "bright": 1.0, "g": 0.14, "pan": -0.25 },
+      { "f": 0.6, "unit": 0.26, "tr": 5, "oct": true, "bright": 1.3, "g": 0.15, "pan": 0.2 },
+      { "f": 0.3, "unit": 0.17, "tr": 8, "oct": true, "bright": 1.6, "g": 0.17, "head": 6 }
+    ],
+    "climax": { "unit": 0.5, "head": 3, "g": 0.17, "bright": 1.8, "sust": 0.6, "send": 0.5 },
+    "reinterpret": { "unit": 0.55, "g": 0.07, "send": 0.85, "bright": 1.1 },
+    "return": { "delay": 0.4, "unit": 0.8, "g": 0.15, "head": 6, "send": 0.85 },
+    "byKind": {
+      "entidad": { "voice": "lead", "ops": ["major", "unfold", "oct"] },
+      "motivo": { "voice": "lead", "ops": ["major", "unfold", "climb"] },
+      "default": { "voice": "lead", "ops": ["major", "unfold"] }
+    }
+  },
+  "impact": { "vacuum": 0.45, "suck": 0.22, "tailKeep": 1.4, "tailFade": 1.2 },
+  "sfx": {
+    "priority": { "impact": 4, "bloom": 3, "riser": 2, "whoosh": 2, "shimmer": 2, "anom": 2, "accent": 1, "resolve": 2, "tick": 1, "pop": 1, "click": 1 },
+    "duckDb": { "1": 2, "2": 5, "3": 8, "4": 11 },
+    "tickRunGap": 14, "tickGainDb": [-13, -3], "scale": [0, 3, 5, 7, 10]
+  },
+  "mix": {
+    "bus": { "music": -1, "sfx": 4, "amb": -5 }, "musicPocket": { "f": 2500, "q": 0.9, "db": -2.5 },
+    "macro": { "floorDb": -15, "pow": 0.85 }, "saturation": 0.12
+  },
+  "master": { "lufs": -14, "tp": -2.0 }
+}
