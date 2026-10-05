@@ -29,10 +29,10 @@ gobernanza en código, convierte el vídeo en datos editables y añade dramaturg
 
 ### F0 — Cimientos (el "pequeño plan")
 - [x] Repo git público, MIT → github.com/Caelos-Palacio/opus-studio
-- [x] CI (GitHub Actions: node 22 + ffmpeg + `npm test`; `.github/workflows/ci.yml`). Falta `npm audit` limpio (@xmldom/xmldom vía mathjax-full).
-- [x] Golden tests (E6): hash de frames `in/mid/out` por shot del demo y del fixture en `test/golden/`, con tolerancia
+- [ ] CI (GitHub Actions: node 22 + ffmpeg + `npm test`), `npm audit` limpio.
+- [ ] Golden tests (E6): hash de frames `in/mid/out` por shot del demo y del fixture en `test/golden/`, con tolerancia
       perceptual; test de que `cut` y `render` producen los mismos píxeles; modo `npm test -- --fast`.
-- [x] Film de estrés de 60–90 s (explainer con TeX + escala tipo *Powers of Ten*) para medir coste real y fallos del lint ("Potencias", 78 s, `data/stress/potencias.json`, informe `docs/research/06-estres.md`).
+- [ ] Film de estrés de 60–90 s (explainer con TeX + escala tipo *Powers of Ten*) para medir coste real y fallos del lint.
 
 ### F1 — Gobernanza en código (E1, E2, E3, E10)
 Patrón tomado de Symbiaxis (Guardian + WorkUnit), sin su andamiaje.
