@@ -19,14 +19,14 @@ tensión, pero no te limites a la música: debes mejorar todo el soundtrack."
 | diseño sonoro | cada evento visual relevante (corte de escala, revelación, entrada de objeto) tiene sonido; whoosh ∝ velocidad |
 | variedad | ningún sample/voz idéntico repetido >4 veces seguidas (variación de tono/filtro/tiempo) |
 | mezcla | enmascaramiento: en momentos de sfx, la música cede ≥3 dB en su banda; buses separados |
-| master | −14 LUFS integrado, LRA ≥8 LU, true peak ≤ −1 dBTP, clímax (ventana 3 s CENTRADA) ±0,5 s del pico visual |
+| master | −14 LUFS integrado, LRA ≥8 LU, true peak ≤ −1 dBTP, pico (ventana 3 s CENTRADA) ±0,5 s del pico visual |
 
 ## Escenarios (BDD)
 - Dado el timeline de Potencias sin parámetros musicales escritos a mano, Cuando corre `score`, Entonces produce una partitura con arco que cumple los medibles.
 - Dado un impacto declarado en t, Entonces hay ≥0,5 s de vacío relativo antes de t y transitorio a ≤2 fotogramas de t.
 - Dado un concepto de la memoria que se reinterpreta en t, Entonces su leitmotiv reaparece transformado en t ±1 s.
 - Dado un sfx repetido (tic ×10), Entonces cada repetición varía y su intensidad sigue la curva.
-- Dado el master, Entonces −14 LUFS, LRA ≥8, TP ≤ −1, clímax centrado ±0,5 s.
+- Dado el master, Entonces −14 LUFS, LRA ≥8, TP ≤ −1, pico centrado ±0,5 s.
 - [HUMANO] Dado Potencias v2, Cuando el usuario lo califica, Entonces nota ≥8 en soundtrack.
 
 ## TDD
@@ -58,7 +58,7 @@ Mismo medidor, mismas ventanas. Rojo = PoC + sfx v1; verde = `engine/{score,soun
 | variedad / tics siguen la intensidad | 21 tics idénticos seguidos · ρ indefinido | racha máxima 1 · ρ 0,64 sobre 33 tics |
 | enmascaramiento (buses + cesión ≥3 dB) | sin buses; un solo sidechain de ffmpeg | 16 eventos prioridad ≥2: mediana 5,9 dB, p20 4,5 dB |
 | master −14 ±0,5 / LRA ≥8 / TP ≤ −1 | −14,1 · 10,6 · −0,5 dBTP (TP en rojo) | −14,0 LUFS · 9,1 LU · −2,2 dBTP |
-| clímax ±0,5 s del pico (ventana 3 s centrada) | centro 49,40 s vs 50,92 s (−1,52 s) | centro 50,80 s (−0,12 s) |
+| pico ±0,5 s del pico (ventana 3 s centrada) | centro 49,40 s vs 50,92 s (−1,52 s) | centro 50,80 s (−0,12 s) |
 | leitmotiv transformado en la reinterpretación | ninguno | 2/2 (`origen` y `pasos` @58,1 s: mayor + despliegue + octava / acelerado + secuencia) |
 | determinismo | — | mismo hash en dos builds |
 
@@ -77,7 +77,7 @@ Salida completa:
 ✓ sound: variedad: ninguna voz idéntica >4 veces seguidas; los tics siguen la intensidad  racha máxima de "air" idénticos: 1 (exige ≤4) · ρ(intensidad, nivel del tic) 0.64 sobre 33 tics (exige ≥0,5)
 ✓ sound: mezcla: buses separados y la música cede ≥3 dB en la banda del sfx  16 eventos de prioridad ≥2 con música audible · cesión en su banda: mediana 5.9 dB, p20 4.5 dB (exige p20 ≥3)
 ✓ sound: master: −14 LUFS ±0,5, LRA ≥8, true peak ≤ −1 dBTP  I -14.0 LUFS · LRA 9.1 LU (exige ≥8) · TP -2.2 dBTP
-✓ sound: master: clímax (ventana 3 s centrada) a ±0,5 s del pico visual  máx short-term -10.4 LUFS en [49.3, 52.3] → centro 50.80 s vs pico visual 50.92 s (error -0.12 s)
+✓ sound: master: pico (ventana 3 s centrada) a ±0,5 s del pico visual  máx short-term -10.4 LUFS en [49.3, 52.3] → centro 50.80 s vs pico visual 50.92 s (error -0.12 s)
 ✓ sound: memoria: el leitmotiv reaparece TRANSFORMADO en cada reinterpretación (±1 s)  origen (persona @58.1): 7 notas transformadas [major+unfold+oct+floracion] · pasos (regla @58.1): 6 notas transformadas [major+unfold+fast+climb]
 ✓ sound: determinismo: dos builds de un film corto dan el mismo audio  5dfddea62555 / 5dfddea62555
 15 medibles en verde

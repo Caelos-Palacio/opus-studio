@@ -73,6 +73,7 @@ async function build(R, name) {
   const lint = fs.existsSync(path.join(ROOT, 'out/lint.json')) ? JSON.parse(fs.readFileSync(path.join(ROOT, 'out/lint.json'), 'utf8')) : null;
   writeAtomic(prevF, JSON.stringify({ film: name, title: film.title, style: film.S.name, profile: film.profileName, duration: film.duration, fps: film.fps, size: [film.width, film.height], palette: film.palette,
     motif: film.motif ?? null, handoffs: film.handoffs ?? [], edit: film.edit?.items ?? null, memoria: await memoriaPtr(), lint: lint ? { verdict: lint.verdict, issues: lint.issues.length } : null, energy: motion ? { fps: motion.fps, n: motion.energy.length } : null, shots }, null, 1));
+  try { const S = await import('./semindex.mjs'); writeAtomic(path.join(dir, 'semantic.json'), JSON.stringify(S.buildSemIndex({ timeline: film.timelinePath }), null, 1)); } catch (e) { console.log('  (índice semántico omitido: ' + e.message + ')'); }   // spec 006: conceptos/objetos/params, sin píxeles
   console.log('→', path.relative(ROOT, prevF), `(${shots.length} shots)`);
 }
 // La capa conceptual (data/memoria.json) NO se copia al índice observado: solo un puntero con hash (q memoria la muestra aparte).

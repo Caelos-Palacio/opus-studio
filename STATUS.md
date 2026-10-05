@@ -23,26 +23,27 @@ Definición (gates.json); el estado de cierre está en la parte viva.
 | [003-mundo-visual.md](docs/specs/003-mundo-visual.md) | 003 — Mundo visual: personalidad y gusto (no fondo negro) | regla / reel / mate v1 · "bien, no wow" · fondo negro monótono; falta personalidad y gusto |
 | [004-world3d.md](docs/specs/004-world3d.md) | 004 — world3d: 3D real integrado sin costuras | world3d v1 (datacenter D01 + variante w3d de Potencias P03) · — · implementado (docs/handoff/world3d.md); pendiente de juicio de gusto |
 | [005-metricas.md](docs/specs/005-metricas.md) | 005 — Métricas con sentido: unidades reales y estandarizables | sin nota |
+| [006-semantica.md](docs/specs/006-semantica.md) | 006 — Semántica al límite: el vídeo como datos con significado | sin nota |
 | [007-orquestacion.md](docs/specs/007-orquestacion.md) | 007 · Orquestación al límite (paso 4 del roadmap) | sin nota |
 | [008-gobernanza.md](docs/specs/008-gobernanza.md) | 008 — Gobernanza al límite (roadmap paso 5) | sin nota |
 
 ## Motor
 
-- versión: 4.0.0 (package.json) · módulos engine/: 69
+- versión: 4.0.0 (package.json) · módulos engine/: 73
 - roles: modo `enforce` (*, director, dp, investigador, td, productor, animator, review) · digest `35a737817acffefa`
 - presupuestos: data/budgets.json digest `5290bbde06ea538a`
 
 ## Tests
 
-Archivos (test/*.mjs): `arc.mjs` `bench-skia.mjs` `critic.mjs` `cut-render.mjs` `film.mjs` `fuzz.mjs` `golden.mjs` `gov.mjs` `guard.mjs` `harness.mjs` `hash.mjs` `lib.mjs` `medios.mjs` `memoria.mjs` `metrics.mjs` `orch.mjs` `orquestacion.mjs` `params.mjs` `perf.mjs` `run.mjs` `schema.mjs` `sound.mjs` `unit.mjs` `world3d.mjs`
+Archivos (test/*.mjs): `arc.mjs` `bench-skia.mjs` `critic.mjs` `cut-render.mjs` `film.mjs` `fuzz.mjs` `golden.mjs` `gov.mjs` `guard.mjs` `harness.mjs` `hash.mjs` `lib.mjs` `medios.mjs` `memoria.mjs` `metrics.mjs` `orch.mjs` `orquestacion.mjs` `params.mjs` `perf.mjs` `run.mjs` `schema.mjs` `semantica.mjs` `sound.mjs` `unit.mjs` `world3d.mjs`
 <!-- estatico:fin -->
 
 ---
-## Estado vivo (2026-10-05T21:09Z, no verificado)
+## Estado vivo (2026-10-05T21:19Z, no verificado)
 
 ## Veredictos
 
-Film activo: `main` · engineHash `dcae96b470dff953f3775c2e924fdb52744d1754290c3051f1997d962dc1e6bc` · filmHash `8ac843059ba51e5f`
+Film activo: `main` · engineHash `1492bbf608d76925ca9ddca6fd8bfae04b0cdf40b8cf53fc82400e0652e0bfbe` · filmHash `2ba9a9d721cb4a06`
 
 - out/lint.json: SHIP · CADUCADO
 - out/critic.json: no existe
@@ -54,12 +55,11 @@ Film activo: `main` · engineHash `dcae96b470dff953f3775c2e924fdb52744d1754290c3
 
 ## Ramas sin integrar
 
-- `orquestacion` (+10 commits)
-- `semantica` (+11 commits)
+- ninguna
 
 ## Último run de tests
 
-- 2026-10-05T21:08:16.081Z: todo verde
+- 2026-10-05T21:19:24.996Z: 1 fallos
 
 ## Ledger
 

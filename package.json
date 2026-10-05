@@ -35,7 +35,9 @@
     "styles": "node engine/style.mjs --list",
     "gallery": "node engine/gallery.mjs",
     "profile": "node engine/profile.mjs",
-    "metrics": "node engine/metrics.mjs"
+    "metrics": "node engine/metrics.mjs",
+    "vocab": "node engine/vocab.mjs",
+    "dsl": "node engine/dsl.mjs"
   },
   "dependencies": {
     "acorn": "^8.18.0",

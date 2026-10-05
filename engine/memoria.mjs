@@ -21,10 +21,14 @@ import fs from 'node:fs';
 import path from 'node:path';
 import crypto from 'node:crypto';
 import { validate, suggest } from './schema.mjs';
+import { terms, group } from './vocab.mjs';
 
 const ROOT = rootFrom(import.meta.url);
 export const MEMORIA_SCHEMA = JSON.parse(fs.readFileSync(path.join(ROOT, 'data/memoria.schema.json'), 'utf8'));
+// spec 006: los enums de la memoria vienen del vocabulario controlado (un test verifica que el JSON del esquema coincide).
+{ const D = MEMORIA_SCHEMA.$defs; D.rol.enum = terms('memory.role'); D.concepto.properties.kind.enum = terms('concept.kind'); D.relacion.properties.tipo.enum = terms('relation.type'); D.regla.properties.cuando.enum = terms('rule.when'); }
 export const ROLES = MEMORIA_SCHEMA.$defs.rol.enum;
+const REL = { cadena: group('relation.cadenaCausal'), causal: group('relation.causal'), cosecha: group('relation.cosecha'), pago: group('relation.cosechaPago') };
 const DEF = { vidaMedia: 2, piso: 0.08, umbral: 0.15 };
 const EPS = 1e-6, r3 = (v) => Math.round(v * 1000) / 1000, clamp = (v, a, b) => Math.min(b, Math.max(a, v));
 const fmt = (x) => (Array.isArray(x) ? `[${x.map((v) => r3(v)).join(',')}]` : typeof x === 'number' ? String(r3(x)) : String(x));
@@ -55,6 +59,8 @@ export function contexto(mem, { timeline, root = ROOT } = {}) {
     for (const [k, v] of Object.entries(s.params ?? {})) m.set(k, { default: typeof v === 'number' ? v : v?.default });
     const src = path.join(root, 'shots', s.id + '.mjs');
     if (fs.existsSync(src)) { const code = fs.readFileSync(src, 'utf8'); for (const e of blockKeys(code, 'entities')) entities.add(e); for (const k of blockKeys(code, 'params')) if (!m.has(k)) m.set(k, {}); }
+    const dsl = path.join(root, 'shots', s.id + '.scene.json');          // spec 006: shot DSL → sus params y entidades están en el .scene.json
+    if (fs.existsSync(dsl)) { try { const sc = JSON.parse(fs.readFileSync(dsl, 'utf8')); for (const k of Object.keys(sc.params ?? {})) if (!m.has(k)) m.set(k, {}); for (const e of Object.keys(sc.entities ?? {})) entities.add(e); } catch { /* el lint del DSL lo reporta */ } }
     if (m.size) params.set(s.id, m);
   }
   return { duration: mem.duracion ?? tl.duration ?? Math.max(0, ...shots.map((s) => s.t[1])), shots, entities, params, timeline: typeof tf === 'string' ? tf : '(objeto)' };
@@ -179,7 +185,7 @@ export function porQue(mem, id, ctx) {
   const C = byId(mem), c = C.get(id);
   if (!c) { const s = suggest(id, [...C.keys()]); throw new Error(`concepto "${id}" no existe${s ? ` (¿"${s}"?)` : ''}`); }
   const rel = mem.relaciones ?? [], causas = [], seen = new Set([id]), q = [id];
-  while (q.length) { const x = q.shift(); for (const r of rel) if (r.a === x && ['causa', 'depende', 'prepara', 'escala'].includes(r.tipo) && !seen.has(r.de)) { seen.add(r.de); q.push(r.de); causas.push({ de: r.de, tipo: r.tipo, a: x, why: r.why ?? '' }); } }
+  while (q.length) { const x = q.shift(); for (const r of rel) if (r.a === x && REL.cadena.includes(r.tipo) && !seen.has(r.de)) { seen.add(r.de); q.push(r.de); causas.push({ de: r.de, tipo: r.tipo, a: x, why: r.why ?? '' }); } }
   return {
     id, label: c.label, kind: c.kind, primeraVez: primeraVez(mem, c, ctx),
     causas, efectos: rel.filter((r) => r.de === id).map((r) => ({ tipo: r.tipo, a: r.a, why: r.why ?? '' })),
@@ -222,7 +228,7 @@ export function lintMemoria(mem, ctx) {
   }
   // relaciones y ciclos causales
   for (const r of mem.relaciones ?? []) { ref(r.de, `relación ${r.tipo}`, r.de); ref(r.a, `relación ${r.tipo}`, r.de); if (r.t != null && !inT(r.t)) I('FIX', r.de, r.t, `relación ${r.de}→${r.a} en t=${r.t} fuera del film`, 'corregir t', 'tiempo'); if (r.de === r.a) I('FIX', r.de, null, `relación ${r.tipo} de un concepto consigo mismo`, 'quitarla', 'ref'); }
-  const causal = (mem.relaciones ?? []).filter((r) => ['causa', 'depende'].includes(r.tipo) && r.de !== r.a).map((r) => (r.tipo === 'depende' ? [r.a, r.de] : [r.de, r.a]));
+  const causal = (mem.relaciones ?? []).filter((r) => REL.causal.includes(r.tipo) && r.de !== r.a).map((r) => (r.tipo === 'depende' ? [r.a, r.de] : [r.de, r.a]));
   for (const cyc of ciclos(causal)) I('FIX', cyc[0], null, `ciclo causal: ${cyc.join(' → ')} → ${cyc[0]}`, 'romper el ciclo: una causa no puede depender de su efecto (usar "rima" o "reinterpreta" si es un eco)', 'ciclo');
   // reinterpretaciones = payoff: exigen un plant previo (el espectador vio el objetivo en el tramo, antes del giro)
   for (const g of giros(mem)) {
@@ -236,7 +242,7 @@ export function lintMemoria(mem, ctx) {
   }
   // revelaciones sin setup
   for (const c of mem.conceptos.filter((x) => x.kind === 'revelación')) {
-    const pv = primeraVez(mem, c, ctx) ?? Infinity, conSetup = giros(mem).some((g) => g.por === c.id) || (mem.relaciones ?? []).some((r) => r.de === c.id && ['revela', 'reinterpreta', 'resuelve'].includes(r.tipo) && C.has(r.a) && (primeraVez(mem, C.get(r.a), ctx) ?? Infinity) < pv);
+    const pv = primeraVez(mem, c, ctx) ?? Infinity, conSetup = giros(mem).some((g) => g.por === c.id) || (mem.relaciones ?? []).some((r) => r.de === c.id && REL.cosecha.includes(r.tipo) && C.has(r.a) && (primeraVez(mem, C.get(r.a), ctx) ?? Infinity) < pv);
     if (!conSetup) I('FIX', c.id, pv === Infinity ? null : pv, `payoff sin setup: revelación «${c.id}» no relee nada plantado antes`, 'declarar qué reinterpreta (reinterpretaciones) o qué revela (relación revela → concepto previo)', 'payoff');
   }
   // preguntas
@@ -251,7 +257,7 @@ export function lintMemoria(mem, ctx) {
   // setups sin payoff (planta sin cosecha posterior)
   for (const c of mem.conceptos.filter((x) => x.planta)) {
     const pv = primeraVez(mem, c, ctx) ?? 0;
-    const cosecha = giros(mem).some((g) => g.objetivo === c.id && g.en > pv) || (mem.relaciones ?? []).some((r) => (r.a === c.id || r.de === c.id) && ['revela', 'reinterpreta', 'resuelve', 'rima', 'prepara', 'escala'].includes(r.tipo) && (r.t == null || r.t > pv)) || mem.conceptos.some((q) => q.resuelve?.por === c.id);
+    const cosecha = giros(mem).some((g) => g.objetivo === c.id && g.en > pv) || (mem.relaciones ?? []).some((r) => (r.a === c.id || r.de === c.id) && REL.pago.includes(r.tipo) && (r.t == null || r.t > pv)) || mem.conceptos.some((q) => q.resuelve?.por === c.id);
     if (!cosecha) I('WARN', c.id, pv, `setup sin payoff: «${c.id}» está plantado y nada lo cosecha`, 'añadir un giro/rima/revelación posterior o quitar planta', 'setup');
   }
   return out.sort((a, b) => (a.level === b.level ? 0 : a.level === 'FIX' ? -1 : 1) || String(a.id).localeCompare(String(b.id)) || a.problem.localeCompare(b.problem));

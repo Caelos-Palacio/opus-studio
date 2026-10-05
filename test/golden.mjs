@@ -115,7 +115,8 @@ export function compare(G, D, { strict = sameFp(G.fingerprint, D.fingerprint) } 
 const inject = (code) => (s) => s.replace(/api\.text\(shot\.text,/, `${code} api.text(shot.text,`);
 export const PIXEL_MUTATIONS = [
   { name: 'golden-1px', files: { 'shots/A2.mjs': inject("ctx.save(); ctx['set'+'Transform'](1,0,0,1,0,0); ctx.fillStyle=api.color('ink'); ctx.fillRect(300,300,1,1); ctx.restore();") }, expect: /^A2@(in|mid|out)$/, n: 3 },
-  { name: 'golden-texto+1', files: { 'shots/A3.mjs': (s) => s.replace('api.text(shot.text, d.x, d.y,', 'api.text(shot.text, d.x + 1, d.y,') }, expect: /^A3@(mid|out)$/, n: 2 },
+  // A3 es DSL (spec 006): su texto vive en el objeto "frase" de shots/A3.scene.json (generado en shots/A3.mjs)
+  { name: 'golden-texto+1', files: { 'shots/A3.mjs': (s) => s.replace(/("\$shot": "text"\s*\},\s*"x": \{\s*"\$expr": )"dot_x"/, '$1"dot_x + 1"') }, expect: /^A3@(mid|out)$/, n: 2 },
 ];
 
 async function main() {

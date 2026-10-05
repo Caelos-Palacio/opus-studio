@@ -11,6 +11,7 @@
 //   node engine/q.mjs deps            grafo (handoff, after, cam.chain, import, estilo compartido) + plan: niveles en paralelo, orden topológico
 //   node engine/q.mjs impact A2       qué shots cambian y cuáles re-lintear si cambia A2 (o una ruta: styles/x.json, data/timeline.json)
 //                                     deps/impact no necesitan índice: leen el timeline y los shots
+//   node engine/q.mjs where <X>       (v2) dónde aparece el concepto/kind/objeto/param X (sinónimos → canónico) · depends <param> · semindex · otio [--out f]
 //   node engine/q.mjs memoria [t]     capa conceptual (data/memoria.json) junto a la observada, sin mezclarlas (docs/MEMORIA.md)
 import './help.mjs';
 import { announceFilm } from './filmid.mjs';
@@ -37,6 +38,21 @@ import { depGraph, execPlan, impact } from './orch.mjs';
   } catch (e) { console.error('✗ ' + e.message); process.exit(2); }
 }
 
+{ // spec 006: índice semántico v2 (conceptos, objetos y params del DSL; sin píxeles ni índice previo)
+  const A = process.argv.slice(2).filter((x) => !x.startsWith('--')), [c, t] = A, J = process.argv.includes('--json');
+  if (['where', 'depends', 'otio', 'semindex'].includes(c)) {
+    announceFilm();
+    try {
+      const S = await import('./semindex.mjs'), { activeTimeline } = await import('./filmid.mjs'), I = S.buildSemIndex({ timeline: activeTimeline() }), say = (o, txt) => console.log(J ? JSON.stringify(o, null, 1) : txt);
+      if (c === 'semindex') say(I, `${I.film}: ${I.concepts.length} conceptos · ${I.relations.length} relaciones · ${I.objects.length} objetos DSL · ${Object.keys(I.params).length} params (vocab v${I.vocab})`);
+      else if (!t && c !== 'otio') throw new Error(`uso: q ${c} <${c === 'where' ? 'concepto|kind|objeto|param' : 'param'}>`);
+      else if (c === 'where') { const r = S.where(I, t); say(r, r.hits.map((h) => `${h.kind.padEnd(9)} ${h.id}${h.shots?.length ? `  shots ${h.shots.join(',')}` : h.shot ? `  shot ${h.shot}` : ''}${h.t ? `  t ${JSON.stringify(h.t)}` : ''}`).join('\n') || `(sin resultados${r.suggest ? `; ¿quisiste decir «${r.suggest}»?` : ''})`); }
+      else if (c === 'depends') { const r = S.dependsOn(I, t); say(r, r.matches.map((m) => `${m.path}: objetos [${m.objects.join(' ')}]${m.possible.length ? ` posibles(opacos) [${m.possible.join(' ')}]` : ''} conceptos [${m.concepts.join(' ')}]`).join('\n') || '(param desconocido)'); }
+      else { const T = S.toOtio(I), out = process.argv.includes('--out') ? process.argv[process.argv.indexOf('--out') + 1] : null; if (out) { fs.mkdirSync(path.dirname(path.resolve(ROOT, out)), { recursive: true }); fs.writeFileSync(path.resolve(ROOT, out), JSON.stringify(T, null, 1) + '\n'); console.log('→ ' + out); } else console.log(JSON.stringify(T, null, 1)); }
+      process.exit(0);
+    } catch (e) { console.error('✗ ' + e.message); process.exit(2); }
+  }
+}
 announceFilm();
 const [cmd = 'film', a1] = process.argv.slice(2).filter((x) => !x.startsWith('--') && !/\.json$/.test(x)), J = process.argv.includes('--json');
 const dir = path.join(ROOT, 'out/index', filmName() + (process.env.OPUS_EDIT ? '.edit' : '')), F = path.join(dir, 'film.json');

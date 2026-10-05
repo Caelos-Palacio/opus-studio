@@ -1,3 +1,4 @@
+import { terms } from "../vocab.mjs";
 // Unidades con sentido: tabla de unidades (símbolo → dimensión como vector de exponentes), escala de plano y conversiones de
 // los parámetros de shot (unit del esquema F4) a magnitudes que un director/diseñador reconoce.
 export const UNITS = {
@@ -16,7 +17,7 @@ export const dimKey = (d) => Object.keys(d).sort().map((k) => `${k}^${d[k]}`).jo
 export const dimOf = (u) => (UNITS[u] ? dimKey(UNITS[u].dim) : null);
 
 // Escala de plano por fracción f = altura del sujeto / altura visible del encuadre (convención; Bordwell & Thompson, Film Art):
-export const SCALES = [['ECU', 1.0], ['CU', 0.6], ['MCU', 0.4], ['MS', 0.25], ['MLS', 0.15], ['LS', 0.08], ['ELS', 0]];
+export const SCALES = terms('shot.scale').map((n, i) => [n, [1.0, 0.6, 0.4, 0.25, 0.15, 0.08, 0][i]]);   // nombres: vocab (spec 006); umbrales: convención
 export const scaleIndex = (f) => { const i = SCALES.findIndex(([, lo]) => f >= lo); return i < 0 ? SCALES.length - 1 : i; };
 export const scaleName = (f) => SCALES[scaleIndex(f)][0];
 const DECL = { ECU: 0, BCU: 0, CU: 1, MCU: 2, MS: 3, MCS: 3, MLS: 4, LS: 5, WS: 5, FS: 5, ELS: 6, EWS: 6, XLS: 6 };

@@ -13,6 +13,7 @@
 //   9 scheduler        orch plan (oleadas por dependencias, concurrencia y presupuesto) · orch resume (handoff+ledger+plan) · orch cost (T9, out/costs.jsonl)
 // Configuración: orch.json (K, gateBudget, theta, quorum, briefTokens, toolLines, lintArgs, contractsGate).
 import { isMain } from './paths.mjs';
+import { referenceInvariant } from './vocab.mjs';
 import fs from 'node:fs';
 import path from 'node:path';
 import { spawnSync } from 'node:child_process';
@@ -370,7 +371,10 @@ export function brief(agent, task, { budget = config().briefTokens } = {}) {
   let sh = 'shots: '; const all = H.order.map(shot);
   for (let i = 0; i < all.length; i++) { const nx = (i ? ' · ' : '') + all[i], more = ` … +${all.length - i - 1}`; if (sh.length + nx.length + (i < all.length - 1 ? more.length : 0) > room) { sh += ` … +${all.length - i}`; break; } sh += nx; }
   let text = [...head, sh, ...tail].join('\n');
-  if (tokens(text) > budget) text = text.slice(0, budget * 4 - 1) + '…';
+  if (tokens(text) > budget) {                                              // spec 006: la compactación nunca pierde rutas/hashes/ids esenciales (guarda determinista, sin LLM)
+    const essential = [...head, ...tail].join('\n'); text = text.slice(0, budget * 4 - 1) + '…';
+    if (!referenceInvariant(essential, text).ok) text = [...head, `shots: +${all.length}`, ...tail].join('\n');
+  }
   return text;
 }
 
