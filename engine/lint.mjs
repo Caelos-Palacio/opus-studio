@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 // Escalera de verificación determinista (barata → cara). Sin VLM. Aplica el gusto del estilo activo.
-//   node engine/lint.mjs [--only validate|determinism|layout|camera|transitions|beats|handoffs|motion|rhythm|arc] [--shot ID] [--fps 12] [--style X] [--profile Y]
+//   node engine/lint.mjs [--only validate|determinism|layout|camera|transitions|beats|handoffs|contracts|motion|rhythm|arc] [--shot ID] [--fps 12] [--style X] [--profile Y]
 // Salida: out/lint.json (solo pasada completa) + out/lint/<film>/<ID>.json + veredicto SHIP / FIX (shot  t  problema  arreglo)
 //   --shot ID: ID + vecinos inmediatos del timeline; escribe solo sus veredictos por shot. --only X: parcial, nunca el global.
 import './help.mjs';
@@ -19,6 +19,8 @@ import { activeShots } from './seek.mjs';
 import { currentHashes, stamp, neighbors, lintDir } from './verdict.mjs';
 import { writeAtomic } from './lock.mjs';
 import { record } from './ledger.mjs';
+import { contractIssues } from './contract.mjs';
+import { secPair } from './core.mjs';
 
 const argv = process.argv.slice(2);
 const arg = (k, d) => { const i = argv.indexOf(k); return i >= 0 ? argv[i + 1] : d; };
@@ -26,7 +28,8 @@ const only = arg('--only');
 const want = (k) => !only || only === k;
 announceFilm();
 const issues = [];
-const push = (level) => (shot, t, problem, remedy) => issues.push({ level, shot, t: +(+t).toFixed(3), problem, remedy });
+let CHECK = 'schema';                                                       // check que emite cada issue (el trinquete de orch compara por check)
+const push = (level) => (shot, t, problem, remedy) => issues.push({ level, check: CHECK, shot, t: +(+t).toFixed(3), problem, remedy });
 const fix = push('FIX'), warn = push('WARN');
 const WHY = ENUMS.why, TRANS = ENUMS.transition;   // fuente única: data/timeline.schema.json
 const WHY_MOVES = { approach: ['push'], reveal: ['pull', 'tilt'], follow: ['slide', 'pan', 'tilt', 'auto'], compare: ['slide', 'pan'], unease: ['rotate', 'push', 'pull', 'slide', 'pan', 'tilt'] };
@@ -199,8 +202,8 @@ function layout(R, fps) {
   }
   for (const v of vis.values()) {
     const dur = v.last - v.first + 1 / fps, need = 0.4 + v.chars / P.readCps;
-    if (dur < 0.6 * need) once('rd' + v.label, () => fix(v.shot, v.first, `"${v.label}" visible ${dur.toFixed(2)}s; leer pide ≥ ${need.toFixed(2)}s (${P.readCps} car/s)`, 'alargar o acortar el texto'));
-    else if (dur < need) once('rd' + v.label, () => warn(v.shot, v.first, `"${v.label}" visible ${dur.toFixed(2)}s < ${need.toFixed(2)}s de lectura cómoda`, 'alargar un poco'));
+    if (dur < 0.6 * need) once('rd' + v.label, () => fix(v.shot, v.first, `"${v.label}" visible ${secPair(dur, need)[0]}s; leer pide ≥ ${secPair(dur, need)[1]}s (${P.readCps} car/s)`, 'alargar o acortar el texto'));
+    else if (dur < need) once('rd' + v.label, () => warn(v.shot, v.first, `"${v.label}" visible ${secPair(dur, need)[0]}s < ${secPair(dur, need)[1]}s de lectura cómoda`, 'alargar un poco'));
   }
   // Composición por shot (fotograma central): bordes, anclaje a puntos de poder, espacio negativo.
   const cm = S.compose, m = cm.edgeMargin;
@@ -288,13 +291,14 @@ function handoffs(film) {
 async function motion(fps, film) {
   const r2 = await makeRenderer({ size: `192x${Math.round((192 * film.height) / film.width / 2) * 2}`, grade: false });
   const n = Math.round(film.duration * fps), E = [];
-  let prev = null;
+  let prev = null; const metas = [];
   for (let i = 0; i <= n; i++) {
-    r2.frame(i / fps);
+    metas.push(...(r2.frame(i / fps)?.meta ?? []));
     const d = r2.ctx.getImageData(0, 0, r2.W, r2.H).data;
     if (prev) { let s = 0; for (let k = 0; k < d.length; k += 4) s += Math.abs(d[k] - prev[k]) + Math.abs(d[k + 1] - prev[k + 1]) + Math.abs(d[k + 2] - prev[k + 2]); E.push(s / (d.length * 0.75 * 255)); }
     prev = Uint8ClampedArray.from(d);
   }
+  const { declaredImpacts, inImpact } = await import('./sakuga.mjs'), imps = declaredImpacts(film, metas);   // un impact declarado no es un pop
   const cuts = new Set(film.shots.map((s) => Math.round(s.t[0] * fps)));
   const silent = (t) => film.silences.some(([a, b]) => t >= a && t <= b);
   const holdOk = (t) => film.shots.some((s) => (s.hold_ok ?? []).some(([a, b]) => t >= s.t[0] + a && t <= s.t[0] + b));
@@ -307,7 +311,7 @@ async function motion(fps, film) {
       fix(s?.id ?? '-', t - run / fps, `hold > ${film.P.maxHold}s sin silencio de audio`, 'añadir acción secundaria o declarar hold_ok');
     }
     const nb = [...E.slice(Math.max(0, i - 3), i), ...E.slice(i + 1, i + 4)].sort((a, b) => a - b), med = nb[Math.floor(nb.length / 2)] ?? 0;
-    if (E[i] > 0.01 && E[i] > (film.S.rules.popRatio ?? film.P.popRatio) * Math.max(med, 0.001) && !cuts.has(i + 1) && !cuts.has(i)) {
+    if (E[i] > 0.01 && E[i] > (film.S.rules.popRatio ?? film.P.popRatio) * Math.max(med, 0.001) && !cuts.has(i + 1) && !cuts.has(i) && !inImpact(t, imps, fps)) {
       const s = film.shots.find((x) => t >= x.t[0] && t < x.t[1]);
       warn(s?.id ?? '-', t, `pop: energía ${(E[i] / Math.max(med, 1e-4)).toFixed(1)}× la mediana local`, 'suavizar con spring o repartir en 2–3 frames');
     }
@@ -365,27 +369,29 @@ const emit = (film, error) => {
   return fixes;
 };
 let R;
-try { R = await makeRenderer({ size: arg('--size', undefined), grade: false }); } catch (e) { console.error('FIX  ' + e.message); fix('-', 0, `el film no carga: ${e.message}`.slice(0, 300), 'arreglar el error y relanzar'); emit(null, e.message); process.exit(1); }
+try { R = await makeRenderer({ size: arg('--size', undefined), grade: false }); } catch (e) { console.error('FIX  ' + e.message); CHECK = 'load'; fix('-', 0, `el film no carga: ${e.message}`.slice(0, 300), 'arreglar el error y relanzar'); emit(null, e.message); process.exit(1); }
 if (shotArg && !R.film.shots.some((s) => s.id === shotArg)) { console.error(`FIX  --shot ${shotArg}: no existe en el timeline`); process.exit(1); }
 if (shotArg) { const sc = R.film.shots.filter((s) => s.id === shotArg || neighbors(H0, shotArg).includes(s.id)); R.film.lintScope = { ids: new Set(sc.map((s) => s.id)), t0: Math.min(...sc.map((s) => s.t[0])), t1: Math.max(...sc.map((s) => s.t[1])) }; }
 const lfps = +arg('--fps', 12);
 fs.mkdirSync(path.join(ROOT, 'out'), { recursive: true });
 let aborted = null;
+const step = async (k, f) => { if (want(k)) { CHECK = k; await f(); } };
 try {
-if (want('validate')) { validate(R.film); for (const x of scanShots(ROOT, R.film.shots.map((s) => s.id))) (x.level === 'FIX' ? fix : warn)(x.shot, 0, x.problem, x.remedy); fonts(R); }
-if (want('determinism')) determinism(await makeRenderer({ size: arg('--size', undefined), grade: true }));
-if (want('layout')) { R.film.guard = guardCtx; R.film.guardLog = []; layout(R, Math.min(lfps, 8)); R.film.guard = null; guardReport(R.film); }
-if (want('camera')) camera(R.film);
-if (want('transitions')) transitions(R);
-if (want('beats')) beats(R.film);
-if (want('handoffs')) handoffs(R.film);
-if (want('motion')) await motion(lfps, R.film);
-if (want('rhythm')) { rima(R); await rhythm(R.film); }
-if (want('arc')) {                                                         // F5: lint dramático, solo si hay story.json (sin story no cambia nada)
+await step('validate', () => { validate(R.film); for (const x of scanShots(ROOT, R.film.shots.map((s) => s.id))) (x.level === 'FIX' ? fix : warn)(x.shot, 0, x.problem, x.remedy); fonts(R); });
+await step('determinism', async () => determinism(await makeRenderer({ size: arg('--size', undefined), grade: true })));
+await step('layout', () => { R.film.guard = guardCtx; R.film.guardLog = []; layout(R, Math.min(lfps, 8)); R.film.guard = null; guardReport(R.film); });
+await step('camera', () => camera(R.film));
+await step('transitions', () => transitions(R));
+await step('beats', () => beats(R.film));
+await step('handoffs', () => handoffs(R.film));
+await step('contracts', () => { for (const x of contractIssues(R.film)) (x.level === 'FIX' ? fix : warn)(x.shot, x.t, x.problem, x.remedy); });   // F3: contratos congelados en el animatic
+await step('motion', () => motion(lfps, R.film));
+await step('rhythm', async () => { rima(R); await rhythm(R.film); });
+await step('arc', async () => {                                             // F5: lint dramático, solo si hay story.json (sin story no cambia nada)
   const A = await import('./arc.mjs');
   if (A.storyPath(R.film)) { const r = await A.runArc({ fps: lfps }); for (const x of r.issues) push(x.level)(x.shot, x.t, `[arc] ${x.problem}`, x.remedy); }
-}
-} catch (e) { aborted = e.message; fix('-', 0, `lint abortado: ${e.message}`.slice(0, 300), 'arreglar el error y relanzar'); }
+});
+} catch (e) { aborted = e.message; CHECK = 'lint'; fix('-', 0, `lint abortado: ${e.message}`.slice(0, 300), 'arreglar el error y relanzar'); }
 const fixes = emit(R.film, aborted);
 for (const x of issues) console.log(`${x.level.padEnd(4)}  ${String(x.shot).padEnd(6)} ${x.t.toFixed(2).padStart(7)}s  ${x.problem}  →  ${x.remedy}`);
 const tag = `[${R.film.S.name}/${R.film.profileName}]${only ? ` (parcial: --only ${only}; no escribe out/lint.json)` : shotArg ? ` (shot ${shotArg} + vecinos → out/lint/${H0.film}/)` : ''}`;

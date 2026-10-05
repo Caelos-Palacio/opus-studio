@@ -39,6 +39,8 @@ test('ledger', async () => {
     ok(e.why.length === 140 && ['id', 'ts', 'agent', 'role', 'action', 'target', 'hash_before', 'hash_after', 'verdict', 'why'].every((k) => k in e), 'ledger: esquema completo y why ≤ 140');
     const e2 = await runP(d, ['-e', "import('./engine/ledger.mjs').then(m=>m.record({action:'y'}))"], { OPUS_AGENT: 'ana', OPUS_ROLE: 'td' });
     ok(e2.status === 0 && ledger(d).some((x) => x.agent === 'ana' && x.role === 'td'), 'ledger: agente y rol por env');
+    const e3 = await runP(d, ['-e', "import('./engine/ledger.mjs').then(m=>{m.record({action:'z'});m.record({action:'z2'})})"], { OPUS_AGENT: '' }), e4 = await runP(d, ['-e', "import('./engine/ledger.mjs').then(m=>m.record({action:'w'}))"], { OPUS_AGENT: 'ana' });
+    ok(e3.status === 0 && (e3.out.match(/⚠ ledger/g) ?? []).length === 1 && /anon/.test(e3.out) && !/⚠ ledger/.test(e4.out), 'ledger: sin OPUS_AGENT avisa UNA vez por proceso de que firma como "anon"; con él, silencio');
   } finally { fs.rmSync(d, { recursive: true, force: true }); }
 });
 
@@ -124,7 +126,10 @@ test('master', async () => {
     ok(r.status === 1 && /bloqueado/.test(r.stderr), 'master sin lint.json falla');
     const V = await imp(d, 'verdict.mjs'), w = (v, extra = {}) => fs.writeFileSync(path.join(d, 'out/lint.json'), JSON.stringify({ verdict: v, partial: false, ...V.stamp(V.currentHashes()), issues: [], ...extra }));
     w('FIX'); r = cut(); ok(r.status === 1 && /lint en FIX/.test(r.stderr), 'master con lint FIX falla');
-    w('SHIP'); r = cut(); ok(r.status === 0 && /pendientes/.test(r.stdout), 'master con SHIP vigente pasa el gate ' + r.stderr.slice(0, 200));
+    w('SHIP'); r = cut(); ok(r.status === 1 && /crítico: sin veredicto/.test(r.stderr), 'master con lint SHIP pero SIN veredicto del crítico vigente falla (deuda F3) ' + r.stderr.slice(0, 200));
+    const cs = () => fs.writeFileSync(path.join(d, 'out/critic.json'), JSON.stringify({ verdict: 'SHIP', ...V.stamp(V.currentHashes()) }));
+    cs(); r = cut(); ok(r.status === 0 && /pendientes/.test(r.stdout), 'master con SHIP vigente del lint y del crítico pasa el gate ' + r.stderr.slice(0, 200));
+    fs.rmSync(path.join(d, 'out/critic.json'));
     w('SHIP', { partial: true }); r = cut(); ok(r.status === 1, 'master con veredicto parcial falla');
     w('SHIP'); fs.appendFileSync(path.join(d, 'shots/A1.mjs'), '\n// cambio\n'); r = cut(); ok(r.status === 1 && /caducado/.test(r.stderr), 'master con veredicto caducado falla');
     w('SHIP'); fs.writeFileSync(path.join(d, 'out/critic.json'), JSON.stringify({ verdict: 'FIX', ...V.stamp(V.currentHashes()) })); r = cut(); ok(r.status === 1 && /crítico/.test(r.stderr), 'master con crítico FIX (vigente) falla');

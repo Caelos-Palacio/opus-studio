@@ -77,3 +77,6 @@ export const stepT = (t, film) => { const f = film.S.motion.stepFps; return f ? 
 // Frame-rate por intensidad (F5): shot.on = 2 → dibujo "a doses" (fps/2), 3 → a treses; 1/ausente = ones. La cámara sigue a ones.
 // Rejilla anclada al inicio del shot: nunca devuelve un t anterior a shot.t[0].
 export const onT = (t, shot, film) => { const n = shot.on | 0, t0 = shot.t[0]; return n > 1 ? t0 + (Math.floor(((t - t0) * film.fps) / n + 1e-6) * n) / film.fps : t; };
+
+// Dos duraciones (s) formateadas para un "a < b": 2 decimales y, si el redondeo las iguala, los que hagan falta para distinguirlas.
+export const secPair = (a, b) => { for (let d = 2; d <= 6; d++) { const x = a.toFixed(d), y = b.toFixed(d); if (x !== y) return [x, y]; } return [a.toFixed(6), b.toFixed(6)]; };

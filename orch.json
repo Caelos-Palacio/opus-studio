@@ -1,0 +1,11 @@
+{
+  "_doc": "Orquestación F3 (engine/orch.mjs). Lo edita el Director. K = intentos por shot sin llegar a SHIP antes de congelarlo; gateBudget = cierres fallidos seguidos de un gate antes de congelarlo; theta = umbral Jaccard de independencia de evidencias entre críticos; quorum = críticos independientes para consenso; briefTokens = tope del resumen de contexto; toolLines = líneas de salida de herramienta que se muestran (el resto, al log); lintArgs = args extra del lint que corre el trinquete; contractsGate = gate cuyo cierre congela los contratos.",
+  "K": 3,
+  "gateBudget": 2,
+  "theta": 0.5,
+  "quorum": 2,
+  "briefTokens": 500,
+  "toolLines": 20,
+  "lintArgs": [],
+  "contractsGate": "animatic"
+}
