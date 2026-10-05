@@ -101,8 +101,25 @@ Capa nueva **`data/story.json`** (spine) y **`engine/arc.mjs`** (lint dramático
 - **Presupuesto sakuga**: shots `hero | normal | simple`; los hero reciben más iteraciones y más post.
 - **Juicio**: lo no medible (¿emociona el pico?, ¿se siente la escala?) va al crítico con rúbrica cerrada, nunca al lint.
 
+### F5b — Soundtrack como sistema (spec docs/specs/002-soundtrack.md)
+El sonido es la mitad del asombro. No solo música: diseño sonoro completo derivado de la estructura del film.
+- **Partitura generativa** (de la PoC `engine/score.mjs`, rama del film de estrés, nota 6–7): secciones desde
+  timeline + curva de energía + memoria conceptual; rejilla de tempo anclada hacia atrás desde los impactos;
+  armonía con tensión que resuelve en la revelación; motivo (leitmotiv) por concepto de la memoria que se
+  transforma cuando el concepto cambia/se reinterpreta; capas por intensidad. Sistematizar: nada escrito a mano por film.
+- **Diseño sonoro**: sfx con capas (transitorio + cuerpo + cola), sub-drop e impactos con *pre-silencio*,
+  whooshes ligados a velocidad real de cámara/objetos, ambientes por escala/lugar, risers que se resuelven,
+  "suck-back" antes del golpe. Banco de síntesis propio, determinista.
+- **Mezcla y master**: buses (música, sfx, ambiente, voz), sidechain/ducking por prioridad, ecualización por
+  espacio de frecuencia (sin enmascaramiento), espacialización estéreo con el movimiento, master a −14 LUFS con
+  rango dinámico (LRA ≥ 8), true peak ≤ −1 dBTP.
+- **Medibles** en `arc`/`sound lint`: LRA, clímax sonoro ±0,5 s del visual (ventana centrada), sincronía
+  impacto–transitorio ≤ 2 fotogramas, vacío ≥ 0,5 s antes del golpe, enmascaramiento sfx/música, densidad de
+  eventos por sección, variedad tímbrica (nada se repite idéntico > N veces).
+- **Juez humano**: cada versión se califica (1–10) y la nota recalibra umbrales; objetivo ≥ 8.
+
 ### F6 — Rendimiento y alcance
-Workers reales por fragmento; evaluar `@napi-rs/canvas` (Skia: `filter`, `Path2D` nativos); preview con imágenes/metraje y hot-reload; TTS + música real con el ducking existente; export ProRes/alfa.
+Workers reales por fragmento; evaluar `@napi-rs/canvas` (Skia: `filter`, `Path2D` nativos); preview con imágenes/metraje y hot-reload; TTS; export ProRes/alfa.
 
 ## Orden y criterio de hecho
 | fase | depende de | hecho cuando |
@@ -113,6 +130,7 @@ Workers reales por fragmento; evaluar `@napi-rs/canvas` (Skia: `filter`, `Path2D
 | F3 | F1, F2 | simulación de 4 agentes sobre el film de estrés converge sin regresiones ni oscilación |
 | F4 | F2 | un agente cambia un parámetro por metadatos y solo se re-renderiza el fragmento afectado |
 | F5 | F4 | `arc` distingue la versión "PowerPoint" del demo de la versión con arco (test A/B) |
+| F5b | F4, F5 | soundtrack de Potencias v2 calificado ≥ 8 por el usuario; medibles de la spec 002 en verde |
 | F6 | F3 | coste/frame medido antes y después |
 
 Riesgo principal (lección de Symbiaxis, PENSA): **sobre-ingeniería sin uso real**. Cada pieza entra solo con un test
