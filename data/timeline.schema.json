@@ -28,7 +28,10 @@
     "motif": { "anyOf": [{ "type": "null" }, { "$ref": "#/$defs/motif" }] },
     "rhyme": { "type": "boolean", "description": "false desactiva el aviso de rima (lint rima)" },
     "end_hold_ok": { "type": "boolean", "description": "true permite un final en reposo (lint motion)" },
-    "shots": { "type": "array", "minItems": 1, "items": { "$ref": "#/$defs/shot" } }
+    "shots": { "type": "array", "minItems": 1, "items": { "$ref": "#/$defs/shot" } },
+    "signals": { "type": "object", "description": "F4: señales nombradas, funciones puras de t (docs/PARAMS.md); se enlazan a parámetros con {\"$sig\"} o sig('x') en {\"$expr\"}", "additionalProperties": { "$ref": "#/$defs/signal" } },
+    "variants": { "type": "object", "description": "F4: variantes (16:9/9:16, idioma, estilo) como capas JSON Patch; se activan con --variant a,b u OPUS_VARIANT", "additionalProperties": { "$ref": "#/$defs/variant" } },
+    "meta": { "type": "object", "description": "F4: metadatos libres del film (índice/crítico). No afectan a píxeles ni invalidan fragmentos" }
   },
   "$defs": {
     "num2": { "type": "array", "items": { "type": "number" }, "minItems": 2, "maxItems": 2 },
@@ -64,7 +67,38 @@
         "must_read_mute": { "type": "boolean", "description": "false desactiva el check de separación en grises (lint layout); true es el valor por defecto" },
         "cam": { "$ref": "#/$defs/cam" },
         "camera": { "type": "string", "description": "legado v2: texto libre que camera.mjs traduce a cam; preferir cam" },
+        "params": { "type": "object", "description": "F4: valores de los parámetros promovidos del shot (export default { params } en shots/<id>.mjs): constante, {\"$sig\"} o {\"$expr\"}", "additionalProperties": { "$ref": "#/$defs/paramValue" } },
+        "meta": { "type": "object", "description": "F4: metadatos libres del shot (rol, emoción, intención…). El código del shot NO los ve: no invalidan píxeles" },
         "vignette": { "type": "string", "deprecated": true, "x-remedy": "quitar: nada lo lee; la viñeta vive en storyboard/<id>.svg por convención" }
+      }
+    },
+    "paramValue": { "anyOf": [{ "type": ["string", "number", "boolean", "null", "array"] }, { "$ref": "#/$defs/sigBinding" }, { "$ref": "#/$defs/exprBinding" }] },
+    "sigBinding": { "type": "object", "additionalProperties": false, "required": ["$sig"], "properties": { "$sig": { "type": "string", "pattern": "^[A-Za-z_][A-Za-z0-9_]*$" } } },
+    "exprBinding": { "type": "object", "additionalProperties": false, "required": ["$expr"], "properties": { "$expr": { "type": "string", "minLength": 1 } } },
+    "signal": {
+      "anyOf": [
+        { "type": "object", "additionalProperties": false, "required": ["op", "keys"], "properties": { "op": { "const": "keys" }, "description": { "type": "string" },
+          "keys": { "type": "array", "minItems": 1, "items": { "type": "object", "additionalProperties": false, "required": ["t", "v"], "properties": { "t": { "type": "number" }, "v": { "type": "number" }, "ease": { "enum": ["linear", "in", "out", "inOut", "inOutQuint", "outExpo", "outBack", "smooth", "step", "cinema"] } } } } } },
+        { "type": "object", "additionalProperties": false, "required": ["op"], "properties": { "op": { "const": "lfo" }, "description": { "type": "string" }, "freq": { "type": "number", "minimum": 0 }, "amp": { "type": "number" }, "offset": { "type": "number" }, "phase": { "type": "number" }, "shape": { "enum": ["sine", "tri", "square", "saw"] } } },
+        { "type": "object", "additionalProperties": false, "required": ["op", "at"], "properties": { "op": { "const": "env" }, "description": { "type": "string" }, "at": { "anyOf": [{ "type": "number" }, { "type": "array", "items": { "type": "number" } }] },
+          "attack": { "type": "number", "minimum": 0 }, "decay": { "type": "number", "minimum": 0 }, "sustain": { "type": "number" }, "hold": { "type": "number", "minimum": 0 }, "release": { "type": "number", "minimum": 0 }, "peak": { "type": "number" } } },
+        { "type": "object", "additionalProperties": false, "required": ["op"], "properties": { "op": { "const": "noise" }, "description": { "type": "string" }, "seed": { "type": "integer" }, "freq": { "type": "number", "minimum": 0 }, "amp": { "type": "number" }, "offset": { "type": "number" }, "octaves": { "type": "integer", "minimum": 1, "maximum": 6 } } },
+        { "type": "object", "additionalProperties": false, "required": ["op", "feature"], "properties": { "op": { "const": "audio" }, "description": { "type": "string" }, "feature": { "enum": ["rms", "onsets", "beats"] }, "gain": { "type": "number" }, "decay": { "type": "number", "exclusiveMinimum": 0 }, "attack": { "type": "number", "exclusiveMinimum": 0 } } },
+        { "type": "object", "additionalProperties": false, "required": ["op", "expr"], "properties": { "op": { "const": "expr" }, "description": { "type": "string" }, "expr": { "type": "string", "minLength": 1 } } }
+      ]
+    },
+    "patchOp": {
+      "type": "object", "additionalProperties": false, "required": ["op", "path"],
+      "properties": { "op": { "enum": ["add", "remove", "replace", "move", "copy", "test"] }, "path": { "type": "string", "pattern": "^/" }, "from": { "type": "string", "pattern": "^/" }, "value": true }
+    },
+    "variant": { "type": "object", "additionalProperties": false, "required": ["ops"], "properties": { "description": { "type": "string" }, "ops": { "type": "array", "items": { "$ref": "#/$defs/patchOp" } } } },
+    "layer": {
+      "type": "object", "additionalProperties": false, "required": ["ops"],
+      "description": "F4: capa de overrides (data/layers/*.json). Contrato: docs/PARAMS.md",
+      "properties": {
+        "name": { "type": "string", "pattern": "^[^\\s/]+$" }, "kind": { "enum": ["variant", "agent", "user"] }, "priority": { "type": "number" },
+        "enabled": { "type": "boolean" }, "author": { "type": "string" }, "why": { "type": "string" },
+        "ops": { "type": "array", "items": { "$ref": "#/$defs/patchOp" } }
       }
     },
     "cam": {

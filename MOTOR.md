@@ -50,9 +50,11 @@ herramientas: lint(+guard) · autocam · cut(fragmentos, EDL) · sound · index/
 ## Contrato de shot v4
 ```js
 export default {
+  params: { size: { type: 'number', range: [0.05, 0.4], unit: 'vh', default: 0.17, semantic: '…' } },   // F4: interfaz pública (api.params / film.params(id, t))
   entities: { dot: (t, film) => ({ x, y, s, role }) },        // relevos (handoffs)
   scene: (t, film) => nodo,                                    // opcional: árbol declarativo
   draw(ctx, t, u, shot, film, api) { … },                      // opcional: modo inmediato (encima de la escena)
 };
 ```
 Reglas: texto solo con `api.text/label/tex`; al menos un foco por shot; nada de `setTransform`, `Math.random`, `Date` ni temporizadores; la cámara va en `shot.cam` (move | auto | track). TeX siempre en `String.raw` (así lo precompila `assets --tex`).
+Parámetros promovidos, señales, DSL de expresiones y capas de overrides (`data/layers/*.json`): ver `docs/PARAMS.md`. Los valores ajustables se leen de `api.params`, nunca de constantes que un agente tendría que editar en el JS.

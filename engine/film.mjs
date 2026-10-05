@@ -1,6 +1,8 @@
 // Carga (Node): timeline, perfiles, estilos, audio.json, shots/*.mjs y ASSETS (TeX, imágenes, footage); delega en seek.mjs.
 //   Overrides sin tocar archivos:  --style noir --profile cinematic --timeline data/showcase.json --edit data/edit.json
 //   (o env OPUS_STYLE / OPUS_PROFILE / OPUS_TIMELINE / OPUS_EDIT)
+//   F4: capas de overrides data/layers/*.json + variantes (--variant 9x16 / OPUS_VARIANT; --layers dir|none / OPUS_LAYERS):
+//   resolve(timeline, capas) UNA vez aquí; seek(t) trabaja sobre lo resuelto (docs/PARAMS.md).
 import fs from 'node:fs';
 import path from 'node:path';
 import canvasPkg from 'canvas';
@@ -8,10 +10,12 @@ import { compile } from './seek.mjs';
 import { makeSandbox } from './sandbox.mjs';
 import { makeTexStore, texReady } from './tex.mjs';
 import { assertTimeline } from './schema.mjs';
+import { resolveTimeline, assertParams } from './params.mjs';
+import { bindParams } from './signal.mjs';
 export { seek, activeShots, shotBeats } from './seek.mjs';
 const { createCanvas, Image } = canvasPkg;
 
-for (const k of ['style', 'profile', 'timeline', 'edit']) { const i = process.argv.indexOf('--' + k); if (i >= 0 && process.argv[i + 1]) process.env['OPUS_' + k.toUpperCase()] = process.argv[i + 1]; }
+for (const k of ['style', 'profile', 'timeline', 'edit', 'variant', 'layers']) { const i = process.argv.indexOf('--' + k); if (i >= 0 && process.argv[i + 1]) process.env['OPUS_' + k.toUpperCase()] = process.argv[i + 1]; }
 
 export const ROOT = path.resolve(path.dirname(new URL(import.meta.url).pathname), '..');
 const rd = (p) => JSON.parse(fs.readFileSync(path.join(ROOT, p), 'utf8'));
@@ -52,11 +56,12 @@ export function buildTimeMap(edit, film) {
 
 export async function loadFilm({ timeline = timelinePath(), animatic = false, style, profile, edit = process.env.OPUS_EDIT } = {}) {
   await texReady();
-  const aj = path.join(ROOT, 'data/audio.json'), tl = assertTimeline(rd(timeline), timeline);   // E8: estructura rota no se renderiza
+  const aj = path.join(ROOT, 'data/audio.json'), R = resolveTimeline(assertTimeline(rd(timeline), timeline), timeline), tl = R.timeline;   // E8 + F4: capas resueltas
   tl.style = style ?? process.env.OPUS_STYLE ?? tl.style ?? 'editorial';
   if (profile ?? process.env.OPUS_PROFILE) tl.profile = profile ?? process.env.OPUS_PROFILE;
   const film = compile(tl, rd('engine/profiles.json'), loadStyles(), fs.existsSync(aj) ? JSON.parse(fs.readFileSync(aj, 'utf8')) : null);
   film.timelinePath = timeline;
+  film.resolution = R;
   film.assets = makeAssets(ROOT);
   film.canvas = (w, h) => createCanvas(w, h);
   if (!animatic) {
@@ -65,6 +70,7 @@ export async function loadFilm({ timeline = timelinePath(), animatic = false, st
       const f = path.join(ROOT, 'shots', `${s.id}.mjs`);
       if (fs.existsSync(f)) film.mods[s.id] = sb.wrap(await sb.importShot(f, s.id), s.id);
     }
+    bindParams(film); assertParams(film);                                           // defaults de los esquemas promovidos + validación
   }
   const ac = path.join(ROOT, 'data/autocam', path.basename(timeline));                 // cámaras 'auto' horneadas (válidas solo si el hash coincide)
   if (fs.existsSync(ac)) { const A = JSON.parse(fs.readFileSync(ac, 'utf8')), { shotHash } = await import('./hash.mjs'); film.autocam = {};

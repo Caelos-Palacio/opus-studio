@@ -7,6 +7,7 @@
 // Niveles: estructura rota = FIX (y el lint no sigue: el resto asume la forma); campo deprecated = WARN.
 import fs from 'node:fs';
 import path from 'node:path';
+import { compileSignals, bindingDeps } from './signal.mjs';
 
 const ROOT = path.resolve(path.dirname(new URL(import.meta.url).pathname), '..');
 export const TIMELINE_SCHEMA = JSON.parse(fs.readFileSync(path.join(ROOT, 'data/timeline.schema.json'), 'utf8'));
@@ -105,6 +106,15 @@ export function validateTimeline(tl, { style } = {}) {
   const out = [], at = (p) => { const m = /^\/shots\/(\d+)/.exec(p), s = m ? tl?.shots?.[+m[1]] : null; return { shot: m ? (typeof s?.id === 'string' ? s.id : `#${m[1]}`) : '-', t: typeof s?.t?.[0] === 'number' ? s.t[0] : 0 }; };
   for (const e of validate(tl, TIMELINE_SCHEMA)) out.push({ level: e.level, ...at(e.path), problem: `${e.path}: ${e.message}`, remedy: e.remedy, kind: 'schema' });
   if (out.some((x) => x.level === 'FIX')) return out;                       // referencias cruzadas solo sobre una forma válida
+  // F4: señales y parámetros enlazados (expresiones que no parsean, señales inexistentes, ciclos) = estructura rota
+  const sch = (problem, remedy, shot = '-', t = 0) => out.push({ level: 'FIX', shot, t, problem, remedy, kind: 'schema' });
+  for (const n of Object.keys(tl.signals ?? {})) if (!/^[A-Za-z_][A-Za-z0-9_]*$/.test(n)) sch(`/signals/${n}: nombre de señal inválido`, 'usar [A-Za-z_][A-Za-z0-9_]* (se cita en sig(\'nombre\'))');
+  try { compileSignals(tl.signals ?? {}, {}); } catch (e) { sch(e.message.split('\n')[0], 'corregir la definición de la señal (docs/PARAMS.md)'); }
+  tl.shots.forEach((s, i) => { for (const [k, v] of Object.entries(s.params ?? {})) {
+    try { for (const d of bindingDeps(v, `/shots/${i}/params/${k}`)) if (!Object.hasOwn(tl.signals ?? {}, d)) { const g = suggest(d, Object.keys(tl.signals ?? {})); sch(`/shots/${i}/params/${k}: señal desconocida '${d}'`, g ? `¿quisiste decir "${g}"?` : 'declararla en timeline.signals', s.id, s.t[0]); } }
+    catch (e) { sch(e.message.split('\n')[0], 'corregir la expresión (docs/PARAMS.md: DSL)', s.id, s.t[0]); }
+  } });
+  if (out.some((x) => x.level === 'FIX')) return out;
   const ref = (level, shot, t, problem, remedy) => out.push({ level, shot, t: +(+t).toFixed(3), problem, remedy, kind: 'ref' });
   const st = style ?? tl.style ?? 'editorial', styles = available('styles', '.json');
   if (styles.length && !styles.includes(st)) { const s = suggest(st, styles); ref('FIX', '-', 0, `/style: estilo "${st}" no existe en styles/`, s ? `¿quisiste decir "${s}"?` : `disponibles: ${styles.join(' ')}`); }
@@ -126,6 +136,8 @@ export function validateTimeline(tl, { style } = {}) {
   (tl.handoffs ?? []).forEach((h, i) => { for (const k of ['from', 'to']) if (!all.has(h[k])) { const g = suggest(h[k], [...all]); ref('FIX', h[k], h.at, `/handoffs/${i}/${k}: handoff referencia shot inexistente "${h[k]}"`, g ? `¿quisiste decir "${g}"?` : 'corregir id'); } });
   return out;
 }
+// Capa de overrides (data/layers/*.json): misma validación de estructura que el timeline ($defs.layer).
+export const validateLayer = (layer) => validate(layer, { $ref: '#/$defs/layer' }, TIMELINE_SCHEMA);
 // Para cargadores (film.mjs → render/cut/autocam/critic): la estructura rota no se renderiza.
 export function assertTimeline(tl, name = 'timeline') {
   const bad = validateTimeline(tl).filter((x) => x.kind === 'schema' && x.level === 'FIX');

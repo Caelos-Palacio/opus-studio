@@ -6,6 +6,7 @@ import { applyGrade } from './grade.mjs';
 import { resolveStyle } from './styles.mjs';
 import { releasePool } from './fx.mjs';
 import { nodeWorld, drawScene } from './scene.mjs';
+import { bindParams } from './signal.mjs';
 
 export function compile(film, profiles, styles, audioInfo = null) {
   const pack = styles[film.style ?? 'editorial'];
@@ -22,6 +23,7 @@ export function compile(film, profiles, styles, audioInfo = null) {
   if (film.bpm > 0) for (let b = film.beatOffset; b <= film.duration + 1e-9; b += 60 / film.bpm) film.beatTimes.push(+b.toFixed(6));
   film.silences = audioInfo?.silences ?? [];
   film.mods = film.mods ?? {};
+  bindParams(film);                                                         // F4: film.meta aparte; film.param/params/signal
   return film;
 }
 

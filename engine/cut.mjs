@@ -23,20 +23,31 @@ import { sha, engineSig, assetsSig, fontSig, shotDeps, shotHash } from './hash.m
 import { withLock, writeAtomic } from './lock.mjs';
 import { record } from './ledger.mjs';
 import { masterGate } from './gate.mjs';
+import { cookEntry } from './resolve.mjs';
 
 const argv = process.argv.slice(2), has = (k) => argv.includes(k), arg = (k, d) => { const i = argv.indexOf(k); return i >= 0 && argv[i + 1] && !argv[i + 1].startsWith('--') ? argv[i + 1] : d; };
 export const filmName = (tlPath = timelinePath()) => (path.basename(tlPath, '.json') === 'timeline' ? 'main' : path.basename(tlPath, '.json'));
 export { shotHash };
+// ids de los shots que el código de `id` importa (transitivo, sin él mismo).
+function shotImports(id, seen = new Set()) {
+  if (seen.has(id)) return []; seen.add(id);
+  const f = path.join(ROOT, 'shots', id + '.mjs'); if (!fs.existsSync(f)) return [];
+  for (const [, dep] of fs.readFileSync(f, 'utf8').matchAll(/from\s+['"]\.\/([\w-]+)\.mjs['"]/g)) shotImports(dep, seen);
+  return [...seen].filter((x) => x !== id);
+}
 // Segmentos: grupos de shots que se solapan (morphs) no se parten; cortes limpios sí.
 export function plan(film, { fps, size, chunk = 900 }) {
   const engine = sha(engineSig(), JSON.stringify(film.S), fontSig([film.S.typeface]));
   const glob = sha(engine, assetsSig(), film.audioInfo ?? null, film.width, film.height, film.duration, film.fps, film.motif, film.handoffs, film.profileName, film.P, fps, size, film.edit?.items ?? null);
   const N = Math.round(film.duration * fps) + 1, jobs = [];
-  const entry = (s) => { const { t, ...rest } = s; return { ...rest, t }; };
+  // F4 cookKey: entrada RESUELTA del shot (params tras capas + señales que usa; sin meta) + la de los shots cuyo código
+  // importa (sus entidades leen los parámetros de ese shot: A2 hereda el punto de A1).
+  const entry = (s) => cookEntry(film, s);
   const push = (a, b, ids, extra) => {
     const shots = ids.map((id) => film.shots.find((s) => s.id === id)), ac = (s) => film.autocam?.[s.id] ?? null;
     const prevChain = shots.flatMap((s) => { const i = film.shots.indexOf(s); return s.cam?.chain && i > 0 ? [entry(film.shots[i - 1]), ac(film.shots[i - 1])] : []; });
-    const h = sha(glob, shots.map(entry), shots.map(ac), prevChain, ids.map((id) => shotDeps(id)), extra ?? '');
+    const imported = [...new Set(ids.flatMap((id) => shotImports(id)))].filter((id) => !ids.includes(id)).map((id) => film.shots.find((s) => s.id === id)).filter(Boolean).map(entry);
+    const h = sha(glob, shots.map(entry), shots.map(ac), prevChain, imported, ids.map((id) => shotDeps(id)), extra ?? '');
     for (let x = a; x < b; x += chunk) { const y = Math.min(b, x + chunk), id = `${ids.join('+')}${b - a > chunk ? '.' + Math.floor((x - a) / chunk) : ''}`; jobs.push({ id, shots: ids, a: x, b: y, hash: sha(h, x, y) }); }
   };
   if (film.edit) {                                                          // montaje: un fragmento por ítem de la EDL

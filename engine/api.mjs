@@ -37,6 +37,9 @@ export function makeApi(ctx, film, shot, cx) {
     _sub: (c2, tt) => makeApi(c2, film, shot, { ...cx, t: tt, boxes, meta }),
     scene: (spec, tt = cx.t) => drawScene(ctx, spec, tt, film, api),
     color: col,
+    // F4: parámetro promovido del shot (shots/<id>.mjs export default { params }) resuelto tras capas, evaluado en t.
+    param: (name, tt = cx.t) => film.param(shot.id, name, tt),
+    get params() { return film.params(shot.id, cx.t); },
     at: (fx, fy) => [safe.x0 + fx * safe.w, safe.y0 + fy * safe.h],          // punto relativo al área segura
     spring: (t, kind) => springS(t, film, kind),                              // muelle con la personalidad del estilo
     ease: (name, u) => (EASE[name || S.motion.ease] || EASE.inOut)(clamp(u)),
