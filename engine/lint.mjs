@@ -183,7 +183,9 @@ function layout(R, fps) {
   const sc = film.lintScope;                                                 // --shot: solo la ventana del shot y sus vecinos
   for (let i = 0; i <= film.duration * fps; i++) {
     if (sc && (i / fps < sc.t0 || i / fps > sc.t1)) continue;
-    const t = i / fps, boxes = R.frame(t), texts = boxes.filter((b) => b.kind === 'text'), foci = boxes.filter((b) => b.kind === 'focus');
+    const t = i / fps, boxes = R.frame(t);
+    for (const m of boxes.meta ?? []) if (m.prim === 'world3d' && m.unavailable) once('w3' + m.shot, () => fix(m.shot, t, `world3d no disponible: ${m.reason}`, 'instalar el backend 3D (npm i gl three + Mesa libEGL/libGL con llvmpipe) o quitar api.world3d del shot'));   // spec 004
+    const texts = boxes.filter((b) => b.kind === 'text'), foci = boxes.filter((b) => b.kind === 'focus');
     const sizes = [];
     for (let a = 0; a < texts.length; a++) {
       const A = texts[a], v = vis.get(A.label + A.shot) ?? { first: t, chars: A.chars ?? A.label.length, shot: A.shot, label: A.label }; v.last = t; vis.set(A.label + A.shot, v);

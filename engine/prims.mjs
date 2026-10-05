@@ -27,6 +27,7 @@ doc('label', 'api.label(str, [x,y], {role, avoid, leader})', 'Etiqueta que se co
 doc('image', 'api.image(id, x, y, w, h, {fit, alpha})', 'Imagen de assets/ (síncrona en Node).');
 doc('footage', 'api.footage(id, tLocal, x, y, w, h, {loop, speed, fit})', 'Vídeo real: fotogramas pre-extraídos (engine/assets.mjs --footage) con remapeo de tiempo.');
 doc('layer', 'api.layer(spec, (ctx, t, api) => ...)', 'Capa compuesta con efectos (blur, bloom, motionBlur, trail, dirBlur, chroma, displace, warp, mask, fps, blend).');
+doc('world3d', 'api.world3d(scene, {rect, t, u, cam, overrides, step, motionBlur, transparent, ssaa, alpha})', '3D REAL como capa del compositor (backend aislado headless-gl+three): el shot declara la escena como DATOS ({id, background, fog, ground, camera, objects:[{shape|instances, size, pos, color, mat, outline}]}) y el motor la dibuja con el estilo (paleta forzada, luz clave S.light.az, bandas toon + contorno de tinta, niebla y sombra de contacto, SSAA). cam/overrides pueden ser funciones de t; step:\'auto\' sigue los twos del film. Se dibuja ANTES del grade/post/medio. Sin gl/Mesa: lint FIX.');
 doc('p3', 'api.p3(x, y, z) → [sx, sy, k]', 'Proyección en perspectiva alrededor del foco de cámara (z>0 = lejos). k = escala.');
 doc('card3d', 'api.card3d({x,y,w,h, rx, ry, z}, (ctx, api) => ...)', 'Tarjeta con giro 3D real (homografía por malla) — ≤ 60° legible.');
 doc('atmos', 'api.atmos(z) → {alpha, blur}', 'Perspectiva atmosférica y DOF del estilo para una profundidad z.');
@@ -276,6 +277,25 @@ export function prims(ctx, api, film, shot, cx) {
     layer(spec, draw) {
       fxLayer(film, ctx, spec, cx.t, (lctx, tt) => { const sub = api._sub(lctx, tt); draw(lctx, tt, sub); });
       log('layer', { x: 0, y: 0, w: W, h: H }, { fx: Object.keys(spec) });
+    },
+
+    // 3D como capa (spec 004): escena declarada como datos; el backend (film.world3d) rasteriza a la resolución de dispositivo y el
+    // resultado se dibuja con el transform actual (cámara 2D del shot incluida). Pasa por el MISMO grade/post/medio que el 2D.
+    world3d(scene, o = {}) {
+      const W3 = film.world3d, rect = o.rect ?? [0, 0, W, H], B = cx.base, sx = Math.hypot(B.a, B.b), sy = Math.hypot(B.c, B.d), pw = Math.max(2, Math.round(rect[2] * sx)), ph = Math.max(2, Math.round(rect[3] * sy));
+      const box = { x: rect[0], y: rect[1], w: rect[2], h: rect[3] };
+      if (!W3 || !W3.available) {
+        log('world3d', box, { id: scene.id, unavailable: true, reason: W3?.reason ?? 'sin backend (navegador)' });
+        ctx.save(); ctx.fillStyle = col('shade'); ctx.globalAlpha = 0.5; ctx.fillRect(rect[0], rect[1], rect[2], rect[3]); ctx.restore();
+        api.text('3D NO DISPONIBLE', rect[0] + rect[2] / 2, rect[1] + rect[3] / 2, { role: 'label' }); return { available: false };
+      }
+      const st = shot.on | 0, twos = S.motion.stepFps ? Math.round(film.fps / S.motion.stepFps) : 0, step = o.step === 'auto' || o.step === undefined ? Math.max(st > 1 ? st : 0, twos > 1 ? twos : 0) : +o.step || 0;
+      const im = W3.render(scene, { size: [pw, ph], style: S, t: o.t ?? cx.t, u: o.u ?? cx.u, fps: film.fps, k: k * sx, cam: o.cam, overrides: o.overrides, step, ssaa: o.ssaa, motionBlur: o.motionBlur, transparent: !!o.transparent });
+      const cvs = ((film._w3cv ??= new Map())), key = pw + 'x' + ph; let cv = cvs.get(key); if (!cv) { if (cvs.size > 3) cvs.clear(); cv = film.canvas(pw, ph); cvs.set(key, cv); }
+      const c2 = cv.getContext('2d'), id = c2.createImageData(pw, ph); id.data.set(im.data); c2.putImageData(id, 0, 0);
+      ctx.save(); ctx.globalAlpha *= o.alpha ?? 1; ctx.drawImage(cv, rect[0], rect[1], rect[2], rect[3]); ctx.restore();
+      log('world3d', box, { id: scene.id, backend: W3.sig(), cached: im.cached, step });
+      return { available: true, rect, cached: im.cached };
     },
 
     // 2.5D: perspectiva alrededor del foco de cámara. f = distancia focal en px (estilo: depth.focal).

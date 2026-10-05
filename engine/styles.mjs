@@ -10,6 +10,9 @@ export const DEFAULTS = {
   grade: { vignette: 0, grain: 0, letterbox: 0, fade: { in: 0, out: 0, color: 'ink' }, barColor: '#000000', post: {} },   // post: { bloom:{threshold,strength,radius}, chroma:px, color:{lift,gamma,gain,temp,sat,dither} }
   depth: { focal: 1.2, fog: 0, dof: 0, focusZ: 0 },                   // 2.5D: focal (×ancho), niebla por z, desenfoque por |z−focusZ|
   light: { enabled: false, az: 135, shadow: 0.18, highlight: 0.3 },   // luz como vector: az° (135 = arriba-izquierda), sombra de contacto y brillo de borde
+  // world3d (spec 004): el estilo manda sobre el 3D. shading: toon (bandas) | soft (lambert suave) | ink (hatching); contorno con la tinta del 2D (grosor ×k como api.path lw 3);
+  // snap = fuerza de la cuantización suave a la paleta (null = por modo: toon .8, soft .25, ink .7); la luz clave sale de `light.az` (la misma del 2D); ssaa = supermuestreo; motionBlur: {samples, shutter} | null
+  world3d: { shading: 'toon', bands: 3, outline: { width: 3, color: 'ink' }, snap: null, ssaa: 2, shadowMix: 0.55, light: { el: 28 }, contact: 0.5, hatch: 6, motionBlur: null },
   compose: { edgeMargin: 0.04, anchor: 'thirds', anchorTol: 0.14, negativeSpace: 0.4 },
   rules: { glow: false, gradients: false, maxColors: 6, maxChroma: 0.22 }, // popRatio: umbral de picos de movimiento (por defecto el del perfil)
   bans: ['crossfade', 'blur-in', 'brightness', '3d flip', 'flip'],

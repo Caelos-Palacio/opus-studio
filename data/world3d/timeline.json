@@ -1,0 +1,21 @@
+{
+ "title": "world3d — datacenter: 3D integrado en el compositor (A/B con el spike)",
+ "style": "cosmos",
+ "profile": "cinematic",
+ "fps": 30,
+ "width": 1280,
+ "height": 720,
+ "duration": 6,
+ "handoffs": [],
+ "shots": [
+  {
+   "id": "D01",
+   "t": [0, 6],
+   "size": "EWS",
+   "action": "zoom de escala log de 380 m a 7 m sobre un centro de datos 3D (toon, contorno de tinta, niebla al color del fondo, sombra de contacto) con regla log 2D encima",
+   "text": "",
+   "cam": { "move": "static" },
+   "transition_out": "cut"
+  }
+ ]
+}

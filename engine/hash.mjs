@@ -95,6 +95,18 @@ export function closure(roots) {
 }
 const sigOf = ({ files, pkgs }) => sha256(files.map((f) => f + ':' + fileDigest(path.join(ROOT, f))).join('\n') + '\n' + pkgs.join('\n'));
 
+// world3d (spec 004): firma del backend GL (headless-gl + three + versión de Mesa + rasterizador). Cambiar de backend o de Mesa
+// invalida los fragmentos que usan 3D (los bits no son estables entre backends: ver docs/research/07-webgl.md).
+import { backendSig } from './world3d/backend-gl.mjs';
+export const world3dSig = () => backendSig();
+// ¿algún shot de la lista (o lo que importa) llama a api.world3d? Solo entonces la firma del backend entra en el hash.
+export function usesWorld3d(ids) {
+  const seen = new Set(), stack = ids.map((id) => path.join(ROOT, 'shots', id + '.mjs'));
+  while (stack.length) { const f = stack.pop(); if (seen.has(f) || !fs.existsSync(f)) continue; seen.add(f); const src = fs.readFileSync(f, 'utf8'); if (/\.world3d\s*\(/.test(src)) return true;
+    for (const [, d] of src.matchAll(/from\s+['"](\.[^'"]+)['"]/g)) stack.push(path.resolve(path.dirname(f), d)); }
+  return false;
+}
+
 // Firma del motor: cierre de las raíces + datos del motor. cut (fragmentos) y verdict (engineHash) llaman aquí.
 export const engineFiles = (roots = PIXEL_ROOTS) => closure(roots).files;
 export function engineSig(roots = PIXEL_ROOTS) {

@@ -1,0 +1,8 @@
+<!doctype html><meta charset=utf-8><body style="margin:0"><canvas id=c></canvas>
+<script type="importmap">{"imports":{"three":"./three.module.js"}}</script>
+<script type="module">
+import * as THREE from 'three'; import { makeWorld } from './world.mjs';
+window.init = (W,H,aa) => { const c=document.getElementById('c'); c.width=W; c.height=H;
+  const r = new THREE.WebGLRenderer({canvas:c, antialias:aa, preserveDrawingBuffer:true}); window.world = makeWorld(THREE,r,W,H); window.gl=r.getContext(); window.c=c; return r.getContext().getParameter(r.getContext().VERSION); };
+window.ready = true;
+</script>

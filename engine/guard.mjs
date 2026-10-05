@@ -95,6 +95,11 @@ const BANNED_IDS = {
   fetch: ['red en el shot', 'pre-cargar como asset (engine/assets.mjs)'],
   XMLHttpRequest: ['red en el shot', 'pre-cargar como asset (engine/assets.mjs)'],
   WebSocket: ['red en el shot', 'pre-cargar como asset (engine/assets.mjs)'],
+  // spec 004: el 3D se DECLARA como datos (api.world3d); el código GL vive en engine/world3d (módulo de confianza)
+  WebGLRenderingContext: ['código GL en un shot (WebGLRenderingContext)', 'declarar la escena como datos con api.world3d(scene, opts); el motor la rasteriza'],
+  WebGL2RenderingContext: ['código GL en un shot (WebGL2RenderingContext)', 'declarar la escena como datos con api.world3d(scene, opts); el motor la rasteriza'],
+  OffscreenCanvas: ['código GL en un shot (OffscreenCanvas)', 'declarar la escena como datos con api.world3d(scene, opts)'],
+  THREE: ['three en un shot', 'declarar la escena como datos con api.world3d(scene, opts); el shot no importa three ni gl'],
 };
 const GLOBAL_OBJ = new Set(['globalThis', 'global', 'window', 'self']);
 // Propiedades vigiladas, por objeto base (alias resueltos). null = cualquier objeto.
@@ -259,6 +264,9 @@ export function scanSource(src, id) {
         break;
       }
       case 'NewExpression': case 'CallExpression': {
+        if (n.type === 'CallExpression' && n.callee.type === 'MemberExpression' && (n.callee.computed ? fold(n.callee.property) : [n.callee.property.name])?.includes('getContext')) {
+          const a0 = n.arguments[0] ? fold(n.arguments[0]) : null; if (!a0 || a0.some((x) => /webgl|experimental/i.test(x))) once(line, 'código GL en un shot (getContext webgl)', 'FIX', 'declarar la escena como datos con api.world3d(scene, opts); el shot no abre contextos GL');
+        }
         if (baseOf(n.callee) === 'Date') once(line, 'Date', 'FIX', 'el reloj es t (frame/fps)');
         break;
       }

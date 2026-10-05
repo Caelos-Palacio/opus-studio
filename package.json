@@ -41,5 +41,9 @@
   },
   "overrides": {
     "@xmldom/xmldom": "^0.9.12"
+  },
+  "optionalDependencies": {
+    "gl": "^8.1.6",
+    "three": "^0.160.0"
   }
 }
