@@ -5,6 +5,7 @@
 // Sin story.json: un WARN y los medibles como información (nunca FIX: el demo no cambia de veredicto sin intención).
 // Umbrales: engine/arc.json (priors por perfil) + data/arc.calib.json (observaciones de obras aprobadas, --record)
 // con calibración bayesiana con clamp (docs/research/02). Lo no medible va a engine/arc.rubric.mjs (crítico).
+import './summary.mjs';   // T2: --summary / OPUS_SUMMARY=1 / OPUS_AGENT=1
 import './help.mjs';
 import { isMain } from './paths.mjs';
 import { validateStorySchema } from './inputs.mjs';

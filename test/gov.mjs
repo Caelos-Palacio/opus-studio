@@ -149,7 +149,8 @@ test('master', async () => {
 test('gates', async () => {
   const d = copy();
   try {
-    fs.writeFileSync(path.join(d, 'gates.json'), JSON.stringify({ si: ['siempre::node -e "process.exit(0)"'], no: ['bien::node -e "0"', 'nunca::node -e "process.exit(3)"'] }));
+    for (const c of [0, 3]) { fs.mkdirSync(path.join(d, 'out'), { recursive: true }); fs.writeFileSync(path.join(d, `out/exit${c}.mjs`), `process.exit(${c})`); }   // sin shell ni -e: scripts dentro del repo
+    fs.writeFileSync(path.join(d, 'gates.json'), JSON.stringify({ si: [{ criterion: 'siempre', argv: ['node', 'out/exit0.mjs'] }], no: [{ criterion: 'bien', argv: ['node', 'out/exit0.mjs'] }, { criterion: 'nunca', argv: ['node', 'out/exit3.mjs'] }] }));
     for (const [k, v] of Object.entries({ GIT_AUTHOR_NAME: 't', GIT_AUTHOR_EMAIL: 't@t', GIT_COMMITTER_NAME: 't', GIT_COMMITTER_EMAIL: 't@t' })) process.env[k] = v;
     const g = (a) => spawnSync('git', a, { cwd: d, encoding: 'utf8' });
     const hasGit = g(['init', '-q']).status === 0 && g(['add', '-A']).status === 0 && g(['commit', '-qm', 'init']).status === 0;

@@ -1,0 +1,14 @@
+{
+  "_doc": "Allowlist de comandos para evidencias de `orch deliver` y criterios de gates.json. Cada ID = argv fijo (sin shell). Un criterio/evidencia puede ser: un ID (+ argumentos), un argv [\"node\",\"engine/x.mjs\",...] con script dentro del repo, o el argv literal de un ID. Nunca texto con metacaracteres de shell. Lo edita el Director.",
+  "lint": ["node", "engine/lint.mjs"],
+  "test": ["node", "test/run.mjs"],
+  "arc": ["node", "engine/arc.mjs"],
+  "metrics": ["node", "engine/metrics.mjs"],
+  "peek": ["node", "engine/peek.mjs"],
+  "sound": ["node", "engine/sound.mjs"],
+  "memoria": ["node", "engine/memoria.mjs"],
+  "critic": ["node", "engine/critic.mjs"],
+  "q": ["node", "engine/q.mjs"],
+  "gate": ["node", "engine/gate.mjs"],
+  "orch": ["node", "engine/orch.mjs"]
+}

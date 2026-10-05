@@ -27,13 +27,29 @@
         "tag": { "type": "string", "pattern": "^[\\w-]+$" }
       }
     },
+    "handoff": {
+      "description": "Contrato de handoff tipado (orch handoff <f.json>): lo que un agente cortado necesita para reanudar sin leer el transcript. Se escribe en docs/handoff/<tarea>.json + .md.",
+      "type": "object", "additionalProperties": false, "required": ["tarea", "rama", "worktree", "objetivo", "hecho", "pendiente", "siguiente", "verificacion", "riesgos"],
+      "properties": {
+        "tarea": { "type": "string", "pattern": "^[\\w.-]{1,40}$" },
+        "rama": { "type": "string", "minLength": 1 },
+        "worktree": { "type": "string", "minLength": 1 },
+        "objetivo": { "type": "string", "minLength": 3 },
+        "hecho": { "type": "array", "items": { "type": "string" } },
+        "pendiente": { "type": "array", "items": { "type": "string" } },
+        "siguiente": { "type": "string" },
+        "verificacion": { "type": "array", "items": { "anyOf": [{ "type": "string", "minLength": 1 }, { "type": "array", "minItems": 1, "items": { "type": "string", "minLength": 1 } }] } },
+        "riesgos": { "type": "array", "items": { "type": "string" } }
+      }
+    },
     "delivery": {
-      "description": "Contrato de entrega tipado: node engine/orch.mjs deliver file.json re-ejecuta evidence[].cmd y exige el mismo exit.",
+      "description": "Contrato de entrega tipado: node engine/orch.mjs deliver file.json re-ejecuta (sin shell: argv o ID de data/commands.json) evidence[].cmd y exige el mismo exit.",
       "type": "object", "additionalProperties": false, "required": ["summary", "changed", "evidence", "risks", "confidence", "next"],
       "properties": {
+        "task": { "type": "string", "minLength": 1 },
         "summary": { "type": "string", "minLength": 3 },
         "changed": { "type": "array", "items": { "type": "string" } },
-        "evidence": { "type": "array", "minItems": 1, "items": { "type": "object", "additionalProperties": false, "required": ["cmd", "exit"], "properties": { "cmd": { "type": "string", "minLength": 1 }, "exit": { "type": "integer" } } } },
+        "evidence": { "type": "array", "minItems": 1, "items": { "type": "object", "additionalProperties": false, "required": ["cmd", "exit"], "properties": { "cmd": { "anyOf": [{ "type": "string", "minLength": 1 }, { "type": "array", "minItems": 1, "items": { "type": "string", "minLength": 1 } }] }, "exit": { "type": "integer" } } } },
         "risks": { "type": "array", "items": { "type": "string" } },
         "confidence": { "type": "number", "minimum": 0, "maximum": 1 },
         "next": { "type": "array", "items": { "type": "string" } }

@@ -4,6 +4,7 @@
 //   npm test [-- --only nombre] [-- --fast] [-- --jobs N]
 //   --fast : unidades + golden de píxel + cada mutación con solo la etapa del lint que la detecta. Sin fixture lint ni cut.
 // Las tareas corren en paralelo con límite de CPU (--jobs, por defecto nº de CPUs); la salida sale en orden fijo.
+import '../engine/summary.mjs';   // T2: modo agente = solo ✗ y el total
 import fs from 'node:fs';
 import path from 'node:path';
 import { ROOT, CPUS, copyRepo, rmrf, run, pool } from './lib.mjs';
@@ -71,7 +72,7 @@ if (!fast && sel('fixture')) tasks.push(P(fixture));
 if (sel('golden')) tasks.push(P(script('test/golden.mjs')));
 if (!fast && sel('cut')) tasks.push(P(script('test/cut-render.mjs')));
 tasks.push(P(script('test/unit.mjs')));
-for (const t of ['schema', 'critic', 'gov', 'guard', 'hash', 'params', 'memoria', 'arc', 'sound', 'film', 'perf', 'orch', 'medios', 'world3d', 'metrics', 'harness', 'fuzz']) if (sel(t)) tasks.push(P(script(`test/${t}.mjs`, t === 'sound' && fast ? ['--fast'] : [], { stderr: t !== 'guard' })));   // guard: su stderr son los bloqueos esperados del sandbox   // esquema (E8), crítico honesto (E4), gobernanza (F1), guardia AST (E7), hash por contenido (E5), parámetros/capas (F4), soundtrack (spec 002; --fast = fixture ×0,6)                                   // unidades puras (geometría, partículas, sims): siempre
+for (const t of ['schema', 'critic', 'gov', 'guard', 'hash', 'params', 'memoria', 'arc', 'sound', 'film', 'perf', 'orch', 'medios', 'world3d', 'metrics', 'harness', 'fuzz', 'orquestacion']) if (sel(t)) tasks.push(P(script(`test/${t}.mjs`, t === 'sound' && fast ? ['--fast'] : [], { stderr: t !== 'guard' })));   // guard: su stderr son los bloqueos esperados del sandbox   // esquema (E8), crítico honesto (E4), gobernanza (F1), guardia AST (E7), hash por contenido (E5), parámetros/capas (F4), soundtrack (spec 002; --fast = fixture ×0,6)                                   // unidades puras (geometría, partículas, sims): siempre
 let fail = 0;
 for (const t of tasks) { const r = await t; console.log(r.line); if (!r.ok) fail++; }
 console.log(`\n${fail ? `${fail} fallos` : 'Todo verde'}  (${((Date.now() - t0) / 1000).toFixed(1)} s, ${jobs} en paralelo${fast ? ', --fast' : ''})`);
