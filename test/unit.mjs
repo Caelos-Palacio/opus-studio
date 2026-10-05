@@ -24,4 +24,6 @@ const { symbolSet } = await import('../engine/semantic.mjs'), sy = symbolSet(Str
 ok(sy.includes('q̈') && sy.includes('q') && sy.includes('∂') && !sy.includes('\\frac'), 'semántica TeX: q̈ ≠ q, ∂ operador, \\frac descartado');
 const { chroma } = await import('../engine/fx.mjs'), cvs = (await import('canvas')).default.createCanvas(64, 64), cx2 = cvs.getContext('2d'); cx2.fillStyle = '#fff'; cx2.fillRect(31, 0, 2, 64); const before = cx2.getImageData(30, 30, 4, 4).data.join(); chroma(cvs, 3);
 ok(cx2.getImageData(30, 30, 4, 4).data.join() === before, 'aberración radial: centro intacto');
+const { secPair } = await import('../engine/core.mjs'), [sa, sb] = secPair(0.6249, 0.6251);
+ok(sa !== sb && secPair(0.5, 0.75).join() === '0.50,0.75' && Number(sa) < Number(sb), 'aviso de lectura: "a < b" nunca se muestra con a y b iguales tras redondear (0.625 < 0.625)');
 console.log(`${bad ? '✗' : '✓'} unidades       ${n - bad}/${n}`); process.exit(bad ? 1 : 0);

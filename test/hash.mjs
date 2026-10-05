@@ -77,6 +77,8 @@ test('motor-unificado', () => {
     ok(!changed(a, b) && a.engine !== b.engine, 'motor-unificado: lint.mjs caduca veredictos (engineHash) pero no fragmentos'); a = b;
     append(d, 'engine/profiles.json', ' '); b = snap(d);
     ok(changed(a, b) === 'A1,A2,A3' && a.engine !== b.engine, 'motor-unificado: profiles.json en ambos');
+    a = b; append(d, 'engine/arc.json', ' '); b = snap(d);
+    ok(!changed(a, b) && a.engine !== b.engine, 'motor-unificado: engine/arc.json (umbrales del arco) caduca veredictos pero no fragmentos');
   } finally { rmrf(d); }
 });
 

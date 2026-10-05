@@ -22,3 +22,18 @@ Luego genera las VIÑETAS de trazo (SVG barato, no frames), muéstrame el STRIP 
 Lanza cada subagente con `OPUS_AGENT=<nombre> OPUS_ROLE=<rol>` (ver AGENTES.md § Gobernanza). Antes de tocar un shot, el Animator lo reclama
 (`node engine/lock.mjs claim shots/A2.mjs`). Cada etapa se cierra con `node engine/gate.mjs close <gate>`: nunca declares un GATE pasado
 sin ese exit 0 (o un `--force "razón"` del Director). Itera con `node engine/lint.mjs --shot ID`; el master solo sale con SHIP vigente.
+
+## Orquestación convergente (F3)
+Un escritor por artefacto: el timeline lo escribe solo el Director; el resto **propone** un JSON Patch
+(`node engine/orch.mjs propose data/timeline.json patch.json --why "…"`, queda en `out/proposals/`) y el Director decide
+(`orch decide <id> accept|reject --why "…"`). Un cambio a tu shot se entrega con `orch accept cambio.json`: el **trinquete**
+re-lintea el shot y sus vecinos y lo rechaza si algún check pasa de verde a rojo o sube el FIX global.
+- Al cerrar el gate `animatic` se congelan los **contratos** entre shots (`out/contracts/<film>.json`: corte, cámara de salida y estado de la entidad de handoff). Romperlos da FIX (`lint --only contracts`) salvo `orch reopen animatic --why "…"` (solo Director).
+- Planificar: `node engine/q.mjs deps` (niveles en paralelo) y `q impact <shot>` (qué re-lintear).
+- Anti-oscilación: volver a un estado ya superado (A→B→A) o gastar K=3 intentos en un shot (2 en un gate) lo **congela** y escala al Director con el diff (`out/orch/escalations/`); solo el Director lo descongela (`orch unfreeze shot/A1 --why`).
+- Críticos: `orch note` solo diagnostica (sin arreglo) y con evidencias; hay consenso con ≥2 revisores de evidencias independientes (Jaccard < θ).
+- Contexto: `orch brief <agente> "<tarea>"` (≤500 tokens, punteros, nunca historial) y `orch run -- <cmd>` (veredicto + N líneas; el resto en `out/logs/`).
+- Entrega: `orch deliver entrega.json` re-ejecuta la evidencia y rechaza si el exit no coincide.
+- El master exige lint SHIP y veredicto del crítico vigentes (`out/critic.json` sellado o `out/review/<film>/verdict.json` con el plan de hoy), o `--force "razón"`.
+- Firma: lanza siempre con `OPUS_AGENT` y `OPUS_ROLE`; sin ellos el ledger avisa y firma "anon".
+Verificación: `node test/orch.mjs` (incluye la simulación de 4 agentes: la buena converge, el torpe es rechazado, el que oscila se congela).

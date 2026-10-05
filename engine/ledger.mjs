@@ -19,11 +19,13 @@ export const who = () => ({ agent: process.env.OPUS_AGENT || 'anon', role: proce
 const clip = (s, n) => (s == null ? null : String(s).replace(/\s+/g, ' ').slice(0, n));
 const isHash = (h) => h == null || /^[0-9a-f]{6,64}$/i.test(String(h));
 
+let warned = false;
 export function record({ action, target = null, hash_before = null, hash_after = null, verdict = null, why = null, agent, role } = {}) {
   if (!action) throw new Error('ledger: action requerido');
   // Solo digests: un hash que no parece un hash se reduce a su digest (nunca se guarda contenido).
   const hb = isHash(hash_before) ? hash_before : digest(hash_before), ha = isHash(hash_after) ? hash_after : digest(hash_after);
   const w = who(), ts = new Date().toISOString();
+  if (!agent && !process.env.OPUS_AGENT && !warned) { warned = true; process.stderr.write('⚠ ledger: OPUS_AGENT no está definido: esta acción se firma como "anon" (lanza el agente con OPUS_AGENT=<nombre> OPUS_ROLE=<rol>)\n'); }
   const e = { id: `${Date.now().toString(36)}-${process.pid.toString(36)}-${crypto.randomBytes(3).toString('hex')}`, ts, agent: clip(agent ?? w.agent, 64), role: clip(role ?? w.role, 32),
     action: clip(action, 48), target: clip(target, 200), hash_before: hb, hash_after: ha, verdict: clip(verdict, 24), why: clip(why, 140) };
   let line = JSON.stringify(e) + '\n'; if (Buffer.byteLength(line) > MAX_LINE) { e.target = digest(target); line = JSON.stringify(e) + '\n'; }

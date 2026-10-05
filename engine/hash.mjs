@@ -27,6 +27,7 @@ export const PIXEL_ROOTS = ['engine/render.mjs', 'engine/autocam.mjs'];
 // Lo que además decide un veredicto (lint + crítico).
 export const JUDGE_ROOTS = ['engine/lint.mjs', 'engine/critic.mjs'];
 const ENGINE_DATA = ['engine/profiles.json'];
+const JUDGE_DATA = ['engine/arc.json'];                                       // umbrales del juicio (lint arc): caducan veredictos, no píxeles
 
 export const sha = (...xs) => crypto.createHash('sha1').update(xs.map((x) => (typeof x === 'string' ? x : JSON.stringify(x))).join('\u0000')).digest('hex').slice(0, 12);
 const sha256 = (b) => crypto.createHash('sha256').update(b).digest('hex');
@@ -98,7 +99,8 @@ const sigOf = ({ files, pkgs }) => sha256(files.map((f) => f + ':' + fileDigest(
 export const engineFiles = (roots = PIXEL_ROOTS) => closure(roots).files;
 export function engineSig(roots = PIXEL_ROOTS) {
   const c = closure(roots);
-  return sha256(sigOf(c) + '\n' + ENGINE_DATA.map((f) => f + ':' + fileDigest(path.join(ROOT, f))).join('\n'));
+  const data = roots.some((r) => JUDGE_ROOTS.includes(r)) ? [...ENGINE_DATA, ...JUDGE_DATA] : ENGINE_DATA;
+  return sha256(sigOf(c) + '\n' + data.map((f) => f + ':' + fileDigest(path.join(ROOT, f))).join('\n'));
 }
 
 // Código de un shot y TODO lo que importa (cualquier ruta relativa, también ../engine/*.mjs y su cierre).

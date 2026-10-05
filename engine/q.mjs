@@ -8,6 +8,9 @@
 //   node engine/q.mjs stale           shots cuyo código/timeline cambió desde el índice
 //   node engine/q.mjs sym [q̇]         símbolos físicos (TeX semántico) y en qué shots/tiempos aparecen
 //   node engine/q.mjs issues [A2]     avisos/FIX del último lint (filtrables por shot)
+//   node engine/q.mjs deps            grafo (handoff, after, cam.chain, import, estilo compartido) + plan: niveles en paralelo, orden topológico
+//   node engine/q.mjs impact A2       qué shots cambian y cuáles re-lintear si cambia A2 (o una ruta: styles/x.json, data/timeline.json)
+//                                     deps/impact no necesitan índice: leen el timeline y los shots
 //   node engine/q.mjs memoria [t]     capa conceptual (data/memoria.json) junto a la observada, sin mezclarlas (docs/MEMORIA.md)
 import './help.mjs';
 import { announceFilm } from './filmid.mjs';
@@ -15,6 +18,24 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { ROOT, loadFilm } from './film.mjs';
 import { filmName, plan } from './cut.mjs';
+import { depGraph, execPlan, impact } from './orch.mjs';
+
+{ // F3: planificación por dependencias (antes del índice: no lo necesita)
+  const [c, t] = process.argv.slice(2).filter((x) => !x.startsWith('--')), J = process.argv.includes('--json'), say = (o, txt) => console.log(J ? JSON.stringify(o, null, 1) : txt);
+  try {
+    if (c === 'deps') {
+      const G = depGraph(), levels = execPlan(G);
+      say({ ...G, plan: levels }, `${G.edges.map((e) => `${e.from} → ${e.to}  (${e.kind})`).join('\n') || '(sin dependencias entre shots)'}\nrecurso compartido: ${G.style}, ${G.timeline} → todos\nplan: ${levels.map((l, i) => `${i + 1}:[${l.join(' ')}]`).join(' → ')}   (dentro de un nivel, en paralelo)`);
+      process.exit(0);
+    }
+    if (c === 'impact') {
+      if (!t) throw new Error('uso: q impact <ID|ruta>');
+      const r = impact(t);
+      say(r, `cambia: ${r.changed.join(' ') || '—'}\nre-lintear: ${r.relint.join(' ') || '—'}\n${r.cover === null ? 'node engine/lint.mjs' : r.cover.map((x) => 'node engine/lint.mjs --shot ' + x).join('\n')}`);
+      process.exit(0);
+    }
+  } catch (e) { console.error('✗ ' + e.message); process.exit(2); }
+}
 
 announceFilm();
 const [cmd = 'film', a1] = process.argv.slice(2).filter((x) => !x.startsWith('--') && !/\.json$/.test(x)), J = process.argv.includes('--json');

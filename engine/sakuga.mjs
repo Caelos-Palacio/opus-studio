@@ -10,6 +10,13 @@ const SAKUGA_DOC = {
 };
 for (const [k, [sig, text]] of Object.entries(SAKUGA_DOC)) DOC[k] = { sig, text };
 
+// Impactos DECLARADOS (api.impact registrado en meta, y sfx type:"impact" del timeline): su salto de energía es intencional, no un pop.
+export const declaredImpacts = (film, metas = []) => [
+  ...metas.filter((m) => m.prim === 'impact').map((m) => ({ t: +m.t, frames: m.frames ?? 2 })),
+  ...film.shots.flatMap((s) => (s.sfx ?? []).filter((e) => e.type === 'impact').map((e) => ({ t: s.t[0] + e.at, frames: 2 }))),
+];
+export const inImpact = (t, imps, fps) => imps.some((m) => t >= m.t - 0.5 / fps && t <= m.t + (m.frames + 1.5) / fps);
+
 export function sakuga(ctx, api, film, shot, cx) {
   const S = film.S, W = film.width, H = film.height, log = (prim, extra) => api.meta.push({ prim, shot: shot.id, ...extra });
   return {

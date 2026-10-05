@@ -8,6 +8,7 @@
 // Snapshot = commit huérfano de HEAD con el árbol ACTUAL (índice temporal: no toca HEAD, índice ni rama) + tag opus/gate/<gate>/<n>.
 import fs from 'node:fs';
 import os from 'node:os';
+import crypto from 'node:crypto';
 import path from 'node:path';
 import { spawnSync } from 'node:child_process';
 import { ROOT, record, who } from './ledger.mjs';
@@ -23,20 +24,31 @@ export const gateState = () => readJSON(GATES_OUT) ?? {};
 export async function criticState({ film, plan } = {}, cur = currentHashes()) {
   const v = readJSON(path.join(ROOT, 'out/critic.json'));
   if (v && isFresh(v, cur) && v.verdict === 'FIX') return { verdict: 'FIX', why: 'out/critic.json en FIX' };
-  const cf = path.join(ROOT, 'out/review', filmKey().replace(/\.edit$/, ''), 'critic.json'), cache = readJSON(cf);
-  if (!cache) return { verdict: v && isFresh(v, cur) ? v.verdict : null, why: v ? 'crítico sin FIX' : 'sin veredicto de crítico' };
+  let vFresh = v && isFresh(v, cur) ? v.verdict : null;                          // veredicto sellado vigente (SHIP|FIX)
+  const rd = path.join(ROOT, 'out/review', filmKey().replace(/\.edit$/, '')), cf = path.join(rd, 'critic.json'), cache = readJSON(cf);
+  if (!vFresh) {                                                                  // verdict.json del crítico (critic.mjs): vigente si su plan = el plan de hoy
+    const cv = readJSON(path.join(rd, 'verdict.json'));
+    if (cv?.plan && ['SHIP', 'FIX'].includes(cv.verdict)) {
+      if (!film || !plan) { const F = await import('./film.mjs'), C = await import('./cut.mjs'); film = await F.loadFilm({ animatic: true }); plan = C.plan; }
+      const P0 = plan(film, { fps: film.fps, size: `${film.width}x${film.height}` }), h0 = (id) => P0.jobs.filter((j) => j.shots.includes(id)).map((j) => j.hash).join('.');
+      const sha = crypto.createHash('sha256').update(JSON.stringify(film.shots.map((x) => [x.id, h0(x.id)]))).digest('hex').slice(0, 16);   // = planH de critic.mjs
+      if (cv.plan === sha) { vFresh = cv.verdict; if (vFresh === 'FIX') return { verdict: 'FIX', why: 'verdict.json del crítico en FIX (plan vigente)' }; }
+    }
+  }
+  if (!cache) return { verdict: vFresh, why: vFresh ? 'crítico sin FIX' : 'sin veredicto de crítico vigente' };
   if (!film || !plan) { const F = await import('./film.mjs'), C = await import('./cut.mjs'); film = await F.loadFilm({ animatic: true }); plan = C.plan; }
   const P = plan(film, { fps: film.fps, size: `${film.width}x${film.height}` }), hashOf = (id) => P.jobs.filter((j) => j.shots.includes(id)).map((j) => j.hash).join('.');
   const bad = Object.entries(cache).filter(([id, e]) => id !== '_film' && e?.hash === hashOf(id) && (e.result?.issues ?? []).some((i) => i.severity === 'FIX')).map(([id]) => id);
   const key = film.shots.map((s) => hashOf(s.id)).join('|'), fb = cache._film?.hash === key && (cache._film.result?.issues ?? []).some((i) => i.severity === 'FIX');
   if (bad.length || fb) return { verdict: 'FIX', why: `crítico con FIX vigente en ${[...bad, ...(fb ? ['coherencia'] : [])].join(', ')}` };
-  return { verdict: 'SHIP', why: 'crítico sin FIX vigente' };
+  const all = film.shots.every((s) => cache[s.id]?.hash === hashOf(s.id));          // SHIP solo si el crítico cubre TODOS los shots con su hash actual
+  return vFresh || all ? { verdict: 'SHIP', why: 'crítico sin FIX vigente' } : { verdict: null, why: 'sin veredicto de crítico vigente (la caché no cubre todos los shots con su hash actual)' };
 }
 // Condición del master: SHIP vigente + crítico sin FIX. Con force="razón" pasa, y queda en el ledger.
 export async function masterGate({ film, plan, force } = {}) {
   const cur = currentHashes(), L = lintState(cur), C = await criticState({ film, plan }, cur), reasons = [];
   if (!(L.fresh && L.verdict === 'SHIP')) reasons.push(`lint: ${L.why}`);
-  if (C.verdict === 'FIX') reasons.push(`crítico: ${C.why}`);
+  if (C.verdict !== 'SHIP') reasons.push(`crítico: ${C.why}`);                       // sin veredicto vigente tampoco hay master (o --force "razón")
   if (reasons.length && force === true) return { ok: false, reasons: [...reasons, '--force exige una razón: --force "por qué"'] };
   if (reasons.length && typeof force === 'string' && force.trim()) { record({ action: 'master.force', target: `master/${cur.film}`, hash_after: cur.filmHash, verdict: 'forced', why: force }); return { ok: true, forced: true, reasons }; }
   return { ok: !reasons.length, reasons };
@@ -77,6 +89,12 @@ export function restore(name, n) {
 // ── cerrar un gate
 export function closeGate(name, { force = null, quiet = false } = {}) {
   const defs = gateDefs(); if (!defs[name]) throw new Error(`gate "${name}" no definido en gates.json (${Object.keys(defs).join(', ')})`);
+  // F3 (anti-oscilación): agotado el presupuesto de cierres fallidos seguidos, el gate se congela y se escala al Director.
+  const orch = readJSON(path.join(ROOT, 'orch.json')) ?? {}, budget = orch.gateBudget ?? 2, prev0 = gateState()[name];
+  if (!force && prev0?.status === 'open' && (prev0.fails ?? 0) >= budget) {
+    record({ action: 'gate.frozen', target: `gate/${name}`, verdict: 'frozen', why: `${prev0.fails} fallos seguidos ≥ presupuesto ${budget}` });
+    throw new Error(`gate "${name}" congelado tras ${prev0.fails} fallos seguidos: escala al Director (node engine/orch.mjs unfreeze gate/${name} --why "…" o --force "razón")`);
+  }
   const crit = parseCriteria(defs[name]), results = [];
   for (const c of crit) {
     const r = spawnSync(c.cmd, { cwd: ROOT, shell: true, encoding: 'utf8', env: process.env, maxBuffer: 64 << 20 });
@@ -86,7 +104,7 @@ export function closeGate(name, { force = null, quiet = false } = {}) {
   const passed = results.every((r) => r.exit === 0), cur = currentHashes();
   if (!passed && force === true) throw new Error('--force exige una razón: --force "por qué"');
   const status = passed ? 'closed' : force ? 'forced' : 'open';
-  return withLockSync('gates', () => {
+  const st = withLockSync('gates', () => {
     const S = gateState(), prev = S[name] ?? {}, fails = status === 'open' ? (prev.status === 'open' ? prev.fails ?? 0 : 0) + 1 : 0;
     let snap = null;
     if (status !== 'open') snap = snapshot(`opus/gate/${name}/${gateTags(name).length + 1}`, `opus gate ${name}: ${status}${force ? ' — ' + force : ''}`);
@@ -95,6 +113,13 @@ export function closeGate(name, { force = null, quiet = false } = {}) {
     record({ action: force && !passed ? 'gate.force' : 'gate.close', target: `gate/${name}`, hash_after: cur.filmHash, verdict: status, why: force && !passed ? force : `${results.filter((r) => r.exit === 0).length}/${results.length} criterios` });
     return S[name];
   });
+  // F3: cerrar el gate de contratos (animatic) congela las interfaces entre shots → out/contracts/<film>.json
+  if (st.status !== 'open' && name === (orch.contractsGate ?? 'animatic')) {
+    const r = spawnSync(process.execPath, [path.join(ROOT, 'engine/orch.mjs'), 'freeze'], { cwd: ROOT, encoding: 'utf8', env: process.env });
+    st.contracts = r.status === 0 ? r.stdout.trim() : '✗ contratos NO congelados: ' + String(r.stderr || r.stdout).trim().slice(-300);
+    if (!quiet) console.log('  ' + st.contracts);
+  }
+  return st;
 }
 
 if (import.meta.url === `file://${process.argv[1]}`) {

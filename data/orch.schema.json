@@ -1,0 +1,60 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Contratos de orquestación F3 (engine/orch.mjs)",
+  "$defs": {
+    "change": {
+      "description": "Cambio candidato para el trinquete: node engine/orch.mjs accept change.json. files = ruta → contenido nuevo completo (null = borrar). base = ruta → digest del contenido sobre el que se construyó (concurrencia optimista).",
+      "type": "object", "additionalProperties": false, "required": ["files", "why"],
+      "properties": {
+        "id": { "type": "string" },
+        "why": { "type": "string", "minLength": 3 },
+        "files": { "type": "object", "additionalProperties": { "type": ["string", "null"] } },
+        "base": { "type": "object", "additionalProperties": { "type": ["string", "null"] } }
+      }
+    },
+    "patchOp": {
+      "type": "object", "additionalProperties": false, "required": ["op", "path"],
+      "properties": { "op": { "enum": ["add", "remove", "replace", "test"] }, "path": { "type": "string", "pattern": "^(/[^/]*)*$" }, "value": true }
+    },
+    "patch": { "description": "JSON Patch (RFC 6902, subconjunto add/remove/replace/test) que un no-dueño propone sobre un JSON del Director.", "type": "array", "minItems": 1, "items": { "$ref": "#/$defs/patchOp" } },
+    "note": {
+      "description": "Nota de crítico: diagnóstico SIN prescripción (no hay campo de arreglo). evidence = punteros verificables (rutas, t, checks). tag opcional agrupa notas sobre el mismo problema.",
+      "type": "object", "additionalProperties": false, "required": ["shot", "problem", "evidence"],
+      "properties": {
+        "shot": { "type": "string", "minLength": 1 },
+        "problem": { "type": "string", "minLength": 3 },
+        "evidence": { "type": "array", "minItems": 1, "items": { "type": "string", "minLength": 1 } },
+        "tag": { "type": "string", "pattern": "^[\\w-]+$" }
+      }
+    },
+    "delivery": {
+      "description": "Contrato de entrega tipado: node engine/orch.mjs deliver file.json re-ejecuta evidence[].cmd y exige el mismo exit.",
+      "type": "object", "additionalProperties": false, "required": ["summary", "changed", "evidence", "risks", "confidence", "next"],
+      "properties": {
+        "summary": { "type": "string", "minLength": 3 },
+        "changed": { "type": "array", "items": { "type": "string" } },
+        "evidence": { "type": "array", "minItems": 1, "items": { "type": "object", "additionalProperties": false, "required": ["cmd", "exit"], "properties": { "cmd": { "type": "string", "minLength": 1 }, "exit": { "type": "integer" } } } },
+        "risks": { "type": "array", "items": { "type": "string" } },
+        "confidence": { "type": "number", "minimum": 0, "maximum": 1 },
+        "next": { "type": "array", "items": { "type": "string" } }
+      }
+    },
+    "boundary": {
+      "type": "object", "additionalProperties": false, "required": ["from", "to", "t", "tIn", "cam", "handoffs"],
+      "properties": {
+        "from": { "type": "string" }, "to": { "type": "string" }, "t": { "type": "number" }, "tIn": { "type": "number" },
+        "cam": { "type": ["object", "null"] },
+        "handoffs": { "type": "array", "items": { "type": "object", "required": ["entity", "at"], "properties": { "entity": { "type": "string" }, "entityTo": { "type": "string" }, "at": { "type": "number" }, "kind": { "type": "string" }, "tol": { "type": "number" }, "state": { "type": ["object", "null"] } }, "additionalProperties": false } }
+      }
+    },
+    "contract": {
+      "description": "out/contracts/<film>.json: interfaces entre shots congeladas al cerrar el gate del animatic. hash = digest(boundaries).",
+      "type": "object", "additionalProperties": false, "required": ["film", "gate", "status", "hash", "boundaries"],
+      "properties": {
+        "film": { "type": "string" }, "gate": { "type": "string" }, "status": { "enum": ["frozen", "reopened"] }, "hash": { "type": "string", "pattern": "^[0-9a-f]{16}$" },
+        "agent": { "type": "string" }, "why": { "type": "string" },
+        "boundaries": { "type": "array", "items": { "$ref": "#/$defs/boundary" } }
+      }
+    }
+  }
+}

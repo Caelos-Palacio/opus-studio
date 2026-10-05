@@ -14,6 +14,7 @@ const inject = (code) => (src) => src.replace(/api\.text\(shot\.text,/, `${code}
 // quick: etapa del lint que basta para detectarla en modo --fast (la suite completa corre siempre el lint entero).
 const MUT = [
   { name: 'base-ship', file: null, expect: { verdict: 'SHIP' }, quick: 'layout' },
+  { name: 'impact-sin-pop', file: 'shots/A2.mjs', edit: inject("api.impact(1, { frames: 2, mode: 'invert' });"), expect: { nowarn: /pop:/ }, quick: 'motion' },   // deuda F3: un impact declarado no es un pop
   { name: 'math-random', file: 'shots/A2.mjs', edit: inject("ctx.fillStyle='#f00'; ctx.fillRect(50+Math.random()*30,50,20,20);"), expect: { fix: /Math\.random en shots\/A2/ }, quick: 'validate' },
   { name: 'estado-global', file: 'shots/A2.mjs', edit: (s) => inject("ctx.fillStyle='#f00'; ctx.fillRect(50+(n++%2)*30,50,20,20);")(s.replace('export default {', 'let n = 0;\nexport default {')), expect: { fix: /no determinista en este shot/, shot: 'A2' }, quick: 'determinism' },
   { name: 'filltext-crudo', file: 'shots/A2.mjs', edit: inject("ctx.font='8px sans-serif'; ctx.fillStyle='#000'; ctx['fill'+'Text']('OCULTO', 300, 300);"), expect: { fix: /ctx\.fillText/ }, quick: 'layout' },
@@ -43,6 +44,7 @@ async function mutation(m) {
     if (e.verdict) ok &&= L.verdict === (fast && e.verdict === 'SHIP' ? 'PASS' : e.verdict);
     if (e.fix) ok &&= fx.some((i) => e.fix.test(i.problem) && (!e.shot || i.shot === e.shot));
     if (e.warn) ok &&= wn.some((i) => e.warn.test(i.problem));
+    if (e.nowarn) ok &&= !wn.some((i) => e.nowarn.test(i.problem));
     return { ok, line: `${ok ? '✓' : '✗'} ${m.name.padEnd(16)} ${L.verdict}${fast ? `  (lint --only ${m.quick})` : ''}  ${ok ? '' : r.stdout.split('\n').slice(-12).join('\n   ')}` };
   } catch (err) { return { ok: false, line: `✗ ${m.name}: ${err.message}` }; }
   finally { rmrf(d); }
@@ -69,7 +71,7 @@ if (!fast && sel('fixture')) tasks.push(P(fixture));
 if (sel('golden')) tasks.push(P(script('test/golden.mjs')));
 if (!fast && sel('cut')) tasks.push(P(script('test/cut-render.mjs')));
 tasks.push(P(script('test/unit.mjs')));
-for (const t of ['schema', 'critic', 'gov', 'guard', 'hash', 'params', 'memoria', 'arc', 'sound', 'film', 'perf']) if (sel(t)) tasks.push(P(script(`test/${t}.mjs`, t === 'sound' && fast ? ['--fast'] : [], { stderr: t !== 'guard' })));   // guard: su stderr son los bloqueos esperados del sandbox   // esquema (E8), crítico honesto (E4), gobernanza (F1), guardia AST (E7), hash por contenido (E5), parámetros/capas (F4), soundtrack (spec 002; --fast = fixture ×0,6)                                   // unidades puras (geometría, partículas, sims): siempre
+for (const t of ['schema', 'critic', 'gov', 'guard', 'hash', 'params', 'memoria', 'arc', 'sound', 'film', 'perf', 'orch']) if (sel(t)) tasks.push(P(script(`test/${t}.mjs`, t === 'sound' && fast ? ['--fast'] : [], { stderr: t !== 'guard' })));   // guard: su stderr son los bloqueos esperados del sandbox   // esquema (E8), crítico honesto (E4), gobernanza (F1), guardia AST (E7), hash por contenido (E5), parámetros/capas (F4), soundtrack (spec 002; --fast = fixture ×0,6)                                   // unidades puras (geometría, partículas, sims): siempre
 let fail = 0;
 for (const t of tasks) { const r = await t; console.log(r.line); if (!r.ok) fail++; }
 console.log(`\n${fail ? `${fail} fallos` : 'Todo verde'}  (${((Date.now() - t0) / 1000).toFixed(1)} s, ${jobs} en paralelo${fast ? ', --fast' : ''})`);
