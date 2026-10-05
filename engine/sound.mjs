@@ -2,11 +2,14 @@
 // Sonido como datos, sincronizado por construcción: los eventos salen del MISMO timeline que la imagen.
 //   node engine/sound.mjs --mix [--timeline X]   → data/mix.wav (48 kHz estéreo) + out/sfx.json (eventos con tiempo, tipo, origen)
 //   node engine/sound.mjs --list                 → catálogo de voces
+//   node engine/sound.mjs --mux <video.mp4> --out <salida.mp4>  → mezcla (si hace falta) y sustituye SOLO el audio (-c:v copy), sin recodificar el vídeo
 // La mezcla queda sellada por el hash de sus ENTRADAS (timeline + contenido del archivo de música + cierre de imports de este
 // módulo), guardado en out/sfx<sufijo>.json; ensureMix(tl) solo remezcla si ese hash cambió (no por mtime: un touch no remezcla).
 // Fuentes de eventos:  shot.sfx [{at, type, gain, pan, dur}] (relativo al shot) · shot.cues (legado explainer)
 //                      timeline.autoSfx: true | {morph, beat, cut, text}  → whoosh en morphs, acento en on_beat_at, click en cortes
 // Música: timeline.music {file, gain(dB), duck(dB), fadeIn, fadeOut}; sin music se usa timeline.audio (click track) si existe.
+// Soundtrack v2 (spec 002): timeline.sound {style, memoria, overrides} activa el sistema completo (build): partitura generativa
+// (score.mjs) + diseño sonoro (sounddesign.mjs) + mezcla/master a −14 LUFS (mixer.mjs). Sin `sound` todo sigue como v1.
 // Problemas que evita: SFX pegados a mano que se desincronizan al mover un shot; música que tapa los acentos (ducking);
 // aleatoriedad no reproducible (ruido sembrado por evento); clipping (limitador suave + techo −1 dBFS).
 import fs from 'node:fs';
@@ -15,6 +18,10 @@ import { spawnSync } from 'node:child_process';
 import { ROOT, timelinePath } from './film.mjs';
 import { rng, hashStr } from './core.mjs';
 import { closure, fileDigest, sha } from './hash.mjs';
+import { loadSoundStyle, soundStylePath, analyzeFilm, composeScore, renderScore } from './score.mjs';
+import { designEvents, renderEvents } from './sounddesign.mjs';
+import { mixdown } from './mixer.mjs';
+import { wavBuffer } from './dsp.mjs';
 
 const SR = 48000, TAU = Math.PI * 2;
 const env = (t, a, d) => (t < a ? t / a : Math.exp(-(t - a) / d));
@@ -55,9 +62,18 @@ function decode(file) {
 }
 export const mixName = (tlPath = timelinePath()) => (path.basename(tlPath, '.json') === 'timeline' ? '' : '-' + path.basename(tlPath, '.json'));
 const musicOf = (tl) => tl.music ?? (tl.audio && fs.existsSync(path.join(ROOT, tl.audio)) ? { file: tl.audio, gain: 0, duck: 0 } : null);
+const memoriaOf = (tl) => (tl.sound?.memoria && fs.existsSync(path.join(ROOT, tl.sound.memoria)) ? JSON.parse(fs.readFileSync(path.join(ROOT, tl.sound.memoria), 'utf8')) : null);
 export function mixHash(tl) {
-  const M = musicOf(tl), code = closure(['engine/sound.mjs']);
-  return sha(tl, M ? fileDigest(path.join(ROOT, M.file)) : null, code.files.map((f) => f + ':' + fileDigest(path.join(ROOT, f))), code.pkgs);
+  const M = musicOf(tl), code = closure(['engine/sound.mjs']), dig = (f) => (fs.existsSync(f) ? fileDigest(f) : null);
+  const v2 = tl.sound ? [dig(soundStylePath(tl.sound.style ?? 'epico')), dig(path.join(ROOT, 'engine/memoria.mjs')), tl.sound.memoria ? dig(path.join(ROOT, tl.sound.memoria)) : null] : null;   // estilo sonoro y memoria entran por CONTENIDO
+  return sha(tl, M ? fileDigest(path.join(ROOT, M.file)) : null, v2, code.files.map((f) => f + ':' + fileDigest(path.join(ROOT, f))), code.pkgs);
+}
+// v2: construye partitura, eventos y mezcla en memoria. Devuelve plan, partitura, eventos, buses/stems, master y medidas.
+export function build(tl, { memoria } = {}) {
+  const sd = tl.sound ?? { style: 'epico' }, style = loadSoundStyle(sd.style ?? 'epico', sd.overrides ?? {}), mem = memoria ?? memoriaOf(tl);
+  const plan = analyzeFilm(tl, mem, style), part = composeScore(plan, style), N = Math.ceil((tl.duration + 1.5) * SR);
+  const music = renderScore(part, plan, style, { N }), events = designEvents(tl, plan, style), { buses, renderEvent } = renderEvents(events, plan, style, N);
+  return { sr: SR, plan, style, partitura: part, events, renderEvent, ...mixdown({ plan, style, music, buses, events }) };
 }
 // Remezcla solo si falta el wav o cambió el hash de entradas. → true si remezcló.
 export function ensureMix(tl, suffix = mixName()) {
@@ -66,6 +82,14 @@ export function ensureMix(tl, suffix = mixName()) {
   mix(tl, suffix); return true;
 }
 export function mix(tl, suffix = mixName()) {
+  if (tl.sound) {
+    const b = build(tl), inputs = mixHash(tl);
+    fs.writeFileSync(path.join(ROOT, `data/mix${suffix}.wav`), wavBuffer(b.master.L, b.master.R));
+    fs.mkdirSync(path.join(ROOT, 'out'), { recursive: true });
+    const { S, ...rep } = b.report;
+    fs.writeFileSync(path.join(ROOT, `out/sfx${suffix}.json`), JSON.stringify({ sr: SR, inputs, music: 'generativa:' + b.style.name, mastered: rep, plan: { hit: b.plan.hit, hold: b.plan.hold, rev: b.plan.rev, ret: b.plan.ret }, events: b.events.map(({ seed, ...e }) => e) }, null, 1));
+    return { events: b.events.length, music: 'generativa:' + b.style.name, peak: 10 ** (rep.TP / 20), report: rep };
+  }
   const dur = tl.duration + 1.5, N = Math.ceil(dur * SR), L = new Float32Array(N), R = new Float32Array(N), sL = new Float32Array(N), sR = new Float32Array(N), ev = collectEvents(tl);
   for (const e of ev) {
     const V = VOICES[e.type]; if (!V) { console.warn(`  ! voz desconocida "${e.type}" (${e.src})`); continue; }
@@ -95,6 +119,13 @@ export function mix(tl, suffix = mixName()) {
 }
 
 if (import.meta.url === `file://${process.argv[1]}`) {
-  if (process.argv.includes('--list')) for (const [k, v] of Object.entries(VOICES)) console.log(k.padEnd(9), v.doc);
+  const A = process.argv, ai = (k) => A[A.indexOf(k) + 1];
+  if (A.includes('--mux')) {
+    const tl = JSON.parse(fs.readFileSync(path.join(ROOT, timelinePath()), 'utf8')), rem = ensureMix(tl), out = ai('--out');
+    if (!out) { console.error('uso: --mux <video.mp4> --out <salida.mp4>'); process.exit(1); }
+    const r = spawnSync('ffmpeg', ['-y', '-hide_banner', '-loglevel', 'error', '-i', ai('--mux'), '-i', path.join(ROOT, `data/mix${mixName()}.wav`), '-map', '0:v', '-map', '1:a', '-c:v', 'copy', '-c:a', 'aac', '-b:a', tl.sound ? '256k' : '192k', '-ar', '48000', '-t', String(tl.duration), '-movflags', '+faststart', out], { encoding: 'utf8' });
+    if (r.status !== 0) { console.error(r.stderr); process.exit(1); }
+    console.log(`→ ${out} (${rem ? 'mezcla regenerada' : 'mezcla en caché'}; vídeo sin recodificar)`);
+  } else if (process.argv.includes('--list')) for (const [k, v] of Object.entries(VOICES)) console.log(k.padEnd(9), v.doc);
   else { const tl = JSON.parse(fs.readFileSync(path.join(ROOT, timelinePath()), 'utf8')), r = mix(tl); console.log(`→ data/mix${mixName()}.wav  ${r.events} eventos · música: ${r.music ?? 'ninguna'} · pico ${r.peak.toFixed(2)}`); }
 }

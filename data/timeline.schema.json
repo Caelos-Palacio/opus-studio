@@ -24,6 +24,7 @@
     "audio": { "type": ["string", "null"], "description": "pista para render/cut; música por defecto de sound.mjs" },
     "music": { "anyOf": [{ "type": "null" }, { "$ref": "#/$defs/music" }] },
     "autoSfx": { "anyOf": [{ "type": "boolean" }, { "$ref": "#/$defs/autoSfx" }] },
+    "sound": { "$ref": "#/$defs/sound" },
     "handoffs": { "type": "array", "items": { "$ref": "#/$defs/handoff" } },
     "motif": { "anyOf": [{ "type": "null" }, { "$ref": "#/$defs/motif" }] },
     "rhyme": { "type": "boolean", "description": "false desactiva el aviso de rima (lint rima)" },
@@ -153,6 +154,11 @@
     "music": {
       "type": "object", "additionalProperties": false, "required": ["file"],
       "properties": { "file": { "type": "string" }, "gain": { "type": "number" }, "duck": { "type": "number", "minimum": 0 }, "fadeIn": { "type": "number", "minimum": 0 }, "fadeOut": { "type": "number", "minimum": 0 } }
+    },
+    "sound": {
+      "type": "object", "additionalProperties": false,
+      "description": "soundtrack v2 (docs/specs/002-soundtrack.md): activa partitura generativa + diseño sonoro + master. style = styles/sound/<style>.json; memoria = ruta de la memoria conceptual (leitmotivs); overrides = fusión profunda sobre el estilo",
+      "properties": { "style": { "type": "string" }, "memoria": { "type": "string" }, "overrides": { "type": "object" } }
     },
     "autoSfx": {
       "type": "object", "additionalProperties": false,

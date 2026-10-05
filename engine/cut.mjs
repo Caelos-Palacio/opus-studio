@@ -130,14 +130,20 @@ async function main() {
     await sh(['-y', '-loglevel', 'error', '-i', mixf, '-filter_complex', parts.join(';') + ';' + film.edit.items.map((_, i) => `[a${i}]`).join('') + `concat=n=${film.edit.items.length}:v=0:a=1[o]`, '-map', '[o]', audio]);
   }
   const final = path.join(ROOT, 'out', `${name === 'main' ? 'master' : name}${review ? '.review' : ''}.mp4`);
-  const m = spawnSync('ffmpeg', ['-hide_banner', '-i', audio, '-af', 'loudnorm=I=-14:LRA=7:TP=-1:print_format=json', '-f', 'null', '-'], { encoding: 'utf8' });
-  const js = JSON.parse(m.stderr.slice(m.stderr.lastIndexOf('{'), m.stderr.lastIndexOf('}') + 1));
-  const silent = !Number.isFinite(+js.input_i);
-  const af = silent ? 'anull' : `loudnorm=I=-14:LRA=7:TP=-1:measured_I=${js.input_i}:measured_LRA=${js.input_lra}:measured_TP=${js.input_tp}:measured_thresh=${js.input_thresh}:offset=${js.target_offset}:linear=true`;
+  // Soundtrack v2 (spec 002): la mezcla ya sale masterizada (−14 LUFS, LRA ≥8, TP ≤ −1,5). loudnorm con LRA=7 la comprimiría (modo dinámico
+  // cuando LRA > 7), así que se respeta tal cual. En montaje (EDL) el audio se recorta/re-temporiza y vuelve al camino clásico.
+  let mastered = false; try { mastered = !film.edit && !!JSON.parse(fs.readFileSync(path.join(ROOT, `out/sfx${mixName()}.json`), 'utf8')).mastered; } catch {}
+  let js = null, silent = false, af = 'anull';
+  if (!mastered) {
+    const m = spawnSync('ffmpeg', ['-hide_banner', '-i', audio, '-af', 'loudnorm=I=-14:LRA=7:TP=-1:print_format=json', '-f', 'null', '-'], { encoding: 'utf8' });
+    js = JSON.parse(m.stderr.slice(m.stderr.lastIndexOf('{'), m.stderr.lastIndexOf('}') + 1));
+    silent = !Number.isFinite(+js.input_i);
+    af = silent ? 'anull' : `loudnorm=I=-14:LRA=7:TP=-1:measured_I=${js.input_i}:measured_LRA=${js.input_lra}:measured_TP=${js.input_tp}:measured_thresh=${js.input_thresh}:offset=${js.target_offset}:linear=true`;
+  }
   const tmpFinal = final.replace(/\.mp4$/, `.${process.pid}.tmp.mp4`);             // el master aparece completo o no aparece
-  try { await sh(['-y', '-loglevel', 'error', '-i', raw, '-i', audio, '-t', String(film.duration), '-c:v', 'copy', '-c:a', 'aac', '-b:a', '192k', '-ar', '48000', '-af', af, '-movflags', '+faststart', tmpFinal]); fs.renameSync(tmpFinal, final); }
+  try { await sh(['-y', '-loglevel', 'error', '-i', raw, '-i', audio, '-t', String(film.duration), '-c:v', 'copy', '-c:a', 'aac', '-b:a', mastered ? '256k' : '192k', '-ar', '48000', '-af', af, '-movflags', '+faststart', tmpFinal]); fs.renameSync(tmpFinal, final); }
   finally { fs.rmSync(raw, { force: true }); fs.rmSync(tmpFinal, { force: true }); if (audio !== mixf) fs.rmSync(audio, { force: true }); }
   record({ action: review ? 'review' : 'master', target: path.relative(ROOT, final), hash_after: sha(P.jobs.map((j) => j.hash)), verdict: 'ok' });
-  console.log('→', path.relative(ROOT, final), silent ? '(audio silencioso)' : '(−14 LUFS)');
+  console.log('→', path.relative(ROOT, final), silent ? '(audio silencioso)' : mastered ? '(mezcla v2 masterizada, −14 LUFS)' : '(−14 LUFS)');
 }
 if (import.meta.url === `file://${process.argv[1]}`) main().catch((e) => { console.error(e.message); process.exit(1); });
