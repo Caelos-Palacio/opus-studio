@@ -119,6 +119,7 @@ export function validateTimeline(tl, { style } = {}) {
   const ref = (level, shot, t, problem, remedy) => out.push({ level, shot, t: +(+t).toFixed(3), problem, remedy, kind: 'ref' });
   const st = style ?? tl.style ?? 'editorial', styles = available('styles', '.json');
   if (styles.length && !styles.includes(st)) { const s = suggest(st, styles); ref('FIX', '-', 0, `/style: estilo "${st}" no existe en styles/`, s ? `¿quisiste decir "${s}"?` : `disponibles: ${styles.join(' ')}`); }
+  if (tl.medium) { const ms = available('styles/medios', '.json'); if (!ms.includes(tl.medium)) { const g = suggest(tl.medium, ms); ref('FIX', '-', 0, `/medium: medio "${tl.medium}" no existe en styles/medios/`, g ? `¿quisiste decir "${g}"?` : `disponibles: ${ms.join(' ')}`); } }
   const shots = [...tl.shots].sort((a, b) => a.t[0] - b.t[0] || (a.layer ?? 0) - (b.layer ?? 0)), ids = new Set(), all = new Set(tl.shots.map((s) => s.id));
   let covered = 0;
   for (const s of shots) {

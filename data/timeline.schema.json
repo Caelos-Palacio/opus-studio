@@ -10,6 +10,7 @@
     "$schema": { "type": "string" },
     "title": { "type": "string" },
     "style": { "type": "string", "description": "pack de styles/<nombre>.json (se comprueba contra el directorio)" },
+    "medium": { "type": "string", "description": "medio del film (spec 003): styles/medios/<nombre>.json — soporte, tinta, grano, paleta, parallax. Sin él, comportamiento clásico" },
     "profile": { "enum": ["reel", "explainer", "cinematic"] },
     "profileOverrides": { "$ref": "#/$defs/profileOverrides" },
     "styleOverrides": { "$ref": "#/$defs/styleOverrides" },
