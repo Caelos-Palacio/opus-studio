@@ -7,6 +7,9 @@
   "description": "Motor de producción cinematográfica por código: dirección codificada + motor gráfico (Bézier, TeX real, scene graph, 2.5D, compositor) + montaje por fragmentos, índice semántico, sonido y crítico visual",
   "scripts": {
     "test": "node test/run.mjs",
+    "test:fast": "node test/run.mjs --fast",
+    "golden": "node test/golden.mjs",
+    "golden:update": "node test/golden.mjs --update",
     "validate": "node engine/lint.mjs --only validate",
     "lint": "node engine/lint.mjs",
     "sheet": "node engine/render.mjs --stills --every 0.5",

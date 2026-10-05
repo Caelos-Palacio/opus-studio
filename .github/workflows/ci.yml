@@ -1,0 +1,52 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  test:
+    # Misma distro que los golden (Ubuntu 24.04): canvas trae sus libs precompiladas y las fuentes son DejaVu herméticas.
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: ffmpeg, fuentes y dependencias de node-canvas
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends ffmpeg fonts-dejavu-core \
+            build-essential pkg-config libcairo2-dev libpango1.0-dev libjpeg-dev libgif-dev librsvg2-dev libpixman-1-dev
+
+      - run: npm ci
+
+      - name: npm audit (informativo)
+        run: npm audit --omit=dev
+        continue-on-error: true
+
+      - name: npm test
+        run: npm test
+
+      - name: Si falla golden, sube las miniaturas actuales para comparar
+        if: failure()
+        run: node test/golden.mjs --update --no-selftest && git status --short test/golden
+        continue-on-error: true
+
+      - uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: golden-actual
+          path: test/golden/
+          if-no-files-found: ignore

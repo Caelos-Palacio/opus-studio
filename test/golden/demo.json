@@ -1,0 +1,84 @@
+{
+ "film": "demo",
+ "size": [
+  1280,
+  720
+ ],
+ "grid": [
+  160,
+  90
+ ],
+ "fingerprint": {
+  "canvas": "3.2.3",
+  "cairo": "1.16.0",
+  "pango": "1.48.0",
+  "freetype": "2.10.4",
+  "platform": "linux-x64",
+  "fonts": "558.633 558.633 529.805"
+ },
+ "frames": [
+  {
+   "shot": "A1",
+   "at": "in",
+   "t": 0,
+   "sha": "6849c73830680fc9c0f3",
+   "png": "demo/A1_in.png"
+  },
+  {
+   "shot": "A1",
+   "at": "mid",
+   "t": 1,
+   "sha": "f980b388c328ee6b80cd",
+   "png": "demo/A1_mid.png"
+  },
+  {
+   "shot": "A1",
+   "at": "out",
+   "t": 1.983333,
+   "sha": "94d9fd45d45e0410f09f",
+   "png": "demo/A1_out.png"
+  },
+  {
+   "shot": "A2",
+   "at": "in",
+   "t": 2,
+   "sha": "a3e13bc4f6bab06802fa",
+   "png": "demo/A2_in.png"
+  },
+  {
+   "shot": "A2",
+   "at": "mid",
+   "t": 3,
+   "sha": "0851b7758929b726deb2",
+   "png": "demo/A2_mid.png"
+  },
+  {
+   "shot": "A2",
+   "at": "out",
+   "t": 3.983333,
+   "sha": "0b68d65682a01a7a6afb",
+   "png": "demo/A2_out.png"
+  },
+  {
+   "shot": "A3",
+   "at": "in",
+   "t": 4,
+   "sha": "6eb9f1358a065b4edc69",
+   "png": "demo/A3_in.png"
+  },
+  {
+   "shot": "A3",
+   "at": "mid",
+   "t": 5,
+   "sha": "e2565f8b37e9c57aa499",
+   "png": "demo/A3_mid.png"
+  },
+  {
+   "shot": "A3",
+   "at": "out",
+   "t": 5.983333,
+   "sha": "16b844f1849879580d66",
+   "png": "demo/A3_out.png"
+  }
+ ]
+}
