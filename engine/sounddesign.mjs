@@ -17,7 +17,7 @@ const keyMidi = (k) => { const pc = ({ C: 0, D: 2, E: 4, F: 5, G: 7, A: 9, B: 11
 
 // ───────── eventos ─────────
 export function designEvents(tl, plan, style) {
-  const shots = [...tl.shots].sort((a, b) => a.t[0] - b.t[0]), SX = style.sfx, I = plan.intensity, ev = [], vac = plan.vac;
+  const shots = [...tl.shots].sort((a, b) => a.t[0] - b.t[0]), SX = style.sfx, I = plan.intensity, ev = [], vac = plan.vac, DV = SX.derive ?? {};   // DV.whoosh|click|accent: factor de los sonidos derivados (0 = silencio); sin clave = 1
   const push = (e) => ev.push({ pan: [0, 0], p: {}, ...e });
   const dec = (s) => { const m = [...(s?.action ?? '').matchAll(/10\^\{?(-?\d+(?:[.,]\d+)?)\}?/g)].map((x) => +x[1].replace(',', '.')); return m.length >= 2 ? Math.abs(m[m.length - 1] - m[0]) : 0; };   // décadas recorridas (si el texto las declara)
   const camAmt = (s) => (s?.cam && s.cam.move !== 'static' ? s.cam.amount ?? 0.03 : 0);
@@ -31,14 +31,14 @@ export function designEvents(tl, plan, style) {
       else if (e.type === 'whoosh') push({ ...base, type: 'whoosh', bus: 'sfx', dur: e.dur ?? 0.8, speed: speedOf(si), gain: (e.gain ?? 0.5) * 1.2 });
       else { const ty = e.type === 'rev' ? 'bloom' : e.type; push({ ...base, type: ty, bus: ty === 'impact' ? 'hit' : 'sfx', dur: e.dur, gain: base.gain * (GAIN[ty] ?? 1) }); }
     }
-    for (const b of s.on_beat_at ?? []) push({ t: s.t[0] + b, type: 'accent', bus: 'sfx', gain: 0.7, src: `${s.id}.on_beat_at`, derived: 'on_beat_at' });
+    if (DV.accent !== 0) for (const b of s.on_beat_at ?? []) push({ t: s.t[0] + b, type: 'accent', bus: 'sfx', gain: 0.7 * (DV.accent ?? 1), src: `${s.id}.on_beat_at`, derived: 'on_beat_at' });
   });
   // transiciones entre planos (cambio de escala): whoosh ∝ velocidad o golpe seco en un corte
   for (let i = 0; i < shots.length - 1; i++) {
     const tr = (shots[i].transition_out ?? '').toLowerCase(), t = shots[i].t[1]; if (!TRANS.includes(tr)) continue;
     const sp = speedOf(i), dr = Math.sign(rank(shots[i + 1]) - rank(shots[i])) || (i % 2 ? -1 : 1);
-    if (tr === 'morph') { if (!ev.some((e) => e.type === 'whoosh' && Math.abs(e.t - t) < 0.9)) push({ t, type: 'whoosh', bus: 'sfx', dur: lerp(1.5, 0.6, sp), speed: sp, gain: 0.35 + 0.65 * sp, pan: [-0.7 * dr * sp, 0.7 * dr * sp], src: `${shots[i].id}.transition_out`, derived: 'transition' }); }
-    else push({ t, type: 'click', bus: 'sfx', gain: 0.8, src: `${shots[i].id}.transition_out`, derived: 'transition' });
+    if (tr === 'morph') { if (DV.whoosh !== 0 && !ev.some((e) => e.type === 'whoosh' && Math.abs(e.t - t) < 0.9)) push({ t, type: 'whoosh', bus: 'sfx', dur: lerp(1.5, 0.6, sp), speed: sp, gain: (0.35 + 0.65 * sp) * (DV.whoosh ?? 1), pan: [-0.7 * dr * sp, 0.7 * dr * sp], src: `${shots[i].id}.transition_out`, derived: 'transition' }); }
+    else if (DV.click !== 0) push({ t, type: 'click', bus: 'sfx', gain: 0.8 * (DV.click ?? 1), src: `${shots[i].id}.transition_out`, derived: 'transition' });
   }
   for (const e of ev) if (e.type === 'whoosh') e.pan = e.decl ? [-0.5 * (shotIdx(e.t) % 2 ? -1 : 1), 0.5 * (shotIdx(e.t) % 2 ? -1 : 1)] : e.pan;
   // revelaciones de la memoria sin sonido propio
@@ -46,14 +46,14 @@ export function designEvents(tl, plan, style) {
   // risers que resuelven: el remate (suave) cae justo al terminar si no hay otro evento ahí
   for (const r of ev.filter((e) => e.type === 'riser')) if (!ev.some((e) => e !== r && e.type !== 'riser' && e.type !== 'drone' && e.t >= r.t - 0.1 && e.t <= r.t + 0.6)) push({ t: r.t, type: 'resolve', bus: 'sfx', gain: 0.8 * r.gain / 0.4, src: `${r.src}:resuelve`, derived: 'riser' });
   // ambientes por escala: una cama por plano (cruza 1 s con el vecino); los drones declarados son la cama grave
-  shots.forEach((s) => push({ t: s.t[0] - 1, type: 'air', bus: 'amb', priority: 0, dur: s.t[1] - s.t[0] + 2, lead: 0, gain: GAIN.air, p: { rank: rank(s) }, src: `${s.id}.ambiente`, derived: 'ambiente' }));
+  if (SX.air !== false) shots.forEach((s) => push({ t: s.t[0] - 1, type: 'air', bus: 'amb', priority: 0, dur: s.t[1] - s.t[0] + 2, lead: 0, gain: GAIN.air, p: { rank: rank(s) }, src: `${s.id}.ambiente`, derived: 'ambiente' }));
   ev.sort((a, b) => a.t - b.t);
   // tics: ascienden por la escala del estilo dentro de cada racha; nivel y brillo siguen la intensidad
   const ticks = ev.filter((e) => e.type === 'tick'); let run = 0, last = -9;
   for (const e of ticks) {
     run = e.t - last <= SX.tickRunGap ? run + 1 : 0; last = e.t;
     const R = rng(hashStr(`${e.src}:${e.t.toFixed(3)}:tick`)), sc = SX.scale, deg = run % sc.length, oct = Math.min(2, Math.floor(run / sc.length)), it = I(e.t);
-    e.p = { midi: 72 + keyMidi(style.key) + sc[deg] + 12 * oct + (R() - 0.5) * 0.16, decay: 0.05 + 0.07 * R(), bright: 0.45 + 0.9 * it + 0.15 * R(), run };
+    e.p = { midi: (SX.tickBase ?? 72) + keyMidi(style.key) + sc[deg] + 12 * oct + (R() - 0.5) * 0.16, decay: 0.05 + 0.07 * R(), bright: 0.45 + 0.9 * it + 0.15 * R(), run };
     e.gain = db2lin(lerp(SX.tickGainDb[0], SX.tickGainDb[1], it ** 0.9) + (R() - 0.5) * 1.6) * Math.sqrt(e.gain / 0.35);
     e.pan = [Math.sin(run * 1.9 + 0.7) * 0.5, Math.sin(run * 1.9 + 0.7) * 0.5];
   }
@@ -65,11 +65,11 @@ export function designEvents(tl, plan, style) {
     if (e.type === 'click') e.p = { f: 1800 + 900 * R(), decay: 0.004 + 0.004 * R() };
     if (e.type === 'accent') e.p = { f: 70 + 25 * R(), pf: 620 + 280 * R() };
     if (e.type === 'whoosh') { e.p = { fc: 1500 + 6500 * e.speed ** 1.2, tonal: 0.05 + 0.2 * e.speed, air: e.speed, jit: R() }; }
-    if (e.type === 'impact') e.p = { inten: 0.85 + 0.15 * e.intensity, suck: style.impact.suck, vac };
+    if (e.type === 'impact') e.p = { inten: 0.85 + 0.15 * e.intensity, suck: style.impact.suck, vac, mix: { sd: 0.75, bd: 0.9, nz: 0.7, trn: 1.3, air: 0.24, rb: 0.4, l2: 0.08, suck: 0.5, ...(style.impact.mix ?? {}) } };
     if (e.type === 'riser') e.p = { dur: e.dur ?? 1.5, endGap: plan.impacts.some((q) => Math.abs(q.t - e.t) < 0.15) ? vac : 0 };
     if (e.type === 'shimmer') e.p = { det: R(), oct: 0 };
     if (e.type === 'anom') e.p = { det: R() };
-    if (e.type === 'bloom') e.p = { inten: 0.7 + 0.3 * e.intensity };
+    if (e.type === 'bloom') e.p = { inten: 0.7 + 0.3 * e.intensity, chord: 0.16, thump: 0.5, ...(SX.bloom ?? {}) };
     e.dur = e.type === 'riser' ? e.p.dur : e.type === 'impact' ? 4.5 : e.type === 'bloom' ? 5 : e.type === 'shimmer' ? 2.8 : e.type === 'anom' ? 2.4 : e.dur ?? (e.type === 'tick' ? 0.35 : e.type === 'resolve' ? 0.6 : e.type === 'accent' ? 0.35 : 0.3);
   });
   return ev;
@@ -96,14 +96,14 @@ const VOICE = {
   impact(e, R) { // pre-silencio: suck-back → vacío; golpe: transitorio + cuerpo + sub-drop + brillo + cola (retumbo)
     const p = e.p, lead = p.suck + p.vac, x = mk(lead + 4.5), m = Math.round(lead * SR), ns = Math.round(p.suck * SR);
     let lp = 0, bp = 0, ph = 0;
-    for (let i = 0; i < ns; i++) { const u = i / ns, fc = 5000 * Math.exp(-u * Math.log(5000 / 350)), a = 1 - Math.exp((-TAU * fc) / SR), n = R() * 2 - 1; lp += a * (n - lp); bp += a * (lp - bp); ph += (TAU * (420 * Math.exp(-u * 2))) / SR; x[i] = e.gain * 0.5 * u ** 1.6 * (3 * (lp - bp) + 0.4 * Math.sin(ph)) * clamp((ns - i) / (0.006 * SR)); }
+    for (let i = 0; i < ns; i++) { const u = i / ns, fc = 5000 * Math.exp(-u * Math.log(5000 / 350)), a = 1 - Math.exp((-TAU * fc) / SR), n = R() * 2 - 1; lp += a * (n - lp); bp += a * (lp - bp); ph += (TAU * (420 * Math.exp(-u * 2))) / SR; x[i] = e.gain * p.mix.suck * u ** 1.6 * (3 * (lp - bp) + 0.4 * Math.sin(ph)) * clamp((ns - i) / (0.006 * SR)); }
     let sub = 0, body = 0, l1 = 0, l2 = 0, lr = 0, hh = 0;
     for (let i = 0; i < 4.5 * SR; i++) {
       const t = i / SR, n = R() * 2 - 1;
       sub += (TAU * (27 + 40 * Math.exp(-t / 0.4))) / SR; body += (TAU * (52 + 130 * Math.exp(-t * 22))) / SR;
       l1 += 0.2 * (n - l1); l2 += 0.04 * (n - l2); lr += 0.012 * (n - lr); hh += 0.15 * (n - hh);
       const sd = Math.tanh(1.5 * Math.sin(sub)) * env(t, 0.003, 0.75), bd = Math.sin(body) * env(t, 0.002, 0.2), nz = l1 * env(t, 0.001, 0.07), trn = (n - hh) * Math.exp(-t / 0.006), air = (n - hh) * (1 - Math.exp(-t / 0.02)) * Math.exp(-t / 0.9), rb = lr * 4 * (1 - Math.exp(-t / 0.05)) * Math.exp(-t / 1.4);
-      x[m + i] = e.gain * p.inten * (0.75 * sd + 0.9 * bd + 0.7 * nz + 1.3 * trn + 0.24 * air + 0.4 * rb + 0.08 * l2 * env(t, 0.001, 0.3));
+      x[m + i] = e.gain * p.inten * (p.mix.sd * sd + p.mix.bd * bd + p.mix.nz * nz + p.mix.trn * trn + p.mix.air * air + p.mix.rb * rb + p.mix.l2 * l2 * env(t, 0.001, 0.3));
     }
     return { x, lead };
   },
@@ -128,7 +128,7 @@ const VOICE = {
       notes.forEach((nn, k) => { for (const dt of [0.996, 1, 1.004]) { ph[v] += (mtof(nn) * dt) / SR; if (ph[v] >= 1) ph[v] -= 1; s += (2 * ph[v] - 1) / (1 + 0.15 * k); v++; } });
       const fc = 500 + 3000 * (1 - Math.exp(-t / 0.5)) * Math.exp(-t / 3), a = 1 - Math.exp((-TAU * fc) / SR); l1 += a * (s - l1); l2 += a * (l1 - l2);
       sph += (TAU * mtof(36 + key) * (1 + 0.8 * Math.exp(-t * 18))) / SR;
-      x[m + i] = e.gain * p.inten * (0.16 * l2 * clamp(t / 0.04) * Math.exp(-t / 2.4) + 0.5 * Math.sin(sph) * env(t, 0.004, 0.25));
+      x[m + i] = e.gain * p.inten * (p.chord * l2 * clamp(t / 0.04) * Math.exp(-t / 2.4) + p.thump * Math.sin(sph) * env(t, 0.004, 0.25));
     }
     void bp; return { x, lead };
   },

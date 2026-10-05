@@ -1,12 +1,15 @@
 #!/usr/bin/env node
 // El audio es el reloj.
-//   node engine/audio.mjs --analyze data/track.wav   → data/audio.json {bpm, offset, onsets, silences}
+//   node engine/audio.mjs --analyze data/track.wav   → data/audio.json {bpm, offset, onsets, silences}  (film con carpeta: data/<film>/audio.json; --out X)
+//   audio.json también admite `beats: [t…]` (rejilla explícita, p. ej. de engine/grid.mjs: tempo variable), `grid: [t…]` (subdivisiones donde se puede cortar)
+//   y `tracks: {kick:[t…], …}` (señal audio con `track`).
 //   node engine/audio.mjs --click [--bpm 120] [--duration 15] → data/audio.wav + data/audio.json
 //   node engine/audio.mjs --cues                      → sintetiza data/audio.wav desde timeline.cues (explainer)
 import fs from 'node:fs';
 import path from 'node:path';
 import { spawnSync } from 'node:child_process';
-import { ROOT } from './film.mjs';
+import { ROOT, timelinePath } from './film.mjs';
+import { sibling } from './filmid.mjs';
 
 const argv = process.argv.slice(2);
 const arg = (k, d) => { const i = argv.indexOf(k); return i >= 0 ? argv[i + 1] : d; };
@@ -72,9 +75,13 @@ function analyze(file) {
   return { bpm: best.bpm, offset: +(off / fr).toFixed(3), onsets, silences, source: path.relative(ROOT, file), rms: { hop: +(hop / SR).toFixed(6), values: Array.from(rms, (v) => +v.toFixed(4)) } };   // rms: señal audio/rms (docs/PARAMS.md)
 }
 
-const out = (o) => { fs.writeFileSync(path.join(ROOT, 'data/audio.json'), JSON.stringify(o, null, 2)); console.log('→ data/audio.json', `bpm ${o.bpm}, offset ${o.offset}s, ${o.onsets?.length ?? 0} onsets, ${o.silences.length} silencios`); };
+export const audioJsonPath = () => path.resolve(ROOT, arg('--out', sibling('audio.json', 'data/audio.json', timelinePath())));
+const out = (o) => { fs.writeFileSync(audioJsonPath(), JSON.stringify(o, null, 2)); console.log('→', path.relative(ROOT, audioJsonPath()), `bpm ${o.bpm}, offset ${o.offset}s, ${o.onsets?.length ?? 0} onsets, ${o.silences.length} silencios`); };
 
-if (argv.includes('--analyze')) out(analyze(path.resolve(arg('--analyze'))));
+export { analyze };
+const MAIN = import.meta.url === `file://${process.argv[1]}`;
+if (!MAIN) { /* importado como módulo: sin CLI */ }
+else if (argv.includes('--analyze')) out(analyze(path.resolve(arg('--analyze'))));
 else if (argv.includes('--click')) {
   const tl = JSON.parse(fs.readFileSync(path.join(ROOT, 'data/timeline.json'), 'utf8'));
   const bpm = +arg('--bpm', tl.bpm || 120), dur = +arg('--duration', tl.duration), sr = 48000, buf = new Float32Array(Math.ceil((dur + 1) * sr));

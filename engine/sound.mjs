@@ -22,6 +22,7 @@ import { loadSoundStyle, soundStylePath, analyzeFilm, composeScore, renderScore 
 import { designEvents, renderEvents } from './sounddesign.mjs';
 import { mixdown } from './mixer.mjs';
 import { wavBuffer } from './dsp.mjs';
+import { filmId } from './filmid.mjs';
 
 const SR = 48000, TAU = Math.PI * 2;
 const env = (t, a, d) => (t < a ? t / a : Math.exp(-(t - a) / d));
@@ -60,7 +61,7 @@ function decode(file) {
   if (r.status !== 0) throw new Error('ffmpeg no pudo decodificar ' + file);
   return new Float32Array(r.stdout.buffer, r.stdout.byteOffset, r.stdout.length / 4);
 }
-export const mixName = (tlPath = timelinePath()) => (path.basename(tlPath, '.json') === 'timeline' ? '' : '-' + path.basename(tlPath, '.json'));
+export const mixName = (tlPath = timelinePath()) => (filmId(tlPath) === 'main' ? '' : '-' + filmId(tlPath));
 const musicOf = (tl) => tl.music ?? (tl.audio && fs.existsSync(path.join(ROOT, tl.audio)) ? { file: tl.audio, gain: 0, duck: 0 } : null);
 const memoriaOf = (tl) => (tl.sound?.memoria && fs.existsSync(path.join(ROOT, tl.sound.memoria)) ? JSON.parse(fs.readFileSync(path.join(ROOT, tl.sound.memoria), 'utf8')) : null);
 export function mixHash(tl) {

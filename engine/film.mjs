@@ -12,6 +12,7 @@ import { makeTexStore, texReady } from './tex.mjs';
 import { assertTimeline } from './schema.mjs';
 import { resolveTimeline, assertParams } from './params.mjs';
 import { bindParams } from './signal.mjs';
+import { filmId, sibling } from './filmid.mjs';
 export { seek, activeShots, shotBeats } from './seek.mjs';
 const { createCanvas, Image } = canvasPkg;
 
@@ -56,7 +57,7 @@ export function buildTimeMap(edit, film) {
 
 export async function loadFilm({ timeline = timelinePath(), animatic = false, style, profile, edit = process.env.OPUS_EDIT } = {}) {
   await texReady();
-  const aj = path.join(ROOT, 'data/audio.json'), R = resolveTimeline(assertTimeline(rd(timeline), timeline), timeline), tl = R.timeline;   // E8 + F4: capas resueltas
+  const aj = path.join(ROOT, sibling('audio.json', 'data/audio.json', timeline)), R = resolveTimeline(assertTimeline(rd(timeline), timeline), timeline), tl = R.timeline;   // E8 + F4: capas resueltas
   tl.style = style ?? process.env.OPUS_STYLE ?? tl.style ?? 'editorial';
   if (profile ?? process.env.OPUS_PROFILE) tl.profile = profile ?? process.env.OPUS_PROFILE;
   const film = compile(tl, rd('engine/profiles.json'), loadStyles(), fs.existsSync(aj) ? JSON.parse(fs.readFileSync(aj, 'utf8')) : null);
@@ -72,7 +73,7 @@ export async function loadFilm({ timeline = timelinePath(), animatic = false, st
     }
     bindParams(film); assertParams(film);                                           // defaults de los esquemas promovidos + validación
   }
-  const ac = path.join(ROOT, 'data/autocam', path.basename(timeline));                 // cámaras 'auto' horneadas (válidas solo si el hash coincide)
+  const ac = path.join(ROOT, 'data/autocam', filmId(timeline) === 'main' ? path.basename(timeline) : filmId(timeline) + '.json');                 // cámaras 'auto' horneadas (válidas solo si el hash coincide)
   if (fs.existsSync(ac)) { const A = JSON.parse(fs.readFileSync(ac, 'utf8')), { shotHash } = await import('./hash.mjs'); film.autocam = {};
     for (const [id, v] of Object.entries(A)) if (film.shots.some((s) => s.id === id) && v.hash === shotHash(film, id)) film.autocam[id] = v; }
   if (edit) { const E = buildTimeMap(rd(edit), film); film.srcDuration = film.duration; film.timeMap = E.map; film.duration = E.duration; film.edit = E; }

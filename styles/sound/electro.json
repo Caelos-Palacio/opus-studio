@@ -1,0 +1,58 @@
+{
+ "name": "electro",
+ "description": "Electrónico y percusivo para reels: pulso que se acelera (100 → 140 bpm) con subdivisiones crecientes (corcheas, semicorcheas, seisillos), kick con fantasma síncopa, bajo en el contratiempo, redoble y riser hacia el golpe; golpe en capas sin metales ni coro; respiro; la rejilla vuelve en el compás siguiente con groove (kick, palmas, hats, bajo) y la tónica pasa a mayor. Todo en fracciones del film.",
+ "key": { "root": "E", "mode": "minor" },
+ "tempo": { "points": [[0.62, 100], [0.30, 118], [0, 140]], "curve": 1.3, "rest": "hit", "preroll": 3, "snapStart": true, "snapHold": true },
+ "sections": { "introFrac": 0.13, "midFrac": 0.3, "revLen": 2.2, "returnMinorLen": 1.2, "peakFallback": 0.73, "holdFallback": [0.3, 2.1], "revDelay": 2.1, "breathLead": 0.35, "endFade": 1.4 },
+ "intensity": {
+  "intro": [0.22, 0.3], "exposition": [0.3, 0.38], "construction": [0.38, 0.46],
+  "crescendo": { "from": 0.46, "top": 0.8, "frac": 0.5, "maxSec": 14, "pow": 1.5 },
+  "breath": [0.05, 0.35], "revelation": { "start": 0.40, "peak": [0.5, 0.58] }, "descent": [0.64, 0.36], "tail": [0.36, 0.14], "arcWeight": 0.2
+ },
+ "dynamics": { "floorDb": -15, "pow": 0.9, "revDb": -1 },
+ "harmony": {
+  "build": ["i", "bVI", "bIII", "bVII"], "climax": "bVI/i", "prelude": "i", "bloom": "I",
+  "descent": ["I", "vi", "IV"], "return": ["i", "I"]
+ },
+ "layers": {
+  "drone": { "gain": 0.12 }, "pad": { "gain": [0.15, 0.2] }, "bass": { "gain": [0.2, 0.26], "from": "introEnd", "pulse": { "thr": 0.3, "gain": 0.2 } },
+  "arp": { "steps": [[0.14, 2], [0.28, 4], [0.46, 6], [0.62, 8]], "seq": [0, 1, 2, 3, 2, 1, 3, 2], "gain": [0.07, 0.12] },
+  "kick": { "thr": 0.26, "gain": [0.22, 0.6], "ghost": 0.55 }, "hat": { "thr": 0.4, "thr2": 0.56, "gain": [0.05, 0.1] }, "tom": { "thr": 0.5, "gain": [0.12, 0.26] },
+  "roll": { "frac": 0.17, "gain": [0.08, 0.34] }, "riser": { "frac": 0.4, "gain": 0.18 }
+ },
+ "motif": {
+  "introDelay": 1.2, "refWin": 11,
+  "intro": { "unit": 0.55, "g": 0.1, "send": 0.7, "head": 7 },
+  "mid": { "delay": 0.4, "unit": 0.36, "g": 0.1, "pan": 0.3, "bright": 1.0 },
+  "build": [
+   { "f": 0.85, "unit": 0.24, "tr": 0, "oct": true, "bright": 1.3, "g": 0.1, "pan": -0.2 },
+   { "f": 0.45, "unit": 0.16, "tr": 3, "oct": true, "bright": 1.5, "g": 0.11 },
+   { "f": 0.2, "unit": 0.11, "tr": 7, "oct": true, "bright": 1.7, "g": 0.12, "head": 6 }
+  ],
+  "climax": { "unit": 0.3, "head": 3, "g": 0.12, "bright": 1.8, "sust": 0.6, "send": 0.4 },
+  "reinterpret": { "unit": 0.3, "g": 0.1, "send": 0.7, "bright": 1.2 },
+  "return": { "delay": 0.2, "unit": 0.3, "g": 0.1, "head": 6, "send": 0.7 },
+  "byKind": {
+   "entidad": { "voice": "lead", "ops": ["major", "unfold", "oct"] },
+   "regla": { "voice": "pluck", "ops": ["major", "unfold", "fast", "climb"] },
+   "default": { "voice": "lead", "ops": ["major", "unfold"] }
+  }
+ },
+ "hit": { "kick": 0.8, "crash": 0.4, "brass": 0, "choir": 0, "pluck": 0.1 },
+ "revel": { "choir": 0, "brass": 0 },
+ "groove": {
+  "kick": { "every": 1, "gain": 0.36 }, "hat": { "gain": 0.1, "thr": 0.2, "sub": true }, "clap": { "gain": 0.14 },
+  "bass": { "every": 2, "gain": 0.26 }, "arp": { "sub": 2, "gain": 0.07, "thr": 0.3 }
+ },
+ "impact": { "vacuum": 0.5, "suck": 0.3, "tailKeep": 0.55, "tailFade": 0.6 },
+ "sfx": {
+  "priority": { "impact": 4, "bloom": 3, "riser": 2, "whoosh": 2, "shimmer": 2, "anom": 2, "accent": 1, "resolve": 2, "tick": 1, "pop": 1, "click": 1 },
+  "duckDb": { "1": 1.2, "2": 3.5, "3": 6, "4": 10 },
+  "tickRunGap": 1.2, "tickGainDb": [-14, -3], "scale": [0, 3, 5, 7, 10], "air": false
+ },
+ "mix": {
+  "bus": { "music": 0, "sfx": 3, "amb": -6 }, "musicPocket": { "f": 3000, "q": 0.8, "db": -2 },
+  "macro": { "floorDb": -10, "pow": 0.9 }, "saturation": 0.25
+ },
+ "master": { "lufs": -14, "tp": -2.0 }
+}

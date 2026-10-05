@@ -251,10 +251,11 @@ function transitions(R) {
 }
 
 function beats(film) {
-  if (!film.P.cutOnBeat || !film.beatTimes.length) return;
+  const G = film.gridTimes ?? film.beatTimes;
+  if (!film.P.cutOnBeat || !G.length) return;
   const tol = 1 / film.fps + 1e-6;
-  for (const s of film.shots) if (s.t[0] > 0 && !film.beatTimes.some((b) => Math.abs(b - s.t[0]) <= tol)) {
-    const near = film.beatTimes.reduce((p, b) => (Math.abs(b - s.t[0]) < Math.abs(p - s.t[0]) ? b : p));
+  for (const s of film.shots) if (s.t[0] > 0 && !G.some((b) => Math.abs(b - s.t[0]) <= tol)) {
+    const near = G.reduce((p, b) => (Math.abs(b - s.t[0]) < Math.abs(p - s.t[0]) ? b : p));
     fix(s.id, s.t[0], 'corte fuera de beat', `mover a ${near.toFixed(3)}s`);
   }
 }

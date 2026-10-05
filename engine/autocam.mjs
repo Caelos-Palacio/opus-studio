@@ -14,6 +14,8 @@ import { ROOT, timelinePath } from './film.mjs';
 import { makeRenderer } from './render.mjs';
 import { shotHash } from './hash.mjs';
 import { barHeight } from './grade.mjs';
+import { filmId } from './filmid.mjs';
+const acName = (tl) => (filmId(tl) === 'main' ? path.basename(tl) : filmId(tl) + '.json');
 import { withLock, writeAtomic } from './lock.mjs';
 
 // (I + λ DᵀD) s = b con D = segunda diferencia: matriz simétrica de banda 2. Eliminación gaussiana en banda.
@@ -29,11 +31,11 @@ export function smooth2(b, lam, w = null) {                                  // 
 const peak = (xs, fps, rel) => { let m = 0; for (let i = 1; i < xs.length; i++) m = Math.max(m, Math.abs(xs[i] - xs[i - 1]) * fps / (rel ? xs[i - 1] : 1)); return m; };
 
 async function main() {                                                       // un horneado por timeline a la vez (salida única compartida)
-  await withLock(`autocam/${path.basename(timelinePath())}`, bake, { ttlMs: 60000, waitMs: 1800000 });
+  await withLock(`autocam/${acName(timelinePath())}`, bake, { ttlMs: 60000, waitMs: 1800000 });
 }
 async function bake() {
   const R = await makeRenderer({ size: '640x360', grade: false }), { film, W, H } = R, C = film.S.camera, fps = 12, out = {};
-  const file = path.join(ROOT, 'data/autocam', path.basename(timelinePath())); fs.mkdirSync(path.dirname(file), { recursive: true });
+  const file = path.join(ROOT, 'data/autocam', acName(timelinePath())); fs.mkdirSync(path.dirname(file), { recursive: true });
   film.autocam = {};                                                          // identidad mientras se mide
   for (const s of film.shots.filter((x) => x.cam?.move === 'auto')) {
     const cam = s.cam, bar = barHeight(film) * (H / film.height), visH = H - 2 * bar, sc = film.width / W, raw = [], m = film.S.compose.edgeMargin ?? 0.04, PS = film.P.safe;

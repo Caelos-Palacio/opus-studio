@@ -1,0 +1,92 @@
+{
+  "name": "nocturno",
+  "description": "Contemplativo sobre pizarra nocturna: azul-negro teñido, marfil, líneas finas y luz suave (bloom leve). Color = categoría matemática: ámbar = el punto y la respuesta, azul = lo real (crecer), violeta = lo imaginario (girar), coral = el modelo roto. Tipo Latin Modern (la fuente de TeX).",
+  "mood": [
+    "contemplativo",
+    "sereno",
+    "riguroso"
+  ],
+  "defaultProfile": "explainer",
+  "palette": {
+    "paper": "#090B12",
+    "ink": "#E9E4D6",
+    "accent": "#F2C46D",
+    "accent2": "#7FA8E6",
+    "quant": "#C99BE0",
+    "anom": "#EF7A63",
+    "shade": "#343A4D"
+  },
+  "typeface": {
+    "family": "Latin Modern Roman",
+    "fallback": "Georgia, 'Times New Roman', serif",
+    "weights": [
+      400,
+      400
+    ],
+    "scale": 1.42,
+    "base": 36,
+    "case": "none",
+    "tracking": 0
+  },
+  "motion": {
+    "spring": {
+      "omega": 7,
+      "zeta": 0.95
+    },
+    "ease": "cinema",
+    "stagger": 0.14
+  },
+  "camera": {
+    "amount": 0.04,
+    "ease": "cinema",
+    "maxZoomPerSec": 0.05,
+    "maxPanPerSec": 0.12,
+    "maxRotPerSec": 1,
+    "slide": 0.02,
+    "shake": 0,
+    "maxShake": 0.002
+  },
+  "grade": {
+    "vignette": 0.42,
+    "grain": 0.022,
+    "letterbox": 0,
+    "fade": {
+      "in": 1.6,
+      "out": 0,
+      "color": "paper"
+    },
+    "post": {
+      "bloom": {
+        "threshold": 0.58,
+        "strength": 0.55,
+        "radius": 22
+      },
+      "color": {
+        "lift": 0.01,
+        "gamma": 1.03,
+        "gain": 1,
+        "temp": 0.12,
+        "sat": 1.04,
+        "dither": 2
+      }
+    }
+  },
+  "compose": {
+    "edgeMargin": 0.04,
+    "anchor": "free",
+    "negativeSpace": 0.5
+  },
+  "rules": {
+    "glow": true,
+    "gradients": false,
+    "maxColors": 7,
+    "maxChroma": 0.2
+  },
+  "bans": [
+    "crossfade",
+    "blur-in",
+    "brightness",
+    "3d flip",
+    "flip"
+  ]
+}

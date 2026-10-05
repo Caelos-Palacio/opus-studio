@@ -10,6 +10,7 @@ import path from 'node:path';
 import { ROOT, timelinePath } from './film.mjs';
 import { specOf, camState } from './camera.mjs';
 import { collectEvents } from './sound.mjs';
+import { filmId, sibling } from './filmid.mjs';
 
 const CFG = JSON.parse(fs.readFileSync(path.join(ROOT, 'engine/arc.json'), 'utf8'));
 export const LINKS_OK = ['pero', 'por lo tanto', 'but', 'therefore'];
@@ -54,7 +55,7 @@ export function validateStory(st) {
 }
 export function storyPath(film, explicit) {
   const argv = process.argv, i = argv.indexOf('--story');
-  const p = explicit ?? (i >= 0 ? argv[i + 1] : null) ?? process.env.OPUS_STORY ?? film?.story ?? (path.normalize(timelinePath()) === path.normalize('data/timeline.json') ? 'data/story.json' : null);
+  const p = explicit ?? (i >= 0 ? argv[i + 1] : null) ?? process.env.OPUS_STORY ?? film?.story ?? sibling('story.json', filmId() === 'main' ? 'data/story.json' : null, timelinePath());
   return p && fs.existsSync(path.join(ROOT, p)) ? p : null;
 }
 

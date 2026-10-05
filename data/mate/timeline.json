@@ -1,0 +1,497 @@
+{
+ "title": "e^{iπ}: elevar es girar",
+ "style": "nocturno",
+ "profile": "explainer",
+ "fps": 30,
+ "width": 1280,
+ "height": 720,
+ "duration": 90,
+ "autoSfx": false,
+ "music": null,
+ "sound": {
+  "style": "contemplativo",
+  "memoria": "data/mate/memoria.json"
+ },
+ "motif": {
+  "id": "punto",
+  "states": [
+   "numero",
+   "velocidad",
+   "giro",
+   "paso",
+   "arco",
+   "casa"
+  ],
+  "roleColor": "accent"
+ },
+ "end_hold_ok": true,
+ "handoffs": [
+  {
+   "from": "M01",
+   "to": "M02",
+   "entity": "z",
+   "at": 9,
+   "tol": 2
+  },
+  {
+   "from": "M02",
+   "to": "M03",
+   "entity": "z",
+   "at": 21,
+   "tol": 2
+  },
+  {
+   "from": "M03",
+   "to": "M04",
+   "entity": "z",
+   "at": 34,
+   "tol": 2
+  },
+  {
+   "from": "M04",
+   "to": "M05",
+   "entity": "z",
+   "at": 47,
+   "tol": 2
+  },
+  {
+   "from": "M05",
+   "to": "M06",
+   "entity": "z",
+   "at": 60,
+   "tol": 2
+  },
+  {
+   "from": "M06",
+   "to": "M07",
+   "entity": "z",
+   "at": 72,
+   "tol": 2
+  },
+  {
+   "from": "M07",
+   "to": "M08",
+   "entity": "z",
+   "at": 81,
+   "tol": 2
+  }
+ ],
+ "shots": [
+  {
+   "id": "M01",
+   "t": [
+    0,
+    9
+   ],
+   "size": "WS",
+   "action": "sobre una recta azul, el número 1 (un punto ámbar); se escribe e^{iπ} y aparece la pregunta",
+   "text": "¿Qué significa elevar e a iπ?",
+   "transition_out": "morph",
+   "after": null,
+   "premise": "un número, una potencia y una pregunta abierta",
+   "facts": [
+    "mate_euler_1748"
+   ],
+   "cam": {
+    "move": "push",
+    "why": "approach",
+    "amount": 0.03
+   },
+   "motifState": "numero",
+   "sakuga": "simple",
+   "hold_ok": [
+    [
+     5.2,
+     8.6
+    ]
+   ],
+   "sfx": [
+    {
+     "at": 2.4,
+     "type": "tick",
+     "gain": 0.3
+    }
+   ]
+  },
+  {
+   "id": "M02",
+   "t": [
+    9,
+    21
+   ],
+   "size": "MS",
+   "action": "el punto salta ×e dos veces sobre la recta (e, e²) y la ecuación muta: e² = e·e; luego e^{iπ} = e·e·…",
+   "text": "Elevar a un entero es multiplicar",
+   "transition_out": "morph",
+   "after": "M01",
+   "premise": "para exponentes enteros, elevar es multiplicar e por sí mismo",
+   "anomaly": "no se puede multiplicar e «iπ veces»",
+   "facts": [
+    "mate_e_value",
+    "mate_bernoulli_1683"
+   ],
+   "cam": {
+    "move": "static",
+    "chain": true
+   },
+   "motifState": "numero",
+   "sakuga": "normal",
+   "hold_ok": [
+    [
+     8.4,
+     11.6
+    ]
+   ],
+   "sfx": [
+    {
+     "at": 4.2,
+     "type": "tick",
+     "gain": 0.3
+    },
+    {
+     "at": 7.8,
+     "type": "tick",
+     "gain": 0.3
+    },
+    {
+     "at": 9.0,
+     "type": "anom",
+     "gain": 0.22
+    }
+   ]
+  },
+  {
+   "id": "M03",
+   "t": [
+    21,
+    34
+   ],
+   "size": "MS",
+   "action": "otra idea: elevar es dejar crecer; la flecha de velocidad del punto mide lo mismo que su posición (dz/dt = z) y el punto avanza por la recta hasta e^1,6",
+   "text": "Otra idea: elevar es dejar crecer",
+   "transition_out": "morph",
+   "after": "M02",
+   "premise": "la otra definición: crecer a una velocidad igual a lo que ya hay",
+   "facts": [
+    "mate_exp_ode"
+   ],
+   "cam": {
+    "move": "static",
+    "chain": true
+   },
+   "motifState": "velocidad",
+   "sakuga": "normal",
+   "hold_ok": [
+    [
+     9.4,
+     10.6
+    ]
+   ],
+   "sfx": [
+    {
+     "at": 2.0,
+     "type": "tick",
+     "gain": 0.3
+    },
+    {
+     "at": 6.95,
+     "type": "tick",
+     "gain": 0.3
+    }
+   ]
+  },
+  {
+   "id": "M04",
+   "t": [
+    34,
+    47
+   ],
+   "size": "CU",
+   "action": "la velocidad gira 90° (×i): el punto ya no crece, gira; dibuja un arco ámbar del plano; la ecuación gana una i",
+   "text": "Si la velocidad apunta de lado, el punto gira",
+   "transition_out": "morph",
+   "after": "M03",
+   "premise": "con dz/dt = i·z la velocidad es siempre perpendicular a la posición",
+   "anomaly": "la posición ya no crece: da vueltas",
+   "facts": [
+    "mate_exp_ode"
+   ],
+   "cam": {
+    "move": "push",
+    "why": "approach",
+    "amount": 0.04,
+    "chain": true,
+    "delay": 0.5
+   },
+   "motifState": "giro",
+   "sakuga": "normal",
+   "hold_ok": [
+    [
+     10.6,
+     11.2
+    ]
+   ],
+   "sfx": [
+    {
+     "at": 2.8,
+     "type": "tick",
+     "gain": 0.3
+    },
+    {
+     "at": 4.6,
+     "type": "tick",
+     "gain": 0.3
+    }
+   ]
+  },
+  {
+   "id": "M05",
+   "t": [
+    47,
+    60
+   ],
+   "size": "MS",
+   "action": "un giro continuo se aproxima con n pasos pequeños (1 + iπ/n): polígonos de 2, 4 y 8 lados cuyo extremo se acerca a un mismo sitio",
+   "text": "Pasos pequeños de ese giro",
+   "transition_out": "morph",
+   "after": "M04",
+   "premise": "un giro continuo se aproxima por pasos de tamaño π/n",
+   "facts": [
+    "mate_euler_polygon"
+   ],
+   "cam": {
+    "move": "static",
+    "chain": true
+   },
+   "motifState": "paso",
+   "sakuga": "normal",
+   "sfx": [
+    {
+     "at": 4.45,
+     "type": "tick",
+     "gain": 0.3
+    },
+    {
+     "at": 5.5,
+     "type": "tick",
+     "gain": 0.3
+    },
+    {
+     "at": 8.15,
+     "type": "tick",
+     "gain": 0.3
+    },
+    {
+     "at": 8.4,
+     "type": "tick",
+     "gain": 0.3
+    },
+    {
+     "at": 8.65,
+     "type": "tick",
+     "gain": 0.3
+    },
+    {
+     "at": 9.6,
+     "type": "tick",
+     "gain": 0.3
+    },
+    {
+     "at": 11.57,
+     "type": "tick",
+     "gain": 0.3
+    },
+    {
+     "at": 11.71,
+     "type": "tick",
+     "gain": 0.3
+    },
+    {
+     "at": 11.82,
+     "type": "tick",
+     "gain": 0.3
+    },
+    {
+     "at": 11.9,
+     "type": "tick",
+     "gain": 0.3
+    },
+    {
+     "at": 11.98,
+     "type": "tick",
+     "gain": 0.3
+    },
+    {
+     "at": 12.09,
+     "type": "tick",
+     "gain": 0.3
+    },
+    {
+     "at": 12.23,
+     "type": "tick",
+     "gain": 0.3
+    }
+   ]
+  },
+  {
+   "id": "M06",
+   "t": [
+    60,
+    72
+   ],
+   "size": "WS",
+   "action": "calma; luego n crece de 8 a 2500 y el polígono se redondea hasta ser una semicircunferencia; el extremo reposa en −1; pausa; un destello de luz (aterrizaje) con el −1; silencio",
+   "text": "Más pasos, cada vez más pequeños",
+   "transition_out": "morph",
+   "after": "M05",
+   "premise": "con n → ∞ el polígono es una semicircunferencia",
+   "anomaly": "el extremo cae exactamente en −1",
+   "facts": [
+    "mate_euler_polygon"
+   ],
+   "cam": {
+    "move": "pull",
+    "why": "reveal",
+    "amount": 0.06,
+    "chain": true,
+    "delay": 0.6
+   },
+   "motifState": "arco",
+   "sakuga": "hero",
+   "hold_ok": [
+    [
+     8.4,
+     12.0
+    ]
+   ],
+   "sfx": [
+    {
+     "at": 2.01,
+     "type": "tick",
+     "gain": 0.3
+    },
+    {
+     "at": 2.22,
+     "type": "tick",
+     "gain": 0.3
+    },
+    {
+     "at": 2.37,
+     "type": "tick",
+     "gain": 0.3
+    },
+    {
+     "at": 2.48,
+     "type": "tick",
+     "gain": 0.3
+    },
+    {
+     "at": 2.6,
+     "type": "tick",
+     "gain": 0.3
+    },
+    {
+     "at": 2.73,
+     "type": "tick",
+     "gain": 0.3
+    },
+    {
+     "at": 2.92,
+     "type": "tick",
+     "gain": 0.3
+    },
+    {
+     "at": 3.26,
+     "type": "tick",
+     "gain": 0.3
+    },
+    {
+     "at": 6.0,
+     "type": "impact",
+     "gain": 0.5
+    }
+   ]
+  },
+  {
+   "id": "M07",
+   "t": [
+    72,
+    81
+   ],
+   "size": "CU",
+   "action": "la semicircunferencia es media vuelta (π); la ecuación declara e^{iπ} = −1 y luego e^{iπ} + 1 = 0",
+   "text": "Media vuelta: de 1 a −1",
+   "transition_out": "morph",
+   "after": "M06",
+   "premise": "π es media vuelta: de 1 se llega a −1",
+   "facts": [
+    "mate_half_turn",
+    "mate_euler_1748"
+   ],
+   "cam": {
+    "move": "push",
+    "why": "approach",
+    "amount": 0.03,
+    "chain": true,
+    "delay": 0.5
+   },
+   "motifState": "arco",
+   "sakuga": "normal",
+   "hold_ok": [
+    [
+     0,
+     0.8
+    ],
+    [
+     6.6,
+     9.0
+    ]
+   ],
+   "sfx": [
+    {
+     "at": 5.2,
+     "type": "rev",
+     "gain": 0.5
+    }
+   ]
+  },
+  {
+   "id": "M08",
+   "t": [
+    81,
+    90
+   ],
+   "size": "WS",
+   "action": "el punto vuelve a 1 por el arco, que se deshace; queda la recta, el punto y e^{iπ}+1=0; elevar a un imaginario es girar",
+   "text": "Elevar a un número imaginario es girar",
+   "transition_out": "cut",
+   "after": "M07",
+   "premise": "deshacer la media vuelta devuelve el punto a 1, donde empezó",
+   "facts": [
+    "mate_euler_1748"
+   ],
+   "cam": {
+    "move": "pull",
+    "why": "reveal",
+    "amount": 0.04,
+    "chain": true,
+    "delay": 0.6
+   },
+   "motifState": "casa",
+   "sakuga": "simple",
+   "hold_ok": [
+    [
+     6.4,
+     9.0
+    ]
+   ],
+   "sfx": [
+    {
+     "at": 1.0,
+     "type": "tick",
+     "gain": 0.3
+    }
+   ]
+  }
+ ]
+}

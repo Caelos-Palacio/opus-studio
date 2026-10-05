@@ -12,6 +12,7 @@ import path from 'node:path';
 import { resolve, explain, getPointer, toDoc, LayerError } from './resolve.mjs';
 import { FIELD_PARAMS, PARAM_TYPES, isBinding, bindingDeps } from './signal.mjs';
 import { validateLayer, assertTimeline, suggest } from './schema.mjs';
+import { filmId } from './filmid.mjs';
 
 for (const k of ['timeline', 'variant', 'layers']) { const i = process.argv.indexOf('--' + k); if (i >= 0 && process.argv[i + 1]) process.env['OPUS_' + k.toUpperCase()] = process.argv[i + 1]; }
 export const ROOT = path.resolve(path.dirname(new URL(import.meta.url).pathname), '..');
@@ -19,7 +20,7 @@ export const ROOT = path.resolve(path.dirname(new URL(import.meta.url).pathname)
 export const layersDir = (timeline = process.env.OPUS_TIMELINE ?? 'data/timeline.json') => {
   const e = process.env.OPUS_LAYERS; if (e === 'none') return null;
   if (e) return path.resolve(ROOT, e);
-  const b = path.basename(timeline, '.json'); return path.join(ROOT, 'data/layers', b === 'timeline' ? '' : b);
+  const f = filmId(timeline); return path.join(ROOT, 'data/layers', f === 'main' ? '' : f);
 };
 export const selectedVariants = () => (process.env.OPUS_VARIANT ?? '').split(',').map((s) => s.trim()).filter(Boolean);
 // Capas en disco, validadas ($defs.layer). name por defecto = nombre del archivo.

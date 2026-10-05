@@ -13,10 +13,12 @@ import { engineSig, PIXEL_ROOTS, JUDGE_ROOTS, shotDeps, assetsSig, fontSig, flus
 import { DEFAULTS as STYLE_DEFAULTS } from './styles.mjs';
 
 import { effectiveTimeline } from './params.mjs';
+import { filmId, sibling } from './filmid.mjs';
 for (const k of ['style', 'profile', 'timeline', 'edit', 'variant', 'layers']) { const i = process.argv.indexOf('--' + k); if (i >= 0 && process.argv[i + 1]) process.env['OPUS_' + k.toUpperCase()] = process.argv[i + 1]; }
 const rdB = (p) => { try { return fs.readFileSync(path.join(ROOT, p)); } catch { return ''; } };
 const tlPath = () => process.env.OPUS_TIMELINE ?? 'data/timeline.json';
-export const filmKey = () => { const b = path.basename(tlPath(), '.json'); return (b === 'timeline' ? 'main' : b) + (process.env.OPUS_EDIT ? '.edit' : ''); };
+export const filmKey = () => filmId(tlPath()) + (process.env.OPUS_EDIT ? '.edit' : '');
+const autocamName = (tl) => (filmId(tl) === 'main' ? path.basename(tl) : filmId(tl) + '.json');
 export const lintDir = () => path.join(ROOT, 'out/lint', filmKey());
 
 export const engineHash = () => engineSig([...PIXEL_ROOTS, ...JUDGE_ROOTS]);
@@ -30,7 +32,7 @@ export function currentHashes() {
   const env = ['OPUS_STYLE', 'OPUS_PROFILE', 'OPUS_EDIT'].map((k) => process.env[k] ?? '');
   const byId = {}; for (const s of shots) if (s && s.id) { const { meta: _m, ...e } = s; byId[s.id] = digest(JSON.stringify(e) + '\u0000' + shotDeps(s.id)); }
   const { shots: _, meta: _fm, ...globals } = tl;
-  const ctxHash = digest([JSON.stringify(globals), styles.join(','), digest(rdB('data/audio.json')), digest(rdB('data/facts.json')), digest(rdB(path.join('data/autocam', path.basename(tlPath())))), process.env.OPUS_EDIT ? digest(rdB(process.env.OPUS_EDIT)) : '', env.join('|'), assetsSig(), fontSig(tfs)].join('\n'));
+  const ctxHash = digest([JSON.stringify(globals), styles.join(','), digest(rdB(sibling('audio.json', 'data/audio.json', tlPath()))), digest(rdB('data/facts.json')), digest(rdB(path.join('data/autocam', autocamName(tlPath())))), process.env.OPUS_EDIT ? digest(rdB(process.env.OPUS_EDIT)) : '', env.join('|'), assetsSig(), fontSig(tfs)].join('\n'));
   const order = shots.map((s) => s?.id).filter(Boolean); flushDigests();
   return { engineHash: engineHash(), filmHash: digest(ctxHash + order.map((id) => id + byId[id]).join('|') + digest(JSON.stringify({ ...tl, shots: shots.map(({ meta, ...e }) => e), meta: undefined }))), ctxHash, shots: byId, order, film: filmKey() };
 }
