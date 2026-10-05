@@ -2,6 +2,8 @@
 // Sonido como datos, sincronizado por construcción: los eventos salen del MISMO timeline que la imagen.
 //   node engine/sound.mjs --mix [--timeline X]   → data/mix.wav (48 kHz estéreo) + out/sfx.json (eventos con tiempo, tipo, origen)
 //   node engine/sound.mjs --list                 → catálogo de voces
+// La mezcla queda sellada por el hash de sus ENTRADAS (timeline + contenido del archivo de música + cierre de imports de este
+// módulo), guardado en out/sfx<sufijo>.json; ensureMix(tl) solo remezcla si ese hash cambió (no por mtime: un touch no remezcla).
 // Fuentes de eventos:  shot.sfx [{at, type, gain, pan, dur}] (relativo al shot) · shot.cues (legado explainer)
 //                      timeline.autoSfx: true | {morph, beat, cut, text}  → whoosh en morphs, acento en on_beat_at, click en cortes
 // Música: timeline.music {file, gain(dB), duck(dB), fadeIn, fadeOut}; sin music se usa timeline.audio (click track) si existe.
@@ -12,6 +14,7 @@ import path from 'node:path';
 import { spawnSync } from 'node:child_process';
 import { ROOT, timelinePath } from './film.mjs';
 import { rng, hashStr } from './core.mjs';
+import { closure, fileDigest, sha } from './hash.mjs';
 
 const SR = 48000, TAU = Math.PI * 2;
 const env = (t, a, d) => (t < a ? t / a : Math.exp(-(t - a) / d));
@@ -51,6 +54,17 @@ function decode(file) {
   return new Float32Array(r.stdout.buffer, r.stdout.byteOffset, r.stdout.length / 4);
 }
 export const mixName = (tlPath = timelinePath()) => (path.basename(tlPath, '.json') === 'timeline' ? '' : '-' + path.basename(tlPath, '.json'));
+const musicOf = (tl) => tl.music ?? (tl.audio && fs.existsSync(path.join(ROOT, tl.audio)) ? { file: tl.audio, gain: 0, duck: 0 } : null);
+export function mixHash(tl) {
+  const M = musicOf(tl), code = closure(['engine/sound.mjs']);
+  return sha(tl, M ? fileDigest(path.join(ROOT, M.file)) : null, code.files.map((f) => f + ':' + fileDigest(path.join(ROOT, f))), code.pkgs);
+}
+// Remezcla solo si falta el wav o cambió el hash de entradas. → true si remezcló.
+export function ensureMix(tl, suffix = mixName()) {
+  let prev = null; try { prev = JSON.parse(fs.readFileSync(path.join(ROOT, `out/sfx${suffix}.json`), 'utf8')).inputs; } catch {}
+  if (prev && prev === mixHash(tl) && fs.existsSync(path.join(ROOT, `data/mix${suffix}.wav`))) return false;
+  mix(tl, suffix); return true;
+}
 export function mix(tl, suffix = mixName()) {
   const dur = tl.duration + 1.5, N = Math.ceil(dur * SR), L = new Float32Array(N), R = new Float32Array(N), sL = new Float32Array(N), sR = new Float32Array(N), ev = collectEvents(tl);
   for (const e of ev) {
@@ -58,7 +72,7 @@ export function mix(tl, suffix = mixName()) {
     const t0 = e.t - (V.lead?.(e) ?? 0), s0 = Math.round(t0 * SR), g = e.gain;
     V.fn(e, (i, v, pan = 0) => { const k = s0 + i; if (k < 0 || k >= N) return; const p = Math.max(-1, Math.min(1, e.pan + pan)), a = ((p + 1) * Math.PI) / 4; sL[k] += g * v * Math.cos(a) * Math.SQRT2 * 0.5; sR[k] += g * v * Math.sin(a) * Math.SQRT2 * 0.5; });
   }
-  const M = tl.music ?? (tl.audio && fs.existsSync(path.join(ROOT, tl.audio)) ? { file: tl.audio, gain: 0, duck: 0 } : null);
+  const M = musicOf(tl), inputs = mixHash(tl);
   if (M) {
     const x = decode(path.join(ROOT, M.file)), g = db(M.gain ?? -6), duck = db(-(M.duck ?? 6));
     let envS = 0; const atk = Math.exp(-1 / (0.005 * SR)), rel = Math.exp(-1 / (0.25 * SR));
@@ -76,7 +90,7 @@ export function mix(tl, suffix = mixName()) {
   const h = Buffer.alloc(44); h.write('RIFF', 0); h.writeUInt32LE(36 + pcm.length, 4); h.write('WAVE', 8); h.write('fmt ', 12); h.writeUInt32LE(16, 16); h.writeUInt16LE(1, 20); h.writeUInt16LE(2, 22); h.writeUInt32LE(SR, 24); h.writeUInt32LE(SR * 4, 28); h.writeUInt16LE(4, 32); h.writeUInt16LE(16, 34); h.write('data', 36); h.writeUInt32LE(pcm.length, 40);
   fs.writeFileSync(path.join(ROOT, `data/mix${suffix}.wav`), Buffer.concat([h, pcm]));
   fs.mkdirSync(path.join(ROOT, 'out'), { recursive: true });
-  fs.writeFileSync(path.join(ROOT, `out/sfx${suffix}.json`), JSON.stringify({ sr: SR, music: M?.file ?? null, peak: +peak.toFixed(3), events: ev.map(({ seed, ...e }) => e) }, null, 1));
+  fs.writeFileSync(path.join(ROOT, `out/sfx${suffix}.json`), JSON.stringify({ sr: SR, inputs, music: M?.file ?? null, peak: +peak.toFixed(3), events: ev.map(({ seed, ...e }) => e) }, null, 1));
   return { events: ev.length, music: M?.file ?? null, peak };
 }
 

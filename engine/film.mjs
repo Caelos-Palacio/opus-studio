@@ -67,7 +67,7 @@ export async function loadFilm({ timeline = timelinePath(), animatic = false, st
     }
   }
   const ac = path.join(ROOT, 'data/autocam', path.basename(timeline));                 // cámaras 'auto' horneadas (válidas solo si el hash coincide)
-  if (fs.existsSync(ac)) { const A = JSON.parse(fs.readFileSync(ac, 'utf8')), { shotHash } = await import('./cut.mjs'); film.autocam = {};
+  if (fs.existsSync(ac)) { const A = JSON.parse(fs.readFileSync(ac, 'utf8')), { shotHash } = await import('./hash.mjs'); film.autocam = {};
     for (const [id, v] of Object.entries(A)) if (film.shots.some((s) => s.id === id) && v.hash === shotHash(film, id)) film.autocam[id] = v; }
   if (edit) { const E = buildTimeMap(rd(edit), film); film.srcDuration = film.duration; film.timeMap = E.map; film.duration = E.duration; film.edit = E; }
   return film;

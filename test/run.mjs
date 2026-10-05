@@ -69,7 +69,7 @@ if (!fast && sel('fixture')) tasks.push(P(fixture));
 if (sel('golden')) tasks.push(P(script('test/golden.mjs')));
 if (!fast && sel('cut')) tasks.push(P(script('test/cut-render.mjs')));
 tasks.push(P(script('test/unit.mjs')));
-for (const t of ['schema', 'critic', 'gov', 'guard']) if (sel(t)) tasks.push(P(script(`test/${t}.mjs`, [], { stderr: t !== 'guard' })));   // guard: su stderr son los bloqueos esperados del sandbox   // esquema (E8), crítico honesto (E4), gobernanza (F1), guardia AST (E7)                                   // unidades puras (geometría, partículas, sims): siempre
+for (const t of ['schema', 'critic', 'gov', 'guard', 'hash']) if (sel(t)) tasks.push(P(script(`test/${t}.mjs`, [], { stderr: t !== 'guard' })));   // guard: su stderr son los bloqueos esperados del sandbox   // esquema (E8), crítico honesto (E4), gobernanza (F1), guardia AST (E7), hash por contenido (E5)                                   // unidades puras (geometría, partículas, sims): siempre
 let fail = 0;
 for (const t of tasks) { const r = await t; console.log(r.line); if (!r.ok) fail++; }
 console.log(`\n${fail ? `${fail} fallos` : 'Todo verde'}  (${((Date.now() - t0) / 1000).toFixed(1)} s, ${jobs} en paralelo${fast ? ', --fast' : ''})`);

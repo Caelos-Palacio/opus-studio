@@ -4,11 +4,11 @@
 //   --stills --every 0.5            hoja de contacto (out/sheets/contact.png)
 //   --shot A3 --stills              un frame por beat del shot (out/sheets/A3.png)
 //   --strip --around-cuts 8         8 frames alrededor de cada corte y on_beat (out/strips/)
-//   --mp4 [--review] [--fps 60] [--size WxH] [--workers N] [--chunk 1500]
+//   --mp4 → RETIRADO (E5): montaba bloques sin hash de contenido (caché obsoleta tras editar un shot, sin gate de lint).
+//           Se redirige a `node engine/cut.mjs` con los mismos argumentos (fragmentos con hash, gate, mezcla sellada).
 //   --animatic                      ignora shots/*.mjs y dibuja placeholders
 import fs from 'node:fs';
 import path from 'node:path';
-import os from 'node:os';
 import { spawn, spawnSync } from 'node:child_process';
 import canvasPkg from 'canvas';
 import { loadFilm, seek, activeShots, shotBeats, ROOT } from './film.mjs';
@@ -112,43 +112,14 @@ async function rangeWorker() {
   });
 }
 
-async function mp4() {
-  const film = await loadFilm();
-  const review = has('--review');
-  const fps = +arg('--fps', review ? 12 : film.fps);
-  const size = arg('--size', review ? `${Math.round((540 * film.width) / film.height)}x540` : `${film.width}x${film.height}`);
-  const N = Math.round(film.duration * fps) + 1, chunk = +arg('--chunk', 1500);
-  const workers = +arg('--workers', Math.max(1, os.cpus().length));
-  const dir = path.join(OUT, review ? 'chunks_review' : 'chunks'); mk(dir);
-  const jobs = [];
-  for (let a = 0; a < N; a += chunk) jobs.push({ a, b: Math.min(N, a + chunk), out: path.join(dir, `c_${String(a).padStart(7, '0')}_${fps}_${size}.mp4`) });
-  const todo = jobs.filter((j) => !fs.existsSync(j.out)); // reanudable: bloques hechos se saltan
-  console.log(`${N} frames @${fps}fps ${size} · ${jobs.length} bloques (${todo.length} pendientes) · ${workers} workers`);
-  const run = (j) => new Promise((res, rej) => {
-    const p = spawn(process.execPath, [new URL(import.meta.url).pathname, '--range', `${j.a}:${j.b}`, '--fps', String(fps), '--size', size, '--out', j.out], { stdio: 'inherit' });
-    p.on('close', (c) => (c === 0 ? (console.log('  ✓', path.basename(j.out)), res()) : rej(new Error('bloque falló ' + j.out))));
-  });
-  if (has('--max-chunks')) todo.splice(+arg('--max-chunks'));
-  const q = [...todo];
-  await Promise.all(Array.from({ length: workers }, async () => { while (q.length) await run(q.shift()); }));
-  if (jobs.some((j) => !fs.existsSync(j.out))) return console.log('Bloques pendientes: vuelve a lanzar el mismo comando para continuar.');
-  const list = path.join(dir, 'list.txt');
-  fs.writeFileSync(list, jobs.map((j) => `file '${j.out}'`).join('\n'));
-  const raw = path.join(OUT, review ? 'review_raw.mp4' : 'master_raw.mp4');
-  await sh(['-y', '-loglevel', 'error', '-f', 'concat', '-safe', '0', '-i', list, '-c', 'copy', raw]);
-  const final = path.join(OUT, review ? 'review.mp4' : 'master.mp4');
-  const audio = film.audio && fs.existsSync(path.join(ROOT, film.audio)) ? path.join(ROOT, film.audio) : null;
-  if (audio) {
-    // loudnorm en dos pasadas: la primera mide, la segunda corrige linealmente hacia −14 LUFS
-    const m = spawnSync('ffmpeg', ['-hide_banner', '-i', audio, '-af', 'loudnorm=I=-14:LRA=7:TP=-1:print_format=json', '-f', 'null', '-'], { encoding: 'utf8' });
-    const js = JSON.parse(m.stderr.slice(m.stderr.lastIndexOf('{'), m.stderr.lastIndexOf('}') + 1));
-    const af = `loudnorm=I=-14:LRA=7:TP=-1:measured_I=${js.input_i}:measured_LRA=${js.input_lra}:measured_TP=${js.input_tp}:measured_thresh=${js.input_thresh}:offset=${js.target_offset}:linear=true`;
-    await sh(['-y', '-loglevel', 'error', '-i', raw, '-i', audio, '-shortest', '-c:v', 'copy', '-c:a', 'aac', '-b:a', '192k', '-ar', '48000', '-af', af, '-movflags', '+faststart', final]);
-  }
-  else fs.copyFileSync(raw, final);
-  console.log('→', path.relative(ROOT, final), audio ? '(audio loudnorm −14 LUFS)' : '(sin audio)');
+// Legado: `render --mp4` ya no monta nada por su cuenta; delega en cut (única vía al master, con hash y gate).
+function mp4() {
+  const rest = argv.filter((x) => x !== '--mp4');
+  console.log(`render --mp4 está retirado (sin hash de contenido): → node engine/cut.mjs ${rest.join(' ')}`.trimEnd());
+  const r = spawnSync(process.execPath, [path.join(ROOT, 'engine/cut.mjs'), ...rest], { stdio: 'inherit', env: process.env });
+  process.exitCode = r.status ?? 1;
+  return Promise.resolve();
 }
-const sh = (a) => new Promise((res, rej) => spawn('ffmpeg', a, { stdio: 'inherit' }).on('close', (c) => (c === 0 ? res() : rej(new Error('ffmpeg ' + c)))));
 
 async function one() {
   const R = await makeRenderer({ size: arg('--size'), animatic: has('--animatic') });
