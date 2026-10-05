@@ -5,6 +5,7 @@
 // PUNTO DE ENGANCHE (gate.mjs / orch.mjs, no editados aquí): antes de ejecutar criterios de un gate o de lanzar otra iteración sobre un shot:
 //   import { checkBudget } from './budget.mjs'; const b = checkBudget({ kind: 'iterations', gate: name }); if (b.level === 'block') die(b.why);
 // Consumo: recordUsage({tokens, minutes, role, task, film}) de ledger.mjs. Sin data/budgets.json no se bloquea nada.
+import { isMain } from './paths.mjs';
 import fs from 'node:fs';
 import path from 'node:path';
 import { ROOT, record, readLedger } from './ledger.mjs';
@@ -49,4 +50,4 @@ export function reportBudget() {
   for (const k of keys) { const c = checkBudget(k, { log: false }); if (c.level === 'block') blocked = true; if (c.used || c.level !== 'ok') console.log(`${c.level === 'block' ? 'BLOQUEO' : c.level === 'warn' ? 'aviso  ' : 'ok     '} ${c.kind.padEnd(10)} ${c.key.padEnd(18)} ${+c.used.toFixed(1)} / ${c.limit ?? '∞'}`); }
   return blocked;
 }
-if (import.meta.url === `file://${process.argv[1]}`) process.exit(reportBudget() ? 1 : 0);
+if (isMain(import.meta.url)) process.exit(reportBudget() ? 1 : 0);

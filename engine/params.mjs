@@ -8,6 +8,7 @@
 //   [--timeline data/x.json] [--variant 9x16,en] [--layers dir|none]   (o OPUS_TIMELINE / OPUS_VARIANT / OPUS_LAYERS)
 // Capas: data/layers/*.json (film main) o data/layers/<film>/*.json. Contrato: docs/PARAMS.md.
 import './help.mjs';
+import { isMain, rootFrom } from './paths.mjs';
 import { announceFilm } from './filmid.mjs';
 import fs from 'node:fs';
 import path from 'node:path';
@@ -17,7 +18,7 @@ import { validateLayer, assertTimeline, suggest } from './schema.mjs';
 import { filmId, activeTimeline } from './filmid.mjs';
 
 for (const k of ['timeline', 'variant', 'layers']) { const i = process.argv.indexOf('--' + k); if (i >= 0 && process.argv[i + 1]) process.env['OPUS_' + k.toUpperCase()] = process.argv[i + 1]; }
-export const ROOT = path.resolve(path.dirname(new URL(import.meta.url).pathname), '..');
+export const ROOT = rootFrom(import.meta.url);
 
 export const layersDir = (timeline = activeTimeline()) => {
   const e = process.env.OPUS_LAYERS; if (e === 'none') return null;
@@ -135,4 +136,4 @@ async function main() {
     }
   }
 }
-if (import.meta.url === `file://${process.argv[1]}`) { announceFilm(); main().catch((e) => { console.error(e.message); process.exit(1); });  }
+if (isMain(import.meta.url)) { announceFilm(); main().catch((e) => { console.error(e.message); process.exit(1); });  }

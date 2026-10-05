@@ -8,38 +8,72 @@ permissions:
   contents: read
 
 concurrency:
-  group: ci-${{ github.ref }}
+  group: ci-${{ github.ref }}-${{ github.workflow }}
   cancel-in-progress: true
 
+# Sin red tras `npm ci`: ningún test llama a APIs externas (el crítico visual usa respuestas en caché/fixtures y los
+# agentes no corren en CI). world3d: en Linux se instala Mesa (llvmpipe) + xvfb para ejercitar el 3D real; si gl no
+# compila/arranca, test/world3d.mjs SALTA con aviso y exige el FIX de lint (nunca falla en falso).
 jobs:
   test:
-    # Misma distro que los golden (Ubuntu 24.04): canvas trae sus libs precompiladas y las fuentes son DejaVu herméticas.
-    runs-on: ubuntu-24.04
-    timeout-minutes: 20
+    name: test (${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 30
+    # macOS es opcional hasta que corra en verde una vez: los golden de píxel van en modo perceptual fuera de Linux
+    # y world3d depende de OpenGL (en macOS se salta limpio). No bloquea el CI de Linux.
+    continue-on-error: ${{ matrix.experimental }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          # Ubuntu 24.04: misma distro que los golden (canvas trae libs precompiladas; fuentes DejaVu herméticas).
+          - os: ubuntu-24.04
+            experimental: false
+          - os: macos-14
+            experimental: true
     steps:
       - uses: actions/checkout@v4
 
       - uses: actions/setup-node@v4
         with:
-          node-version: 22
+          node-version: 22.15      # = engines.node de package.json (module.registerHooks: sandbox fail-closed)
           cache: npm
 
-      - name: ffmpeg, fuentes y dependencias de node-canvas
+      - name: ffmpeg, fuentes, node-canvas y Mesa (Linux)
+        if: runner.os == 'Linux'
         run: |
           sudo apt-get update
-          sudo apt-get install -y --no-install-recommends ffmpeg fonts-dejavu-core \
-            build-essential pkg-config libcairo2-dev libpango1.0-dev libjpeg-dev libgif-dev librsvg2-dev libpixman-1-dev
+          sudo apt-get install -y --no-install-recommends ffmpeg fonts-dejavu-core xvfb \
+            build-essential pkg-config libcairo2-dev libpango1.0-dev libjpeg-dev libgif-dev librsvg2-dev libpixman-1-dev \
+            libgl1-mesa-dri libglx-mesa0 libgl1 libxi-dev libglu1-mesa-dev
 
+      - name: ffmpeg y fuentes (macOS)
+        if: runner.os == 'macOS'
+        run: |
+          brew install ffmpeg pkg-config cairo pango libpng jpeg giflib librsvg pixman
+          brew install --cask font-dejavu || true
+
+      - name: git (los tests de gobernanza crean repos y tags temporales)
+        run: |
+          git config --global user.email ci@example.invalid
+          git config --global user.name ci
+
+      # gl es optionalDependency: si no compila, npm ci sigue y world3d se salta.
       - run: npm ci
 
       - name: npm audit (informativo)
         run: npm audit --omit=dev
         continue-on-error: true
 
-      - name: npm test
+      - name: npm test (Linux, con pantalla virtual para gl)
+        if: runner.os == 'Linux'
+        run: xvfb-run -a npm test
+
+      - name: npm test (macOS)
+        if: runner.os == 'macOS'
         run: npm test
 
-      - name: Si falla golden, sube las miniaturas actuales para comparar
+      - name: Si falla golden, regenera las miniaturas actuales para comparar
         if: failure()
         run: node test/golden.mjs --update --no-selftest && git status --short test/golden
         continue-on-error: true
@@ -47,6 +81,6 @@ jobs:
       - uses: actions/upload-artifact@v4
         if: failure()
         with:
-          name: golden-actual
+          name: golden-actual-${{ matrix.os }}
           path: test/golden/
           if-no-files-found: ignore

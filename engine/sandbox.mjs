@@ -12,6 +12,7 @@ import module from 'node:module';
 import path from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { shotImportAllowed } from './guard.mjs';
+import { record } from './ledger.mjs';
 
 export class SandboxError extends Error { constructor(what) { super(`sandbox: ${what} bloqueado en un shot`); this.name = 'SandboxError'; this.what = what; } }
 
@@ -23,7 +24,13 @@ let hooked = null;                                          // raíces cuyo shot
 function installHooks(root) {
   if (!hooked) {
     hooked = new Set();
-    if (typeof module.registerHooks !== 'function') return false;   // Node < 22.15: queda solo el guardia estático
+    if (typeof module.registerHooks !== 'function') {               // Node < 22.15: sin hook de carga el sandbox NO es completo → FAIL-CLOSED
+      const unsafe = process.argv.includes('--unsafe-legacy-node') || process.env.OPUS_UNSAFE_LEGACY_NODE === '1';
+      if (!unsafe) throw new Error(`sandbox: este Node (${process.version}) no tiene module.registerHooks (necesita >=22.15): los shots correrían sin vigilancia de imports.\n  Actualiza Node (package.json engines) o, SOLO en desarrollo, usa --unsafe-legacy-node / OPUS_UNSAFE_LEGACY_NODE=1 (queda en el ledger).`);
+      record({ action: 'unsafe-legacy-node', target: process.argv[1] ?? null, verdict: 'unsafe', why: `Node ${process.version} sin registerHooks; sandbox degradado al guardia estático` });
+      process.stderr.write(`! UNSAFE: Node ${process.version} sin registerHooks; sandbox degradado (solo desarrollo)\n`);
+      return false;
+    }
     module.registerHooks({
       resolve(specifier, context, next) {
         const parent = context.parentURL ?? '';

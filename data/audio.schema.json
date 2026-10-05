@@ -1,0 +1,119 @@
+{
+  "title": "audio.json: análisis de la pista (bpm, onsets)",
+  "type": "object",
+  "properties": {
+    "bpm": {
+      "type": "number",
+      "exclusiveMinimum": 0,
+      "maximum": 1000
+    },
+    "offset": {
+      "type": "number",
+      "minimum": -3600,
+      "maximum": 3600
+    },
+    "onsets": {
+      "type": "array",
+      "maxItems": 100000,
+      "items": {
+        "type": "number",
+        "minimum": 0,
+        "maximum": 86400
+      }
+    },
+    "silences": {
+      "type": "array",
+      "maxItems": 100000,
+      "items": {
+        "anyOf": [
+          {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 86400
+          },
+          {
+            "type": "array",
+            "minItems": 2,
+            "maxItems": 2,
+            "items": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 86400
+            }
+          }
+        ]
+      }
+    },
+    "source": {
+      "type": "string",
+      "maxLength": 200
+    },
+    "hit": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 86400
+    },
+    "hold": {
+      "anyOf": [
+        {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 86400
+        },
+        {
+          "type": "array",
+          "minItems": 2,
+          "maxItems": 2,
+          "items": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 86400
+          }
+        }
+      ]
+    },
+    "rev0": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 86400
+    },
+    "rev": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 86400
+    },
+    "ret": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 86400
+    },
+    "beats": {
+      "type": "array",
+      "maxItems": 200000,
+      "items": {
+        "type": "number",
+        "minimum": 0,
+        "maximum": 86400
+      }
+    },
+    "tempo": {
+      "type": "array",
+      "maxItems": 100000,
+      "items": {
+        "type": "object",
+        "properties": {
+          "t": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 86400
+          },
+          "bpm": {
+            "type": "number",
+            "exclusiveMinimum": 0,
+            "maximum": 1000
+          }
+        }
+      }
+    }
+  }
+}

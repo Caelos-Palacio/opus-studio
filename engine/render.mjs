@@ -8,6 +8,7 @@
 //           Se redirige a `node engine/cut.mjs` con los mismos argumentos (fragmentos con hash, gate, mezcla sellada).
 //   --animatic                      ignora shots/*.mjs y dibuja placeholders
 import './help.mjs';
+import { isMain } from './paths.mjs';
 import { announceFilm } from './filmid.mjs';
 import fs from 'node:fs';
 import path from 'node:path';
@@ -132,7 +133,7 @@ async function one() {
   fs.writeFileSync(out, R.cv.toBuffer('image/png')); console.log('→', path.relative(ROOT, out));
 }
 
-if (import.meta.url === `file://${process.argv[1]}`) {
+if (isMain(import.meta.url)) {
   announceFilm();
   const main = has('--range') ? rangeWorker : has('--still') ? one : has('--stills') ? stills : has('--strip') ? strips : has('--mp4') ? mp4 : null;
   if (!main) console.log('Uso: ver cabecera de engine/render.mjs');

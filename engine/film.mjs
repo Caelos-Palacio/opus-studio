@@ -4,12 +4,14 @@
 //   F4: capas de overrides data/layers/*.json + variantes (--variant 9x16 / OPUS_VARIANT; --layers dir|none / OPUS_LAYERS):
 //   resolve(timeline, capas) UNA vez aquí; seek(t) trabaja sobre lo resuelto (docs/PARAMS.md).
 import fs from 'node:fs';
+import { rootFrom } from './paths.mjs';
 import path from 'node:path';
 import canvasPkg from 'canvas';
 import { compile } from './seek.mjs';
 import { makeSandbox } from './sandbox.mjs';
 import { makeTexStore, texReady } from './tex.mjs';
 import { assertTimeline } from './schema.mjs';
+import { assertEdit, assertAudio, assertMedio } from './inputs.mjs';
 import { resolveTimeline, assertParams } from './params.mjs';
 import { bindParams } from './signal.mjs';
 import { createWorld3d } from './world3d/index.mjs';
@@ -20,7 +22,7 @@ const { createCanvas, Image } = canvasPkg;
 
 for (const k of ['style', 'profile', 'timeline', 'edit', 'variant', 'layers']) { const i = process.argv.indexOf('--' + k); if (i >= 0 && process.argv[i + 1]) process.env['OPUS_' + k.toUpperCase()] = process.argv[i + 1]; }
 
-export const ROOT = path.resolve(path.dirname(new URL(import.meta.url).pathname), '..');
+export const ROOT = rootFrom(import.meta.url);
 const rd = (p) => JSON.parse(fs.readFileSync(path.join(ROOT, p), 'utf8'));
 export function loadStyles() {
   const o = {};
@@ -49,6 +51,7 @@ export function makeAssets(root) {
 // Edición no destructiva: la EDL remapea el tiempo de salida → tiempo fuente. Como seek es puro, cada fotograma editado
 // se RE-RENDERIZA desde la fuente: cambios de velocidad, reversa y congelados sin interpolación ni pérdida.
 export function buildTimeMap(edit, film) {
+  assertEdit(edit, film.shots);                                       // frontera: speed>0 y finito, src1>src0, items no vacío, hold≥0, ids existentes
   let acc = 0; const items = edit.items.map((it) => {
     const src = typeof it.src === 'string' ? film.shots.find((s) => s.id === it.src)?.t : it.src; if (!src) throw new Error(`edit: fuente "${it.src}" no existe`);
     const sp = it.speed ?? 1, len = (src[1] - src[0]) / sp, hold = it.hold ?? 0, o = { ...it, a: acc, len, hold, t0: src[0], t1: src[1] - 1e-4, sp }; acc += len + hold; return o;
@@ -63,8 +66,8 @@ export async function loadFilm({ timeline = timelinePath(), animatic = false, st
   const aj = path.join(ROOT, sibling('audio.json', 'data/audio.json', timeline)), R = resolveTimeline(assertTimeline(rd(timeline), timeline), timeline), tl = R.timeline;   // E8 + F4: capas resueltas
   tl.style = style ?? process.env.OPUS_STYLE ?? tl.style ?? 'editorial';
   if (profile ?? process.env.OPUS_PROFILE) tl.profile = profile ?? process.env.OPUS_PROFILE;
-  if (tl.medium) tl.mediumDef = rd(`styles/medios/${tl.medium}.json`);                  // spec 003: el medio como datos (compile lo aplica)
-  const film = compile(tl, rd('engine/profiles.json'), loadStyles(), fs.existsSync(aj) ? JSON.parse(fs.readFileSync(aj, 'utf8')) : null);
+  if (tl.medium) tl.mediumDef = assertMedio(rd(`styles/medios/${tl.medium}.json`), `styles/medios/${tl.medium}.json`);                  // spec 003: el medio como datos (compile lo aplica)
+  const film = compile(tl, rd('engine/profiles.json'), loadStyles(), fs.existsSync(aj) ? assertAudio(JSON.parse(fs.readFileSync(aj, 'utf8')), path.relative(ROOT, aj)) : null);
   film.timelinePath = timeline;
   if (process.env.OPUS_FXFAST === '1') film.P.fxFast = true;                          // R3 opt-in (fx baratos): entra en el hash vía film.P; también por perfil/overrides
   film.resolution = R;

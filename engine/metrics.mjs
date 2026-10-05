@@ -8,6 +8,8 @@
 //   npm run metrics -- doc                                      regenera docs/METRICAS.md desde engine/metrics/registry.mjs
 // Film activo: `npm run use -- <film>` (o el nombre como argumento). Esquema: opus-metrics/1 (engine/metrics/registry.mjs).
 import './help.mjs';
+import { rootFrom } from './paths.mjs';
+import { assertNotas } from './inputs.mjs';
 import fs from 'node:fs';
 import path from 'node:path';
 import { findFilm, announceFilm, filmId } from './filmid.mjs';
@@ -15,7 +17,7 @@ import { REGISTRY, byId, CONVENTIONS, SCHEMA } from './metrics/registry.mjs';
 import { UNITS, dimOf } from './metrics/units.mjs';
 import * as X from './metrics/mathx.mjs';
 
-const ROOT = path.resolve(path.dirname(new URL(import.meta.url).pathname), '..'), OUT = path.join(ROOT, 'out/metrics');
+const ROOT = rootFrom(import.meta.url), OUT = path.join(ROOT, 'out/metrics');
 const argv = process.argv.slice(2), has = (k) => argv.includes(k), arg = (k, d) => { const i = argv.indexOf(k); return i >= 0 && argv[i + 1] && !argv[i + 1].startsWith('--') ? argv[i + 1] : d; };
 const VALS = ['--fps', '--timeline'], pos = argv.filter((a, i) => !a.startsWith('--') && !VALS.includes(argv[i - 1]));
 const CMDS = ['compare', 'calibrate', 'units', 'doc', 'table'], cmd = CMDS.includes(pos[0]) ? pos[0] : 'run', rest = cmd === 'run' ? pos : pos.slice(1);
@@ -80,7 +82,7 @@ else if (cmd === 'compare') {
   }
 }
 else if (cmd === 'calibrate') {
-  const nf = path.join(ROOT, 'data/notas.json'), N = JSON.parse(fs.readFileSync(nf, 'utf8')), use = N.notas.filter((n) => n.medible && typeof n.nota === 'number'), byFilm = {};
+  const nf = path.join(ROOT, 'data/notas.json'), N = assertNotas(JSON.parse(fs.readFileSync(nf, 'utf8'))), use = N.notas.filter((n) => n.medible && typeof n.nota === 'number'), byFilm = {};
   console.log(`calibración nota ↔ métricas — ${use.length} notas medibles de ${N.notas.length}  (data/notas.json)`);
   console.log('ADVERTENCIA: n pequeño. Con n < 8 una correlación de Spearman no es evidencia (IC95 de ρ cubre casi [−1,1]); úsese solo para generar hipótesis.');
   for (const n of use) { byFilm[n.film] ??= await measureFilm(n.film, { fresh: false }).then((x) => x.res); delete globalThis.__opusFilmAnnounced; process.argv.splice(process.argv.indexOf('--timeline'), 2); }

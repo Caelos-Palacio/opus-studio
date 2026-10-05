@@ -10,6 +10,7 @@
 //     En este modo un píxel aislado (Δ≈3 en la miniatura) NO se detecta; un desplazamiento de 1 px de un borde sí.
 // Fuentes herméticas: el render corre con FONTCONFIG_FILE=test/golden/fonts.conf (solo DejaVu), así el texto no depende
 // de qué "Helvetica" tenga cada máquina.
+import { isMain } from '../engine/paths.mjs';
 import fs from 'node:fs';
 import path from 'node:path';
 import crypto from 'node:crypto';
@@ -150,4 +151,4 @@ async function main() {
 }
 
 if (argv[0] === '--worker') await worker(argv[1]);
-else if (import.meta.url === pathToFileURL(process.argv[1]).href) await main();
+else if (isMain(import.meta.url)) await main();

@@ -27,21 +27,21 @@ Definición (gates.json); el estado de cierre está en la parte viva.
 
 ## Motor
 
-- versión: 4.0.0 (package.json) · módulos engine/: 63
+- versión: 4.0.0 (package.json) · módulos engine/: 65
 - roles: modo `enforce` (*, director, dp, investigador, td, productor, animator, review) · digest `35a737817acffefa`
 - presupuestos: data/budgets.json digest `5290bbde06ea538a`
 
 ## Tests
 
-Archivos (test/*.mjs): `arc.mjs` `bench-skia.mjs` `critic.mjs` `cut-render.mjs` `film.mjs` `golden.mjs` `gov.mjs` `guard.mjs` `hash.mjs` `lib.mjs` `medios.mjs` `memoria.mjs` `metrics.mjs` `orch.mjs` `params.mjs` `perf.mjs` `run.mjs` `schema.mjs` `sound.mjs` `unit.mjs` `world3d.mjs`
+Archivos (test/*.mjs): `arc.mjs` `bench-skia.mjs` `critic.mjs` `cut-render.mjs` `film.mjs` `fuzz.mjs` `golden.mjs` `gov.mjs` `guard.mjs` `harness.mjs` `hash.mjs` `lib.mjs` `medios.mjs` `memoria.mjs` `metrics.mjs` `orch.mjs` `params.mjs` `perf.mjs` `run.mjs` `schema.mjs` `sound.mjs` `unit.mjs` `world3d.mjs`
 <!-- estatico:fin -->
 
 ---
-## Estado vivo (2026-10-05T20:51Z, no verificado)
+## Estado vivo (2026-10-05T21:03Z, no verificado)
 
 ## Veredictos
 
-Film activo: `main` · engineHash `538122bb31bdb781bb39d6764406e5174aa1f364d50752146f93cc26c176d46b` · filmHash `8ac843059ba51e5f`
+Film activo: `main` · engineHash `553c790a4d80e332b246c0e03bd07e7d0d78776306bd4c13a8260fb48492dc32` · filmHash `8ac843059ba51e5f`
 
 - out/lint.json: SHIP · CADUCADO
 - out/critic.json: no existe
@@ -53,13 +53,12 @@ Film activo: `main` · engineHash `538122bb31bdb781bb39d6764406e5174aa1f364d5075
 
 ## Ramas sin integrar
 
-- `harness` (+9 commits)
 - `orquestacion` (+10 commits)
-- `semantica` (+10 commits)
+- `semantica` (+11 commits)
 
 ## Último run de tests
 
-- sin out/tests.json (lo escribe `npm test`)
+- 2026-10-05T20:58:45.076Z: todo verde
 
 ## Ledger
 

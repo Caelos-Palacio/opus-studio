@@ -5,6 +5,9 @@
   "license": "MIT",
   "type": "module",
   "description": "Motor de producción cinematográfica por código: dirección codificada + motor gráfico (Bézier, TeX real, scene graph, 2.5D, compositor) + montaje por fragmentos, índice semántico, sonido y crítico visual",
+  "engines": {
+    "node": ">=22.15"
+  },
   "scripts": {
     "test": "node test/run.mjs",
     "test:fast": "node test/run.mjs --fast",

@@ -2,6 +2,7 @@
 // docs/API.md se GENERA desde el registro DOC de prims.mjs + las voces de sound.mjs + las rúbricas del crítico:
 // la referencia no puede desincronizarse del código (problema crónico de los proyectos con README escrito a mano).
 import fs from 'node:fs';
+import { rootFrom } from './paths.mjs';
 import path from 'node:path';
 import { DOC } from './prims.mjs';
 import './sakuga.mjs';                                                      // registra impact/smear en DOC
@@ -9,7 +10,7 @@ import { VOICES } from './sound.mjs';
 import { RUBRIC } from './critic.mjs';
 import { WARPS } from './geom.mjs';
 import { DEFAULTS } from './styles.mjs';
-const ROOT = path.resolve(path.dirname(new URL(import.meta.url).pathname), '..');
+const ROOT = rootFrom(import.meta.url);
 let md = `# API de shots — referencia generada\n\n> No editar: \`npm run docs\` la regenera desde \`engine/prims.mjs\` (DOC), \`sound.mjs\` (VOICES), \`geom.mjs\` (WARPS) y \`styles.mjs\` (DEFAULTS).\n\n`;
 md += `## Primitivas (\`api.*\`)\nTodas registran cajas (lint) y metadatos (índice). Todas son funciones puras de \`t\`.\n\n| llamada | qué hace |\n|---|---|\n`;
 for (const [, d] of Object.entries(DOC)) md += `| \`${d.sig.replace(/\|/g, '\\|')}\` | ${d.text} |\n`;

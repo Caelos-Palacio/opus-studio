@@ -2,12 +2,13 @@
 // E4: crítico honesto. Cliente simulado (sin red): fail-closed, voto N≥3, caché con clave completa, veredicto manual con
 // esquema, compuerta de lint y set dorado. Unidades puras + extremo a extremo en una copia temporal (critic.mjs real).
 import fs from 'node:fs';
+import { rootFrom } from '../engine/paths.mjs';
 import os from 'node:os';
 import path from 'node:path';
 import { spawnSync } from 'node:child_process';
 import { judge, cacheKey, checkVerdict, verdictOf, lintGate, scoreEval, RUBRIC, RESPONSE_SCHEMA, COHERENCE_SCHEMA } from '../engine/critic.mjs';
 
-const ROOT = path.resolve(path.dirname(new URL(import.meta.url).pathname), '..');
+const ROOT = rootFrom(import.meta.url);
 let fail = 0;
 const ok = (name, cond, extra = '') => { console.log(`${cond ? '✓' : '✗'} critic: ${name}${cond ? '' : '  ' + extra}`); if (!cond) fail++; };
 const S = (v = 4) => Object.fromEntries(Object.keys(RUBRIC).map((k) => [k, v]));

@@ -6,6 +6,7 @@
 //   node engine/audio.mjs --click [--bpm 120] [--duration 15] → data/audio.wav + data/audio.json
 //   node engine/audio.mjs --cues                      → sintetiza data/audio.wav desde timeline.cues (explainer)
 import fs from 'node:fs';
+import { isMain } from './paths.mjs';
 import path from 'node:path';
 import { spawnSync } from 'node:child_process';
 import { ROOT, timelinePath } from './film.mjs';
@@ -79,7 +80,7 @@ export const audioJsonPath = () => path.resolve(ROOT, arg('--out', sibling('audi
 const out = (o) => { fs.writeFileSync(audioJsonPath(), JSON.stringify(o, null, 2)); console.log('→', path.relative(ROOT, audioJsonPath()), `bpm ${o.bpm}, offset ${o.offset}s, ${o.onsets?.length ?? 0} onsets, ${o.silences.length} silencios`); };
 
 export { analyze };
-const MAIN = import.meta.url === `file://${process.argv[1]}`;
+const MAIN = isMain(import.meta.url);
 if (!MAIN) { /* importado como módulo: sin CLI */ }
 else if (argv.includes('--analyze')) out(analyze(path.resolve(arg('--analyze'))));
 else if (argv.includes('--click')) {

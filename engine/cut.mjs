@@ -14,6 +14,7 @@
 // Problemas que evita: re-render total por un cambio de 1 shot; concat roto por parámetros distintos (todos iguales, cada
 // fragmento empieza en IDR); espacio de color sin etiquetar (bt709 explícito); fragmentos huérfanos (manifest por film).
 import './help.mjs';
+import { isMain } from './paths.mjs';
 import { announceFilm } from './filmid.mjs';
 import fs from 'node:fs';
 import path from 'node:path';
@@ -28,6 +29,7 @@ import { masterGate } from './gate.mjs';
 import { cookEntry } from './resolve.mjs';
 import { filmId } from './filmid.mjs';
 import { workerThreads } from './encode.mjs';
+import { atempoChain } from './inputs.mjs';
 
 const argv = process.argv.slice(2), has = (k) => argv.includes(k), arg = (k, d) => { const i = argv.indexOf(k); return i >= 0 && argv[i + 1] && !argv[i + 1].startsWith('--') ? argv[i + 1] : d; };
 export const filmName = (tlPath = timelinePath()) => filmId(tlPath);
@@ -131,7 +133,7 @@ async function main() {
   await withLock(`mix${mixName()}`, () => ensureMix(JSON.parse(fs.readFileSync(tlp, 'utf8'))));
   let audio = mixf;
   if (film.edit) {
-    const parts = film.edit.items.map((it, i) => { let f = `[0:a]atrim=${it.t0}:${it.t1 + 1e-4},asetpts=PTS-STARTPTS`; let s = it.sp; while (s > 2) { f += ',atempo=2'; s /= 2; } while (s < 0.5) { f += ',atempo=0.5'; s /= 0.5; } if (s !== 1) f += `,atempo=${s}`; if (it.reverse) f += ',areverse'; if (it.hold) f += `,apad=pad_dur=${it.hold}`; return f + `[a${i}]`; });
+    const parts = film.edit.items.map((it, i) => { let f = `[0:a]atrim=${it.t0}:${it.t1 + 1e-4},asetpts=PTS-STARTPTS`; f += atempoChain(it.sp); if (it.reverse) f += ',areverse'; if (it.hold) f += `,apad=pad_dur=${it.hold}`; return f + `[a${i}]`; });
     audio = path.join(ROOT, 'out', `${name}.${process.pid}_audio.wav`);
     await sh(['-y', '-loglevel', 'error', '-i', mixf, '-filter_complex', parts.join(';') + ';' + film.edit.items.map((_, i) => `[a${i}]`).join('') + `concat=n=${film.edit.items.length}:v=0:a=1[o]`, '-map', '[o]', audio]);
   }
@@ -152,4 +154,4 @@ async function main() {
   record({ action: review ? 'review' : 'master', target: path.relative(ROOT, final), hash_after: sha(P.jobs.map((j) => j.hash)), verdict: 'ok' });
   console.log('→', path.relative(ROOT, final), silent ? '(audio silencioso)' : mastered ? '(mezcla v2 masterizada, −14 LUFS)' : '(−14 LUFS)');
 }
-if (import.meta.url === `file://${process.argv[1]}`) { announceFilm(); main().catch((e) => { console.error(e.message); process.exit(1); });  }
+if (isMain(import.meta.url)) { announceFilm(); main().catch((e) => { console.error(e.message); process.exit(1); });  }
