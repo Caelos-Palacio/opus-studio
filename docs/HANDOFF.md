@@ -21,6 +21,17 @@
   (15 medibles, en `npm test`; `--fast` = Potencias ×0,6). Render: `OPUS_TIMELINE=data/stress/potencias.json node engine/sound.mjs --mux <video.mp4> --out out/potencias_v2.mp4`
   (solo cambia el audio). Pendiente solo la nota del usuario (fila "potencias v2" de la spec). `cut.mjs` respeta la mezcla v2 masterizada (sin loudnorm).
 
+## Integrado el 2026-10-05 (main, `npm test` completo verde, golden bit a bit)
+- Tres films y su motor, `git merge --no-ff`: **mate** (data/mate/, shots M*, estilo nocturno, sonido contemplativo), **reel** «Pulso» 9:16 (data/reel/,
+  K*, estilo pulso, sonido electro, `engine/grid.mjs` rejilla de tempo, pistas de audio por instrumento) y **regla** (data/regla/regla.json, R*, estilo hierro,
+  sonido forja, parámetro `json`). Los tres dan lint SHIP con su timeline explícito (mate 3 avisos, reel 48, regla 23).
+- Identidad de film UNIFICADA en `engine/filmid.mjs` (la de reel; mate tenía otra copia en verdict.mjs/sound.mjs: eliminada). `score.mjs` combina ambas
+  parametrizaciones (estilo `rev` o `revel`, capas opcionales kick/hat/tom/bass.pulse/kick.ghost, golpe con piano).
+- Eficiencia P1/P2/P5/P8 hechas (docs/EFICIENCIA.md): **`npm run use -- <film>`**, línea `film:` en toda CLI, `--help` real, `npm run peek -- [film]`,
+  `npm audit` limpio. Los tests de memoria/critic ya no dependen de out/.film (pasan con cualquier film activo).
+- Trampa conocida: `data/regla/layers/` no se carga (layersDir busca data/layers/<film>); arreglarlo cambiaría el cookKey de regla.
+- Los masters de mate/reel/regla NO se re-renderizaron: tras tocar el motor sus veredictos caducan (relanzar lint antes de `npm run master`).
+
 ## WIP (agente detenido), ver docs/handoff/ en cada rama
 - `worktree-agent-a55c05dc1fd0f272f` — F3 orquestación (falta simulación de 4 agentes y verificar tests). NO integrada a propósito.
 

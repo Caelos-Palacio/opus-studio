@@ -7,17 +7,19 @@
 //   node engine/params.mjs check                           valida capas + parámetros (exit 1 si hay errores)
 //   [--timeline data/x.json] [--variant 9x16,en] [--layers dir|none]   (o OPUS_TIMELINE / OPUS_VARIANT / OPUS_LAYERS)
 // Capas: data/layers/*.json (film main) o data/layers/<film>/*.json. Contrato: docs/PARAMS.md.
+import './help.mjs';
+import { announceFilm } from './filmid.mjs';
 import fs from 'node:fs';
 import path from 'node:path';
 import { resolve, explain, getPointer, toDoc, LayerError } from './resolve.mjs';
 import { FIELD_PARAMS, PARAM_TYPES, isBinding, bindingDeps } from './signal.mjs';
 import { validateLayer, assertTimeline, suggest } from './schema.mjs';
-import { filmId } from './filmid.mjs';
+import { filmId, activeTimeline } from './filmid.mjs';
 
 for (const k of ['timeline', 'variant', 'layers']) { const i = process.argv.indexOf('--' + k); if (i >= 0 && process.argv[i + 1]) process.env['OPUS_' + k.toUpperCase()] = process.argv[i + 1]; }
 export const ROOT = path.resolve(path.dirname(new URL(import.meta.url).pathname), '..');
 
-export const layersDir = (timeline = process.env.OPUS_TIMELINE ?? 'data/timeline.json') => {
+export const layersDir = (timeline = activeTimeline()) => {
   const e = process.env.OPUS_LAYERS; if (e === 'none') return null;
   if (e) return path.resolve(ROOT, e);
   const f = filmId(timeline); return path.join(ROOT, 'data/layers', f === 'main' ? '' : f);
@@ -133,4 +135,4 @@ async function main() {
     }
   }
 }
-if (import.meta.url === `file://${process.argv[1]}`) main().catch((e) => { console.error(e.message); process.exit(1); });
+if (import.meta.url === `file://${process.argv[1]}`) { announceFilm(); main().catch((e) => { console.error(e.message); process.exit(1); });  }

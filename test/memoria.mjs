@@ -117,7 +117,7 @@ const cf = clone(fx); C(cf, 'adaptacion').anclas.push({ param: '/shots/S5/params
 ok('conflicto en una ruta: gana la prioridad y se informa', M.dirigir(cf, fctx).conflictos.some((c) => c.path === '/shots/S5/params/eco' && /giro-eco/.test(c.gana) && /peso-enfasis/.test(c.pierde)));
 
 // 6) CLI (engine/memoria.mjs y q.mjs memoria)
-const cli = (args, opt = {}) => spawnSync(process.execPath, args, { cwd: ROOT, encoding: 'utf8', ...opt });
+const cli = (args, opt = {}) => spawnSync(process.execPath, args, { cwd: ROOT, encoding: 'utf8', env: { ...process.env, OPUS_TIMELINE: 'data/timeline.json' }, ...opt });
 let r = cli(['engine/memoria.mjs', 'en', '15', '--mem', FX, '--json']);
 ok('CLI en <t> --json', r.status === 0 && JSON.parse(r.stdout).preguntas[0]?.id === 'por-que-gira', r.stderr);
 r = cli(['engine/memoria.mjs', 'por', 'qué', 'golpes', '--mem', FX]);

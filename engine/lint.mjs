@@ -3,6 +3,8 @@
 //   node engine/lint.mjs [--only validate|determinism|layout|camera|transitions|beats|handoffs|motion|rhythm|arc] [--shot ID] [--fps 12] [--style X] [--profile Y]
 // Salida: out/lint.json (solo pasada completa) + out/lint/<film>/<ID>.json + veredicto SHIP / FIX (shot  t  problema  arreglo)
 //   --shot ID: ID + vecinos inmediatos del timeline; escribe solo sus veredictos por shot. --only X: parcial, nunca el global.
+import './help.mjs';
+import { announceFilm } from './filmid.mjs';
 import fs from 'node:fs';
 import path from 'node:path';
 import { makeRenderer } from './render.mjs';
@@ -22,6 +24,7 @@ const argv = process.argv.slice(2);
 const arg = (k, d) => { const i = argv.indexOf(k); return i >= 0 ? argv[i + 1] : d; };
 const only = arg('--only');
 const want = (k) => !only || only === k;
+announceFilm();
 const issues = [];
 const push = (level) => (shot, t, problem, remedy) => issues.push({ level, shot, t: +(+t).toFixed(3), problem, remedy });
 const fix = push('FIX'), warn = push('WARN');

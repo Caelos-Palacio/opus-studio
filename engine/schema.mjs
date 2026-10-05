@@ -5,6 +5,7 @@
 // importa aquí es el MENSAJE: ruta JSON + "¿quisiste decir…?" por distancia de edición, cosa que ajv no da. ~150 líneas,
 // cero dependencias nuevas, puro (sirve también al crítico para validar sus respuestas).
 // Niveles: estructura rota = FIX (y el lint no sigue: el resto asume la forma); campo deprecated = WARN.
+import { activeTimeline } from './filmid.mjs';
 import fs from 'node:fs';
 import path from 'node:path';
 import { compileSignals, bindingDeps } from './signal.mjs';
@@ -148,7 +149,7 @@ export function assertTimeline(tl, name = 'timeline') {
 if (import.meta.url === `file://${process.argv[1]}`) {
   const files = process.argv.slice(2).filter((a) => !a.startsWith('--'));
   let fixes = 0;
-  for (const f of files.length ? files : [process.env.OPUS_TIMELINE ?? 'data/timeline.json']) {
+  for (const f of files.length ? files : [activeTimeline()]) {
     const r = validateTimeline(JSON.parse(fs.readFileSync(path.resolve(ROOT, f), 'utf8')));
     for (const x of r) console.log(`${x.level.padEnd(4)}  ${String(x.shot).padEnd(6)} ${x.problem}  →  ${x.remedy}`);
     const n = r.filter((x) => x.level === 'FIX').length; fixes += n;

@@ -6,6 +6,8 @@
 // Re-extraer un id existente MUEVE la extracción anterior a .trash/<fecha>-footage-<id>/ (nunca rmSync): recuperable.
 // Problemas que evita: decodificar vídeo dentro del render (lento, no determinista entre versiones de códec), metraje
 // VFR (se fuerza fps constante), rutas relativas rotas (todo vive bajo assets/), TeX que falla a mitad de un master.
+import './help.mjs';
+import { announceFilm } from './filmid.mjs';
 import fs from 'node:fs';
 import path from 'node:path';
 import { spawnSync } from 'node:child_process';

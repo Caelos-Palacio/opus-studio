@@ -12,6 +12,9 @@
 //   opciones: --mem data/memoria.json  --timeline X  --json
 //
 // Todo es puro y determinista (sin reloj, sin azar): misma memoria + mismo timeline → mismos bytes.
+import './help.mjs';
+import { announceFilm } from './filmid.mjs';
+import { activeTimeline, filmFile } from './filmid.mjs';
 import fs from 'node:fs';
 import path from 'node:path';
 import crypto from 'node:crypto';
@@ -31,7 +34,7 @@ export function canonical(v) {                                       // JSON con
   return JSON.stringify(v);
 }
 export const memHash = (mem) => crypto.createHash('sha256').update(canonical(mem)).digest('hex').slice(0, 16);
-export function loadMemoria(file = process.env.OPUS_MEMORIA ?? 'data/memoria.json') {
+export function loadMemoria(file = process.env.OPUS_MEMORIA ?? filmFile('memoria.json', 'data/memoria.json')) {   // P1: la memoria del film está en su carpeta
   const f = path.resolve(ROOT, file);
   return { mem: JSON.parse(fs.readFileSync(f, 'utf8')), file: path.relative(ROOT, f) };
 }
@@ -40,7 +43,7 @@ export const validateMemoria = (mem) => validate(mem, MEMORIA_SCHEMA).map((e) =>
 // Contexto del film: shots, entidades y parámetros que existen (para verificar punteros). Solo lee datos y escanea
 // el texto de los shots; nunca ejecuta su código (la guardia E7 sigue siendo la única puerta de ejecución).
 export function contexto(mem, { timeline, root = ROOT } = {}) {
-  const tf = timeline ?? mem.timeline ?? process.env.OPUS_TIMELINE ?? 'data/timeline.json';
+  const tf = timeline ?? mem.timeline ?? activeTimeline();
   const tl = typeof tf === 'object' ? tf : JSON.parse(fs.readFileSync(path.resolve(root, tf), 'utf8'));
   const shots = (tl.shots ?? []).map((s) => ({ id: s.id, t: s.t }));
   const entities = new Set([...(tl.handoffs ?? []).map((h) => h.entity), ...(tl.motif?.states ?? []), ...(tl.shots ?? []).map((s) => s.motifState)].filter(Boolean));
@@ -352,6 +355,7 @@ export const capaJSON = (capa) => JSON.stringify(capa, null, 1) + '\n';
 
 // ── CLI ─────────────────────────────────────────────────────────────────────────────────────────────────────────────
 async function cli() {
+  announceFilm();
   const argv = process.argv.slice(2), opt = (k) => { const i = argv.indexOf(k); return i >= 0 && argv[i + 1] && !argv[i + 1].startsWith('--') ? argv[i + 1] : null; };
   const J = argv.includes('--json'), flags = new Set(['--mem', '--timeline', '--write']);
   const pos = argv.filter((a, i) => !a.startsWith('--') && !flags.has(argv[i - 1]));

@@ -3,6 +3,8 @@
 //   node engine/index.mjs [--fps 4] [--changed] [--timeline X]
 // Salida: out/index/<film>/film.json · shots/<ID>.json (muestras) · thumbs/<ID>_{in,mid,out}.jpg
 // Cada shot guarda el hash de su fragmento: si el código/timeline cambia, q.mjs lo marca como "stale" (y --changed reindexa solo eso).
+import './help.mjs';
+import { announceFilm } from './filmid.mjs';
 import fs from 'node:fs';
 import path from 'node:path';
 import canvasPkg from 'canvas';
@@ -77,4 +79,5 @@ async function build(R, name) {
 async function memoriaPtr() {
   try { const M = await import('./memoria.mjs'), { mem, file } = M.loadMemoria(); return { src: file, hash: M.memHash(mem), conceptos: mem.conceptos.length, ver: 'node engine/q.mjs memoria [t]' }; } catch { return null; }
 }
+announceFilm();
 main().catch((e) => { console.error(e.stack); process.exit(1); });

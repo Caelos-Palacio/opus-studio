@@ -9,11 +9,14 @@
 //   node engine/q.mjs sym [q̇]         símbolos físicos (TeX semántico) y en qué shots/tiempos aparecen
 //   node engine/q.mjs issues [A2]     avisos/FIX del último lint (filtrables por shot)
 //   node engine/q.mjs memoria [t]     capa conceptual (data/memoria.json) junto a la observada, sin mezclarlas (docs/MEMORIA.md)
+import './help.mjs';
+import { announceFilm } from './filmid.mjs';
 import fs from 'node:fs';
 import path from 'node:path';
 import { ROOT, loadFilm } from './film.mjs';
 import { filmName, plan } from './cut.mjs';
 
+announceFilm();
 const [cmd = 'film', a1] = process.argv.slice(2).filter((x) => !x.startsWith('--') && !/\.json$/.test(x)), J = process.argv.includes('--json');
 const dir = path.join(ROOT, 'out/index', filmName() + (process.env.OPUS_EDIT ? '.edit' : '')), F = path.join(dir, 'film.json');
 // memoria [t]: capa CONCEPTUAL (data/memoria.json) junto a la OBSERVADA (índice), en secciones separadas: nunca se mezclan.
