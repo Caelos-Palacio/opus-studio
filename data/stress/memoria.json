@@ -1,0 +1,55 @@
+{
+ "version": 1,
+ "titulo": "Potencias · de ti al borde de lo observable",
+ "timeline": "data/stress/potencias.json",
+ "memoria": { "vidaMedia": 6, "piso": 0.1, "umbral": 0.15 },
+ "conceptos": [
+  {
+   "id": "persona", "label": "la persona dentro de su ventana de 1 m", "kind": "entidad", "saliencia": 0.9, "planta": true,
+   "anclas": [ { "shot": "P01" }, { "shot": "P13" } ],
+   "estados": [
+    { "t": [0, 6], "lectura": "una persona en su ventana: la escala humana, la referencia", "siente": "calma íntima", "espera": "que algo la saque de ahí" }
+   ]
+  },
+  {
+   "id": "regla", "label": "cada ventana es diez veces la anterior", "kind": "regla", "saliencia": 0.8,
+   "anclas": [ { "shot": "P02" }, { "shot": "P03" }, { "shot": "P04" }, { "shot": "P05" }, { "shot": "P06" }, { "shot": "P07" }, { "shot": "P08" }, { "shot": "P09" } ],
+   "estados": [
+    { "t": [6, 46], "lectura": "cada paso ×10 enseña algo distinto: pasos desiguales", "siente": "vértigo creciente", "espera": "que la regla siga y siga" }
+   ]
+  },
+  {
+   "id": "borde", "label": "la regla se rompe: no hay paso 28 observable", "kind": "tensión", "saliencia": 0.85,
+   "abre": 46, "resuelve": { "t": 58.1, "por": "escala" },
+   "anclas": [ { "shot": "P10" } ],
+   "estados": [
+    { "t": [46, 55.5], "lectura": "el alejamiento choca con el borde de lo observable", "siente": "tensión que estalla y calla", "espera": "una explicación" }
+   ]
+  },
+  {
+   "id": "escala", "label": "los 27 pasos son una regla equidistante: contar es tomar el logaritmo", "kind": "revelación", "saliencia": 1,
+   "anclas": [ { "shot": "P11" }, { "shot": "P12" } ],
+   "estados": [
+    { "t": [58.1, 71], "lectura": "las ventanas se alinean: la regla de 27 pasos iguales", "siente": "asombro sereno", "espera": "volver a casa" }
+   ]
+  }
+ ],
+ "relaciones": [
+  { "id": "prepara-borde", "tipo": "prepara", "de": "regla", "a": "borde", "t": 46, "why": "repetir ×10 sin parar conduce al borde de lo observable" },
+  { "id": "revela-regla", "tipo": "revela", "de": "escala", "a": "regla", "t": 58.1, "why": "los pasos que parecían desiguales eran iguales en la regla" }
+ ],
+ "reinterpretaciones": [
+  {
+   "id": "origen", "en": 58.1, "por": "escala", "objetivo": "persona", "tramo": [0, 6],
+   "antes": "una persona en una ventana de 1 m",
+   "despues": "el origen de la cuenta: 10^0, desde donde se mide todo",
+   "why": "la escala humana no era el punto de partida del viaje sino el cero de la regla"
+  },
+  {
+   "id": "pasos", "en": 58.1, "por": "escala", "objetivo": "regla", "tramo": [6, 46],
+   "antes": "cada paso ×10 enseñaba algo distinto",
+   "despues": "todos eran el mismo paso: una regla de pasos iguales",
+   "why": "las 27 ventanas, alineadas, son equidistantes: la diversidad era del mundo, la regularidad es de la cuenta"
+  }
+ ]
+}
