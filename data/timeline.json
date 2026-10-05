@@ -89,6 +89,7 @@
       "action": "el anillo se expande y revela el marco",
       "on_beat": "tick de acento",
       "text": "Y REVELA OTRA",
+      "params": {},
       "transition_out": "cut",
       "after": "A2",
       "hold_ok": [

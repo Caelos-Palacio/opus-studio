@@ -1,0 +1,16 @@
+{
+  "eames_1977": { "claim": "Powers of Ten: una potencia de diez cada 10 s, a ritmo constante, centrada en un picnic", "date": "1977", "source": "Charles & Ray Eames, Powers of Ten (IBM, 1977); eamesoffice.com/the-work/powers-of-ten" },
+  "karman_100km": { "claim": "Convención del borde del espacio (línea de Kármán) a 100 km de altitud", "date": "1960s", "source": "FAI, Astronautics Records Commission; fai.org/page/icare-boundary" },
+  "earth_diameter": { "claim": "Diámetro medio de la Tierra ≈ 1,27×10^7 m (radio volumétrico 6371 km)", "date": "2024", "source": "NASA NSSDC, Earth Fact Sheet (nssdc.gsfc.nasa.gov/planetary/factsheet/earthfact.html)" },
+  "moon_orbit": { "claim": "Semieje mayor de la órbita lunar 384 400 km → diámetro de la órbita ≈ 7,7×10^8 m", "date": "2024", "source": "NASA NSSDC, Moon Fact Sheet (nssdc.gsfc.nasa.gov/planetary/factsheet/moonfact.html)" },
+  "au": { "claim": "1 unidad astronómica = 149 597 870 700 m (definición exacta) → diámetro de la órbita terrestre ≈ 3×10^11 m", "date": "2012", "source": "IAU 2012 Resolution B2" },
+  "neptune_orbit": { "claim": "Semieje mayor de Neptuno 30,07 UA ≈ 4,5×10^12 m → diámetro de su órbita ≈ 9×10^12 m", "date": "2024", "source": "NASA NSSDC, Planetary Fact Sheet (nssdc.gsfc.nasa.gov/planetary/factsheet/)" },
+  "light_year": { "claim": "1 año luz = 9 460 730 472 580 800 m ≈ 9,5×10^15 m", "date": "1976", "source": "IAU (año juliano × c); IAU Style Manual 1989" },
+  "proxima": { "claim": "Próxima Centauri está a 4,24 años luz ≈ 4,0×10^16 m", "date": "2020", "source": "Gaia EDR3: paralaje 768,07 mas (Gaia Collaboration 2021, A&A 649, A1)" },
+  "milky_way": { "claim": "Disco estelar de la Vía Láctea: del orden de 10^5 años luz ≈ 10^21 m; el Sol a ~8,2 kpc (2,5×10^20 m) del centro", "date": "2016", "source": "Bland-Hawthorn & Gerhard 2016, ARA&A 54, 529" },
+  "andromeda": { "claim": "Andrómeda (M31) a ≈ 2,5 millones de años luz ≈ 2,4×10^22 m", "date": "2005", "source": "McConnachie et al. 2005, MNRAS 356, 979 (785 ± 25 kpc)" },
+  "cosmic_web": { "claim": "Las galaxias se distribuyen en filamentos y vacíos de decenas a cientos de Mpc (10^24–10^25 m)", "date": "2005", "source": "Springel, Frenk & White 2006, Nature 440, 1137 (The large-scale structure of the Universe)" },
+  "observable_universe": { "claim": "Diámetro comóvil del universo observable ≈ 93 000 millones de años luz ≈ 8,8×10^26 m", "date": "2005", "source": "Lineweaver & Davis 2005, Scientific American 292(3), 36 (radio comóvil ≈ 46,5 Gal)" },
+  "cmb": { "claim": "La luz más antigua observable es el fondo cósmico de microondas (superficie de última dispersión)", "date": "2020", "source": "Planck Collaboration 2020, A&A 641, A1" },
+  "log_steps": { "claim": "log10(8,8×10^26 m / 1 m) ≈ 26,94: de 1 m al borde hay ≈ 27 pasos de ×10", "date": "—", "source": "cálculo directo a partir de observable_universe" }
+}

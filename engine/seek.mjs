@@ -1,5 +1,5 @@
 // Módulo compartido navegador/Node: compilación del timeline + seek(t) puro.
-import { clamp, stepT } from './core.mjs';
+import { clamp, stepT, onT } from './core.mjs';
 import { makeApi } from './api.mjs';
 import { camState, applyCam } from './camera.mjs';
 import { applyGrade } from './grade.mjs';
@@ -37,14 +37,15 @@ export const shotBeats = (film, s) => film.beatTimes.filter((b) => b >= s.t[0] -
 // Devuelve las cajas registradas (boxes.meta = metadatos de primitivas/nodos). tOut = tiempo de SALIDA (edición).
 export function seek(ctx, tOut, film, { grade = true } = {}) {
   const tReal = film.timeMap ? film.timeMap(tOut) : tOut;                  // EDL: remapeo de tiempo sin pérdida (se re-renderiza)
-  const t = stepT(tReal, film);                                            // stop-motion: solo el dibujo se cuantiza
+  const tStep = stepT(tReal, film);                                        // stop-motion: solo el dibujo se cuantiza
   ctx.save();
   const m = ctx.getTransform(), B = { a: m.a, b: m.b, c: m.c, d: m.d, e: m.e, f: m.f };
   ctx.fillStyle = film.palette.paper;
   ctx.fillRect(0, 0, film.width, film.height);
   const boxes = [], meta = []; boxes.meta = meta;
-  for (const s of activeShots(film, t)) {
-    const u = clamp((t - s.t[0]) / Math.max(1e-4, s.t[1] - s.t[0])), cam = camState(s, t, film), mod = film.mods[s.id];
+  for (const s of activeShots(film, tStep)) {
+    const t = onT(tStep, s, film);                                         // shot.on: doses/treses solo en el dibujo (cámara a ones)
+    const u = clamp((t - s.t[0]) / Math.max(1e-4, s.t[1] - s.t[0])), cam = camState(s, tStep, film), mod = film.mods[s.id];
     const tr = s.cam?.track;                                                // cámara sobre nodos: centra el nodo con inercia pura
     if (tr && mod?.scene) {
       const p = nodeWorld(sceneBuilder(mod, film), tr.node, t, film, tr.smooth ?? 0.25);

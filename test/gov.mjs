@@ -75,11 +75,11 @@ test('lease', async () => {
   const d = copy();
   try {
     const K = await imp(d, 'lock.mjs');
-    const a = K.claim('shot/A2', 'A', 150);
+    const a = K.claim('shot/A2', 'A', 4000);
     ok(!!a, 'lease: claim concedido');   // en el mismo proceso el lock es reentrante: la exclusión se prueba desde otro proceso
     const c1 = await runP(d, ['-e', "import('./engine/lock.mjs').then(m=>process.exit(m.claim('shot/A2','B',150)?0:1))"]);
     ok(c1.status === 1, 'lease: otro proceso no puede reclamar un lease vivo');
-    await new Promise((r) => setTimeout(r, 250));
+    await new Promise((r) => setTimeout(r, 4400));
     const c2 = await runP(d, ['-e', "import('./engine/lock.mjs').then(m=>{const L=m.claim('shot/A2','B',5000);process.exit(L?0:1)})"]);
     ok(c2.status === 0 && ledger(d).some((e) => e.action === 'lock.steal'), 'lease: caducado = liberable (y queda en el ledger)');
     ok(!K.release(a), 'lease: el dueño viejo ya no puede liberar el lock robado');

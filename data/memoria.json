@@ -1,0 +1,59 @@
+{
+ "version": 1,
+ "titulo": "demo · una idea que revela otra",
+ "timeline": "data/timeline.json",
+ "memoria": { "vidaMedia": 2, "piso": 0.08, "umbral": 0.15 },
+ "conceptos": [
+  {
+   "id": "idea", "label": "una idea (el punto)", "kind": "entidad", "saliencia": 0.9, "planta": true,
+   "anclas": [ { "shot": "A1" }, { "entidad": "dot", "shot": "A1" } ],
+   "estados": [
+    { "t": [0, 2], "lectura": "un punto que late: una idea pequeña, todavía sin forma", "siente": "curiosidad tranquila", "espera": "que la idea crezca o se explique" }
+   ]
+  },
+  {
+   "id": "forma", "label": "la forma de una idea no es fija", "kind": "regla", "saliencia": 0.8,
+   "anclas": [ { "shot": "A2" }, { "entidad": "ring", "shot": "A2" } ],
+   "estados": [
+    { "t": [2, 4], "lectura": "el punto se deforma: la idea cambia", "siente": "inquietud leve", "espera": "que se rompa o se convierta en otra cosa" }
+   ]
+  },
+  {
+   "id": "identidad", "label": "¿sigue siendo la misma idea?", "kind": "pregunta", "saliencia": 0.7,
+   "abre": 2.3, "resuelve": { "t": 4.7, "por": "marco" },
+   "anclas": [ { "t": [2.3, 4.7] }, { "param": "/shots/A3/params/textIn", "rol": "retencion", "base": 0.7 } ],
+   "estados": [ { "t": [2.3, 4.7], "lectura": "si cambia de forma, ¿es otra idea?", "espera": "una respuesta: rotura o continuidad" } ]
+  },
+  {
+   "id": "marco", "label": "la idea era un marco para mirar otra", "kind": "revelación", "saliencia": 1,
+   "anclas": [
+    { "shot": "A3" }, { "entidad": "frame", "shot": "A3" },
+    { "param": "/shots/A3/params/pulse", "rol": "intensidad", "base": 0.2, "rango": [0.2, 0.6] }
+   ],
+   "estados": [
+    { "t": [4, 4.7], "lectura": "el anillo crece y se endereza", "espera": "que se rompa o se cierre" },
+    { "t": [4.7, 6], "lectura": "el anillo es un marco y dentro cabe otra idea", "siente": "asombro: lo pequeño contenía el método", "espera": "mirar a través del marco" }
+   ]
+  }
+ ],
+ "relaciones": [
+  { "id": "abre-anillo", "tipo": "causa", "de": "idea", "a": "forma", "t": 2.3, "why": "el latido del punto lo abre en anillo (handoff dot A1→A2)" },
+  { "id": "crece", "tipo": "escala", "de": "forma", "a": "marco", "t": 4.0, "why": "el anillo se expande hasta ser el marco del plano" },
+  { "id": "latido", "tipo": "rima", "de": "idea", "a": "marco", "t": 5.0, "why": "el tick de acento sobre el marco repite el latido del punto (on_beat_at 1.0 en A1 y A3)" },
+  { "id": "respuesta", "tipo": "resuelve", "de": "marco", "a": "identidad", "t": 4.7, "why": "sí es la misma idea: cambió de función, no de identidad" }
+ ],
+ "reinterpretaciones": [
+  {
+   "id": "semilla", "en": 4.7, "por": "marco", "objetivo": "idea", "tramo": [0, 2],
+   "antes": "un punto que late: una idea pequeña",
+   "despues": "la semilla del marco: la idea no era una cosa, era una manera de mirar",
+   "why": "«Y REVELA OTRA»: lo que parecía el contenido era el contenedor"
+  },
+  {
+   "id": "hueco", "en": 4.7, "por": "marco", "objetivo": "forma", "tramo": [2, 4],
+   "antes": "el punto se deforma: la idea cambia",
+   "despues": "la idea se abría para dejar sitio a otra",
+   "why": "el hueco del anillo no era pérdida sino espacio"
+  }
+ ]
+}

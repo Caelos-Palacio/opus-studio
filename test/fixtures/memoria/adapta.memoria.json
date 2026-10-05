@@ -1,0 +1,69 @@
+{
+ "version": 1,
+ "titulo": "regla que se adapta: lo que parecía daño era aprendizaje",
+ "timeline": "test/fixtures/memoria/adapta.timeline.json",
+ "memoria": { "vidaMedia": 8, "piso": 0.1, "umbral": 0.15 },
+ "conceptos": [
+  {
+   "id": "golpes", "label": "los cortes del atacante", "kind": "entidad", "saliencia": 0.9,
+   "anclas": [ { "shot": "S2" }, { "shot": "S3" }, { "shot": "S4" } ],
+   "estados": [
+    { "t": [5, 20], "lectura": "cada corte lo hiere: el atacante va ganando", "siente": "dominio, alivio", "espera": "que el shikigami caiga" },
+    { "t": [20, 32], "lectura": "los cortes cuestan más: resiste", "siente": "inquietud", "espera": "un corte más fuerte" }
+   ]
+  },
+  {
+   "id": "rueda", "label": "la rueda que gira tras cada golpe", "kind": "motivo", "saliencia": 0.5, "planta": true,
+   "anclas": [ { "shot": "S1" }, { "entidad": "rueda" }, { "param": "/shots/S4/params/rueda_brillo", "rol": "enfasis" } ],
+   "refuerzos": [10, 18, 28],
+   "estados": [ { "t": [0, 32], "lectura": "un adorno: la rueda gira", "espera": "nada" } ]
+  },
+  {
+   "id": "por-que-gira", "label": "¿por qué gira la rueda?", "kind": "pregunta", "saliencia": 0.6,
+   "abre": 10, "resuelve": { "t": 40, "por": "adaptacion" },
+   "anclas": [ { "t": [10, 40] }, { "param": "/shots/S5/params/revelar_en", "rol": "retencion" } ]
+  },
+  {
+   "id": "adaptacion", "label": "se adapta a todo fenómeno que lo ha herido", "kind": "revelación", "saliencia": 1,
+   "anclas": [
+    { "shot": "S5", "t": [38, 44] },
+    { "param": "/shots/S5/params/escala", "rol": "intensidad", "rango": [1, 2] },
+    { "param": "/shots/S5/params/eco", "rol": "eco" },
+    { "param": "/shots/S5/params/hold", "rol": "hold" }
+   ],
+   "estados": [ { "t": [40, 60], "lectura": "la regla que lo hace invencible: aprende de cada golpe", "siente": "sublime dinámico: un poder que nos supera", "espera": "que nada funcione dos veces" } ]
+  },
+  {
+   "id": "amenaza", "label": "si se adapta, ¿cómo se le gana?", "kind": "tensión", "saliencia": 0.9,
+   "abre": 40, "resuelve": { "t": 52, "por": "contra-adaptacion" },
+   "anclas": [ { "shot": "S6", "t": [44, 52] }, { "param": "/shots/S6/params/intensidad", "rol": "intensidad", "base": 1, "rango": [1, 3] } ]
+  },
+  {
+   "id": "contra-adaptacion", "label": "el atacante cambia de técnica antes de que aprenda", "kind": "regla", "saliencia": 0.9,
+   "anclas": [ { "shot": "S6", "t": [50, 60] }, { "entidad": "sukuna" }, { "param": "/shots/S6/params/rima", "rol": "rima" } ],
+   "estados": [ { "t": [50, 60], "lectura": "la única salida: no repetirse" } ]
+  }
+ ],
+ "relaciones": [
+  { "id": "golpe-gira", "tipo": "causa", "de": "golpes", "a": "rueda", "t": 10, "why": "tras cada corte, la rueda gira" },
+  { "id": "acumula", "tipo": "escala", "de": "golpes", "a": "adaptacion", "t": 32, "why": "tres cortes bastan para aprender" },
+  { "id": "sin-salida", "tipo": "escala", "de": "adaptacion", "a": "amenaza", "t": 40, "why": "si aprende todo, el tiempo juega en contra" },
+  { "id": "responde", "tipo": "causa", "de": "amenaza", "a": "contra-adaptacion", "t": 50 },
+  { "id": "otra-regla", "tipo": "rima", "de": "adaptacion", "a": "contra-adaptacion", "t": 52, "why": "el atacante hace lo mismo que su rival: adaptarse" },
+  { "id": "contador", "tipo": "revela", "de": "adaptacion", "a": "rueda", "t": 40, "why": "la rueda era el contador" }
+ ],
+ "reinterpretaciones": [
+  {
+   "id": "aprendizaje", "en": 40, "por": "adaptacion", "objetivo": "golpes", "tramo": [5, 20],
+   "antes": "cada corte lo hiere: el atacante va ganando",
+   "despues": "cada corte era una lección: lo que parecía daño era aprendizaje",
+   "why": "la adaptación convierte la victoria aparente en la causa de la derrota"
+  },
+  {
+   "id": "reloj", "en": 40, "por": "adaptacion", "objetivo": "rueda", "tramo": [0, 32],
+   "antes": "un adorno: la rueda gira",
+   "despues": "un contador: cada giro, una regla aprendida",
+   "why": "el motivo de fondo era el marcador de la pelea"
+  }
+ ]
+}

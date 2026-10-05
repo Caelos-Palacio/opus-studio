@@ -1,0 +1,29 @@
+{
+  "_doc": "Umbrales del lint dramático (engine/arc.mjs) por perfil. Son PRIORS heurísticos (docs/research/04-asombro.md, 05-creadores.md), no validados. data/arc.calib.json los recalibra: posterior = (1−w)·prior + w·MLE, w = min(0.5, N/60), posterior ∈ [prior/2, 2·prior] (docs/research/02). 'lo' = umbral mínimo (MLE = p10 de obras aprobadas), 'hi' = máximo (MLE = p90).",
+  "stat": {
+    "peakRatio": "lo", "calmRatio": "hi", "endDrop": "hi", "holdMin": "lo", "syncFrames": "hi", "sizeEntropy": "lo",
+    "questionBy": "hi", "answerAfter": "lo", "accomTol": "hi", "accentShare": "hi", "accentFocus": "lo", "heroShare": "hi",
+    "conceptsPerMin": "hi", "maxAnimated": "hi", "contiguity": "hi", "signal": "lo", "linearDev": "lo"
+  },
+  "priors": {
+    "reel": {
+      "peakRatio": 3, "peakPos": [0.6, 0.85], "calmWin": 1.0, "calmRatio": 1.0, "endDrop": 0.5, "holdMin": 0.25, "holdWin": 1.5,
+      "syncFrames": 2, "sizeEntropy": 1.0, "questionBy": 0.10, "answerAfter": 0.6, "accomTol": 0.12,
+      "accentShare": 0.15, "accentFocus": 1.5, "heroShare": 0.35, "linearDev": 0.03,
+      "budget": { "hero": { "impacts": 3, "smear": 0.6 }, "normal": { "impacts": 1, "smear": 0.25 }, "simple": { "impacts": 0, "smear": 0 } }
+    },
+    "explainer": {
+      "peakRatio": 3, "peakPos": [0.6, 0.85], "calmWin": 2.0, "calmRatio": 1.0, "endDrop": 0.5, "holdMin": 0.4, "holdWin": 3.0,
+      "syncFrames": 2, "sizeEntropy": 1.0, "questionBy": 0.10, "answerAfter": 0.6, "accomTol": 0.12,
+      "accentShare": 0.15, "accentFocus": 1.5, "heroShare": 0.35, "linearDev": 0.03,
+      "budget": { "hero": { "impacts": 2, "smear": 0.5 }, "normal": { "impacts": 1, "smear": 0.2 }, "simple": { "impacts": 0, "smear": 0 } },
+      "conceptsPerMin": 3, "maxAnimated": 4, "contiguity": 0.5, "signal": 0.9, "segment": [20, 90]
+    },
+    "cinematic": {
+      "peakRatio": 3, "peakPos": [0.6, 0.85], "calmWin": 1.5, "calmRatio": 1.0, "endDrop": 0.5, "holdMin": 0.6, "holdWin": 2.5,
+      "syncFrames": 2, "sizeEntropy": 1.0, "questionBy": 0.10, "answerAfter": 0.6, "accomTol": 0.12,
+      "accentShare": 0.12, "accentFocus": 1.5, "heroShare": 0.3, "linearDev": 0.03,
+      "budget": { "hero": { "impacts": 3, "smear": 0.8 }, "normal": { "impacts": 1, "smear": 0.3 }, "simple": { "impacts": 0, "smear": 0 } }
+    }
+  }
+}

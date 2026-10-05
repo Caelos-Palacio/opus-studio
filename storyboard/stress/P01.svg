@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 180">
+<rect width="320" height="180" fill="#F4EFE6"/>
+<rect x="24" y="18" width="272" height="132" fill="none" stroke="#141414" stroke-width="1.5"/>
+<circle cx="160" cy="49.6" r="5.6000000000000005" fill="none" stroke="#141414" stroke-width="1.5"/><path d="M160 56.8 L160 88 M160 88 L153.6 124 M160 88 L166.4 124 M149.6 84 L160 60 L170.4 84" fill="none" stroke="#141414" stroke-width="2"/><rect x="137" y="61" width="46" height="46" fill="none" stroke="#141414" stroke-width="2.5"/><line x1="40" y1="124" x2="280" y2="124" stroke="#141414" stroke-width="1.5"/><text x="38" y="36" font-family="ui-monospace,monospace" font-size="11" fill="#141414">10⁰ m</text><line x1="250" y1="150" x2="270" y2="150" stroke="#141414" stroke-width="1.2" stroke-dasharray="3 3"/><path d="M265 146 L270 150 L265 154" fill="none" stroke="#141414" stroke-width="1.2"/>
+<text x="30" y="32" font-family="ui-monospace,monospace" font-size="11" fill="#141414">UN METRO</text>
+<g stroke="#141414" stroke-width="0.5" stroke-dasharray="2 3" opacity="0.5"><line x1="114.7" y1="18" x2="114.7" y2="150" stroke="#141414" stroke-width="1.5"/><line x1="205.3" y1="18" x2="205.3" y2="150" stroke="#141414" stroke-width="1.5"/><line x1="24" y1="62" x2="296" y2="62" stroke="#141414" stroke-width="1.5"/><line x1="24" y1="106" x2="296" y2="106" stroke="#141414" stroke-width="1.5"/></g>
+<text x="8" y="172" font-family="ui-monospace,monospace" font-size="11" fill="#141414">P01  0.0–6.0s</text><text x="120" y="172" font-family="ui-monospace,monospace" font-size="9" fill="#141414">CU · push: acercarse</text>
+</svg>

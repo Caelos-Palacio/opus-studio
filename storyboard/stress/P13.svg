@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 180">
+<rect width="320" height="180" fill="#F4EFE6"/>
+<rect x="24" y="18" width="272" height="132" fill="none" stroke="#141414" stroke-width="1.5"/>
+<circle cx="160" cy="49.32" r="5.32" fill="none" stroke="#141414" stroke-width="1.5"/><path d="M160 56.160000000000004 L160 85.8 M160 85.8 L153.92 120 M160 85.8 L166.08 120 M150.12 82 L160 59.199999999999996 L169.88 82" fill="none" stroke="#141414" stroke-width="2"/><rect x="137" y="59" width="46" height="46" fill="none" stroke="#141414" stroke-width="2.5"/><line x1="60" y1="140" x2="260" y2="140" stroke="#141414" stroke-width="1"/><text x="38" y="36" font-family="ui-monospace,monospace" font-size="11" fill="#141414">10⁰ m</text><line x1="250" y1="150" x2="270" y2="150" stroke="#141414" stroke-width="1.2" stroke-dasharray="3 3"/><path d="M265 146 L270 150 L265 154" fill="none" stroke="#141414" stroke-width="1.2"/>
+<text x="30" y="32" font-family="ui-monospace,monospace" font-size="11" fill="#141414">TÚ: PASO CERO</text>
+<g stroke="#141414" stroke-width="0.5" stroke-dasharray="2 3" opacity="0.5"><line x1="114.7" y1="18" x2="114.7" y2="150" stroke="#141414" stroke-width="1.5"/><line x1="205.3" y1="18" x2="205.3" y2="150" stroke="#141414" stroke-width="1.5"/><line x1="24" y1="62" x2="296" y2="62" stroke="#141414" stroke-width="1.5"/><line x1="24" y1="106" x2="296" y2="106" stroke="#141414" stroke-width="1.5"/></g>
+<text x="8" y="172" font-family="ui-monospace,monospace" font-size="11" fill="#141414">P13  71.0–78.0s</text><text x="120" y="172" font-family="ui-monospace,monospace" font-size="9" fill="#141414">CU · push + recenter</text>
+</svg>

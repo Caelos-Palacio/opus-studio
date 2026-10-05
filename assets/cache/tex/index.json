@@ -14,5 +14,173 @@
  "17xuzb3": {
   "tex": "L = T - V",
   "display": true
+ },
+ "tfzfs0": {
+  "tex": "10^{0}\\,\\mathrm{m}",
+  "display": true
+ },
+ "10sxn2": {
+  "tex": "\\times 10",
+  "display": true
+ },
+ "5iq9x5": {
+  "tex": "10^{1}\\,\\mathrm{m}",
+  "display": true
+ },
+ "stnosy": {
+  "tex": "10^{2}\\,\\mathrm{m}",
+  "display": true
+ },
+ "1xfjwsz": {
+  "tex": "10^{3}\\,\\mathrm{m}",
+  "display": true
+ },
+ "10t6fbo": {
+  "tex": "10^{4}\\,\\mathrm{m}",
+  "display": true
+ },
+ "3s93vx": {
+  "tex": "10^{5}\\,\\mathrm{m}",
+  "display": true
+ },
+ "1amdi42": {
+  "tex": "100\\,\\mathrm{km}=10^{5}\\,\\mathrm{m}",
+  "display": true
+ },
+ "vyxgc6": {
+  "tex": "10^{6}\\,\\mathrm{m}",
+  "display": true
+ },
+ "lp7wt3": {
+  "tex": "10^{7}\\,\\mathrm{m}",
+  "display": true
+ },
+ "2hm008": {
+  "tex": "10^{8}\\,\\mathrm{m}",
+  "display": true
+ },
+ "1plpajl": {
+  "tex": "10^{9}\\,\\mathrm{m}",
+  "display": true
+ },
+ "1ysnnjl": {
+  "tex": "10^{10}\\,\\mathrm{m}",
+  "display": true
+ },
+ "1qpxwyg": {
+  "tex": "10^{11}\\,\\mathrm{m}",
+  "display": true
+ },
+ "1dswil7": {
+  "tex": "3\\times10^{11}\\,\\mathrm{m}",
+  "display": true
+ },
+ "1jkzcq3": {
+  "tex": "10^{12}\\,\\mathrm{m}",
+  "display": true
+ },
+ "zozg0a": {
+  "tex": "10^{13}\\,\\mathrm{m}",
+  "display": true
+ },
+ "4r3bq2": {
+  "tex": "9\\times10^{12}\\,\\mathrm{m}",
+  "display": true
+ },
+ "14oall1": {
+  "tex": "10^{14}\\,\\mathrm{m}",
+  "display": true
+ },
+ "1df4ur0": {
+  "tex": "10^{15}\\,\\mathrm{m}",
+  "display": true
+ },
+ "1wa9syq": {
+  "tex": "9{,}5\\times10^{15}\\,\\mathrm{m}",
+  "display": true
+ },
+ "jtt9gv": {
+  "tex": "10^{16}\\,\\mathrm{m}",
+  "display": true
+ },
+ "13sbvji": {
+  "tex": "10^{17}\\,\\mathrm{m}",
+  "display": true
+ },
+ "32hbm7": {
+  "tex": "4\\times10^{16}\\,\\mathrm{m}",
+  "display": true
+ },
+ "x4bbd5": {
+  "tex": "10^{18}\\,\\mathrm{m}",
+  "display": true
+ },
+ "12kybjk": {
+  "tex": "10^{19}\\,\\mathrm{m}",
+  "display": true
+ },
+ "1d818g9": {
+  "tex": "10^{21}\\,\\mathrm{m}",
+  "display": true
+ },
+ "1lev5ww": {
+  "tex": "10^{20}\\,\\mathrm{m}",
+  "display": true
+ },
+ "1svf4v6": {
+  "tex": "10^{22}\\,\\mathrm{m}",
+  "display": true
+ },
+ "1ccawr6": {
+  "tex": "2{,}4\\times10^{22}\\,\\mathrm{m}",
+  "display": true
+ },
+ "1we7ns3": {
+  "tex": "10^{23}\\,\\mathrm{m}",
+  "display": true
+ },
+ "1v2uxpg": {
+  "tex": "10^{24}\\,\\mathrm{m}",
+  "display": true
+ },
+ "8cqttp": {
+  "tex": "10^{25}\\,\\mathrm{m}",
+  "display": true
+ },
+ "18bnwqu": {
+  "tex": "10^{26}\\,\\mathrm{m}",
+  "display": true
+ },
+ "1if27vg": {
+  "tex": "8{,}8\\times10^{26}\\,\\mathrm{m}",
+  "display": true
+ },
+ "qq7465": {
+  "tex": "10^{26{,}9}\\,\\mathrm{m}",
+  "display": true
+ },
+ "c669k6": {
+  "tex": "10^{0}",
+  "display": true
+ },
+ "fm2bbf": {
+  "tex": "10^{10}",
+  "display": true
+ },
+ "10c89iu": {
+  "tex": "10^{20}",
+  "display": true
+ },
+ "py48q1": {
+  "tex": "\\log_{10}\\!\\left(\\frac{8{,}8\\times10^{26}\\,\\mathrm{m}}{1\\,\\mathrm{m}}\\right)\\approx 26{,}9",
+  "display": true
+ },
+ "4d175j": {
+  "tex": "1{,}3\\times10^{7}\\,\\mathrm{m}",
+  "display": true
+ },
+ "vklh26": {
+  "tex": "7{,}7\\times10^{8}\\,\\mathrm{m}",
+  "display": true
  }
 }

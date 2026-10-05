@@ -23,7 +23,7 @@ export const FILMS = [
   { name: 'demo', timeline: 'data/timeline.json' },
   { name: 'fixture', timeline: 'data/fixture.json', fixture: path.join(ROOT, 'test/fixtures/showcase') },
 ];
-const ENV = { FONTCONFIG_FILE: FONTS_CONF };
+const ENV = { FONTCONFIG_FILE: FONTS_CONF, OPUS_LAYERS: 'none' };   // golden = película base: las capas de contenido (data/layers/*, p.ej. memoria) no deben mover el golden del motor
 
 // ── worker: corre DENTRO de la copia (root) y escribe el digest JSON en stdout ─────────────────────────────────────
 async function worker(root) {

@@ -1,0 +1,17 @@
+{
+  "title": "arc A/B — con arco",
+  "style": "editorial",
+  "profile": "reel",
+  "fps": 30,
+  "width": 1280,
+  "height": 720,
+  "duration": 8,
+  "end_hold_ok": true,
+  "handoffs": [],
+  "shots": [
+    { "id": "R1", "t": [0, 2.4], "size": "WS", "on": 2, "sakuga": "simple", "text": "¿CABE UNA ESCALA EN UN PUNTO?", "action": "una persona mira un punto diminuto que respira", "cam": { "move": "static" }, "transition_out": "cut" },
+    { "id": "R2", "t": [2.4, 4.6], "size": "MS", "on": 2, "sakuga": "normal", "action": "el punto avanza y crece hacia el centro, y se detiene", "cam": { "move": "slide", "amount": 0.03, "ease": "cinema", "why": "follow" }, "transition_out": "cut" },
+    { "id": "R3", "t": [4.6, 6.6], "size": "CU", "on": 1, "sakuga": "hero", "action": "quietud; impacto; el punto estalla en un anillo vasto", "cam": { "move": "push", "amount": 0.15, "ease": "outBack", "delay": 0.8, "why": "approach" }, "hold_ok": [[0, 0.8]], "sfx": [{ "at": 0.8, "type": "impact", "gain": 0.9 }], "transition_out": "cut" },
+    { "id": "R4", "t": [6.6, 8], "size": "WS", "on": 2, "sakuga": "normal", "text": "SÍ: TODO ES ESCALA", "action": "el anillo se asienta; respuesta", "cam": { "move": "static" }, "transition_out": "cut" }
+  ]
+}

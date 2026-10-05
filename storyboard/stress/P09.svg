@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 180">
+<rect width="320" height="180" fill="#F4EFE6"/>
+<rect x="24" y="18" width="272" height="132" fill="none" stroke="#141414" stroke-width="1.5"/>
+<path d="M150 88 C145 84 145 80 150 78 C158 76 160 86 150 88" fill="none" stroke="#141414" stroke-width="1.5"/><path d="M232 50 C220 44 214 56 226 60 C238 64 244 54 232 50" fill="none" stroke="#141414" stroke-width="1.5"/><text x="210" y="40" font-family="ui-monospace,monospace" font-size="8" fill="#141414">M31</text><circle cx="30" cy="40" r="1.5" fill="none" stroke="#141414" stroke-width="1.5"/><circle cx="70" cy="62" r="1.5" fill="none" stroke="#141414" stroke-width="1.5"/><circle cx="250" cy="84" r="1.5" fill="none" stroke="#141414" stroke-width="1.5"/><circle cx="270" cy="106" r="1.5" fill="none" stroke="#141414" stroke-width="1.5"/><circle cx="90" cy="128" r="1.5" fill="none" stroke="#141414" stroke-width="1.5"/><rect x="110" y="38" width="90" height="90" fill="none" stroke="#141414" stroke-width="1"/>
+<text x="30" y="32" font-family="ui-monospace,monospace" font-size="11" fill="#141414">ANDRÓMEDA</text>
+<g stroke="#141414" stroke-width="0.5" stroke-dasharray="2 3" opacity="0.5"><line x1="114.7" y1="18" x2="114.7" y2="150" stroke="#141414" stroke-width="1.5"/><line x1="205.3" y1="18" x2="205.3" y2="150" stroke="#141414" stroke-width="1.5"/><line x1="24" y1="62" x2="296" y2="62" stroke="#141414" stroke-width="1.5"/><line x1="24" y1="106" x2="296" y2="106" stroke="#141414" stroke-width="1.5"/></g>
+<text x="8" y="172" font-family="ui-monospace,monospace" font-size="11" fill="#141414">P09  42.0–46.5s</text><text x="120" y="172" font-family="ui-monospace,monospace" font-size="9" fill="#141414">EWS · static · calma</text>
+</svg>

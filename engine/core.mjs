@@ -74,3 +74,6 @@ export function springS(t, film, kind = 'main') {
 
 // Stop-motion: cuantiza el tiempo SOLO para dibujar (el reloj sigue siendo determinista). stepFps 0 = continuo.
 export const stepT = (t, film) => { const f = film.S.motion.stepFps; return f ? Math.floor(t * f + 1e-9) / f : t; };
+// Frame-rate por intensidad (F5): shot.on = 2 → dibujo "a doses" (fps/2), 3 → a treses; 1/ausente = ones. La cámara sigue a ones.
+// Rejilla anclada al inicio del shot: nunca devuelve un t anterior a shot.t[0].
+export const onT = (t, shot, film) => { const n = shot.on | 0, t0 = shot.t[0]; return n > 1 ? t0 + (Math.floor(((t - t0) * film.fps) / n + 1e-6) * n) / film.fps : t; };

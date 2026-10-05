@@ -1,0 +1,13 @@
+{
+  "idea": "Un punto contiene una escala entera: lo pequeño y lo vasto son la misma cosa vista desde otro sitio.",
+  "question": { "text": "¿Cabe una escala en un punto?", "posed_at": 0.3, "answered_at": 7.0, "on_screen": true },
+  "beats": [
+    { "id": "b1", "t": 0.3, "text": "Una persona mira un punto diminuto" },
+    { "id": "b2", "t": 2.6, "text": "pero el punto empieza a moverse hacia ella", "link": "pero" },
+    { "id": "b3", "t": 5.4, "text": "por lo tanto, al llegar, el punto revela que era una escala entera", "link": "por lo tanto" },
+    { "id": "b4", "t": 7.0, "text": "pero la escala vuelve a caber en un punto", "link": "pero" }
+  ],
+  "accommodation": { "t": 5.4, "type": "escala", "text": "el punto era una escala" },
+  "scale": [{ "at": 5.4, "ref_at": 0.3, "ref": "persona" }],
+  "accent": { "means": "lo vasto" }
+}

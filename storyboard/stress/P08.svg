@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 180">
+<rect width="320" height="180" fill="#F4EFE6"/>
+<rect x="24" y="18" width="272" height="132" fill="none" stroke="#141414" stroke-width="1.5"/>
+<path d="M180 70 C150 60 130 90 160 104 C190 118 220 90 200 62 C182 40 140 44 128 70" fill="none" stroke="#141414" stroke-width="2"/><path d="M180 70 C200 80 196 110 170 112 C130 116 110 80 130 56" fill="none" stroke="#141414" stroke-width="1.5"/><circle cx="180" cy="70" r="7" fill="none" stroke="#141414" stroke-width="1"/><circle cx="146" cy="100" r="2.5" fill="none" stroke="#141414" stroke-width="1.5"/><rect x="84" y="18" width="150" height="150" fill="none" stroke="#141414" stroke-width="1"/>
+<text x="30" y="32" font-family="ui-monospace,monospace" font-size="11" fill="#141414">VÍA LÁCTEA</text>
+<g stroke="#141414" stroke-width="0.5" stroke-dasharray="2 3" opacity="0.5"><line x1="114.7" y1="18" x2="114.7" y2="150" stroke="#141414" stroke-width="1.5"/><line x1="205.3" y1="18" x2="205.3" y2="150" stroke="#141414" stroke-width="1.5"/><line x1="24" y1="62" x2="296" y2="62" stroke="#141414" stroke-width="1.5"/><line x1="24" y1="106" x2="296" y2="106" stroke="#141414" stroke-width="1.5"/></g>
+<text x="8" y="172" font-family="ui-monospace,monospace" font-size="11" fill="#141414">P08  37.5–42.0s</text><text x="120" y="172" font-family="ui-monospace,monospace" font-size="9" fill="#141414">WS · static</text>
+</svg>

@@ -32,6 +32,16 @@ tensión, pero no te limites a la música: debes mejorar todo el soundtrack."
 ## TDD
 test/sound.mjs: cada medible es un test; potencias v1 y la PoC deben FALLAR algunos (rojo) antes de implementar.
 
+## Rojo inicial (2026-10-01, `node test/sound.mjs`, estado previo: sfx v1 de `engine/sound.mjs` + PoC de partitura de la rama del film)
+Medido sobre el audio de Potencias: sfx v1 renderizados con `VOICES`, música = WAV de la PoC y mezcla = `potencias_musica.mp4` de la rama.
+
+```
+# sujeto: LEGACY: sfx v1 + PoC de partitura (estado previo)
+✗ sound: sistematización: 0 constantes del film en el código  engine/score.mjs: nombra el film | engine/score.mjs: literal 11.5 (instante del film) | engine/score.mjs: literal 46 (instante del film) | engine/score.mjs: literal 63 (instante del film) | engine/score.mjs: literal 28 (instante del film) | engine/score.mjs: literal 71 (instante del film) … (+1)
+✗ sound: sistematización: analyzeFilm sigue al timeline y al estilo JSON  engine/score.mjs no exporta analyzeFilm (la PoC es un script con constantes)
+✗ sound: tensión: densidad y brillo monótonos crecientes antes del pico  ventanas de 4.0 s en [29.9, 49.9] · densidad ev/s 4.3 → 4.0 → 4.8 → 5.5 → 5.3 · brillo 1.11 → 0.27 → 1.85 → 2.15 → 4.69 %
+```
+
 ## Calificaciones
 | versión | nota | comentario |
 |---|---|---|
