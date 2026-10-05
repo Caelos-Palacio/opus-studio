@@ -48,7 +48,9 @@ Salida: `shot  t  problema  arreglo mínimo`.
 La regla de alcance ya no es solo prosa. Cada agente se identifica por env: `OPUS_AGENT=<nombre> OPUS_ROLE=<rol>` (`animator:A1+A2` para IDs).
 - **Ledger** `out/ledger.jsonl` (append-only, solo digests): lint, gates, force, claims, robos de lease, descartes, master. `node engine/ledger.mjs --tail 20`.
 - **Claims**: `node engine/lock.mjs claim shots/A2.mjs [--ttl ms]` · `release` · `list`. Lease caducado = liberable. Los procesos usan `withLock` en montaje, índice, autocam, TeX y footage.
-- **Roles**: `roles.json` (rol → globs; `mode: observer|enforce`). `node engine/roles.mjs check <ruta> --role animator:A2`. En observer solo se registra `would_allow/would_deny`; se pasa a enforce cuando los falsos positivos del ledger sean ~0.
+- **Roles**: `roles.json` (rol → globs; `mode: enforce` por defecto, `OPUS_ROLES_MODE=observer` lo baja a solo registrar `would_*`). `node engine/roles.mjs check <ruta> --role animator:A2`; `node engine/roles.mjs replay` mide falsos positivos sobre el historial git (hoy ~2 %, sobre commits no monolíticos; los denegados reales son ficheros `directorOnly`). Roles: director, dp, investigador, td (motor/tests/docs), productor (agentes de film), animator, review.
+- **Ledger tamper-evident**: cada entrada lleva `prev`/`h` (cadena) y `code` (vocabulario cerrado); `node engine/ledger.mjs verify | migrate | stats | keygen <agente>`; firma HMAC por agente con clave en `out/keys/<agente>` (fuera de git). **Presupuestos**: `data/budgets.json`, `node engine/ledger.mjs budget`, `checkBudget()` en `engine/budget.mjs`.
+- **Estado**: `STATUS.md` se genera con `node engine/status.mjs` y `npm test` falla si su parte estática está desactualizada.
 - **Veredictos**: `out/lint.json` solo lo escribe un `npm run lint` completo; `lint --shot ID` escribe `out/lint/<film>/<ID>.json` (+ vecinos); `--only X` es parcial y nunca escribe el global. Todos llevan `{engineHash, filmHash, shotHash}`: si no coinciden con lo actual, **no existen**.
 - **Gates**: `gates.json` = `criterio::comando`. `node engine/gate.mjs close <gate>` (exit 0 de todos o queda abierto; 2 fallos seguidos → detente y reporta) · `--force "razón"` (queda en el ledger) · `status` · `restore <gate> [n]` (snapshot git `opus/gate/<gate>/<n>`, sin tocar HEAD; antes guarda `opus/backup/*`).
 - **Master**: `npm run master` exige lint SHIP vigente y crítico sin FIX vigente; si no, falla salvo `--force "razón"`.
@@ -58,4 +60,4 @@ Hook opcional de Claude Code (NO activado): añade a `.claude/settings.json`
 ```json
 {"hooks":{"PreToolUse":[{"matcher":"Write|Edit|MultiEdit|NotebookEdit","hooks":[{"type":"command","command":"node \"$CLAUDE_PROJECT_DIR/.claude/hooks/opus-roles.mjs\""}]}]}}
 ```
-Aplica `roles.json` + claims de otros agentes; en observer nunca bloquea; ante cualquier error del hook, deja pasar.
+Aplica `roles.json` + claims de otros agentes; en enforce (por defecto) deniega fuera del rol; con `OPUS_ROLES_MODE=observer` nunca bloquea; ante cualquier error del hook, deja pasar. Cada sesión de agente debe lanzarse con `OPUS_AGENT=<nombre> OPUS_ROLE=<rol>`; sin ellos el rol es `director` (permite todo).

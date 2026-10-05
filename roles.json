@@ -1,13 +1,72 @@
 {
-  "_doc": "Rol → globs escribibles (relativos a la raíz). {ids} = IDs del rol: OPUS_ROLE=animator:A1+A2. '*' vale para todos. mode: observer (solo registra would_decide en out/ledger.jsonl) → enforce (deniega). Lo edita el Director.",
-  "mode": "observer",
+  "_doc": "Rol → globs escribibles (relativos a la raíz). {ids} = IDs del rol: OPUS_ROLE=animator:A1+A2. '*' vale para todos. mode: enforce (deniega; por defecto) | observer (solo registra would_decide; OPUS_ROLES_MODE=observer lo fuerza por entorno). Lo edita el Director. Calibrado con `node engine/roles.mjs replay` (historial git real): td cubre motor, tests, docs y meta-ficheros; productor (agentes de film) cubre shots, storyboard, data de film y docs de vídeo.",
+  "mode": "enforce",
+  "directorOnly": [
+    "data/timeline.json",
+    "styles/*.json",
+    "CRAFT.md",
+    "CINE.md",
+    "STYLES.md",
+    "engine/profiles.json",
+    "roles.json",
+    "gates.json",
+    "orch.json",
+    "data/budgets.json"
+  ],
   "roles": {
-    "*": ["out/**"],
-    "director": ["**"],
-    "dp": ["storyboard/**"],
-    "investigador": ["data/facts.json"],
-    "td": ["engine/**", "test/**", "docs/**", "MOTOR.md", "package.json", "package-lock.json", ".claude/hooks/**"],
-    "animator": ["shots/{ids}.mjs"],
+    "*": [
+      "out/**",
+      "docs/handoff/**",
+      ".trash/**"
+    ],
+    "director": [
+      "**"
+    ],
+    "dp": [
+      "storyboard/**"
+    ],
+    "investigador": [
+      "data/facts.json"
+    ],
+    "td": [
+      "engine/**",
+      "test/**",
+      "docs/**",
+      "MOTOR.md",
+      "README.md",
+      "CLAUDE.md",
+      "AGENTES.md",
+      "ORQUESTADOR.md",
+      "STATUS.md",
+      "PROMPTS.md",
+      "FUNDAMENTOS.md",
+      "REVIEW.md",
+      "package.json",
+      "package-lock.json",
+      ".gitignore",
+      ".claude/**",
+      ".github/**",
+      "spike/**",
+      "assets/**",
+      "data/*.schema.json",
+      "data/*.template.*",
+      "data/*.example.*",
+      "data/world3d/**",
+      "styles/*/**",
+      "data/notas.json"
+    ],
+    "productor": [
+      "shots/**",
+      "storyboard/**",
+      "data/**",
+      "docs/videos/**",
+      "styles/*/**",
+      "assets/**",
+      "docs/**"
+    ],
+    "animator": [
+      "shots/{ids}.mjs"
+    ],
     "review": []
   }
 }

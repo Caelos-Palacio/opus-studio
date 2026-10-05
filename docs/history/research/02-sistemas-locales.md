@@ -1,5 +1,7 @@
 # Sistemas reutilizables encontrados en el equipo del autor
 
+> HISTÓRICO: documento fechado; puede no reflejar el estado actual (ver [STATUS.md](/STATUS.md)).
+
 Fuente principal: Symbiaxis ("Franke Control Plane"), plugin de Claude Code con hooks + skills + estado por proyecto
 (`policy.json`, `ledger.jsonl`, `workunits/`, `gcc/`, `memory/`, `snapshots/`). Advertencia del propio sistema:
 poco uso real medido. **Adoptar mecanismos sueltos, no el andamiaje.**

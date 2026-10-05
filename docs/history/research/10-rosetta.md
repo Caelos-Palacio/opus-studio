@@ -1,5 +1,7 @@
 # 10 — Rosetta (compactación semántica): qué es y cuánto sirve a opus-studio
 
+> HISTÓRICO: documento fechado; puede no reflejar el estado actual (ver [STATUS.md](/STATUS.md)).
+
 Fecha: 2026-10-05. Investigación solo lectura. Evidencia citada por ruta.
 
 ## 1. Qué es exactamente Rosetta
@@ -9,7 +11,7 @@ Fecha: 2026-10-05. Investigación solo lectura. Evidencia citada por ruta.
 **A. Protocolo Rosetta de compresión de contexto (el "semántico", -55 %).** Es un conjunto de reglas para que un LLM reempaque documentos "calientes" (MEMORY.md, CURRENT.md, handoffs, skills) sin resumir.
 - Definición, de segunda mano: `~/.gemini/antigravity/brain/0982a867-…/artifacts/NXS3_ROSETTA_SECURITY_NANOAGENT.md`: "-55% tokens sin pérdida de datos (P1: reempacar, no resumir)", 7 patrones (tablas→rangos, listas→YAML plano, bugs→tabla densa, decisiones→pares…), 4 anti-patrones, P4 "S2 = Sprint 2, no Session 2" (abreviaturas desambiguadas por contexto), P7 "el LLM comprime y descomprime sin manual externo", P8 "wire-safe": nunca comprimir ids/claves/contexto de seguridad.
 - Invariantes de seguridad: `<proyecto-externo>/docs/SYMBIAXIS_NXS_COMPENDIO.md` l.2041-2043: schema invariant, reference invariant (refs rotas), content checksum invariant (tokens críticos), "Rosetta Diff Guard"; pérdida → Tier1 reintentar con objetivo mayor, Tier2 otra estrategia, Tier3 abortar y avisar a humano. "Solo Opus o Sonnet. Haiku NUNCA (expande 75 %, alucina relaciones)."
-- La especificación original (`rosetta-compression.md`, `kernel/ROSETTA_VOCAB.md`) **no existe en el equipo**: solo se la cita (`docs/FRANKE_08_auditoria-codigo.md` l.48; `~/.gemini/.../analisis_arquitectura_v2.md` l.26). Es decir, los números no son reproducibles aquí.
+- La especificación original (`rosetta-compression.md`, `kernel/ROSETTA_VOCAB.md`) **no existe en el equipo**: solo se la cita (`Symbiaxis/docs/FRANKE_08_auditoria-codigo.md` l.48; `~/.gemini/.../analisis_arquitectura_v2.md` l.26). Es decir, los números no son reproducibles aquí.
 
 **B. Formato `.rosetta` de eventos de sesión (el "simbólico").** Codificación en una línea por evento, con vocabulario cerrado, de lo que pasó en una sesión.
 - Código: `<proyecto-externo>/scripts/rosetta-analytics-lib.mjs` (parser) y `janitor-cycle.mjs` l.229-250 (escritor). Ejemplo real (`<backup>.tar.zst` → `backup_N003.rosetta`, 260 bytes):
@@ -42,7 +44,7 @@ Base de comparación: opus-studio ya hace lo esencial por otras vías: `orch bri
 | (d) harness/tokens | **3**: solo sobre docs fríos largos (METRICAS.md 47 KB, PARAMS.md) y NO por LLM | 1 | 2 |
 
 Detalle:
-- (a) Lo valioso no es comprimir sino el **vocabulario cerrado con versión**. Hoy cada capa nombra lo mismo con términos propios: `kind` de concepto (entidad|regla|pregunta|…), `relacion.tipo` (causa|reinterpreta|…), ids de métrica (`montaje.asl`, `plano.scaleMix`…, `engine/metrics/registry.mjs`), códigos de lint del crítico, ids de shot/gate. Un `docs/VOCAB.md` + `engine/vocab.mjs` (fuente única, lista de términos, sinónimos prohibidos, versión) permitiría: lint que rechace términos fuera de vocab en memoria.json/crítico/notas; "puente" métrica↔concepto (p. ej. `camara.focalEq` anclado a `param` con rol); y consultas `q` coherentes. Puntuación 4 porque ataca una deriva real (varios dicts paralelos), con coste bajo y verificable.
+- (a) Lo valioso no es comprimir sino el **vocabulario cerrado con versión**. Hoy cada capa nombra lo mismo con términos propios: `kind` de concepto (entidad|regla|pregunta|…), `relacion.tipo` (causa|reinterpreta|…), ids de métrica (`montaje.asl`, `plano.scaleMix`…, `engine/metrics/registry.mjs`), códigos de lint del crítico, ids de shot/gate. Un docs/VOCAB.md (por crear) + `engine/vocab.mjs` (fuente única, lista de términos, sinónimos prohibidos, versión) permitiría: lint que rechace términos fuera de vocab en memoria.json/crítico/notas; "puente" métrica↔concepto (p. ej. `camara.focalEq` anclado a `param` con rol); y consultas `q` coherentes. Puntuación 4 porque ataca una deriva real (varios dicts paralelos), con coste bajo y verificable.
 - (b) Ya está cubierto; el único hueco es normalizar los motivos de rechazo/escalado a códigos cerrados (como `E*`): hoy `reasons` de `deliver` es texto libre; códigos permiten agregar y calibrar umbrales (mecanismo 8 de 02).
 - (c) Un registro cerrado de códigos de veredicto (`verdict`, `fix key`) mejora estadísticas del ledger; no necesita Rosetta.
 - (d) Un compresor semántico solo tiene sentido en docs fríos que un agente lee entero. T1 (contexto por rol ≤1,5 k tokens) gana más (-30–50 % estimado) y es curado a mano, sin riesgo de pérdida.

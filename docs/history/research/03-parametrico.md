@@ -1,5 +1,7 @@
 # TouchDesigner y edición de vídeo dirigida por metadatos
 
+> HISTÓRICO: documento fechado; puede no reflejar el estado actual (ver [STATUS.md](/STATUS.md)).
+
 Nota: los datos de Cavalry, vvvv, Notch y Nuke son conocimiento general sin fuente verificada.
 
 ## Qué trasladar

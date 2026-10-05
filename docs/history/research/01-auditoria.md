@@ -1,5 +1,7 @@
 # Auditoría de gobernanza y harness (v4.0.0)
 
+> HISTÓRICO: documento fechado; puede no reflejar el estado actual (ver [STATUS.md](/STATUS.md)).
+
 Rutas relativas a la raíz. Veredicto: sólido como verificador de un agente; como sistema multi-agente autónomo,
 ownership, gates, presupuesto de iteraciones y auditoría existen solo en prosa.
 

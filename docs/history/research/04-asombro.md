@@ -1,5 +1,7 @@
 # Qué hace que una animación sea amada (y no solo correcta)
 
+> HISTÓRICO: documento fechado; puede no reflejar el estado actual (ver [STATUS.md](/STATUS.md)).
+
 [F] = respaldado por fuente; [I] = inferencia. Umbrales numéricos = puntos de partida a calibrar, no validados.
 
 ## Mecanismos psicológicos

@@ -4,6 +4,7 @@
 import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
+import crypto from 'node:crypto';
 import { spawn, spawnSync } from 'node:child_process';
 
 const ROOT = path.resolve(path.dirname(new URL(import.meta.url).pathname), '..');
@@ -67,6 +68,7 @@ test('concurrencia', async () => {
     ok(J(path.join(d, 'out/counter.json')).n === 240, `concurrencia: sin escrituras perdidas bajo lock (${J(path.join(d, 'out/counter.json')).n}/240)`);
     const L = ledger(d).filter((e) => e.action === 'test.write');
     ok(L.length === 240 && L.filter((e) => e.agent === 'A').length === 120, 'concurrencia: ledger íntegro (240 líneas JSON válidas)');
+    { const v = (await imp(d, 'ledger.mjs')).verify(); ok(v.ok, 'concurrencia: la cadena del ledger verifica tras escrituras concurrentes ' + JSON.stringify(v.problems.slice(0, 2))); }
     const I = J(path.join(d, 'assets/cache/tex/index.json')), mine = Object.values(I).filter((v) => /x_\{[AB]\}/.test(v.tex));
     ok(mine.length === 30, `concurrencia: manifiesto TeX sin entradas perdidas (${mine.length}/30)`);
     ok(!(fs.existsSync(path.join(d, 'out/locks')) ? fs.readdirSync(path.join(d, 'out/locks')) : []).some((f) => f.endsWith('.json')), 'concurrencia: no quedan locks');
@@ -180,7 +182,7 @@ test('roles', async () => {
     ok(!R.canWrite('fantasma', 'shots/A1.mjs').allow, 'roles: rol desconocido no escribe');
     const hook = (env, input) => spawnSync(NODE, [path.join(d, '.claude/hooks/opus-roles.mjs')], { cwd: d, encoding: 'utf8', input, env: { ...process.env, ...env } });
     const ev = JSON.stringify({ tool_name: 'Edit', tool_input: { file_path: path.join(d, 'shots/A1.mjs') } });
-    let h = hook({ OPUS_ROLE: 'animator:A2', OPUS_AGENT: 'bob' }, ev);
+    let h = hook({ OPUS_ROLE: 'animator:A2', OPUS_AGENT: 'bob', OPUS_ROLES_MODE: 'observer' }, ev);
     ok(h.status === 0 && h.stdout === '' && ledger(d).some((e) => e.verdict === 'would_deny' && e.target === 'shots/A1.mjs'), 'hook observer: no bloquea, registra would_deny');
     h = hook({ OPUS_ROLE: 'animator:A2', OPUS_AGENT: 'bob', OPUS_ROLES_MODE: 'enforce' }, ev);
     ok(h.status === 0 && JSON.parse(h.stdout).hookSpecificOutput.permissionDecision === 'deny', 'hook enforce: deniega fuera de sus globs');
@@ -222,6 +224,173 @@ test('trash', async () => {
     const tr = fs.existsSync(path.join(d, '.trash')) ? fs.readdirSync(path.join(d, '.trash')) : [];
     ok(r.status === 0 && tr.length === 1 && fs.readdirSync(path.join(d, '.trash', tr[0])).some((f) => f.endsWith('.jpg')), 'assets: re-extraer mueve lo anterior a .trash/ (no rmSync)');
     ok(fs.existsSync(path.join(d, 'assets/cache/footage/toma/meta.json')), 'assets: la extracción nueva queda en su sitio');
+  } finally { fs.rmSync(d, { recursive: true, force: true }); }
+});
+
+
+// ───────── spec 008: gobernanza al límite ─────────
+const lines = (d) => fs.readFileSync(path.join(d, 'out/ledger.jsonl'), 'utf8').split('\n').filter(Boolean);
+const putLines = (d, a) => fs.writeFileSync(path.join(d, 'out/ledger.jsonl'), a.join('\n') + '\n');
+const kinds = (v) => v.problems.map((p) => p.kind);
+async function chained(d, n = 6) {
+  const L = await imp(d, 'ledger.mjs');
+  for (let i = 0; i < n; i++) L.record({ action: 'lint', target: 'lint/main/' + i, verdict: i % 2 ? 'FIX' : 'SHIP', why: 'caso ' + i, agent: 'ana', role: 'td' });
+  return L;
+}
+test('ledger-cadena', async () => {
+  const d = copy();
+  try {
+    const L = await chained(d), E = ledger(d);
+    ok(E[0].prev === null && E.every((e, i) => i === 0 || e.prev === E[i - 1].h) && E.every((e) => /^[0-9a-f]{32}$/.test(e.h)), 'E1 cadena: cada entrada lleva prev = h de la anterior');
+    ok(L.verify().ok && /verify/.test(run(d, ['engine/ledger.mjs', 'verify']).stdout + 'verify'), 'E1 verify pasa');
+    ok(run(d, ['engine/ledger.mjs', 'verify']).status === 0, 'E1 CLI verify exit 0');
+    const orig = lines(d), vf = () => run(d, ['engine/ledger.mjs', 'verify']);
+    const e2 = orig.slice(); e2[2] = e2[2].replace('"FIX"', '"SHIP"').replace('caso 2', 'caso 9'); putLines(d, e2);
+    let v = L.verify(); ok(!v.ok && kinds(v).includes('edit') && v.problems[0].line === 3 && vf().status === 1, 'E2 editar una entrada se detecta en su línea');
+    putLines(d, orig.filter((_, i) => i !== 3)); v = L.verify(); ok(!v.ok && kinds(v).includes('chain'), 'E3 borrar una entrada intermedia rompe la cadena');
+    putLines(d, orig.slice(0, -1)); v = L.verify(); ok(!v.ok && kinds(v).includes('truncated'), 'E3 borrar la última se detecta (head)');
+    const sw = orig.slice(); [sw[1], sw[2]] = [sw[2], sw[1]]; putLines(d, sw); v = L.verify(); ok(!v.ok && kinds(v).includes('chain'), 'E4 reordenar se detecta');
+    const forged = JSON.parse(orig[1]); forged.why = 'forjada'; delete forged.h; delete forged.sig;
+    forged.h = crypto.createHash('sha256').update(JSON.stringify(forged)).digest('hex').slice(0, 32);
+    const ins = orig.slice(); ins.splice(2, 0, JSON.stringify(forged)); putLines(d, ins); v = L.verify(); ok(!v.ok && kinds(v).includes('chain'), 'E4 insertar una entrada forjada (con h coherente) se detecta');
+    putLines(d, orig); ok(L.verify().ok, 'ledger restaurado vuelve a verificar');
+    fs.appendFileSync(path.join(d, 'out/ledger.jsonl'), '{"action":"x" ROTA\n'); v = L.verify(); ok(!v.ok && kinds(v).includes('corrupt'), 'una línea rota se informa como corrupta');
+  } finally { fs.rmSync(d, { recursive: true, force: true }); }
+});
+test('ledger-migracion', async () => {
+  const d = copy();
+  try {
+    fs.mkdirSync(path.join(d, 'out'), { recursive: true });
+    const old = [1, 2, 3].map((i) => JSON.stringify({ id: 'x' + i, ts: '2026-01-0' + i + 'T00:00:00Z', agent: 'anon', role: 'director', action: 'lint', target: 't' + i, hash_before: null, hash_after: null, verdict: 'SHIP', why: null }));
+    putLines(d, old);
+    const L = await imp(d, 'ledger.mjs');
+    ok(L.verify().ok && L.verify().legacy === 3, 'E5 ledger heredado sin génesis: verify lo acepta como heredado');
+    L.record({ action: 'lint', verdict: 'FIX', agent: 'ana', role: 'td' });
+    let E = ledger(d); ok(E[3].action === 'ledger.genesis' && E[3].prev === null && E[4].prev === E[3].h, 'E5 la primera escritura añade un génesis que sella lo heredado');
+    ok(L.verify().ok, 'E5 verify pasa tras migrar');
+    const o = lines(d); o[1] = o[1].replace('"t2"', '"t9"'); putLines(d, o);
+    const v = L.verify(); ok(!v.ok && kinds(v).includes('genesis'), 'E5 editar lo heredado después de migrar se detecta (digest del génesis)');
+  } finally { fs.rmSync(d, { recursive: true, force: true }); }
+});
+test('ledger-firma', async () => {
+  const d = copy();
+  try {
+    const L = await imp(d, 'ledger.mjs');
+    L.record({ action: 'lint', verdict: 'SHIP', agent: 'ana', role: 'td' });
+    L.keygen('ana');
+    const keyf = path.join(d, 'out/keys/ana'); ok(fs.existsSync(keyf) && (fs.statSync(keyf).mode & 0o077) === 0, 'E6 keygen crea out/keys/<agente> con permisos 0600');
+    L.record({ action: 'lint', verdict: 'FIX', agent: 'ana', role: 'td' }); L.record({ action: 'lint', verdict: 'SHIP', agent: 'bob', role: 'td' });
+    const E = ledger(d); ok(E.at(-2).sig && !E.at(-1).sig, 'E6 solo las entradas del agente con clave llevan sig');
+    ok(L.verify().ok && L.verify().signed >= 2, 'E6 verify con firmas pasa');
+    const o = lines(d), i = o.length - 2, bad = JSON.parse(o[i]); bad.sig = 'f'.repeat(32); const keep = o.slice(); keep[i] = JSON.stringify(bad); putLines(d, keep);
+    ok(kinds(L.verify()).includes('sig'), 'E6 sig alterada se detecta');
+    const un = JSON.parse(o[i]); delete un.sig; keep[i] = JSON.stringify(un); putLines(d, keep);
+    ok(kinds(L.verify()).includes('unsigned'), 'E6 quitar la firma a un agente con clave se detecta');
+    putLines(d, o); fs.renameSync(keyf, keyf + '.off'); const v = L.verify();
+    ok(v.ok && v.warnings.some((w) => /no verificable/.test(w)), 'E6 sin la clave: avisa "no verificable" pero no falla');
+    fs.renameSync(keyf + '.off', keyf);
+    ok(run(d, ['engine/ledger.mjs', 'verify', '--require-sig']).status === 1, 'verify --require-sig falla con entradas sin firmar');
+    ok(!fs.readFileSync(path.join(d, 'out/ledger.jsonl'), 'utf8').includes(fs.readFileSync(keyf, 'utf8').trim()), 'la clave nunca aparece en el ledger');
+  } finally { fs.rmSync(d, { recursive: true, force: true }); }
+});
+test('ledger-codigos', async () => {
+  const d = copy();
+  try {
+    const L = await imp(d, 'ledger.mjs');
+    const real = [['lint', 'SHIP'], ['lint', 'FIX'], ['lint', 'PASS'], ['master', 'ok'], ['review', 'ok'], ['gate.close', 'closed'], ['gate.close', 'open'], ['gate.force', 'forced'], ['gate.restore', 'restored'], ['gate.frozen', 'frozen'], ['master.force', 'forced'], ['claim', 'ok'], ['release', 'ok'], ['lock.steal', 'expired'], ['fragment.discard', 'stale'], ['trash', 'moved'], ['orch.accept', 'accepted'], ['orch.decide', 'blocked'], ['orch.deliver', 'rejected'], ['write', 'would_deny'], ['write', 'deny'], ['write', 'allow']];
+    for (const [a, v] of real) L.record({ action: a, verdict: v, agent: 'ana' });
+    L.record({ action: 'accion.inventada', verdict: 'rarisimo', agent: 'ana' });
+    const E = ledger(d), S = L.stats();
+    ok(E.filter((e) => e.code).length / E.length > 0.9 && E[0].code === 'lint.SHIP', 'E8 más del 90 % de las entradas reales llevan code cerrado (' + (100 * S.coded / S.total).toFixed(0) + ' %)');
+    ok(E.at(-1).code === null && S.uncoded.some((u) => u.action === 'accion.inventada'), 'E8 una acción desconocida queda sin código y se lista en stats');
+    ok(L.CODES.has('lint.FIX') && !L.CODES.has('accion.inventada'), 'E8 CODES es el vocabulario cerrado exportado');
+    ok(/codificadas/.test(run(d, ['engine/ledger.mjs', 'stats']).stdout), 'E8 CLI stats informa el % codificado');
+  } finally { fs.rmSync(d, { recursive: true, force: true }); }
+});
+test('ledger-concurrente-cadena', async () => {
+  const d = copy();
+  try {
+    fs.mkdirSync(path.join(d, 'out'), { recursive: true });
+    fs.writeFileSync(path.join(d, 'w2.mjs'), `import { record } from './engine/ledger.mjs'; const me = process.env.OPUS_AGENT; for (let i = 0; i < 60; i++) record({ action: 'lint', verdict: 'SHIP', target: me + '/' + i, why: 'x'.repeat(100) });`);
+    const rs = await Promise.all(['A', 'B', 'C', 'D'].map((a) => runP(d, ['w2.mjs'], { OPUS_AGENT: a })));
+    const L = await imp(d, 'ledger.mjs'), v = L.verify();
+    ok(rs.every((r) => r.status === 0) && v.ok && v.chained === 240, 'E7 4 procesos concurrentes: 240 entradas y cadena válida ' + JSON.stringify(v.problems.slice(0, 2)) + rs.map((r) => r.out).join('').slice(0, 200));
+  } finally { fs.rmSync(d, { recursive: true, force: true }); }
+});
+test('roles-enforce', async () => {
+  const d = copy();
+  try {
+    const R = await imp(d, 'roles.mjs');
+    ok(J(path.join(ROOT, 'roles.json')).mode === 'enforce', 'E10 roles.json en mode enforce por defecto');
+    const hook = (env, file, tool = 'Edit') => spawnSync(NODE, [path.join(d, '.claude/hooks/opus-roles.mjs')], { cwd: d, encoding: 'utf8', input: JSON.stringify({ tool_name: tool, tool_input: { file_path: path.join(d, file) } }), env: { ...process.env, ...env } });
+    const deny = (h) => { try { return JSON.parse(h.stdout).hookSpecificOutput.permissionDecision === 'deny'; } catch { return false; } };
+    ok(deny(hook({ OPUS_ROLE: 'animator:A2', OPUS_AGENT: 'bob' }, 'data/timeline.json')), 'E11 Animator A2 → data/timeline.json = deny (sin OPUS_ROLES_MODE)');
+    ok(deny(hook({ OPUS_ROLE: 'animator:A2', OPUS_AGENT: 'bob' }, 'engine/core.mjs', 'Write')), 'E11 Animator A2 → engine/core.mjs = deny');
+    ok(deny(hook({ OPUS_ROLE: 'animator:A2', OPUS_AGENT: 'bob' }, 'shots/A1.mjs', 'MultiEdit')), 'E11 Animator A2 → shot ajeno = deny');
+    ok(!deny(hook({ OPUS_ROLE: 'animator:A2', OPUS_AGENT: 'bob' }, 'shots/A2.mjs')) && !deny(hook({ OPUS_ROLE: 'animator:A2', OPUS_AGENT: 'bob' }, 'out/sheets/A2.png')), 'E11 Animator A2 → su shot y out/ = allow');
+    ok(!deny(hook({ OPUS_ROLE: 'director', OPUS_AGENT: 'dir' }, 'data/timeline.json')) && !deny(hook({ OPUS_ROLE: 'director' }, 'engine/core.mjs')), 'E11 Director → allow');
+    ok(!deny(hook({ OPUS_ROLE: 'td', OPUS_AGENT: 't' }, 'engine/ledger.mjs')) && !deny(hook({ OPUS_ROLE: 'td', OPUS_AGENT: 't' }, 'README.md')) && !deny(hook({ OPUS_ROLE: 'td', OPUS_AGENT: 't' }, 'docs/handoff/x.md')), 'E9 TD escribe motor, tests, docs y README (falsos positivos medidos y corregidos)');
+    ok(deny(hook({ OPUS_ROLE: 'td', OPUS_AGENT: 't' }, 'data/timeline.json')) && deny(hook({ OPUS_ROLE: 'td' }, 'styles/noir.json')), 'E11 TD no toca timeline ni estilos');
+    ok(!deny(hook({ OPUS_ROLE: 'animator:A2', OPUS_ROLES_MODE: 'observer' }, 'data/timeline.json')), 'E10 OPUS_ROLES_MODE=observer desactiva el bloqueo');
+    ok(hook({}, 'x').stdout === '' && spawnSync(NODE, [path.join(d, '.claude/hooks/opus-roles.mjs')], { cwd: d, input: '}{', encoding: 'utf8' }).stdout === '', 'hook: error de entrada → pasa');
+    const rp = run(d, ['engine/roles.mjs', 'replay', '--json', '--repo', ROOT]);
+    let rep = null; try { rep = JSON.parse(rp.stdout); } catch {}
+    ok(rep && rep.commits > 0 && typeof rep.falsePositiveRate === 'number', 'E9 roles replay mide el historial git: ' + (rep ? `${rep.commits} commits, ${rep.files} ficheros, FP ${(100 * rep.falsePositiveRate).toFixed(1)} %` : rp.stderr.slice(0, 200)));
+    ok(rep && rep.falsePositiveRate <= 0.05, 'E9 falsos positivos del rol más ajustado ≤ 5 %');
+  } finally { fs.rmSync(d, { recursive: true, force: true }); }
+});
+test('status', async () => {
+  const d = copy();
+  try {
+    for (const e of ['docs', 'README.md', 'CLAUDE.md', 'AGENTES.md', 'ORQUESTADOR.md', 'MOTOR.md', 'orch.json']) if (fs.existsSync(path.join(ROOT, e))) fs.cpSync(path.join(ROOT, e), path.join(d, e), { recursive: true });
+    fs.mkdirSync(path.join(d, 'test'), { recursive: true }); for (const f of ['gov.mjs', 'unit.mjs']) fs.copyFileSync(path.join(ROOT, 'test', f), path.join(d, 'test', f));
+    let r = run(d, ['engine/status.mjs']), S = fs.existsSync(path.join(d, 'STATUS.md')) ? fs.readFileSync(path.join(d, 'STATUS.md'), 'utf8') : '';
+    ok(r.status === 0 && S.length > 500, 'E12 status.mjs genera STATUS.md ' + r.stderr.slice(0, 200));
+    for (const k of ['Gates', 'Veredictos', 'Ramas sin integrar', 'Tests', 'Motor', 'Specs', 'Ledger', 'Presupuestos']) ok(new RegExp('^## ' + k, 'm').test(S), 'E12 STATUS.md tiene la sección ' + k);
+    ok(/008-gobernanza/.test(S) && /validate/.test(S), 'E12 lista specs y gates reales');
+    ok(run(d, ['engine/status.mjs', '--check']).status === 0, 'E13 --check pasa recién generado');
+    const g = J(path.join(d, 'gates.json')); g.nuevo = ['x::node -e "0"']; fs.writeFileSync(path.join(d, 'gates.json'), JSON.stringify(g));
+    r = run(d, ['engine/status.mjs', '--check']); ok(r.status === 1 && /desactualizado/.test(r.stderr + r.stdout), 'E13 un gate nuevo deja STATUS.md desactualizado = fallo');
+    run(d, ['engine/status.mjs']); ok(run(d, ['engine/status.mjs', '--check']).status === 0, 'E13 regenerar lo arregla');
+    fs.writeFileSync(path.join(d, 'docs/specs/099-nueva.md'), '# 099 nueva\n\n## Calificaciones\n- 7/10 "suena bien"\n');
+    ok(run(d, ['engine/status.mjs', '--check']).status === 1, 'E13 una spec nueva deja STATUS.md desactualizado');
+    run(d, ['engine/status.mjs']); ok(/suena bien/.test(fs.readFileSync(path.join(d, 'STATUS.md'), 'utf8')), 'E12 la última nota humana de la spec aparece');
+  } finally { fs.rmSync(d, { recursive: true, force: true }); }
+});
+test('docs-enlaces', async () => {
+  const r = run(ROOT, ['engine/status.mjs', '--links']);
+  ok(r.status === 0, 'E14 sin enlaces rotos en los .md del repo: ' + r.stdout.slice(0, 600));
+  ok(run(ROOT, ['engine/status.mjs', '--check']).status === 0, 'E13 STATUS.md del repo está al día (regenera con node engine/status.mjs)');
+  for (const dir of ['current', 'specs', 'adr', 'history']) ok(fs.existsSync(path.join(ROOT, 'docs', dir)), 'docs/' + dir + ' existe');
+  ok(fs.readdirSync(path.join(ROOT, 'docs/adr')).filter((f) => /^\d{3}-.*\.md$/.test(f)).length >= 6, 'docs/adr tiene los ADR de decisiones permanentes');
+  const d = copy();
+  try {
+    fs.mkdirSync(path.join(d, 'docs'), { recursive: true }); fs.writeFileSync(path.join(d, 'docs/a.md'), 'ver [roto](nada.md) y [ok](a.md#x)\n');
+    const x = run(d, ['engine/status.mjs', '--links']); ok(x.status === 1 && /nada\.md/.test(x.stdout), 'E14 el verificador detecta un enlace roto');
+  } finally { fs.rmSync(d, { recursive: true, force: true }); }
+});
+test('presupuestos', async () => {
+  const d = copy();
+  try {
+    fs.writeFileSync(path.join(d, 'data/budgets.json'), JSON.stringify({ warnAt: 0.8, tokens: { perRole: { animator: 1000 }, perTask: { 'A2': 500 } }, renderMinutes: { perFilm: { main: 10 }, default: 30 }, iterations: { perShot: 3, perGate: 4 } }));
+    const L = await imp(d, 'ledger.mjs'), B = await imp(d, 'budget.mjs');
+    ok(B.checkBudget({ kind: 'tokens', role: 'animator' }).level === 'ok', 'E15 sin consumo = ok');
+    L.recordUsage({ tokens: 850, role: 'animator', task: 'A2', agent: 'bob' });
+    let c = B.checkBudget({ kind: 'tokens', role: 'animator' }); ok(c.level === 'warn' && c.used === 850 && c.limit === 1000, 'E15 al 85 % avisa');
+    ok(B.checkBudget({ kind: 'tokens', task: 'A2' }).level === 'block', 'E15 tarea A2 sobre 500 tokens → block');
+    L.recordUsage({ tokens: 200, role: 'animator', task: 'A3', agent: 'bob' });
+    c = B.checkBudget({ kind: 'tokens', role: 'animator' }); ok(c.level === 'block', 'E15 al superar el 100 % bloquea');
+    L.recordUsage({ minutes: 9, film: 'main', agent: 'x' }); ok(B.checkBudget({ kind: 'render', film: 'main' }).level === 'warn', 'E15 minutos de render por film');
+    for (let i = 0; i < 3; i++) L.record({ action: 'lint', target: 'lint/main/A1', verdict: 'FIX', agent: 'x' });
+    ok(B.checkBudget({ kind: 'iterations', shot: 'A1' }).level === 'block', 'E15 iteraciones por shot (3 lints seguidos sobre A1 = tope)');
+    for (let i = 0; i < 2; i++) L.record({ action: 'gate.close', target: 'gate/validate', verdict: 'open', agent: 'x' });
+    ok(B.checkBudget({ kind: 'iterations', gate: 'validate' }).level === 'ok', 'E15 gate por debajo del tope = ok');
+    ok(L.readLedger().some((e) => e.action === 'budget.block') && L.readLedger().some((e) => e.action === 'budget.warn'), 'E16 los avisos y bloqueos quedan en el ledger');
+    ok(!B.checkBudget({ kind: 'tokens', role: 'director' }).limit && B.checkBudget({ kind: 'tokens', role: 'director' }).level === 'ok', 'rol sin tope = ok');
+    const r = run(d, ['engine/ledger.mjs', 'budget']);
+    ok(r.status === 1 && /animator/.test(r.stdout) && /block|BLOQUEO/i.test(r.stdout), 'E15 CLI budget informa y sale con 1 si hay bloqueo ' + r.stdout.slice(0, 300));
+    ok(L.verify().ok, 'la cadena sigue válida tras usos y avisos');
+    fs.rmSync(path.join(d, 'data/budgets.json')); ok(B.checkBudget({ kind: 'tokens', role: 'animator' }).level === 'ok', 'sin budgets.json: nada se bloquea');
   } finally { fs.rmSync(d, { recursive: true, force: true }); }
 });
 

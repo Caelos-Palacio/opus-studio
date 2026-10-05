@@ -1,5 +1,7 @@
 # Film de estrés F0 — «Potencias» (medición)
 
+> HISTÓRICO: documento fechado; puede no reflejar el estado actual (ver [STATUS.md](/STATUS.md)).
+
 Film: `data/stress/potencias.json` (brief en `data/stress/brief.md`), 13 shots `P01–P13` + mundo compartido `shots/P_mundo.mjs`
 (331 líneas, función pura de t), 78 s · 1280×720 · 30 fps · estilo `cosmos` · perfil `explainer` · TeX real en todas las cifras.
 Se usa con `OPUS_TIMELINE=data/stress/potencias.json` (lint, render, master). Máquina: 12 hilos, Node 22.

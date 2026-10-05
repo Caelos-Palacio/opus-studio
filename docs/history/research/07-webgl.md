@@ -1,5 +1,7 @@
 # 07 — ¿3D real (Three.js) dentro del pipeline? Spike WebGL
 
+> HISTÓRICO: documento fechado; puede no reflejar el estado actual (ver [STATUS.md](/STATUS.md)).
+
 Spike de viabilidad, no producto. Código en `spike/` (`world.mjs` escena agnóstica del renderer, `render-gl.mjs`, `render-chrome.mjs`,
 `datacenter.mjs`). Salidas (ignoradas por git): `out/webgl/datacenter.mp4` (3 s, 1280×720, 30 fps) y `out/webgl/contact.png`.
 Máquina: 12 hilos, iGPU Intel Raptor Lake, Node 22, Chrome 154, three 0.160. Mediciones a 1280×720, escena ≈ 1 120 racks
