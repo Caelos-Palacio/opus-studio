@@ -30,7 +30,7 @@ const MUT = [
   { name: 'globalthis-comp', file: 'shots/A2.mjs', edit: inject("globalThis['ev'+'al']('0');"), expect: { fix: /globalThis en shots\/A2/ }, quick: 'validate' },
   { name: 'alias-eval', file: 'shots/A2.mjs', edit: (s) => inject("E('0');")(s.replace('export default {', 'const E = eval;\nexport default {')), expect: { fix: /eval \(alias E\) en shots\/A2/ }, quick: 'validate' },
   { name: 'estado-indentado', file: 'shots/A2.mjs', edit: (s) => inject('n++;')(s.replace('export default {', '    let n = 0;\nexport default {')), expect: { fix: /estado de módulo mutable reasignado/, shot: 'A2' }, quick: 'validate' },
-  { name: 'texto-fuera', file: 'shots/A3.mjs', edit: (s) => s.replace("api.text(shot.text, d.x, d.y,", "api.text(shot.text, 20, d.y,"), expect: { fix: /fuera de safe area/ }, quick: 'layout' },
+  { name: 'texto-fuera', file: 'shots/A3.mjs', edit: (s) => s.replace(/("\$shot": "text"\s*\},\s*"x": )\{\s*"\$expr": "dot_x"\s*\}/, '$1 20'), expect: { fix: /fuera de safe area/ }, quick: 'layout' },
 ];
 const sel = (name) => !only || only === name;
 
@@ -72,7 +72,7 @@ if (!fast && sel('fixture')) tasks.push(P(fixture));
 if (sel('golden')) tasks.push(P(script('test/golden.mjs')));
 if (!fast && sel('cut')) tasks.push(P(script('test/cut-render.mjs')));
 tasks.push(P(script('test/unit.mjs')));
-for (const t of ['schema', 'critic', 'gov', 'guard', 'hash', 'params', 'memoria', 'arc', 'sound', 'film', 'perf', 'orch', 'medios', 'world3d', 'metrics', 'harness', 'fuzz', 'orquestacion']) if (sel(t)) tasks.push(P(script(`test/${t}.mjs`, t === 'sound' && fast ? ['--fast'] : [], { stderr: t !== 'guard' })));   // guard: su stderr son los bloqueos esperados del sandbox   // esquema (E8), crítico honesto (E4), gobernanza (F1), guardia AST (E7), hash por contenido (E5), parámetros/capas (F4), soundtrack (spec 002; --fast = fixture ×0,6)                                   // unidades puras (geometría, partículas, sims): siempre
+for (const t of ['schema', 'critic', 'gov', 'guard', 'hash', 'params', 'memoria', 'arc', 'sound', 'film', 'perf', 'orch', 'medios', 'world3d', 'metrics', 'harness', 'fuzz', 'orquestacion', 'semantica']) if (sel(t)) tasks.push(P(script(`test/${t}.mjs`, (t === 'sound' || t === 'semantica') && fast ? ['--fast'] : [], { stderr: t !== 'guard' })));   // guard: su stderr son los bloqueos esperados del sandbox   // esquema (E8), crítico honesto (E4), gobernanza (F1), guardia AST (E7), hash por contenido (E5), parámetros/capas (F4), soundtrack (spec 002; --fast = fixture ×0,6)                                   // unidades puras (geometría, partículas, sims): siempre
 let fail = 0;
 for (const t of tasks) { const r = await t; console.log(r.line); if (!r.ok) fail++; }
 console.log(`\n${fail ? `${fail} fallos` : 'Todo verde'}  (${((Date.now() - t0) / 1000).toFixed(1)} s, ${jobs} en paralelo${fast ? ', --fast' : ''})`);

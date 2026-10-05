@@ -1,7 +1,7 @@
 # 003 — Mundo visual: personalidad y gusto (no fondo negro)
 
 ## Intención (usuario, 2026-10-02, sobre regla/reel/mate)
-"Están bien, no son wow. Mi crítica principal: el fondo es solo un espacio negro y monótono; le falta
+"Están bien, no son wow. Mi crítica principal: el fondo es solo un espacio negro y monótono; le falta <!-- vocab-ok: cita textual del usuario -->
 personalidad y algo de gusto." Referencias: 4 posts de X (maxescu, kevin_t_ngo ×2, bearlyai) — análisis pendiente.
 
 ## Calificaciones

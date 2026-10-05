@@ -54,7 +54,7 @@ function lex(src, path) {
 
 // ── sintaxis → AST ───────────────────────────────────────────────────────────────────────────────────────────────
 // Devuelve { ast, deps:Set<señal>, vars:Set, src }. Lanza ExprError con ruta y columna.
-export function parse(src, { path = '' } = {}) {
+export function parse(src, { path = '', vars: xv = [], funcs: xf = [] } = {}) {   // xv/xf: variables y funciones EXTRA (DSL de escenas, spec 006); las de siempre no cambian
   src = String(src);
   if (src.length > MAX_LEN) throw new ExprError(`expresión demasiado larga (${src.length} > ${MAX_LEN})`, { path });
   const T = lex(src, path), deps = new Set(), vars = new Set(); let p = 0, depth = 0;
@@ -83,11 +83,11 @@ export function parse(src, { path = '' } = {}) {
           if (args.length > 2) err('sig(nombre[, t]) admite como mucho 2 argumentos', tk);
           deps.add(args[0].v); return { k: 'sig', name: args[0].v, at: args[1] ?? null };
         }
-        if (!Object.hasOwn(FUNCS, tk.v)) err(`función desconocida '${tk.v}' (permitidas: sig ${Object.keys(FUNCS).join(' ')})`, tk);
+        if (!Object.hasOwn(FUNCS, tk.v) && !xf.includes(tk.v)) err(`función desconocida '${tk.v}' (permitidas: sig ${Object.keys(FUNCS).join(' ')})`, tk);
         return { k: 'call', f: tk.v, args };
       }
       if (Object.hasOwn(CONSTS, tk.v)) return { k: 'lit', v: CONSTS[tk.v] };
-      if (VARS.includes(tk.v)) { vars.add(tk.v); return { k: 'var', v: tk.v }; }
+      if (VARS.includes(tk.v) || xv.includes(tk.v)) { vars.add(tk.v); return { k: 'var', v: tk.v }; }
       err(`identificador desconocido '${tk.v}' (variables: ${VARS.join(' ')}; constantes: pi tau e)`, tk);
     }
     err(tk.k === 'end' ? 'expresión incompleta' : `token inesperado '${tk.v}'`, tk);
@@ -114,19 +114,19 @@ function build(n) {
       const f = BIN[n.o]; return (e) => f(a(e), b(e));
     }
     case 'if': { const c = build(n.c), a = build(n.a), b = build(n.b); return (e) => (c(e) ? a(e) : b(e)); }
-    case 'call': { const f = FUNCS[n.f], as = n.args.map(build); return (e) => f(...as.map((g) => g(e))); }
+    case 'call': { const f = FUNCS[n.f], as = n.args.map(build), nm = n.f; return (e) => (f ?? e.fns?.[nm])(...as.map((g) => g(e))); }
     case 'sig': { const name = n.name, at = n.at ? build(n.at) : null; return (e) => e.sig(name, at ? at(e) : e.t); }
   }
   throw new ExprError(`nodo desconocido ${n.k}`);
 }
 // compile(src) → { fn(env), deps:[...], src }.  Memo por texto (las expresiones se repiten entre shots y procesos de lint).
 const MEMO = new Map();
-export function compile(src, { path = '' } = {}) {
-  const key = String(src);
+export function compile(src, { path = '', vars: xv = [], funcs: xf = [] } = {}) {
+  const key = xv.length || xf.length ? `${xv.join(',')}|${xf.join(',')}|${src}` : String(src);
   let c = MEMO.get(key);
   if (!c) {
-    try { const P = parse(key); c = { fn: build(P.ast), deps: [...P.deps].sort(), vars: [...P.vars].sort(), src: key }; }
-    catch (e) { if (e instanceof ExprError) throw new ExprError(e.reason, { path, src: key, col: e.col }); throw e; }
+    try { const P = parse(String(src), { vars: xv, funcs: xf }); c = { fn: build(P.ast), deps: [...P.deps].sort(), vars: [...P.vars].sort(), src: String(src) }; }
+    catch (e) { if (e instanceof ExprError) throw new ExprError(e.reason, { path, src: String(src), col: e.col }); throw e; }
     if (MEMO.size > 4096) MEMO.clear(); MEMO.set(key, c);
   }
   return c;

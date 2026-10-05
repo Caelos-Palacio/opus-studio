@@ -267,7 +267,7 @@ test('simulacion', async () => {
   try {
     const a3 = path.join(d, 'shots/A3.mjs'), A3 = fs.readFileSync(a3, 'utf8'), A2 = fs.readFileSync(path.join(d, 'shots/A2.mjs'), 'utf8'), A1 = fs.readFileSync(path.join(d, 'shots/A1.mjs'), 'utf8');
     W(d, 'out/sim/A3.fixed', A3);
-    fs.writeFileSync(a3, A3.replace('api.text(shot.text, d.x, d.y,', 'api.text(shot.text, 20, d.y,'));   // estado inicial: A3 en FIX
+    fs.writeFileSync(a3, A3.replace(/("\$shot": "text"\s*\},\s*"x": )\{\s*"\$expr": "dot_x"\s*\}/, '$1 20'));   // estado inicial: A3 (DSL, spec 006) en FIX: texto fuera de safe area
     W(d, 'sim-agent.mjs', AGENT);
     const roles = { dora: 'director', ana: 'animator:A3', tor: 'animator:A2', osc: 'animator:A1' };
     const ps = await Promise.all(Object.entries(roles).map(([a, r]) => runP(d, ['sim-agent.mjs'], { OPUS_AGENT: a, OPUS_ROLE: r })));

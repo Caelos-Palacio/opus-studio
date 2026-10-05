@@ -15,7 +15,7 @@ pero no épica o vibrante."
 | monótona | varianza de duración de shots (CV ≥ 0,35); ≥3 tempos distintos; tasa de zoom no constante (aceleración en la subida al pico) |
 | apresurada | ≥1 respiro (hold ≥1,5 s) por cada 20 s; ningún tramo >15 s sin respiro; tiempo de lectura de cada concepto nuevo ≥ umbral |
 | sin dinamismo | rango dinámico de energía visual (p90/p10 ≥ 4); contraste calma→pico |
-| audio pobre | música con arco (intro, construcción, clímax, resolución); rango dinámico de loudness (LRA ≥ 6 LU); hits sincronizados con impactos (≤2 fotogramas); el clímax sonoro coincide con el pico visual (±0,5 s) |
+| audio pobre | música con arco (intro, construcción, pico, resolución); rango dinámico de loudness (LRA ≥ 6 LU); hits sincronizados con impactos (≤2 fotogramas); el pico sonoro coincide con el pico visual (±0,5 s) |
 | no épico | crescendo: energía audio+visual sube de forma monótona los 10–20 s previos al pico; pico al 60–85 %; silencio/vacío antes del golpe; final que respira |
 
 ## Escenarios (BDD)

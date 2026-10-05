@@ -36,6 +36,7 @@ if (argv.includes('--footage')) {
     for (const m of src.matchAll(/(?:\b\w+\.tex\(|morphTo:\s*)('((?:\\.|[^'\\])*)'|"((?:\\.|[^"\\])*)")/g)) found.add((m[2] ?? m[3]).replace(/\\\\/g, '\\'));
     for (const m of src.matchAll(/String\.raw`([^`]+)`/g)) found.add(m[1]); };
   for (const f of fs.readdirSync(path.join(ROOT, 'shots'))) if (f.endsWith('.mjs')) grab(fs.readFileSync(path.join(ROOT, 'shots', f), 'utf8'));
+  for (const f of fs.readdirSync(path.join(ROOT, 'shots'))) if (f.endsWith('.scene.json')) { const j = fs.readFileSync(path.join(ROOT, 'shots', f), 'utf8'); for (const m of j.matchAll(/"tex"\s*:\s*"((?:\\.|[^"\\])*)"/g)) found.add(JSON.parse(`"${m[1]}"`)); }   // spec 006: ecuaciones de shots DSL
   for (const f of fs.readdirSync(path.join(ROOT, 'data'))) if (f.endsWith('.json')) { const j = fs.readFileSync(path.join(ROOT, 'data', f), 'utf8'); for (const m of j.matchAll(/"tex"\s*:\s*"((?:\\.|[^"\\])*)"/g)) found.add(JSON.parse(`"${m[1]}"`)); }
   let bad = 0; for (const t of found) { try { store.get(t); console.log('  ✓', t); } catch (e) { bad++; console.log('  ✗', t, '→', e.message); } }
   console.log(`→ ${found.size} expresiones · ${bad} con error`); process.exit(bad ? 1 : 0);
