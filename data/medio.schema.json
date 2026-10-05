@@ -1,0 +1,47 @@
+{
+  "title": "Medio como datos (styles/medios/*.json, spec 003)",
+  "type": "object",
+  "required": [
+    "name"
+  ],
+  "properties": {
+    "name": {
+      "type": "string",
+      "pattern": "^[A-Za-z0-9_-]{1,64}$"
+    },
+    "description": {
+      "type": "string",
+      "maxLength": 4000
+    },
+    "seed": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 4294967295
+    },
+    "accents": {
+      "type": "array",
+      "maxItems": 16,
+      "items": {
+        "type": "string",
+        "pattern": "^#[0-9A-Fa-f]{3,8}$"
+      }
+    },
+    "palette": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "string",
+        "pattern": "^#[0-9A-Fa-f]{3,8}$"
+      }
+    },
+    "support": {
+      "type": "object"
+    },
+    "layers": {
+      "type": "array",
+      "maxItems": 64,
+      "items": {
+        "type": "object"
+      }
+    }
+  }
+}

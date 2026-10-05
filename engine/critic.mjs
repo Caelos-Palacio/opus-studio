@@ -10,6 +10,7 @@
 // es FIX, no se traga; caché con clave = modelo + sistema + rúbrica + prompt + esquema + hash del plan + N; no corre con lint en FIX.
 // Lámina: 3 columnas (in · mid · out) × 3 filas (color · grises · anotada: focos, texto, tercios, área segura).
 import './help.mjs';
+import { isMain, rootFrom } from './paths.mjs';
 import { announceFilm } from './filmid.mjs';
 import { activeTimeline } from './filmid.mjs';
 import { lintState } from './verdict.mjs';
@@ -19,7 +20,7 @@ import crypto from 'node:crypto';
 import { pathToFileURL } from 'node:url';
 import { validate } from './schema.mjs';
 
-const ROOT = path.resolve(path.dirname(new URL(import.meta.url).pathname), '..');
+const ROOT = rootFrom(import.meta.url);
 const argv = process.argv.slice(2), has = (k) => argv.includes(k), arg = (k, d) => { const i = argv.indexOf(k); return i >= 0 && argv[i + 1] != null ? argv[i + 1] : d; };
 export const RUBRIC = {
   framing: 'sujeto legible, lead room/headroom, aire, tamaño de plano que sirve a la idea',
@@ -247,5 +248,5 @@ async function evalMain() {
   return 0;
 }
 
-if (import.meta.url === `file://${process.argv[1]}`) announceFilm();
-if (import.meta.url === `file://${process.argv[1]}`) (has('--eval') ? evalMain() : main()).then((code) => process.exit(code ?? 0), (e) => { console.error(e.message); process.exit(2); });
+if (isMain(import.meta.url)) announceFilm();
+if (isMain(import.meta.url)) (has('--eval') ? evalMain() : main()).then((code) => process.exit(code ?? 0), (e) => { console.error(e.message); process.exit(2); });

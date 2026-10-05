@@ -1,0 +1,53 @@
+{
+  "title": "Estilo de sonido (styles/sound/*.json; engine/score.mjs)",
+  "type": "object",
+  "required": [
+    "name"
+  ],
+  "properties": {
+    "name": {
+      "type": "string",
+      "pattern": "^[A-Za-z0-9_-]{1,64}$"
+    },
+    "description": {
+      "type": "string",
+      "maxLength": 4000
+    },
+    "key": {
+      "type": "object"
+    },
+    "tempo": {
+      "type": "object"
+    },
+    "sections": {
+      "type": "object"
+    },
+    "intensity": {
+      "type": "object"
+    },
+    "dynamics": {
+      "type": "object"
+    },
+    "harmony": {
+      "type": "object"
+    },
+    "layers": {
+      "type": "object"
+    },
+    "motif": {
+      "type": "object"
+    },
+    "impact": {
+      "type": "object"
+    },
+    "sfx": {
+      "type": "object"
+    },
+    "mix": {
+      "type": "object"
+    },
+    "master": {
+      "type": "object"
+    }
+  }
+}

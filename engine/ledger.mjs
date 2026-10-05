@@ -12,10 +12,11 @@
 //   node engine/ledger.mjs [--tail 20] [--action X] [--target X] [--agent X]
 //   node engine/ledger.mjs verify [--require-sig] | migrate | keygen <agente> | stats | budget
 import fs from 'node:fs';
+import { rootFrom, isMain } from './paths.mjs';
 import path from 'node:path';
 import crypto from 'node:crypto';
 
-export const ROOT = path.resolve(path.dirname(new URL(import.meta.url).pathname), '..');
+export const ROOT = rootFrom(import.meta.url);
 export const LEDGER = path.join(ROOT, 'out/ledger.jsonl');
 export const HEAD = path.join(ROOT, 'out/ledger.head');
 const LOCK = path.join(ROOT, 'out/ledger.lock');
@@ -192,7 +193,7 @@ export function stats() {
   return { total: E.length, coded, uncoded: [...un].map(([k, n]) => ({ action: k.split('|')[0], verdict: k.split('|')[1] || null, n })), byCode };
 }
 
-if (import.meta.url === `file://${process.argv[1]}`) {
+if (isMain(import.meta.url)) {
   const argv = process.argv.slice(2), arg = (k, d) => { const i = argv.indexOf(k); return i >= 0 ? argv[i + 1] : d; }, cmd = argv[0];
   if (cmd === 'verify') {
     const v = verify({ requireSig: argv.includes('--require-sig') });

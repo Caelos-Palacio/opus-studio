@@ -8,18 +8,20 @@
 //   node engine/score.mjs [--timeline X] [--memoria Y] [--style epico] [--wav out/score.wav] [--json out/score.json]
 // Proceso y decisiones: docs/MUSICA.md. Spec: docs/specs/002-soundtrack.md.
 import './help.mjs';
+import { isMain, rootFrom } from './paths.mjs';
 import { announceFilm } from './filmid.mjs';
+import { assertSoundStyle } from './inputs.mjs';
 import { activeTimeline } from './filmid.mjs';
 import fs from 'node:fs';
 import path from 'node:path';
 import { SR, TAU, clamp, lerp, ramp, mtof, db2lin, rng, hashStr, reverb, wavBuffer, bq, filt } from './dsp.mjs';
 import { contexto, peso, primeraVez } from './memoria.mjs';
 
-const ROOT = path.resolve(path.dirname(new URL(import.meta.url).pathname), '..');
+const ROOT = rootFrom(import.meta.url);
 const isObj = (x) => x && typeof x === 'object' && !Array.isArray(x);
 export const deepMerge = (a, b) => { if (!isObj(a) || !isObj(b)) return b === undefined ? a : b; const o = { ...a }; for (const k of Object.keys(b)) o[k] = deepMerge(a[k], b[k]); return o; };
 export const soundStylePath = (name = 'epico') => path.join(ROOT, 'styles/sound', `${name}.json`);
-export function loadSoundStyle(name = 'epico', overrides = {}) { return deepMerge(JSON.parse(fs.readFileSync(soundStylePath(name), 'utf8')), overrides); }
+export function loadSoundStyle(name = 'epico', overrides = {}) { return deepMerge(assertSoundStyle(JSON.parse(fs.readFileSync(soundStylePath(name), 'utf8')), `styles/sound/${name}.json`), overrides); }
 
 // ───────── 1. estructura del film → plan ─────────
 const nearest = (arr, v) => arr.reduce((m, x) => (Math.abs(x - v) < Math.abs(m - v) ? x : m), arr[0]);
@@ -307,7 +309,7 @@ export const holdGate = (plan, style) => (t) => {
 };
 
 // ───────── CLI ─────────
-if (import.meta.url === `file://${process.argv[1]}`) {
+if (isMain(import.meta.url)) {
   announceFilm();
   const argv = process.argv.slice(2), arg = (k, d) => { const i = argv.indexOf(k); return i >= 0 ? argv[i + 1] : d; };
   const tl = JSON.parse(fs.readFileSync(path.resolve(ROOT, arg('--timeline', activeTimeline())), 'utf8'));

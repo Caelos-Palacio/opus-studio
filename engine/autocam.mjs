@@ -9,6 +9,7 @@
 // 4) λ mínimo que cumple los límites de velocidad del estilo (zoom/s, paneo/s): bisección en log λ (la velocidad pico es
 //    monótona decreciente en λ). Es decir: la cámara más fiel al sujeto que NO marea.
 import './help.mjs';
+import { isMain } from './paths.mjs';
 import { announceFilm } from './filmid.mjs';
 import fs from 'node:fs';
 import path from 'node:path';
@@ -75,4 +76,4 @@ async function bake() {
   writeAtomic(file, JSON.stringify(out));
   console.log('→', path.relative(ROOT, file));
 }
-if (import.meta.url === `file://${process.argv[1]}`) main().catch((e) => { console.error(e.stack); process.exit(1); });
+if (isMain(import.meta.url)) main().catch((e) => { console.error(e.stack); process.exit(1); });

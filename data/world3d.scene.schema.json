@@ -1,0 +1,206 @@
+{
+  "title": "Escena world3d como DATOS (api.world3d; spec 004)",
+  "type": "object",
+  "required": [
+    "objects"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "id": {
+      "type": "string",
+      "maxLength": 100
+    },
+    "background": {
+      "type": "string",
+      "maxLength": 64
+    },
+    "fog": {
+      "anyOf": [
+        {
+          "type": "boolean"
+        },
+        {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 10
+        },
+        {
+          "type": "object",
+          "properties": {
+            "density": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 10
+            },
+            "far": {
+              "type": "number",
+              "exclusiveMinimum": 0,
+              "maximum": 1000000.0
+            }
+          }
+        }
+      ]
+    },
+    "ground": {
+      "anyOf": [
+        {
+          "type": "boolean"
+        },
+        {
+          "type": "object",
+          "properties": {
+            "color": {
+              "type": "string",
+              "maxLength": 64
+            },
+            "size": {
+              "type": "number",
+              "exclusiveMinimum": 0,
+              "maximum": 1000000.0
+            },
+            "contact": {
+              "type": "boolean"
+            }
+          }
+        }
+      ]
+    },
+    "camera": {
+      "type": "object",
+      "properties": {
+        "fov": {
+          "type": "number",
+          "exclusiveMinimum": 0,
+          "maximum": 170
+        },
+        "near": {
+          "type": "number",
+          "exclusiveMinimum": 0,
+          "maximum": 1000000.0
+        },
+        "far": {
+          "type": "number",
+          "exclusiveMinimum": 0,
+          "maximum": 10000000.0
+        },
+        "target": {
+          "type": "array",
+          "minItems": 3,
+          "maxItems": 3,
+          "items": {
+            "type": "number",
+            "minimum": -1000000.0,
+            "maximum": 1000000.0
+          }
+        },
+        "dist": {
+          "type": "number",
+          "exclusiveMinimum": 0,
+          "maximum": 10000000.0
+        },
+        "az": {
+          "type": "number",
+          "minimum": -3600,
+          "maximum": 3600
+        },
+        "el": {
+          "type": "number",
+          "minimum": -90,
+          "maximum": 90
+        }
+      }
+    },
+    "objects": {
+      "type": "array",
+      "maxItems": 10000,
+      "items": {
+        "type": "object",
+        "properties": {
+          "shape": {
+            "type": "string",
+            "maxLength": 32
+          },
+          "size": {
+            "anyOf": [
+              {
+                "type": "number",
+                "exclusiveMinimum": 0,
+                "maximum": 1000000.0
+              },
+              {
+                "type": "array",
+                "minItems": 2,
+                "maxItems": 3,
+                "items": {
+                  "type": "number",
+                  "minimum": -1000000.0,
+                  "maximum": 1000000.0
+                }
+              }
+            ]
+          },
+          "pos": {
+            "type": "array",
+            "minItems": 3,
+            "maxItems": 3,
+            "items": {
+              "type": "number",
+              "minimum": -1000000.0,
+              "maximum": 1000000.0
+            }
+          },
+          "color": {
+            "type": "string",
+            "maxLength": 64
+          },
+          "colors": {
+            "type": "array",
+            "maxItems": 64,
+            "items": {
+              "type": "string",
+              "maxLength": 64
+            }
+          },
+          "mat": {
+            "type": "string",
+            "maxLength": 32
+          },
+          "outline": {
+            "type": "boolean"
+          },
+          "contact": {
+            "type": "boolean"
+          },
+          "data": {
+            "type": "array",
+            "maxItems": 5000000,
+            "items": {
+              "type": "number",
+              "minimum": -1000000000.0,
+              "maximum": 1000000000.0
+            }
+          },
+          "instances": {
+            "type": "object",
+            "properties": {
+              "shape": {
+                "type": "string",
+                "maxLength": 32
+              },
+              "size": {
+                "type": "array",
+                "minItems": 3,
+                "maxItems": 3,
+                "items": {
+                  "type": "number",
+                  "minimum": -1000000.0,
+                  "maximum": 1000000.0
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

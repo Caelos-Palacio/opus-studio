@@ -1,11 +1,12 @@
 #!/usr/bin/env node
 // Unidades del guardia estático (AST) y del sandbox en ejecución: evasiones conocidas → FIX; shots limpios → nada.
 import fs from 'node:fs';
+import { rootFrom } from '../engine/paths.mjs';
 import path from 'node:path';
 import { scanSource, shotImportAllowed } from '../engine/guard.mjs';
 import { makeSandbox } from '../engine/sandbox.mjs';
 
-const ROOT = path.resolve(path.dirname(new URL(import.meta.url).pathname), '..');
+const ROOT = rootFrom(import.meta.url);
 let n = 0, bad = 0; const ok = (c, m) => { n++; if (!c) { bad++; console.log('  ✗ guardia:', m); } };
 const wrap = (body, pre = '') => `import { lerp } from '../engine/core.mjs';\n${pre}\nexport default {\n  draw(ctx, t, u, shot, film, api) {\n    ${body}\n  },\n};\n`;
 const fixes = (src) => scanSource(src, 'X').filter((i) => i.level === 'FIX').map((i) => i.problem);

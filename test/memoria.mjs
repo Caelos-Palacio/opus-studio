@@ -2,12 +2,13 @@
 // Memoria conceptual (docs/MEMORIA.md): estado(t) con decaimiento/refuerzo/reinterpretación, lint conceptual por
 // mutación, capa de dirección determinista y explicable, y CLI. Puro: sin render, sin copia del repo.
 import fs from 'node:fs';
+import { rootFrom } from '../engine/paths.mjs';
 import path from 'node:path';
 import os from 'node:os';
 import { spawnSync } from 'node:child_process';
 import * as M from '../engine/memoria.mjs';
 
-const ROOT = path.resolve(path.dirname(new URL(import.meta.url).pathname), '..');
+const ROOT = rootFrom(import.meta.url);
 let fail = 0;
 const ok = (name, cond, extra = '') => { console.log(`${cond ? '✓' : '✗'} memoria: ${name}${cond ? '' : '  ' + extra}`); if (!cond) fail++; };
 const rd = (p) => JSON.parse(fs.readFileSync(path.join(ROOT, p), 'utf8'));

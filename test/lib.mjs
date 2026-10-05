@@ -1,10 +1,11 @@
 // Utilidades compartidas por los tests: copia mínima del repo, procesos hijos asíncronos y pool con límite de CPU.
 import fs from 'node:fs';
+import { rootFrom } from '../engine/paths.mjs';
 import os from 'node:os';
 import path from 'node:path';
 import { spawn } from 'node:child_process';
 
-export const ROOT = path.resolve(path.dirname(new URL(import.meta.url).pathname), '..');
+export const ROOT = rootFrom(import.meta.url);
 export const FONTS_CONF = path.join(ROOT, 'test/golden/fonts.conf');
 // Solo lo que el motor lee al renderizar/lintar/montar. Antes se copiaba TODO el repo (incluidos docs/, test/ y, en el
 // checkout principal, .claude/worktrees/* con sus copias enteras): lento y frágil.

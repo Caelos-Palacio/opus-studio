@@ -6,12 +6,13 @@
 //              Si engine/sound.mjs aún no exporta build(), el test cae solo a este modo.
 // Los medidores son INDEPENDIENTES del motor (RBJ biquads, envolventes y ebur128 de ffmpeg): el motor no se mide a sí mismo.
 import fs from 'node:fs';
+import { rootFrom } from '../engine/paths.mjs';
 import os from 'node:os';
 import path from 'node:path';
 import crypto from 'node:crypto';
 import { spawnSync } from 'node:child_process';
 
-const ROOT = path.resolve(path.dirname(new URL(import.meta.url).pathname), '..');
+const ROOT = rootFrom(import.meta.url);
 const argv = process.argv.slice(2), has = (k) => argv.includes(k), arg = (k) => (has(k) ? argv[argv.indexOf(k) + 1] : null);
 const FAST = has('--fast'), only = arg('--only');
 const SR = 48000, FRAME = 1 / 30;

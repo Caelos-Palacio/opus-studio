@@ -8,6 +8,7 @@
 // Creación EXCLUSIVA y atómica: se escribe tmp y se enlaza (link falla si ya existe: nunca hay un lock a medias).
 // Renovación: tmp + rename. Lease caducado (o proceso dueño muerto en este host) = liberable; el robo pasa por un guard exclusivo.
 import fs from 'node:fs';
+import { isMain } from './paths.mjs';
 import os from 'node:os';
 import path from 'node:path';
 import crypto from 'node:crypto';
@@ -90,7 +91,7 @@ export function listLocks() {
   return fs.readdirSync(LOCKS).filter((f) => f.endsWith('.json')).map((f) => rd(path.join(LOCKS, f))).filter(Boolean).map((L) => ({ ...L, expired: expired(L) }));
 }
 
-if (import.meta.url === `file://${process.argv[1]}`) {
+if (isMain(import.meta.url)) {
   const [cmd, target] = process.argv.slice(2), argv = process.argv.slice(2), ttl = argv.includes('--ttl') ? +argv[argv.indexOf('--ttl') + 1] : 3600000;
   if (cmd === 'claim') {
     const L = claim(target, who().agent, ttl, { durable: true });

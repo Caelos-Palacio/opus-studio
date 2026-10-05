@@ -6,6 +6,8 @@
 // Umbrales: engine/arc.json (priors por perfil) + data/arc.calib.json (observaciones de obras aprobadas, --record)
 // con calibración bayesiana con clamp (docs/research/02). Lo no medible va a engine/arc.rubric.mjs (crítico).
 import './help.mjs';
+import { isMain } from './paths.mjs';
+import { validateStorySchema } from './inputs.mjs';
 import { announceFilm } from './filmid.mjs';
 import fs from 'node:fs';
 import path from 'node:path';
@@ -43,7 +45,8 @@ export function thresholds(profile, calib = {}) {
 // ───────── esquema (validador mínimo sin dependencias, alineado con data/story.schema.json) ─────────
 export function validateStory(st) {
   const e = [], num = (v) => typeof v === 'number' && Number.isFinite(v);
-  if (!st || typeof st !== 'object') return ['story.json no es un objeto'];
+  if (!st || typeof st !== 'object' || Array.isArray(st)) return ['/: story.json no es un objeto'];
+  const sch = validateStorySchema(st).filter((x) => x.level === 'FIX'); if (sch.length) return sch.map((x) => `${x.path}: ${x.message} → ${x.remedy}`);   // ruta JSON (data/story.schema.json)
   if (typeof st.idea !== 'string' || st.idea.length < 3) e.push('falta idea (una frase)');
   const q = st.question;
   if (!q || typeof q.text !== 'string' || !num(q.posed_at) || !num(q.answered_at)) e.push('question {text, posed_at, answered_at} incompleta');
@@ -275,7 +278,7 @@ export async function runArc({ fps = 12, story: sp, record = false, write = true
   return out;
 }
 
-if (import.meta.url === `file://${process.argv[1]}`) {
+if (isMain(import.meta.url)) {
   announceFilm();
   const argv = process.argv.slice(2), arg = (k, d) => { const i = argv.indexOf(k); return i >= 0 ? argv[i + 1] : d; };
   const r = await runArc({ fps: +arg('--fps', 12), record: argv.includes('--record') });

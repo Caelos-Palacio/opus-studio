@@ -12,6 +12,7 @@
 //   fontSig(tfs)     fuentes que resuelve fontconfig (fc-list/fc-match, la misma vía que pango/node-canvas) para las familias
 //                    del estilo + genéricas, y typeface.files del proyecto: todas por digest de contenido.
 import fs from 'node:fs';
+import { rootFrom } from './paths.mjs';
 import path from 'node:path';
 import crypto from 'node:crypto';
 import { isBuiltin } from 'node:module';
@@ -19,7 +20,7 @@ import { spawnSync } from 'node:child_process';
 import * as acorn from 'acorn';
 import * as walk from 'acorn-walk';
 
-export const ROOT = path.resolve(path.dirname(new URL(import.meta.url).pathname), '..');
+export const ROOT = rootFrom(import.meta.url);
 // Herramientas de gobernanza/documentación: el cierre no las atraviesa (cambiarlas no re-renderiza ni caduca veredictos).
 export const NON_PIXEL = new Set(['ledger', 'lock', 'gate', 'roles', 'verdict', 'doc', 'gallery', 'q', 'orch', 'memoria']);
 // Lo que produce píxeles: el render (film → seek/api/… → shots) y la cámara automática (horneada a data/autocam).

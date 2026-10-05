@@ -1,0 +1,26 @@
+{
+  "title": "Hechos citables (data/facts.json)",
+  "type": "object",
+  "additionalProperties": {
+    "type": "object",
+    "required": [
+      "claim"
+    ],
+    "additionalProperties": false,
+    "properties": {
+      "claim": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 2000
+      },
+      "date": {
+        "type": "string",
+        "maxLength": 64
+      },
+      "source": {
+        "type": "string",
+        "maxLength": 1000
+      }
+    }
+  }
+}

@@ -1,6 +1,7 @@
 // Medición: film → métricas estándar (opus-metrics/1). Fuentes semánticas primero (timeline, cámara analítica, paleta, memoria, story,
 // partitura/audio); los píxeles solo como método interno (color medio en los cortes). Ver registry.mjs para cada definición.
 import fs from 'node:fs';
+import { rootFrom } from '../paths.mjs';
 import path from 'node:path';
 import { REGISTRY, byId, SCHEMA, CONVENTIONS } from './registry.mjs';
 import * as X from './mathx.mjs';
@@ -107,7 +108,7 @@ function tensionFrom(comps, T, N = 100) {                           // comps: {n
 // ───── audio ─────
 export async function loadAudio(film, timeline, { audio = 'auto', cacheDir } = {}) {
   if (audio === false) return null; if (audio && audio !== 'auto') return audio;
-  const ROOT = path.resolve(path.dirname(new URL(import.meta.url).pathname), '../..'), { resolveTimeline } = await import('../params.mjs'), { assertTimeline } = await import('../schema.mjs');
+  const ROOT = rootFrom(import.meta.url, 2), { resolveTimeline } = await import('../params.mjs'), { assertTimeline } = await import('../schema.mjs');
   const raw = JSON.parse(fs.readFileSync(path.join(ROOT, timeline), 'utf8')), tl = resolveTimeline(assertTimeline(raw, timeline), timeline).timeline;
   if (!tl.sound) { const f = tl.audio && path.join(ROOT, tl.audio); return f && fs.existsSync(f) ? { ...A.readWav(f), source: tl.audio } : null; }
   const S = await import('../sound.mjs'), { wavBuffer } = await import('../dsp.mjs'), suf = S.mixName(timeline), h = S.mixHash(tl), mixf = path.join(ROOT, `data/mix${suf}.wav`);
@@ -209,7 +210,7 @@ async function assemble(R, film, timeline, { sampleFps, audio, B, memoria, story
   const Ns = fr.map((f) => { const ticks = f.texts.filter((t) => ['body', 'label'].includes(t.role) && t.label.length <= 2), reg = f.texts.length - ticks.length; return f.foci.length + reg + (ticks.length ? 1 : 0); });
   put('informacion.simultaneous', X.mean(Ns), { ci: X.blockBootstrapCI(Ns, X.mean, { block: blk, B, seed: 12 }), n: Ns.length, notes: `p95=${X.quantile(Ns, 0.95).toFixed(1)}` });
   { const k = Ns.filter((n) => n > CONVENTIONS.workingMemory.value).length; put('informacion.overload', (100 * k) / Ns.length, { ci: X.wilson(k, Ns.length).map((x) => 100 * x), n: Ns.length }); }
-  const memf = memoria ?? filmFile('memoria.json', 'data/memoria.json', timeline), ROOT = path.resolve(path.dirname(new URL(import.meta.url).pathname), '../..'), mem = fs.existsSync(path.join(ROOT, memf)) ? JSON.parse(fs.readFileSync(path.join(ROOT, memf), 'utf8')) : null;
+  const memf = memoria ?? filmFile('memoria.json', 'data/memoria.json', timeline), ROOT = rootFrom(import.meta.url, 2), mem = fs.existsSync(path.join(ROOT, memf)) ? JSON.parse(fs.readFileSync(path.join(ROOT, memf), 'utf8')) : null;
   let openF = null;
   if (mem?.conceptos?.length) {
     const shotT0 = (id) => film.shots.find((s) => s.id === id)?.t[0], intro = mem.conceptos.map((c) => Math.min(...[c.abre, ...(c.estados ?? []).map((e) => e.t?.[0]), ...(c.anclas ?? []).map((a) => (a.t ? a.t[0] : shotT0(a.shot)))].filter(fin))).filter(fin), K = intro.length;

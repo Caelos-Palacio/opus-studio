@@ -2,12 +2,13 @@
 // Gobernanza (F1): ledger, locks, veredictos por shot y por hash, gates, master bloqueado, roles/hook, snapshots, .trash.
 // Cada bloque falla si se quita su pieza. Corre en copias temporales (nunca toca tus archivos).   node test/gov.mjs [--only nombre]
 import fs from 'node:fs';
+import { rootFrom } from '../engine/paths.mjs';
 import os from 'node:os';
 import path from 'node:path';
 import crypto from 'node:crypto';
 import { spawn, spawnSync } from 'node:child_process';
 
-const ROOT = path.resolve(path.dirname(new URL(import.meta.url).pathname), '..');
+const ROOT = rootFrom(import.meta.url);
 const only = process.argv.includes('--only') ? process.argv[process.argv.indexOf('--only') + 1] : null;
 const NODE = process.execPath;
 const COPY = ['engine', 'data', 'shots', 'styles', 'assets', 'storyboard', 'gates.json', 'roles.json', 'package.json', '.gitignore', '.claude/hooks'];

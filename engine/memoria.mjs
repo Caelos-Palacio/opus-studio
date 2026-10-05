@@ -13,6 +13,7 @@
 //
 // Todo es puro y determinista (sin reloj, sin azar): misma memoria + mismo timeline → mismos bytes.
 import './help.mjs';
+import { isMain, rootFrom } from './paths.mjs';
 import { announceFilm } from './filmid.mjs';
 import { activeTimeline, filmFile } from './filmid.mjs';
 import fs from 'node:fs';
@@ -20,7 +21,7 @@ import path from 'node:path';
 import crypto from 'node:crypto';
 import { validate, suggest } from './schema.mjs';
 
-const ROOT = path.resolve(path.dirname(new URL(import.meta.url).pathname), '..');
+const ROOT = rootFrom(import.meta.url);
 export const MEMORIA_SCHEMA = JSON.parse(fs.readFileSync(path.join(ROOT, 'data/memoria.schema.json'), 'utf8'));
 export const ROLES = MEMORIA_SCHEMA.$defs.rol.enum;
 const DEF = { vidaMedia: 2, piso: 0.08, umbral: 0.15 };
@@ -392,4 +393,4 @@ async function cli() {
       ...D.intenciones.map((i) => `  (intención sin parámetro) ${i.regla} · ${i.concepto}: ${i.why}`), ...D.conflictos.map((c) => `  conflicto ${c.path}: gana ${c.gana}, pierde ${c.pierde}`)].join('\n'));
   } else console.log('comandos: en <t> | final | por qué <id> | reinterpreta | lint | capa [--write [ruta]] [--check]   (--mem X --timeline X --json)');
 }
-if (import.meta.url === `file://${process.argv[1]}`) cli().catch((e) => { console.error(e.message); process.exit(1); });
+if (isMain(import.meta.url)) cli().catch((e) => { console.error(e.message); process.exit(1); });

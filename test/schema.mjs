@@ -2,13 +2,14 @@
 // E8: esquema del timeline. Unidades puras (validador, sugerencias, enums ↔ código) + mutaciones de extremo a extremo
 // (lint en una copia temporal: campo mal escrito / enum inválido → FIX con sugerencia; cargador rechaza la estructura rota).
 import fs from 'node:fs';
+import { rootFrom } from '../engine/paths.mjs';
 import os from 'node:os';
 import path from 'node:path';
 import { spawnSync } from 'node:child_process';
 import { validateTimeline, suggest, ENUMS } from '../engine/schema.mjs';
 import { ease } from '../engine/core.mjs';
 
-const ROOT = path.resolve(path.dirname(new URL(import.meta.url).pathname), '..');
+const ROOT = rootFrom(import.meta.url);
 let fail = 0;
 const ok = (name, cond, extra = '') => { console.log(`${cond ? '✓' : '✗'} schema: ${name}${cond ? '' : '  ' + extra}`); if (!cond) fail++; };
 const rd = (p) => JSON.parse(fs.readFileSync(path.join(ROOT, p), 'utf8'));

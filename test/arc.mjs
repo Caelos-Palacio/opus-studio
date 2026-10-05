@@ -5,13 +5,14 @@
 // (3) El demo sin story.json: arc omite con WARN y exit 0 (no cambia de veredicto sin intención).
 // Corre en una copia temporal del repo (node_modules enlazado).   node test/arc.mjs [--quick]  (--quick: solo unidades)
 import fs from 'node:fs';
+import { rootFrom } from '../engine/paths.mjs';
 import os from 'node:os';
 import path from 'node:path';
 import { spawnSync } from 'node:child_process';
 import { copyRepo, rmrf } from './lib.mjs';
 import { calibrate, analyze, thresholds, validateStory, energyArc } from '../engine/arc.mjs';
 
-const ROOT = path.resolve(path.dirname(new URL(import.meta.url).pathname), '..');
+const ROOT = rootFrom(import.meta.url);
 let n = 0, bad = 0; const ok = (c, m, extra = '') => { n++; if (!c) { bad++; console.log(`  ✗ arc: ${m} ${extra}`); } };
 
 // ───────── (1) unidades ─────────

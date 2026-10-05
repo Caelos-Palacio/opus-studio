@@ -6,6 +6,7 @@
 //   cam / overrides pueden ser funciones de t: así `step` (twos) y el motion blur muestrean el MISMO movimiento que el 2D.
 // El estilo manda: paleta, luz clave (S.light.az), contorno (grosor/color de tinta) y modo de sombreado salen de S, no de la escena.
 import { backendSig, loadBackend } from './backend-gl.mjs';
+import { assertScene } from '../inputs.mjs';
 
 const CAM0 = { fov: 34, near: 0.5, far: 4000, target: [0, 0, 0], dist: 10, az: 0, el: 15, roll: 0 };
 const W3_DEF = { shading: 'toon', bands: 3, outline: { width: 3, color: 'ink' }, snap: null, ssaa: 2, shadowMix: 0.55, light: { el: 28 }, contact: 0.5, hatch: 6 };
@@ -27,6 +28,7 @@ export function createWorld3d() {
     get reason() { probe(); return reason; },
     sig: () => backendSig(),
     render(scene, o = {}) {
+      assertScene(scene);
       probe(); if (!be) throw new Error(`world3d no disponible: ${reason}`);
       const S = o.style, W3 = { ...W3_DEF, ...(S.world3d ?? {}), outline: S.world3d?.outline === false ? false : merge(W3_DEF.outline, S.world3d?.outline), light: merge(W3_DEF.light, S.world3d?.light) };
       const [W, H] = o.size, fps = o.fps ?? 30, step = o.step ?? 0, t3 = stepT(o.t ?? 0, step, fps), ss = o.ssaa ?? W3.ssaa;

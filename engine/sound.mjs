@@ -13,6 +13,7 @@
 // Problemas que evita: SFX pegados a mano que se desincronizan al mover un shot; música que tapa los acentos (ducking);
 // aleatoriedad no reproducible (ruido sembrado por evento); clipping (limitador suave + techo −1 dBFS).
 import './help.mjs';
+import { isMain } from './paths.mjs';
 import { announceFilm } from './filmid.mjs';
 import fs from 'node:fs';
 import path from 'node:path';
@@ -121,7 +122,7 @@ export function mix(tl, suffix = mixName()) {
   return { events: ev.length, music: M?.file ?? null, peak };
 }
 
-if (import.meta.url === `file://${process.argv[1]}`) {
+if (isMain(import.meta.url)) {
   announceFilm();
   const A = process.argv, ai = (k) => A[A.indexOf(k) + 1];
   if (A.includes('--mux')) {

@@ -3,11 +3,12 @@
 // converge sin regresiones ni oscilación (un agente torpe rompe a un vecino → el trinquete lo rechaza; uno oscila → se congela).
 // Corre en copias temporales (nunca toca tus archivos).   node test/orch.mjs [--only nombre] [-v]
 import fs from 'node:fs';
+import { rootFrom } from '../engine/paths.mjs';
 import os from 'node:os';
 import path from 'node:path';
 import { spawn, spawnSync } from 'node:child_process';
 
-const ROOT = path.resolve(path.dirname(new URL(import.meta.url).pathname), '..');
+const ROOT = rootFrom(import.meta.url);
 const only = process.argv.includes('--only') ? process.argv[process.argv.indexOf('--only') + 1] : null;
 const NODE = process.execPath;
 const COPY = ['engine', 'data', 'shots', 'styles', 'assets', 'storyboard', 'gates.json', 'roles.json', 'orch.json', 'package.json'];

@@ -6,11 +6,12 @@
 // cero dependencias nuevas, puro (sirve también al crítico para validar sus respuestas).
 // Niveles: estructura rota = FIX (y el lint no sigue: el resto asume la forma); campo deprecated = WARN.
 import { activeTimeline } from './filmid.mjs';
+import { isMain, rootFrom } from './paths.mjs';
 import fs from 'node:fs';
 import path from 'node:path';
 import { compileSignals, bindingDeps } from './signal.mjs';
 
-const ROOT = path.resolve(path.dirname(new URL(import.meta.url).pathname), '..');
+const ROOT = rootFrom(import.meta.url);
 export const TIMELINE_SCHEMA = JSON.parse(fs.readFileSync(path.join(ROOT, 'data/timeline.schema.json'), 'utf8'));
 const D = TIMELINE_SCHEMA.$defs;
 // Fuente única de los enums (lint.mjs los importa; test/schema.mjs comprueba que casan con el código).
@@ -40,7 +41,7 @@ export function suggest(word, candidates) {
 }
 
 // ── validador ────────────────────────────────────────────────────────────────────────────────────────────────────
-const typeOf = (v) => (v === null ? 'null' : Array.isArray(v) ? 'array' : Number.isInteger(v) ? 'integer' : typeof v);
+const typeOf = (v) => (v === null ? 'null' : Array.isArray(v) ? 'array' : typeof v === 'number' && !Number.isFinite(v) ? 'no-finito' : Number.isInteger(v) ? 'integer' : typeof v);   // NaN/±Infinity (p. ej. 1e999 en JSON) no son números válidos
 const typeOk = (v, t) => { const a = typeOf(v); return t === a || (t === 'number' && a === 'integer'); };
 const esc = (k) => String(k).replace(/~/g, '~0').replace(/\//g, '~1');
 const show = (v) => JSON.stringify(v)?.slice(0, 60);
@@ -147,7 +148,7 @@ export function assertTimeline(tl, name = 'timeline') {
   return tl;
 }
 
-if (import.meta.url === `file://${process.argv[1]}`) {
+if (isMain(import.meta.url)) {
   const files = process.argv.slice(2).filter((a) => !a.startsWith('--'));
   let fixes = 0;
   for (const f of files.length ? files : [activeTimeline()]) {

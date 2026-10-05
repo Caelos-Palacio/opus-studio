@@ -9,6 +9,7 @@
 //      menos deniega; un denegado es LEGÍTIMO si el fichero es directorOnly (roles.json) y FALSO POSITIVO si no.
 // Por defecto el modo es ENFORCE (roles.json); OPUS_ROLES_MODE=observer lo baja a solo-registrar. Un roles.json ilegible degrada a observer.
 // Rol del proceso: env OPUS_ROLE (director por defecto); "animator:A1+A2" rellena {ids} en los globs.
+import { isMain } from './paths.mjs';
 import fs from 'node:fs';
 import { spawnSync } from 'node:child_process';
 import path from 'node:path';
@@ -72,7 +73,7 @@ export function replay({ repo = ROOT, R = loadRoles() } = {}) {
   return { commits: commits.length, mixedCommits: mixed, files, bestRoleByCommit: stat, legitimateDenials: legit, falsePositives: fp, falsePositiveRate: files ? fp.length / files : 0 };
 }
 
-if (import.meta.url === `file://${process.argv[1]}`) {
+if (isMain(import.meta.url)) {
   const argv = process.argv.slice(2), [cmd, p] = argv, role = argv.includes('--role') ? argv[argv.indexOf('--role') + 1] : who().role;
   if (cmd === 'check' && p) { const c = canWrite(role, p); console.log(`${c.allow ? 'allow' : 'deny '}  ${role}  ${p}  · ${c.reason}`); process.exit(c.allow ? 0 : 1); }
   if (cmd === 'replay') {
