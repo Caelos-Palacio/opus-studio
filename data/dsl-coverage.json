@@ -9,5 +9,9 @@
     "A1": "objetivo de las mutaciones de test/run.mjs, golden.mjs, gov.mjs y orch: esos tests editan su JS por texto",
     "A2": "objetivo de las mutaciones de test/run.mjs, golden.mjs, gov.mjs y orch: esos tests editan su JS por texto"
   },
-  "libfn": {}
+  "libfn": {},
+  "ratchet": {
+    "_doc": "Umbral de cobertura honesta (% de shots en DSL sobre TODOS los shots, pendientes incluidos). Solo sube: test/dsl-cov.mjs C7 falla si baja; súbelo al convertir más.",
+    "min": 92.0
+  }
 }

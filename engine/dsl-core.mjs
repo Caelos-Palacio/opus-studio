@@ -8,7 +8,7 @@
 //   `fns` (funciones PURAS de un módulo lib). sig() NO existe aquí: las señales llegan por params enlazados.
 //   Valores estructurados (objetos/listas con hojas {"$expr"}) en `args` y en `let.value`: se resuelven hoja a hoja.
 import { compile as compileExpr, FUNCS, ExprError } from './expr.mjs';
-import { seg, ease, lerp, clamp } from './core.mjs';
+import { seg, ease, lerp, clamp, rng } from './core.mjs';
 import { rgba } from './color.mjs';
 
 export const DSL_VERSION = 1;
@@ -43,7 +43,8 @@ export const TYPES = {
   repeat: { props: ['n', 'items', 'fields', 'children'], req: ['children'] },
   plot: { props: LIBP, req: ['lib', 'fn'] }, axis: { props: LIBP, req: ['lib', 'fn'] }, world: { props: LIBP, req: ['lib', 'fn'] },
   hud: { props: LIBP, req: ['lib', 'fn'] }, caption: { props: LIBP, req: ['lib', 'fn'] },
-  world3d: { props: LIBP, req: ['lib', 'fn'] }, custom: { props: LIBP, req: ['lib', 'fn'] },
+  world3d: { props: [...LIBP, 'scene', 'cam', 'opts', 'time'], req: [] },
+  particles: { props: ['n', 'seed', 'x', 'y', 'r', 'color', 'alpha'], req: ['n', 'seed', 'x', 'y', 'r'] }, custom: { props: LIBP, req: ['lib', 'fn'] },
 };
 const LIBBACKED = ['focusOf', 'ring', 'dot', 'shatter', 'cracks', 'gridlines', 'playhead', 'plot', 'axis', 'world', 'hud', 'caption', 'world3d', 'custom'];
 const ARG_TOKENS = ['ctx', 'api', 'film', 't', 'u', 'shot', 'P'], BIND_TOKENS = ['film', 'shot', 't', 'api', 'P'];
@@ -125,6 +126,9 @@ export function validateScene(sc) {
       const ok = [...COMMON, ...spec.props];
       for (const k of Object.keys(o)) if (!ok.includes(k)) E(`${p}/${k}`, `propiedad desconocida "${k}" en ${o.type}`, hint(k, ok));
       for (const k of spec.req) if (!(k in o)) E(`${p}/${k}`, `falta "${k}" en ${o.type}`);
+      if (o.type === 'world3d' && !(o.scene || (o.lib && o.fn))) E(p, 'world3d: falta "scene" (datos) o "lib"+"fn"');
+      if (o.type === 'world3d' && o.scene && o.lib) E(p, 'world3d: "scene" y "lib" son excluyentes');
+      if (o.type === 'world3d' && o.scene && (typeof o.scene !== 'object' || !Array.isArray(o.scene.objects))) E(`${p}/scene`, 'scene: objeto con lista "objects" (data/world3d.scene.schema.json)');
       if (o.type === 'let' && !('value' in o) && !(o.lib && o.fn)) E(p, 'let: falta "value" (o "lib"+"fn")');
       if (o.type === 'let' && 'value' in o && (o.lib || o.fn)) E(p, 'let: "value" y "lib/fn" son excluyentes');
       if (o.type === 'repeat' && !('n' in o) && !('items' in o)) E(p, 'repeat: falta "n" (o "items")');
@@ -142,6 +146,8 @@ export function validateScene(sc) {
         else if (k === 'fn' || k === 'fields') { /* literal */ }
         else if (k === 'args') { for (const [j, a] of (v ?? []).entries()) if (typeof a === 'string' && !ARG_TOKENS.includes(a)) E(`${p}/args/${j}`, `argumento "${a}" no válido`, `uno de: ${ARG_TOKENS.join(' ')} o {"$expr":…}`); else if (typeof a !== 'string') structCheck(a, `${p}/args/${j}`, scope, E, funcs); }
         else if (k === 'per') { if (!v || typeof v !== 'object') E(`${p}/per`, 'per: objeto {dy,dx,s,a,rot,color} de expresiones'); else structCheck(v, `${p}/per`, new Set([...scope, 'pk', 'pn']), E, funcs); }
+        else if (k === 'scene') { /* datos 3D: literales (se validan con el esquema de world3d al renderizar) */ }
+        else if (k === 'cam') structCheck(v, `${p}/cam`, new Set([...scope, 't3']), E, funcs);
         else if (k === 'translate') structCheck(v, `${p}/translate`, scope, E, funcs);
         else if (k === 'at' && o.type === 'impact') exprCheck(v, `${p}/at`, scope, E, false, undefined, funcs);
         else if (k === 'value' || k === 'segs' || k === 'opts') structCheck(v, `${p}/${k}`, scope, E, funcs);
@@ -149,7 +155,7 @@ export function validateScene(sc) {
         else if (k === 'stops') { if (!Array.isArray(v) || v.length < 2) E(`${p}/stops`, 'stops: lista de ≥2 colores'); else v.forEach((s, j) => exprCheck(s, `${p}/stops/${j}`, scope, E, false, undefined, funcs)); }
         else if (k === 'shape') { if (!['circle', 'rect'].includes(v)) E(`${p}/shape`, `forma "${v}" no válida`, 'circle | rect'); }
         else if (['from', 'to', 'role', 'label', 'fallback', 'align', 'cap', 'morphTo'].includes(k) && typeof v === 'string') { /* literal */ }
-        else exprCheck(v, `${p}/${k}`, o.type === 'curve' && (k === 'x' || k === 'y') ? new Set([...scope, 'i', 'n']) : scope, E, false, undefined, funcs);
+        else exprCheck(v, `${p}/${k}`, (o.type === 'curve' || o.type === 'particles') && ['x', 'y', 'r', 'color', 'alpha'].includes(k) ? new Set([...scope, 'i', 'n', ...(o.type === 'particles' ? ['ra', 'rb', 'rc'] : [])]) : scope, E, false, undefined, funcs);
       }
       if (LIBBACKED.includes(o.type) && !o.reads) { /* opaco: se declara en deps */ }
       for (const v of outVars(o)) scope.add(v);
@@ -181,10 +187,11 @@ export function depsOf(sc) {
   const params = new Set(Object.keys(sc.params ?? {})), ents = sc.entities ?? {}, fns = sc.fns ?? {}, entOf = new Map(Object.entries(ents).flatMap(([n, e]) => (e.fields ?? []).map((f) => [`${n}_${f}`, n])));
   const outOf = new Map(), cues = new Map((sc.cues ?? []).map((c) => [c.id, c])), res = [], funcs = [...KIT, ...Object.keys(fns)];
   const exprs = (o) => { const L = []; eachValue(o, (p, v) => exprSources(v, L)); return L; };
-  const scan = (list, inRep = []) => { for (const o of list ?? []) {
+  const scan = (list, inRep = [], repAnc = []) => { for (const o of list ?? []) {
     const d = { id: o.id ?? null, type: o.type, time: false, frame: false, params: new Set(), entities: new Set(), objects: new Set(), libs: new Set(), shot: new Set(), opaque: false };
-    const srcs = exprs(o); if (o.cue) { const c = cues.get(o.cue); for (const k of ['at', 'dur']) if (isExprV(c?.[k])) srcs.push(c[k].$expr); d.cue = o.cue; }
-    const local = [...inRep, ...(o.type === 'repeat' ? repVars(o) : []), ...(o.type === 'curve' ? ['i', 'n'] : []), ...(o.type === 'word' ? ['pk', 'pn'] : [])];
+    const srcs = exprs(o); if (repAnc.length && (inRep.length || o.type === 'curve' || o.type === 'particles' || true)) { const own = new Set(srcs.flatMap((x) => { try { return compileExpr(x, { vars: [...BUILTIN, ...params, ...entOf.keys(), ...outOf.keys(), ...inRep, 'i', 'n', 'pk', 'pn', 'ra', 'rb', 'rc', 't3'], funcs }).vars; } catch { return []; } })); if (inRep.some((v) => own.has(v))) srcs.push(...repAnc); }
+    if (o.cue) { const c = cues.get(o.cue); for (const k of ['at', 'dur']) if (isExprV(c?.[k])) srcs.push(c[k].$expr); d.cue = o.cue; }
+    const local = [...inRep, ...(o.type === 'repeat' ? repVars(o) : []), ...(o.type === 'curve' ? ['i', 'n'] : []), ...(o.type === 'particles' ? ['i', 'n', 'ra', 'rb', 'rc'] : []), ...(o.type === 'world3d' ? ['t3'] : []), ...(o.type === 'word' ? ['pk', 'pn'] : [])];
     for (const s of srcs) { const c = compileExpr(s, { vars: [...BUILTIN, ...params, ...entOf.keys(), ...outOf.keys(), ...local], funcs });
       for (const x of c.vars) { if (BUILTIN_TIME.includes(x)) d.time = true; else if (BUILTIN_FRAME.includes(x)) d.frame = true; else if (params.has(x)) d.params.add(x); else if (entOf.has(x)) d.entities.add(entOf.get(x)); else if (outOf.has(x)) d.objects.add(outOf.get(x)); }
       for (const f of Object.keys(fns)) if (new RegExp(`\\b${f}\\s*\\(`).test(s)) { d.libs.add(fns[f].lib); d.time ||= (fns[f].bind ?? []).includes('t') || (fns[f].bind ?? []).includes('film'); for (const r of fns[f].reads ?? []) d.params.add(r); if ((fns[f].bind ?? []).includes('P') && !fns[f].reads) d.opaque = true; }
@@ -198,7 +205,7 @@ export function depsOf(sc) {
     for (const x of o.reads ?? []) d.params.add(x);
     if (o.children) { d.children = (o.children ?? []).map((c) => c.id ?? c.type); }
     for (const v of outVars(o)) outOf.set(v, o.id);
-    res.push(d); if (o.children) scan(o.children, local);
+    res.push(d); if (o.children) scan(o.children, local, o.type === 'repeat' ? [...repAnc, ...[o.n, o.items].filter(isExprV).map((x) => String(x.$expr))] : repAnc);
   } };
   scan(sc.objects);
   const byId = new Map(res.filter((d) => d.id).map((d) => [d.id, d]));
@@ -213,7 +220,7 @@ export function depsOf(sc) {
 export const objectsReading = (sc, param) => { const D = depsOf(sc); return { exact: D.filter((d) => d.inputs.includes(param)).map((d) => d.id ?? d.type), possible: D.filter((d) => d.opaqueInputs && !d.inputs.includes(param)).map((d) => d.id ?? d.type) }; };
 
 // ── diff semántico ────────────────────────────────────────────────────────────────────────────────────────────────
-function flatObjs(sc) { const m = new Map(); let n = 0; for (const [o] of walkObjects(sc.objects)) { const { children, ...rest } = o; m.set(o.id ?? `#${o.type}${n++}`, rest); } return m; }
+function flatObjs(sc) { const m = new Map(); let n = 0; for (const [o] of walkObjects(sc.objects)) { const { children, ...rest } = o; const key = o.id ?? `#${o.type}${n++}`; if (o.type === 'world3d' && o.scene) { const { scene, ...r2 } = rest; m.set(key, { ...r2, scene3d: (scene.objects ?? []).map((x) => x.id ?? x.type).join(',') }); for (const [j, x] of (scene.objects ?? []).entries()) m.set(`${key}.3d.${x.id ?? `${x.type}${j}`}`, x); for (const k of Object.keys(scene)) if (k !== 'objects') m.set(`${key}.3d#${k}`, { [k]: scene[k] }); } else m.set(key, rest); } return m; }
 const delta = (a, b) => { const out = []; for (const k of new Set([...Object.keys(a), ...Object.keys(b)])) if (canonical(a[k]) !== canonical(b[k])) out.push(k); return out.sort(); };
 export function diffScenes(A, B) {
   const R = { objects: { added: [], removed: [], changed: [] }, params: { added: [], removed: [], changed: [] }, cues: { added: [], removed: [], changed: [] }, entities: { added: [], removed: [], changed: [] }, meta: [] };
@@ -254,7 +261,7 @@ const pathGet = (obj, p) => String(p).split('.').reduce((a, k) => a?.[k], obj);
 export function shot(scene, libs = {}) {
   assertScene(scene, `escena ${scene?.id ?? '?'}`);
   const names = new Set([...BUILTIN, ...Object.keys(scene.params ?? {}), ...entityVars(scene.entities)]), cache = new Map(), fnDefs = scene.fns ?? {}, funcs = [...KIT, ...Object.keys(fnDefs)];
-  const ce = (src) => { let c = cache.get(src); if (!c) { c = compileExpr(src, { vars: [...names, ...allOut(scene), 'i', 'n', 'pk', 'pn'], funcs }); cache.set(src, c); } return c; };
+  const ce = (src) => { let c = cache.get(src); if (!c) { c = compileExpr(src, { vars: [...names, ...allOut(scene), 'i', 'n', 'pk', 'pn', 'ra', 'rb', 'rc', 't3'], funcs }); cache.set(src, c); } return c; };
   const ents = scene.entities ?? {}, getFn = (lib, fn) => { const f = pathGet(libs[lib], fn); if (typeof f !== 'function') throw new Error(`dsl: ${lib}.${fn} no es una función (¿lib sin pasar a shot()?)`); return f; };
   const entities = Object.fromEntries(Object.entries(ents).map(([n, e]) => { let made = null; return [n, e.make ? (...a) => (made ??= getFn(e.lib, e.fn)(...e.make))(...a) : (...a) => getFn(e.lib, e.fn)(...a)]; }));
   const libFns = (cur, shotDef, film, env) => Object.fromEntries(Object.entries(fnDefs).map(([n, f]) => [n, (...a) => getFn(f.lib, f.fn)(...(f.bind ?? []).map((b) => ({ film, shot: shotDef, t: env.t, api: cur.api, P: cur.api.params })[b]), ...a)]));
@@ -297,11 +304,17 @@ export function shot(scene, libs = {}) {
         case 'formula': api.tex(val(o.tex), val(o.x), val(o.y), pick(o, ['size', 'align', 'color', 'write', 'morphTo', 'u', 'stagger'], val)); break;
         case 'layer': api.layer(val(o.opts ?? {}), (c, tt, A) => { const sv = [cur.ctx, cur.api, env.t, env.lt]; cur.ctx = c; cur.api = A; env.t = tt; env.lt = tt - shotDef.t[0]; try { run(o.children); } finally { [cur.ctx, cur.api, env.t, env.lt] = sv; } }); break;
         case 'smear': api.smear(val(o.x), val(o.y), val(o.vx), val(o.vy), () => run(o.children)); break;
+        case 'particles': { const n = val(o.n), R = rng(val(o.seed)), sI = env.i, sN = env.n; env.n = n;
+          for (let i = 0; i < n; i++) { env.i = i; env.ra = R(); env.rb = R(); env.rc = R(); const x = val(o.x), y = val(o.y), r = val(o.r); ctx.save(); ctx.fillStyle = api.color(val(o.color ?? 'ink')); ctx.globalAlpha = val(o.alpha ?? 1); ctx.beginPath(); ctx.arc(x, y, r, 0, Math.PI * 2); ctx.fill(); ctx.restore(); }
+          env.i = sI; env.n = sN; break; }
         case 'curve': { const n = val(o.n), sI = env.i, sN = env.n; ctx.save(); ctx.strokeStyle = api.color(val(o.color ?? 'ink')); ctx.lineWidth = val(o.lineWidth ?? 2); ctx.globalAlpha = val(o.alpha ?? 1); if (o.cap) ctx.lineCap = o.cap; ctx.beginPath(); env.n = n;
           for (let i = 0; i <= n; i++) { env.i = i; const x = val(o.x), y = val(o.y); if (i) ctx.lineTo(x, y); else ctx.moveTo(x, y); } env.i = sI; env.n = sN; ctx.stroke(); ctx.restore(); break; }
         case 'lines': { ctx.save(); ctx.strokeStyle = api.color(val(o.color ?? 'ink')); ctx.globalAlpha = val(o.alpha ?? 1); ctx.lineWidth = val(o.lineWidth ?? 1); ctx.beginPath(); for (const sg of o.segs) { const [x0, y0, x1, y1] = val(sg); ctx.moveTo(x0, y0); ctx.lineTo(x1, y1); } ctx.stroke(); ctx.restore(); break; }
         case 'repeat': { const sI = env.i, sN = env.n, rows = isExprV(o.items) ? val(o.items) : o.items ?? null, n = rows ? rows.length : val(o.n); env.n = n;
           for (let i = 0; i < n; i++) { env.i = i; if (rows) (o.fields ?? []).forEach((f, j) => { env[`${o.id}_${f}`] = (Array.isArray(rows[i]) ? rows[i][j] : rows[i][f]); }); run(o.children); } env.i = sI; env.n = sN; break; }
+        case 'world3d': if (o.scene) { const camSpec = o.cam, opts = val(o.opts ?? {}), tt0 = o.time != null ? val(o.time) : Math.max(0, env.lt);
+          api.world3d(o.scene, { t: tt0, u, ...(camSpec ? { cam: (tt) => { const s3 = env.t3; env.t3 = tt; try { return val(camSpec); } finally { env.t3 = s3; } } } : {}), ...opts }); break; }
+          // eslint-disable-next-line no-fallthrough
         default: { const f = getFn(o.lib, o.fn), A = { ctx, api, film, t: env.t, u, shot: shotDef }, r = f(...(o.args ?? ['ctx', 'api', 'film', 't']).map((a) => (typeof a === 'string' ? A[a] : val(a)))); if (o.fields) publish(o, r); }
       } } };
     run(scene.objects ?? []);
