@@ -39,7 +39,7 @@ if (argv[0] === '--gen') {
   process.exit(0);
 }
 export const refHashes = () => JSON.parse(fs.readFileSync(HASHES, 'utf8'));
-export const dslShots = () => fs.readdirSync(path.join(ROOT, 'shots')).filter((f) => f.endsWith('.scene.json')).map((f) => f.replace('.scene.json', '')).sort();
+export const dslShots = () => fs.readdirSync(path.join(ROOT, 'shots')).filter((f) => f.endsWith('.scene.json')).map((f) => f.replace('.scene.json', '')).filter((id) => /^\/\/ GENERADO/.test(fs.readFileSync(path.join(ROOT, 'shots', id + '.mjs'), 'utf8'))).sort();
 if (argv[0] === '--check') {   // node test/dsl-cov.mjs --check [film|all] [id,id]  → compara los shots DSL con los hashes del JS legado
   const films = !argv[1] || argv[1] === 'all' ? Object.keys(FILMS) : [argv[1]], mine = dslShots(), H = refHashes(); let bad = 0, n = 0;
   for (const film of films) {

@@ -1,14 +1,292 @@
-import { PARAMS, word, focusOf, since, shake, glitch, stack, clamp } from './K_tipo.mjs';
-// K04 · pulso 4 → 5. CUAN / DO: cada línea barre de un lado al otro en una semicorchea (la 1.ª de izquierda a derecha, la 2.ª al revés); el filo es una barra lima.
-export default {
-  params: PARAMS,
-  draw(ctx, t, u, shot, film, api) {
-    const S = api.safe, P = api.params, age = since(film, shot, t, 0), [jx, jy] = shake(P, t, 14, 4), boxes = [];
-    boxes.push(word(ctx, api, '¿', S.x0 + 56, S.y0 + 135, 220, { color: 'accent', align: 'left', alpha: 0.95 }));
-    stack(api, ['CUAN', 'DO'], { width: api.safe.w * 0.78, cy: S.cy + 90 }).forEach((l, i) => {
-      const e = api.ease('outExpo', clamp((age - i * 0.05) / 0.16)), dir = i ? -1 : 1, b = word(ctx, api, l.str, l.cx + jx, l.cy + jy, l.size * (1 + 0.03 * P.kick), { label: 'CUANDO', reveal: dir > 0 ? [0, e] : [1 - e, 1], slice: glitch(P, t, l.size, 4 + i, 0.08), split: 6 * P.chaos });
-      boxes.push(b); if (e < 0.999 && age >= 0) { ctx.save(); ctx.fillStyle = api.color('accent'); const x = dir > 0 ? b.x + b.w * e : b.x + b.w * (1 - e); ctx.fillRect(x - 8, l.cy - l.cap * 0.62, 16, l.cap * 1.24); ctx.restore(); }
-    });
-    focusOf(api, boxes, 'pregunta');
+// GENERADO desde shots/K04.scene.json por `node engine/dsl.mjs build` (spec 006). No editar a mano: edita el .scene.json y regenera.
+import { shot } from '../engine/dsl-core.mjs';
+import * as K_tipo from './K_tipo.mjs';
+export default shot({
+ "dsl": 1,
+ "id": "K04",
+ "doc": "K04 · pulso 4 → 5. CUAN / DO: cada línea barre de un lado al otro en una semicorchea (la 1.ª de izquierda a derecha, la 2.ª al revés); el filo es una barra lima.",
+ "libs": {
+  "K_tipo": "./K_tipo.mjs"
+ },
+ "fns": {
+  "since": {
+   "lib": "K_tipo",
+   "fn": "since",
+   "bind": [
+    "film",
+    "shot",
+    "t"
+   ]
   },
-};
+  "shake": {
+   "lib": "K_tipo",
+   "fn": "shake",
+   "bind": [
+    "P",
+    "t"
+   ],
+   "reads": [
+    "chaos"
+   ]
+  },
+  "glitch": {
+   "lib": "K_tipo",
+   "fn": "glitch",
+   "bind": [
+    "P",
+    "t"
+   ],
+   "reads": [
+    "chaos",
+    "snare",
+    "kick"
+   ]
+  }
+ },
+ "params": {
+  "kick": {
+   "type": "number",
+   "range": [
+    0,
+    2
+   ],
+   "default": 0,
+   "semantic": "envolvente de los onsets del bombo: golpe de escala"
+  },
+  "snare": {
+   "type": "number",
+   "range": [
+    0,
+    2
+   ],
+   "default": 0,
+   "semantic": "envolvente de caja/palmas/toms: destello y corte de tiras"
+  },
+  "hat": {
+   "type": "number",
+   "range": [
+    0,
+    2
+   ],
+   "default": 0,
+   "semantic": "envolvente de hats: titileo"
+  },
+  "tom": {
+   "type": "number",
+   "range": [
+    0,
+    2
+   ],
+   "default": 0,
+   "semantic": "envolvente de toms: cuarta voz del secuenciador"
+  },
+  "chaos": {
+   "type": "number",
+   "range": [
+    0,
+    1
+   ],
+   "default": 0.5,
+   "semantic": "desorden: 1 = ruido (tiras y temblor), 0 = todo alineado"
+  },
+  "lock": {
+   "type": "number",
+   "range": [
+    0,
+    1
+   ],
+   "default": 0,
+   "semantic": "cuánto se pega el contenido a la rejilla visible"
+  },
+  "shock": {
+   "type": "number",
+   "range": [
+    0,
+    2
+   ],
+   "default": 0,
+   "semantic": "onda de choque tras el golpe (sacudida, canales, anillo)"
+  },
+  "tension": {
+   "type": "number",
+   "range": [
+    0,
+    1.5
+   ],
+   "default": 0,
+   "semantic": "tensión acumulada del crescendo (compresión, brillo del acento)"
+  },
+  "drift": {
+   "type": "number",
+   "range": [
+    -1,
+    1
+   ],
+   "default": 0,
+   "semantic": "deriva lenta (LFO): respiración en los respiros"
+  },
+  "text": {
+   "type": "string",
+   "semantic": "texto principal del shot (default shot.text)"
+  }
+ },
+ "objects": [
+  {
+   "id": "age",
+   "type": "let",
+   "value": {
+    "$expr": "since(0)"
+   }
+  },
+  {
+   "id": "J",
+   "type": "let",
+   "value": {
+    "$expr": "shake(14, 4)"
+   },
+   "fields": [
+    "0",
+    "1"
+   ]
+  },
+  {
+   "type": "word",
+   "lib": "K_tipo",
+   "str": "¿",
+   "x": {
+    "$expr": "S_x0 + 56"
+   },
+   "y": {
+    "$expr": "S_y0 + 135"
+   },
+   "size": {
+    "$expr": 220
+   },
+   "opts": {
+    "color": "accent",
+    "align": "left",
+    "alpha": 0.95
+   }
+  },
+  {
+   "id": "lines",
+   "type": "let",
+   "lib": "K_tipo",
+   "fn": "stack",
+   "args": [
+    "api",
+    [
+     "CUAN",
+     "DO"
+    ],
+    {
+     "width": {
+      "$expr": "S_w * 0.78"
+     },
+     "cy": {
+      "$expr": "S_cy + 90"
+     }
+    }
+   ]
+  },
+  {
+   "id": "L",
+   "type": "repeat",
+   "items": {
+    "$expr": "lines"
+   },
+   "fields": [
+    "str",
+    "cx",
+    "cy",
+    "size",
+    "cap"
+   ],
+   "children": [
+    {
+     "id": "ew",
+     "type": "let",
+     "value": {
+      "$expr": "ease('outExpo', clamp((age - i * 0.05) / 0.16))"
+     }
+    },
+    {
+     "id": "dir",
+     "type": "let",
+     "value": {
+      "$expr": "i ? -1 : 1"
+     }
+    },
+    {
+     "id": "g4",
+     "type": "let",
+     "value": {
+      "$expr": "glitch(L_size, 4 + i, 0.08)"
+     }
+    },
+    {
+     "type": "word",
+     "lib": "K_tipo",
+     "str": {
+      "$expr": "L_str"
+     },
+     "x": {
+      "$expr": "L_cx + J_0"
+     },
+     "y": {
+      "$expr": "L_cy + J_1"
+     },
+     "size": {
+      "$expr": "L_size * (1 + 0.03 * kick)"
+     },
+     "opts": {
+      "label": "CUANDO",
+      "reveal": {
+       "$expr": "dir > 0 ? vec(0, ew) : vec(1 - ew, 1)"
+      },
+      "slice": {
+       "$expr": "g4"
+      },
+      "split": {
+       "$expr": "6 * chaos"
+      }
+     },
+     "id": "w"
+    },
+    {
+     "type": "shape",
+     "shape": "rect",
+     "color": "accent",
+     "alpha": 1,
+     "x": {
+      "$expr": "(dir > 0 ? w_x + w_w * ew : w_x + w_w * (1 - ew)) - 8"
+     },
+     "y": {
+      "$expr": "L_cy - L_cap * 0.62"
+     },
+     "w": {
+      "$expr": "16"
+     },
+     "h": {
+      "$expr": "L_cap * 1.24"
+     },
+     "when": "ew < 0.999 && age >= 0"
+    }
+   ]
+  },
+  {
+   "type": "focusOf",
+   "lib": "K_tipo",
+   "fn": "focusOf",
+   "args": [
+    "api",
+    {
+     "$expr": "boxes"
+    },
+    {
+     "$lit": "pregunta"
+    }
+   ]
+  }
+ ]
+}, { K_tipo });

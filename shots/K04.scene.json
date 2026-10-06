@@ -1,0 +1,289 @@
+{
+  "dsl": 1,
+  "id": "K04",
+  "doc": "K04 · pulso 4 → 5. CUAN / DO: cada línea barre de un lado al otro en una semicorchea (la 1.ª de izquierda a derecha, la 2.ª al revés); el filo es una barra lima.",
+  "libs": {
+    "K_tipo": "./K_tipo.mjs"
+  },
+  "fns": {
+    "since": {
+      "lib": "K_tipo",
+      "fn": "since",
+      "bind": [
+        "film",
+        "shot",
+        "t"
+      ]
+    },
+    "shake": {
+      "lib": "K_tipo",
+      "fn": "shake",
+      "bind": [
+        "P",
+        "t"
+      ],
+      "reads": [
+        "chaos"
+      ]
+    },
+    "glitch": {
+      "lib": "K_tipo",
+      "fn": "glitch",
+      "bind": [
+        "P",
+        "t"
+      ],
+      "reads": [
+        "chaos",
+        "snare",
+        "kick"
+      ]
+    }
+  },
+  "params": {
+    "kick": {
+      "type": "number",
+      "range": [
+        0,
+        2
+      ],
+      "default": 0,
+      "semantic": "envolvente de los onsets del bombo: golpe de escala"
+    },
+    "snare": {
+      "type": "number",
+      "range": [
+        0,
+        2
+      ],
+      "default": 0,
+      "semantic": "envolvente de caja/palmas/toms: destello y corte de tiras"
+    },
+    "hat": {
+      "type": "number",
+      "range": [
+        0,
+        2
+      ],
+      "default": 0,
+      "semantic": "envolvente de hats: titileo"
+    },
+    "tom": {
+      "type": "number",
+      "range": [
+        0,
+        2
+      ],
+      "default": 0,
+      "semantic": "envolvente de toms: cuarta voz del secuenciador"
+    },
+    "chaos": {
+      "type": "number",
+      "range": [
+        0,
+        1
+      ],
+      "default": 0.5,
+      "semantic": "desorden: 1 = ruido (tiras y temblor), 0 = todo alineado"
+    },
+    "lock": {
+      "type": "number",
+      "range": [
+        0,
+        1
+      ],
+      "default": 0,
+      "semantic": "cuánto se pega el contenido a la rejilla visible"
+    },
+    "shock": {
+      "type": "number",
+      "range": [
+        0,
+        2
+      ],
+      "default": 0,
+      "semantic": "onda de choque tras el golpe (sacudida, canales, anillo)"
+    },
+    "tension": {
+      "type": "number",
+      "range": [
+        0,
+        1.5
+      ],
+      "default": 0,
+      "semantic": "tensión acumulada del crescendo (compresión, brillo del acento)"
+    },
+    "drift": {
+      "type": "number",
+      "range": [
+        -1,
+        1
+      ],
+      "default": 0,
+      "semantic": "deriva lenta (LFO): respiración en los respiros"
+    },
+    "text": {
+      "type": "string",
+      "semantic": "texto principal del shot (default shot.text)"
+    }
+  },
+  "objects": [
+    {
+      "id": "age",
+      "type": "let",
+      "value": {
+        "$expr": "since(0)"
+      }
+    },
+    {
+      "id": "J",
+      "type": "let",
+      "value": {
+        "$expr": "shake(14, 4)"
+      },
+      "fields": [
+        "0",
+        "1"
+      ]
+    },
+    {
+      "type": "word",
+      "lib": "K_tipo",
+      "str": "¿",
+      "x": {
+        "$expr": "S_x0 + 56"
+      },
+      "y": {
+        "$expr": "S_y0 + 135"
+      },
+      "size": {
+        "$expr": 220
+      },
+      "opts": {
+        "color": "accent",
+        "align": "left",
+        "alpha": 0.95
+      }
+    },
+    {
+      "id": "lines",
+      "type": "let",
+      "lib": "K_tipo",
+      "fn": "stack",
+      "args": [
+        "api",
+        [
+          "CUAN",
+          "DO"
+        ],
+        {
+          "width": {
+            "$expr": "S_w * 0.78"
+          },
+          "cy": {
+            "$expr": "S_cy + 90"
+          }
+        }
+      ]
+    },
+    {
+      "id": "L",
+      "type": "repeat",
+      "items": {
+        "$expr": "lines"
+      },
+      "fields": [
+        "str",
+        "cx",
+        "cy",
+        "size",
+        "cap"
+      ],
+      "children": [
+        {
+          "id": "ew",
+          "type": "let",
+          "value": {
+            "$expr": "ease('outExpo', clamp((age - i * 0.05) / 0.16))"
+          }
+        },
+        {
+          "id": "dir",
+          "type": "let",
+          "value": {
+            "$expr": "i ? -1 : 1"
+          }
+        },
+        {
+          "id": "g4",
+          "type": "let",
+          "value": {
+            "$expr": "glitch(L_size, 4 + i, 0.08)"
+          }
+        },
+        {
+          "type": "word",
+          "lib": "K_tipo",
+          "str": {
+            "$expr": "L_str"
+          },
+          "x": {
+            "$expr": "L_cx + J_0"
+          },
+          "y": {
+            "$expr": "L_cy + J_1"
+          },
+          "size": {
+            "$expr": "L_size * (1 + 0.03 * kick)"
+          },
+          "opts": {
+            "label": "CUANDO",
+            "reveal": {
+              "$expr": "dir > 0 ? vec(0, ew) : vec(1 - ew, 1)"
+            },
+            "slice": {
+              "$expr": "g4"
+            },
+            "split": {
+              "$expr": "6 * chaos"
+            }
+          },
+          "id": "w"
+        },
+        {
+          "type": "shape",
+          "shape": "rect",
+          "color": "accent",
+          "alpha": 1,
+          "x": {
+            "$expr": "(dir > 0 ? w_x + w_w * ew : w_x + w_w * (1 - ew)) - 8"
+          },
+          "y": {
+            "$expr": "L_cy - L_cap * 0.62"
+          },
+          "w": {
+            "$expr": "16"
+          },
+          "h": {
+            "$expr": "L_cap * 1.24"
+          },
+          "when": "ew < 0.999 && age >= 0"
+        }
+      ]
+    },
+    {
+      "type": "focusOf",
+      "lib": "K_tipo",
+      "fn": "focusOf",
+      "args": [
+        "api",
+        {
+          "$expr": "boxes"
+        },
+        {
+          "$lit": "pregunta"
+        }
+      ]
+    }
+  ]
+}

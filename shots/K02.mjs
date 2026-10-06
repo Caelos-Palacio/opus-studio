@@ -1,11 +1,241 @@
-import { PARAMS, word, focusOf, since, pop, shake, glitch, fit } from './K_tipo.mjs';
-// K02 · pulso 1 → 2. QUÉ cae en el pulso, tumbada (lee de abajo arriba: ocupa el alto del cuadro vertical), tembloroso (ruido); la ¿ queda de viñeta arriba.
-export default {
-  params: PARAMS,
-  draw(ctx, t, u, shot, film, api) {
-    const S = api.safe, P = api.params, age = since(film, shot, t, 0), p = pop(api, age, { from: 1.1 }), size = fit('QUÉ', S.h * 0.84), [jx, jy] = shake(P, t, 18, 2);
-    const q = word(ctx, api, '¿', S.x0 + 56, S.y0 + 135, 220, { color: 'accent', align: 'left', alpha: 0.95 });
-    const b = word(ctx, api, 'QUÉ', S.cx + 60 + jx, S.cy + jy, size * p.s * (1 + 0.035 * P.kick), { rot: -Math.PI / 2, slice: glitch(P, t, size, 2), split: 12 * P.chaos * (0.4 + P.snare) });
-    focusOf(api, [b, q], 'pregunta');
+// GENERADO desde shots/K02.scene.json por `node engine/dsl.mjs build` (spec 006). No editar a mano: edita el .scene.json y regenera.
+import { shot } from '../engine/dsl-core.mjs';
+import * as K_tipo from './K_tipo.mjs';
+export default shot({
+ "dsl": 1,
+ "id": "K02",
+ "doc": "K02 · pulso 1 → 2. QUÉ cae en el pulso, tumbada (lee de abajo arriba: ocupa el alto del cuadro vertical), tembloroso (ruido); la ¿ queda de viñeta arriba.",
+ "libs": {
+  "K_tipo": "./K_tipo.mjs"
+ },
+ "fns": {
+  "since": {
+   "lib": "K_tipo",
+   "fn": "since",
+   "bind": [
+    "film",
+    "shot",
+    "t"
+   ]
   },
-};
+  "fit": {
+   "lib": "K_tipo",
+   "fn": "fit"
+  },
+  "shake": {
+   "lib": "K_tipo",
+   "fn": "shake",
+   "bind": [
+    "P",
+    "t"
+   ],
+   "reads": [
+    "chaos"
+   ]
+  },
+  "glitch": {
+   "lib": "K_tipo",
+   "fn": "glitch",
+   "bind": [
+    "P",
+    "t"
+   ],
+   "reads": [
+    "chaos",
+    "snare",
+    "kick"
+   ]
+  }
+ },
+ "params": {
+  "kick": {
+   "type": "number",
+   "range": [
+    0,
+    2
+   ],
+   "default": 0,
+   "semantic": "envolvente de los onsets del bombo: golpe de escala"
+  },
+  "snare": {
+   "type": "number",
+   "range": [
+    0,
+    2
+   ],
+   "default": 0,
+   "semantic": "envolvente de caja/palmas/toms: destello y corte de tiras"
+  },
+  "hat": {
+   "type": "number",
+   "range": [
+    0,
+    2
+   ],
+   "default": 0,
+   "semantic": "envolvente de hats: titileo"
+  },
+  "tom": {
+   "type": "number",
+   "range": [
+    0,
+    2
+   ],
+   "default": 0,
+   "semantic": "envolvente de toms: cuarta voz del secuenciador"
+  },
+  "chaos": {
+   "type": "number",
+   "range": [
+    0,
+    1
+   ],
+   "default": 0.5,
+   "semantic": "desorden: 1 = ruido (tiras y temblor), 0 = todo alineado"
+  },
+  "lock": {
+   "type": "number",
+   "range": [
+    0,
+    1
+   ],
+   "default": 0,
+   "semantic": "cuánto se pega el contenido a la rejilla visible"
+  },
+  "shock": {
+   "type": "number",
+   "range": [
+    0,
+    2
+   ],
+   "default": 0,
+   "semantic": "onda de choque tras el golpe (sacudida, canales, anillo)"
+  },
+  "tension": {
+   "type": "number",
+   "range": [
+    0,
+    1.5
+   ],
+   "default": 0,
+   "semantic": "tensión acumulada del crescendo (compresión, brillo del acento)"
+  },
+  "drift": {
+   "type": "number",
+   "range": [
+    -1,
+    1
+   ],
+   "default": 0,
+   "semantic": "deriva lenta (LFO): respiración en los respiros"
+  },
+  "text": {
+   "type": "string",
+   "semantic": "texto principal del shot (default shot.text)"
+  }
+ },
+ "objects": [
+  {
+   "id": "age",
+   "type": "let",
+   "value": {
+    "$expr": "since(0)"
+   }
+  },
+  {
+   "id": "p",
+   "type": "let",
+   "lib": "K_tipo",
+   "fn": "pop",
+   "args": [
+    "api",
+    {
+     "$expr": "age"
+    },
+    {
+     "from": 1.1
+    }
+   ],
+   "fields": [
+    "s",
+    "a"
+   ]
+  },
+  {
+   "id": "size",
+   "type": "let",
+   "value": {
+    "$expr": "fit('QUÉ', S_h * 0.84)"
+   }
+  },
+  {
+   "id": "J",
+   "type": "let",
+   "value": {
+    "$expr": "shake(18, 2)"
+   },
+   "fields": [
+    "0",
+    "1"
+   ]
+  },
+  {
+   "type": "word",
+   "lib": "K_tipo",
+   "str": "¿",
+   "x": {
+    "$expr": "S_x0 + 56"
+   },
+   "y": {
+    "$expr": "S_y0 + 135"
+   },
+   "size": {
+    "$expr": 220
+   },
+   "opts": {
+    "color": "accent",
+    "align": "left",
+    "alpha": 0.95
+   }
+  },
+  {
+   "type": "word",
+   "lib": "K_tipo",
+   "str": "QUÉ",
+   "x": {
+    "$expr": "S_cx + 60 + J_0"
+   },
+   "y": {
+    "$expr": "S_cy + J_1"
+   },
+   "size": {
+    "$expr": "size * p_s * (1 + 0.035 * kick)"
+   },
+   "opts": {
+    "rot": {
+     "$expr": "-pi / 2"
+    },
+    "slice": {
+     "$expr": "glitch(size, 2)"
+    },
+    "split": {
+     "$expr": "12 * chaos * (0.4 + snare)"
+    }
+   }
+  },
+  {
+   "type": "focusOf",
+   "lib": "K_tipo",
+   "fn": "focusOf",
+   "args": [
+    "api",
+    {
+     "$expr": "boxes"
+    },
+    {
+     "$lit": "pregunta"
+    }
+   ]
+  }
+ ]
+}, { K_tipo });
