@@ -109,7 +109,7 @@ const kinds = (m) => new Set((m?.layers ?? []).flatMap((L) => Object.keys(L))), 
 const K = RM.kraft?.film.medium, P = RM.pizarra?.film.medium, T = RM.tecnico?.film.medium, N = RM.neon?.film.medium;
 ok(!!K && K.accents.length === 1 && lumOf(K.palette.ink) < 60 && kinds(K).has('stamps') && K.support.fibers.len[1] >= 50, 'K1 kraft: tinta negra + 1 acento, sello/estampado y fibras gruesas', K ? `fibras ${K.support.fibers.len}` : 'sin medio');
 ok(!!P && lumOf(P.palette.ink) > 180 && lumOf(P.palette.paper) < 90 && kinds(P).has('ghost') && kinds(P).has('smudge') && (P.ink.erosion?.amount ?? 0) >= 0.4 && !!P.ink.halo, 'K2 pizarra: tiza clara sobre fondo oscuro, borrado parcial, ghosting y polvo', P ? `erosión ${P.ink.erosion?.amount}` : 'sin medio');
-ok(!!T && kinds(T).has('dims') && kinds(T).has('text') && !!T.support.decor?.grid && T.typeMono !== false, 'K3 técnico: cuadrícula en el soporte, cotas y HUD mono', T ? [...kinds(T)].join(' ') : 'sin medio');
+ok(!!T && kinds(T).has('dims') && kinds(T).has('text') && !!T.support.decor?.grid && /mono/i.test(T.font ?? ''), 'K3 técnico: cuadrícula en el soporte, cotas y HUD mono', T ? [...kinds(T)].join(' ') : 'sin medio');
 ok(!!N && N.blend === 'screen' && !!N.ink.flicker && !!N.ink.reflection && (kinds(N).has('haze') || kinds(N).has('bokeh')), 'K4 neón: luz aditiva con parpadeo, reflejo mojado y atmósfera', N ? [...kinds(N)].join(' ') : 'sin medio');
 const names = Object.keys(means); let minD = 1e9, pair = '';
 for (let i = 0; i < names.length; i++) for (let j = i + 1; j < names.length; j++) { const d = means[names[i]].reduce((a, v, k) => a + Math.abs(v - means[names[j]][k]), 0); if (d < minD) { minD = d; pair = names[i] + '~' + names[j]; } }
