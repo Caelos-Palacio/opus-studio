@@ -1,6 +1,6 @@
 {
   "schema": "opus-vocab/1",
-  "version": 1,
+  "version": 2,
   "doc": "Vocabulario controlado (spec 006). Fuente única de términos; engine/vocab.mjs lo carga. Cambiar un término = subir version y pasar `npm test`.",
   "sections": {
     "concept.kind": {
@@ -257,6 +257,10 @@
           "id": "arc",
           "def": "arco dramático",
           "forbid": []
+        },
+        {
+          "id": "narr",
+          "def": "lint narrativo (spec 013): suelo negativo del storytelling; FIX solo si el story es v2"
         }
       ]
     },
@@ -698,14 +702,46 @@
           "def": "tinta sobre papel crema",
           "forbid": []
         },
-        { "id": "papel_crema_ciruela", "def": "papel crema con acento violeta profundo (variante A)", "forbid": [] },
-        { "id": "papel_crema_terracota", "def": "papel crema con acento terracota (variante B)", "forbid": [] },
-        { "id": "kraft", "def": "tinta negra de estampa sobre cartón de estraza", "forbid": [] },
-        { "id": "pizarra", "def": "tiza sobre pizarra con borrado parcial", "forbid": [] },
-        { "id": "tecnico", "def": "plano técnico azul con cuadrícula, cotas y HUD", "forbid": [] },
-        { "id": "tecnico_bermellon", "def": "plano técnico azul con acento bermellón (redline de ingeniero) en vez del ámbar", "forbid": [] },
-        { "id": "neon", "def": "tubos de luz sobre muro mojado con parpadeo y reflejo", "forbid": [] },
-        { "id": "neon_pulso", "def": "neón del reel: letrero roto de tubos lima y magenta sobre ladrillo ciruela, con parpadeo, zumbido y suelo mojado", "forbid": [] }
+        {
+          "id": "papel_crema_ciruela",
+          "def": "papel crema con acento violeta profundo (variante A)",
+          "forbid": []
+        },
+        {
+          "id": "papel_crema_terracota",
+          "def": "papel crema con acento terracota (variante B)",
+          "forbid": []
+        },
+        {
+          "id": "kraft",
+          "def": "tinta negra de estampa sobre cartón de estraza",
+          "forbid": []
+        },
+        {
+          "id": "pizarra",
+          "def": "tiza sobre pizarra con borrado parcial",
+          "forbid": []
+        },
+        {
+          "id": "tecnico",
+          "def": "plano técnico azul con cuadrícula, cotas y HUD",
+          "forbid": []
+        },
+        {
+          "id": "tecnico_bermellon",
+          "def": "plano técnico azul con acento bermellón (redline de ingeniero) en vez del ámbar",
+          "forbid": []
+        },
+        {
+          "id": "neon",
+          "def": "tubos de luz sobre muro mojado con parpadeo y reflejo",
+          "forbid": []
+        },
+        {
+          "id": "neon_pulso",
+          "def": "neón del reel: letrero roto de tubos lima y magenta sobre ladrillo ciruela, con parpadeo, zumbido y suelo mojado",
+          "forbid": []
+        }
       ]
     },
     "prose": {
@@ -1121,6 +1157,196 @@
         {
           "id": "medio.grainISO",
           "def": "Grano (ISO equivalente)",
+          "forbid": []
+        }
+      ]
+    },
+    "narr.check": {
+      "doc": "Checks del lint narrativo (engine/narr.mjs).",
+      "terms": [
+        {
+          "id": "schema.v2",
+          "def": "campos de story v2 presentes",
+          "forbid": []
+        },
+        {
+          "id": "ancla.visible",
+          "def": "el ancla aparece en pantalla antes de su límite",
+          "forbid": []
+        },
+        {
+          "id": "ancla.dato",
+          "def": "el dato del ancla tiene cifra o nombre propio y fuente",
+          "forbid": []
+        },
+        {
+          "id": "abstracto.densidad",
+          "def": "abstractos por 100 palabras",
+          "forbid": []
+        },
+        {
+          "id": "concreto.ratio",
+          "def": "proporción de beats con cosa física declarada",
+          "forbid": []
+        },
+        {
+          "id": "cliche.apertura",
+          "def": "apertura de cliché (grupo A)",
+          "forbid": []
+        },
+        {
+          "id": "cliche.cierre",
+          "def": "cierre moralizante, retorno o pregunta retórica (grupos C y F)",
+          "forbid": []
+        },
+        {
+          "id": "cliche.poster",
+          "def": "vocabulario de póster (grupo D)",
+          "forbid": []
+        },
+        {
+          "id": "paralelismo.neg",
+          "def": "paralelismos negativos y estructuras de plantilla (grupo B)",
+          "forbid": []
+        },
+        {
+          "id": "triada",
+          "def": "enumeraciones en tríada",
+          "forbid": []
+        },
+        {
+          "id": "pregunta.plantilla",
+          "def": "pregunta sí/no o apertura con ¿ repetida en el archivo",
+          "forbid": []
+        },
+        {
+          "id": "pregunta.apertura_y_cierre",
+          "def": "gancho y último beat ambos en pregunta",
+          "forbid": []
+        },
+        {
+          "id": "spine.metronomo",
+          "def": "conectores en alternancia estricta o un solo conector",
+          "forbid": []
+        },
+        {
+          "id": "ritmo.beats_cv",
+          "def": "uniformidad de la duración de los beats",
+          "forbid": []
+        },
+        {
+          "id": "ritmo.frases_cv",
+          "def": "uniformidad de la longitud de frases en pantalla",
+          "forbid": []
+        },
+        {
+          "id": "giro.posicion",
+          "def": "giro fuera de la ventana de la forma o coincidente con otros films",
+          "forbid": []
+        },
+        {
+          "id": "cierre.eco",
+          "def": "último beat solapa con el primero sin declarar eco",
+          "forbid": []
+        },
+        {
+          "id": "cierre.moraleja",
+          "def": "moraleja en el último beat",
+          "forbid": []
+        },
+        {
+          "id": "voz.coherencia",
+          "def": "persona o palabras prohibidas contra la voz declarada",
+          "forbid": []
+        },
+        {
+          "id": "voz.tic",
+          "def": "el tic declarado aparece de 2 a 6 veces",
+          "forbid": []
+        },
+        {
+          "id": "imperfeccion.presente",
+          "def": "la imperfección tiene un evento en el timeline",
+          "forbid": []
+        },
+        {
+          "id": "frescura.registro",
+          "def": "puntos de frescura suficientes y sin vetos",
+          "forbid": []
+        },
+        {
+          "id": "frescura.archivo",
+          "def": "solape de palabras clave con films previos",
+          "forbid": []
+        },
+        {
+          "id": "diversidad.oleada",
+          "def": "medio y tono distintos dentro de una oleada",
+          "forbid": []
+        },
+        {
+          "id": "narr_ok.sin_porque",
+          "def": "excepción narrativa sin porqué",
+          "forbid": []
+        }
+      ]
+    },
+    "story.forma": {
+      "doc": "Forma narrativa (story.forma, engine/arc.json: formas).",
+      "terms": [
+        {
+          "id": "causal",
+          "def": "pero/por lo tanto; el arco exige el spine",
+          "forbid": []
+        },
+        {
+          "id": "kisho",
+          "def": "kishōtenketsu: sin conflicto, giro lateral",
+          "forbid": []
+        },
+        {
+          "id": "espiral",
+          "def": "repetición con variación",
+          "forbid": []
+        },
+        {
+          "id": "cuenta_atras",
+          "def": "el pico va al final",
+          "forbid": []
+        }
+      ]
+    },
+    "story.cierre": {
+      "doc": "Tipo de cierre (story.cierre.tipo).",
+      "terms": [
+        {
+          "id": "corte",
+          "def": "termina en seco",
+          "forbid": []
+        },
+        {
+          "id": "eco",
+          "def": "vuelve al inicio; opción justificada, no regla",
+          "forbid": []
+        },
+        {
+          "id": "golpe",
+          "def": "termina en un impacto",
+          "forbid": []
+        },
+        {
+          "id": "silencio",
+          "def": "termina en silencio",
+          "forbid": []
+        },
+        {
+          "id": "abierto",
+          "def": "deja la pregunta abierta",
+          "forbid": []
+        },
+        {
+          "id": "cicatriz",
+          "def": "se resuelve con una marca que queda",
           "forbid": []
         }
       ]

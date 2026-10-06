@@ -12,7 +12,7 @@ El **gusto visual** vive en `CINE.md` (cinematografía) y en el style pack activ
 - Tipo nunca sobre detalle; sujeto con aire; cuadro con espacio negativo.
 - Todo lo visible se entiende sin sonido; todo texto da tiempo a leerse.
 - Sin transiciones baratas (las `bans` del estilo). La transición ideal: el objeto cambia de significado.
-- El último frame dialoga con el primero.
+- El último frame puede dialogar con el primero (eco), pero es una opción, no una regla: si los 4 films cierran en retorno, es plantilla. Elegir el cierre (corte, golpe, silencio, abierto, cicatriz o eco justificado): `story.cierre.tipo`, docs/research/11-storytelling.md §1.
 
 ## Perfiles (ritmo y exigencia; ortogonales al estilo)
 | perfil | para | hold máx. | cortes | shots | extra |

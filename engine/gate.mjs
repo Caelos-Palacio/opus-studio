@@ -58,6 +58,10 @@ export async function criticState({ film, plan } = {}, cur = currentHashes()) {
 export async function masterGate({ film, plan, force } = {}) {
   const cur = currentHashes(), L = lintState(cur), C = await criticState({ film, plan }, cur), reasons = [];
   if (!(L.fresh && L.verdict === 'SHIP')) reasons.push(`lint: ${L.why}`);
+  try {                                                                              // spec 013: 0 FIX narrativos, solo si el story es v2 (los v1 no se bloquean)
+    const [A, N, F] = await Promise.all([import('./arc.mjs'), import('./narr.mjs'), import('./film.mjs')]), sp = A.storyPath(film);
+    if (sp) { const r = N.analyzeOne(sp, F.timelinePath()), nf = r.story.v === 2 ? r.issues.filter((i) => i.level === 'FIX') : []; if (nf.length) reasons.push(`narr: ${nf.length} FIX narrativos (${nf.map((i) => i.check).join(', ')})`); }
+  } catch {}
   if (C.verdict !== 'SHIP') reasons.push(`crítico: ${C.why}`);                       // sin veredicto vigente tampoco hay master (o --force "razón")
   if (reasons.length && force === true) return { ok: false, reasons: [...reasons, '--force exige una razón: --force "por qué"'] };
   if (reasons.length && typeof force === 'string' && force.trim()) { record({ action: 'master.force', target: `master/${cur.film}`, hash_after: cur.filmHash, verdict: 'forced', why: force }); return { ok: true, forced: true, reasons }; }
