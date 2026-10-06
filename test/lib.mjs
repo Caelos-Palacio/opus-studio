@@ -28,7 +28,8 @@ export const rmrf = (d) => fs.rmSync(d, { recursive: true, force: true });
 // spawn → promesa {status, stdout, stderr}; nunca rechaza (el test decide qué es fallo).
 export function run(args, { cwd = ROOT, env = {}, timeout = 900000 } = {}) {
   return new Promise((res) => {
-    const p = spawn(process.execPath, args, { cwd, env: { ...process.env, ...env } }); let out = '', err = '';
+    const p = spawn(process.execPath, args, { cwd, env: { OPUS_WARM: '0', ...process.env, ...env } });   // spec 009: el precalentamiento paralelo del lint no suma dentro de una suite que ya reparte la CPU
+    let out = '', err = '';
     const k = setTimeout(() => p.kill('SIGKILL'), timeout);
     p.stdout.on('data', (b) => (out += b)); p.stderr.on('data', (b) => (err += b));
     p.on('close', (status) => { clearTimeout(k); res({ status, stdout: out, stderr: err }); });

@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 // Sala de montaje. El film se trocea en FRAGMENTOS (segmentos entre cortes limpios) con hash de contenido:
 // solo se re-renderiza lo que cambió. El master es un concat sin recodificar + audio.
-//   node engine/cut.mjs [--review] [--fps N] [--size WxH] [--workers N] [--chunk 900] [--edit data/edit.json] [--plan]
+//   node engine/cut.mjs [--review] [--fps N] [--size WxH] [--workers N] [--chunk 120] [--edit data/edit.json] [--plan]
 //   --plan : muestra qué fragmentos están en caché y cuáles se renderizarían (no renderiza)
 //   master (sin --review) exige lint SHIP vigente + crítico sin FIX (engine/gate.mjs); si no, falla salvo --force "razón" (queda en el ledger).
 // Concurrencia (F1): cada fragmento se renderiza a un archivo de staging y SOLO se registra si el hash del plan sigue igual tras el
@@ -30,21 +30,20 @@ import { cookEntry } from './resolve.mjs';
 import { filmId } from './filmid.mjs';
 import { workerThreads } from './encode.mjs';
 import { atempoChain } from './inputs.mjs';
+import { shotImports } from './cookkey.mjs';
 
 const argv = process.argv.slice(2), has = (k) => argv.includes(k), arg = (k, d) => { const i = argv.indexOf(k); return i >= 0 && argv[i + 1] && !argv[i + 1].startsWith('--') ? argv[i + 1] : d; };
 export const filmName = (tlPath = timelinePath()) => filmId(tlPath);
 export { shotHash };
 // P2: el master se llama como el film (out/mate.mp4); el demo conserva out/master.mp4 por compatibilidad.
 export const masterFile = (name, review = false) => `out/${name === 'main' ? 'master' : name}${review ? '.review' : ''}.mp4`;
-// ids de los shots que el código de `id` importa (transitivo, sin él mismo).
-function shotImports(id, seen = new Set()) {
-  if (seen.has(id)) return []; seen.add(id);
-  const f = path.join(ROOT, 'shots', id + '.mjs'); if (!fs.existsSync(f)) return [];
-  for (const [, dep] of fs.readFileSync(f, 'utf8').matchAll(/from\s+['"]\.\/([\w-]+)\.mjs['"]/g)) shotImports(dep, seen);
-  return [...seen].filter((x) => x !== id);
-}
 // Segmentos: grupos de shots que se solapan (morphs) no se parten; cortes limpios sí.
-export function plan(film, { fps, size, chunk = 900, preset = 'medium' }) {
+// R4 (spec 009): preset por defecto `faster` (−19 % CPU a igual calidad, PSNR 50,49 dB vs 50,24 de medium) y threads automáticos por worker; entra en el hash del fragmento.
+export const DEFAULT_PRESET = 'faster';
+// Troceo (spec 009): un fragmento por shot de 285 fotogramas a 160 ms/fotograma era el camino crítico del master (46 s de 125 s con 12 núcleos casi ociosos). Con trozos de ≤120
+// fotogramas el reparto es casi perfecto; se encolan los más largos primero (LPT). Los fragmentos se concatenan sin recodificar: mismos píxeles, el chunk entra en el hash.
+export const DEFAULT_CHUNK = 120;
+export function plan(film, { fps, size, chunk = DEFAULT_CHUNK, preset = DEFAULT_PRESET }) {
   const engine = sha(engineSig(), JSON.stringify(film.S), ...(film.medium ? [JSON.stringify(film.medium)] : []), fontSig([film.S.typeface]), ...(usesWorld3d(film.shots.map((s) => s.id)) ? [world3dSig()] : []));   // spec 004: backend GL + Mesa en el hash solo si el film usa world3d
   const glob = sha(engine, assetsSig(), film.audioInfo ?? null, film.width, film.height, film.duration, film.fps, film.motif, film.handoffs, film.profileName, film.P, fps, size, film.edit?.items ?? null, ...(preset !== 'medium' ? [preset] : []));
   const N = Math.round(film.duration * fps) + 1, jobs = [];
@@ -91,9 +90,10 @@ export function cleanPartials(dir) {
 
 async function main() {
   const film = await loadFilm(), review = has('--review'), name = filmName() + (film.edit ? '.edit' : '');
+  if (review && process.env.OPUS_FXFAST !== '0') { film.P.fxFast = true; process.env.OPUS_FXFAST = '1'; }   // R3 (spec 009): review/preview con fx rápidos (los workers lo heredan); el master NO
   const fps = +arg('--fps', review ? 12 : film.fps), size = arg('--size', review ? `${Math.round((540 * film.width) / film.height / 2) * 2}x540` : `${film.width}x${film.height}`);
   const dir = path.join(ROOT, 'out/fragments', name); fs.mkdirSync(dir, { recursive: true });
-  const preset = arg('--preset', process.env.OPUS_PRESET ?? 'medium'), opts = { fps, size, chunk: +arg('--chunk', 900), preset }, P = plan(film, opts), file = (j) => path.join(dir, `${j.id}_${j.hash}_${fps}_${size}.mp4`);
+  const preset = arg('--preset', process.env.OPUS_PRESET ?? DEFAULT_PRESET), opts = { fps, size, chunk: +arg('--chunk', DEFAULT_CHUNK), preset }, P = plan(film, opts), file = (j) => path.join(dir, `${j.id}_${j.hash}_${fps}_${size}.mp4`);
   const todo = P.jobs.filter((j) => !fs.existsSync(file(j)));
   console.log(`${film.edit ? 'montaje' : 'film'} "${name}" · ${P.N} frames @${fps} ${size} · ${P.jobs.length} fragmentos · ${P.jobs.length - todo.length} en caché · ${todo.length} por renderizar`);
   if (has('--plan')) { for (const j of P.jobs) console.log(`  ${fs.existsSync(file(j)) ? '✓' : '·'} ${j.id.padEnd(14)} [${j.a},${j.b})  ${j.hash}`); return; }
@@ -102,7 +102,7 @@ async function main() {
     if (g.forced) console.log(`! master FORZADO: ${g.reasons.join(' · ')}`); };
   await gate();
   cleanPartials(dir);
-  const threads = arg('--threads', process.env.OPUS_THREADS ?? '0'), workers = +arg('--workers', Math.max(1, os.cpus().length)), q = [...todo], render = path.join(ROOT, 'engine/render.mjs');
+  const threads = arg('--threads', process.env.OPUS_THREADS ?? 'auto'), workers = +arg('--workers', Math.max(1, os.cpus().length)), q = [...todo], render = path.join(ROOT, 'engine/render.mjs'); q.sort((a, b) => (b.b - b.a) - (a.b - a.a));   // LPT: lo más largo primero
   const run = (j) => new Promise((res, rej) => {
     const stage = path.join(dir, `.${j.id}_${j.hash}.stage-${process.pid}-${Math.random().toString(36).slice(2, 8)}.tmp.mp4`);
     const p = spawn(process.execPath, [render, '--range', `${j.a}:${j.b}`, '--fps', String(fps), '--size', size, '--out', stage, '--crf', review ? '23' : String(film.medium?.encode?.crf ?? 16), '--preset', preset, '--threads', String(threads === 'auto' ? workerThreads(Math.min(workers, todo.length)) : +threads || 0)], { stdio: 'inherit', env: process.env });

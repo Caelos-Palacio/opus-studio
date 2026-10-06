@@ -15,19 +15,20 @@ import { plan, filmName } from './cut.mjs';
 import { hex2rgb } from './color.mjs';
 import { symbolSet } from './semantic.mjs';
 import { withLock, writeAtomic } from './lock.mjs';
-const { createCanvas } = canvasPkg;
+import { frameCache } from './framecache.mjs';
+const { createCanvas, ImageData } = canvasPkg;
 
 const argv = process.argv.slice(2), arg = (k, d) => { const i = argv.indexOf(k); return i >= 0 ? argv[i + 1] : d; };
 const r3 = (v) => Math.round(v * 1000) / 1000;
 
-function colors(ctx, W, H, palette) {                                       // colores dominantes → rol de paleta más cercano
-  const d = ctx.getImageData(0, 0, W, H).data, hist = new Map(), roles = Object.entries(palette).map(([k, v]) => [k, hex2rgb(v)]);
+function colors(d, palette) {                                       // colores dominantes → rol de paleta más cercano
+  const hist = new Map(), roles = Object.entries(palette).map(([k, v]) => [k, hex2rgb(v)]);
   for (let i = 0; i < d.length; i += 4 * 7) { const k = ((d[i] >> 4) << 8) | ((d[i + 1] >> 4) << 4) | (d[i + 2] >> 4); hist.set(k, (hist.get(k) ?? 0) + 1); }
   const tot = [...hist.values()].reduce((a, b) => a + b, 0);
   return [...hist].sort((a, b) => b[1] - a[1]).slice(0, 4).map(([k, n]) => { const c = [((k >> 8) & 15) * 17, ((k >> 4) & 15) * 17, (k & 15) * 17], [role, dist] = roles.map(([r, v]) => [r, Math.hypot(v[0] - c[0], v[1] - c[1], v[2] - c[2])]).sort((a, b) => a[1] - b[1])[0];
     return { hex: '#' + c.map((v) => v.toString(16).padStart(2, '0')).join(''), share: r3(n / tot), role: dist < 60 ? role : null }; });
 }
-const lum = (ctx, W, H) => { const d = ctx.getImageData(0, 0, W, H).data; let s = 0, n = 0; for (let i = 0; i < d.length; i += 64) { s += 0.299 * d[i] + 0.587 * d[i + 1] + 0.114 * d[i + 2]; n++; } return r3(s / n / 255); };
+const lum = (d) => { let s = 0, n = 0; for (let i = 0; i < d.length; i += 64) { s += 0.299 * d[i] + 0.587 * d[i + 1] + 0.114 * d[i + 2]; n++; } return r3(s / n / 255); };
 
 async function main() {
   const R = await makeRenderer({ size: arg('--size', '640x360') }), { film } = R, name = filmName() + (film.edit ? '.edit' : '');
@@ -35,7 +36,7 @@ async function main() {
   await withLock(`index/${name}`, () => build(R, name), { ttlMs: 60000, waitMs: 1800000 });
 }
 async function build(R, name) {
-  const { film, W, H } = R;
+  const { film, W, H } = R, FC = frameCache({ film, size: arg('--size', '640x360'), grade: true, make: async () => R });   // R1: fotogramas de la caché compartida
   const dir = path.join(ROOT, 'out/index', name); for (const s of ['shots', 'thumbs']) fs.mkdirSync(path.join(dir, s), { recursive: true });
   const fps = +arg('--fps', 4), P = plan(film, { fps: film.fps, size: `${film.width}x${film.height}` }), hashOf = (id) => P.jobs.filter((j) => j.shots.includes(id)).map((j) => j.hash).join('.');
   const prevF = path.join(dir, 'film.json'), prev = fs.existsSync(prevF) ? JSON.parse(fs.readFileSync(prevF, 'utf8')) : null;
@@ -48,19 +49,20 @@ async function build(R, name) {
     if (onlyChanged && old && old.hash === h) { shots.push(old); continue; }
     const samples = [], prims = new Set(), nodes = new Set(), texts = new Set(), tags = new Set(), sym = new Map();   // símbolo → primer t visible
     for (let t = s.t[0]; t < s.t[1] - 1e-6; t += 1 / fps) {
-      const boxes = R.frame(t), mine = boxes.filter((b) => b.shot === s.id), meta = (boxes.meta ?? []).filter((m) => m.shot === s.id), c = camState(s, t, film, { shake: false });
+      const F = await FC.get(t, { px: true }), boxes = F.boxes, mine = boxes.filter((b) => b.shot === s.id), meta = (boxes.meta ?? []).filter((m) => m.shot === s.id), c = camState(s, t, film, { shake: false });
       for (const m of meta) { prims.add(m.prim); if (m.prim === 'tex') for (const x of symbolSet(m.morphTo && (m.u ?? 0) > 0.5 ? m.morphTo : m.tex)) if (!sym.has(x)) sym.set(x, r3(t)); if (m.prim === 'node') nodes.add(m.id); if (m.prim === 'layer') for (const f of m.fx ?? []) tags.add('fx:' + f); }
       for (const b of mine) if (b.kind === 'text') texts.add(b.label);
       samples.push({ t: r3(t), u: r3((t - s.t[0]) / (s.t[1] - s.t[0])), cam: { z: r3(c.z), x: r3(c.x / film.width), y: r3(c.y / film.height), r: r3(c.r) },
         boxes: mine.map((b) => ({ kind: b.kind, label: b.label, role: b.role, weight: b.weight, ...norm(b) })),
-        meta: meta.filter((m) => m.prim !== 'layer').map((m) => ({ prim: m.prim, id: m.id ?? m.label ?? m.tex, ...(m.w != null ? norm(m) : { x: r3(m.x / W), y: r3(m.y / H) }) })), lum: lum(R.ctx, W, H) });
+        meta: meta.filter((m) => m.prim !== 'layer').map((m) => ({ prim: m.prim, id: m.id ?? m.label ?? m.tex, ...(m.w != null ? norm(m) : { x: r3(m.x / W), y: r3(m.y / H) }) })), lum: lum(F.data) });
     }
     const thumbs = {};
     for (const [k, t] of [['in', s.t[0] + 0.02], ['mid', (s.t[0] + s.t[1]) / 2], ['out', s.t[1] - 0.02]]) {
-      R.frame(t); const c = createCanvas(320, Math.round((320 * H) / W)); c.getContext('2d').drawImage(R.cv, 0, 0, c.width, c.height);
+      const F = await FC.get(t, { px: true }), full = createCanvas(W, H); full.getContext('2d').putImageData(new ImageData(F.data, W, H), 0, 0);
+      const c = createCanvas(320, Math.round((320 * H) / W)); c.getContext('2d').drawImage(full, 0, 0, c.width, c.height);
       const f = path.join(dir, 'thumbs', `${s.id}_${k}.jpg`); fs.writeFileSync(f, c.toBuffer('image/jpeg', { quality: 0.8 })); thumbs[k] = path.relative(ROOT, f);
     }
-    R.frame((s.t[0] + s.t[1]) / 2); const pal = colors(R.ctx, W, H, film.palette);
+    const pal = colors((await FC.get((s.t[0] + s.t[1]) / 2, { px: true })).data, film.palette);
     const sp = specOf(s, film); for (const p of prims) tags.add(p); if (sp.move !== 'static') tags.add('cam:' + sp.move); if (s.size) tags.add('size:' + s.size); if (texts.size) tags.add('text');
     if ((film.handoffs ?? []).some((x) => x.from === s.id || x.to === s.id)) tags.add('handoff'); if (s.transition_out) tags.add('out:' + s.transition_out);
     const row = { id: s.id, hash: h, t: s.t, size: s.size ?? null, action: s.action ?? '', text: [...texts], cam: s.cam ?? null, transition_out: s.transition_out ?? null, motifState: s.motifState ?? null,

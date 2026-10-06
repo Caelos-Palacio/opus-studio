@@ -59,17 +59,19 @@ function shakeRMS(film) {
 // ───── muestreo de cajas (render a baja resolución; coordenadas normalizadas) ─────
 export async function sampleFilm(R, fs_, extra = []) {
   const { film, W, H } = R, bar = (film.S.grade.letterbox && film.width / film.S.grade.letterbox < film.height ? (film.height - film.width / film.S.grade.letterbox) / 2 : 0) * (H / film.height), Hv = H - 2 * bar, aspect = W / Hv;
-  const grab = (t) => { const bx = R.frame(t), foci = [], texts = [], occ = {};
+  // R1 (spec 009): fotogramas de la caché compartida si el renderizador la lleva (R.fc, ver measureTimeline); si no, render directo
+  const get = async (t, px = false) => (R.fc ? R.fc.get(t, { px }) : { boxes: R.frame(t), data: px ? R.ctx.getImageData(0, 0, W, H).data : null });
+  const grab = async (t) => { const bx = (await get(t)).boxes, foci = [], texts = [], occ = {};
     for (const b of bx) { const k0 = `${b.shot}|${b.kind}|${b.label}`, k = k0 + '#' + (occ[k0] = (occ[k0] ?? -1) + 1);
       if (b.kind === 'focus') foci.push({ key: k, shot: b.shot, label: b.label, weight: b.weight ?? 1, bleed: !!b.bleed, x0: b.x / W, x1: (b.x + b.w) / W, y0: (b.y - bar) / Hv, y1: (b.y + b.h - bar) / Hv, cx: (b.x + b.w / 2) / W, cy: (b.y + b.h / 2) / W, h: b.h / Hv, w: b.w / W });
       else if (b.kind === 'text') texts.push({ key: k, shot: b.shot, label: String(b.label ?? ''), role: b.role, size: b.size, em: (b.sizePx ?? 0) / Hv, x: b.x / W, y: (b.y - bar) / Hv, w: b.w / W, h: b.h / Hv }); }
     return { t, foci, texts }; };
-  const n = Math.floor(film.duration * fs_ - 1e-9), frames = []; for (let i = 0; i <= n; i++) frames.push(grab(Math.min(film.duration - 1e-4, i / fs_)));
-  const meanLab = (t) => { R.frame(t); const d = R.ctx.getImageData(0, 0, W, H).data; let r = 0, g = 0, b = 0; const l = (c) => { c /= 255; return c <= 0.04045 ? c / 12.92 : ((c + 0.055) / 1.055) ** 2.4; };
+  const n = Math.floor(film.duration * fs_ - 1e-9), frames = []; for (let i = 0; i <= n; i++) frames.push(await grab(Math.min(film.duration - 1e-4, i / fs_)));
+  const meanLab = async (t) => { const d = (await get(t, true)).data; let r = 0, g = 0, b = 0; const l = (c) => { c /= 255; return c <= 0.04045 ? c / 12.92 : ((c + 0.055) / 1.055) ** 2.4; };
     for (let k = 0; k < d.length; k += 4) { r += l(d[k]); g += l(d[k + 1]); b += l(d[k + 2]); } const N = d.length / 4; r /= N; g /= N; b /= N;
     const X_ = 0.4124564 * r + 0.3575761 * g + 0.1804375 * b, Y = 0.2126729 * r + 0.7151522 * g + 0.072175 * b, Z = 0.0193339 * r + 0.119192 * g + 0.9503041 * b, f = (v) => (v > 216 / 24389 ? Math.cbrt(v) : (24389 / 27 * v + 16) / 116);
     return [116 * f(Y) - 16, 500 * (f(X_ / 0.95047) - f(Y)), 200 * (f(Y) - f(Z / 1.08883))]; };
-  const cutProbes = extra.map((c) => { const d = 0.5 / fs_, a = grab(Math.max(0, c - d)), b = grab(Math.min(film.duration - 1e-4, c + d)); return { c, a, b, la: meanLab(Math.max(0, c - d)), lb: meanLab(Math.min(film.duration - 1e-4, c + d)) }; });
+  const cutProbes = []; for (const c of extra) { const d = 0.5 / fs_, a = await grab(Math.max(0, c - d)), b = await grab(Math.min(film.duration - 1e-4, c + d)); cutProbes.push({ c, a, b, la: await meanLab(Math.max(0, c - d)), lb: await meanLab(Math.min(film.duration - 1e-4, c + d)) }); }
   return { frames, cutProbes, W, H, Hv, aspect, bar, fs: fs_ };
 }
 const union = (fs) => { const o = fs.filter((f) => !f.bleed); if (!o.length) return null; const x0 = Math.min(...o.map((f) => f.x0)), x1 = Math.max(...o.map((f) => f.x1)), y0 = Math.min(...o.map((f) => f.y0)), y1 = Math.max(...o.map((f) => f.y1)); return { x0, x1, y0, y1, h: y1 - y0, cx: (x0 + x1) / 2, cy: (y0 + y1) / 2 }; };
@@ -126,6 +128,7 @@ export async function measureTimeline(timeline, { sampleFps = 'auto', renderW = 
     const { makeRenderer } = await import('../render.mjs');
     const probe = await makeRenderer({ size: `${renderW}x${Math.max(2, Math.round((renderW * 9) / 16 / 2) * 2)}`, grade: false }), film0 = probe.film;
     const rh = Math.max(2, Math.round((renderW * film0.height) / film0.width / 2) * 2), R = renderW === 0 ? probe : await makeRenderer({ size: `${renderW}x${rh}`, grade: false }), film = R.film, D = film.duration;
+    { const { frameCache } = await import('../framecache.mjs'); R.fc = frameCache({ film, size: `${R.W}x${R.H}`, grade: false, make: async () => R }); }   // R1: caché compartida de fotogramas
     const fs_ = sampleFps === 'auto' ? Math.max(2, Math.min(8, Math.round((400 / D) * 10) / 10)) : sampleFps;   // el render del motor domina el coste (~0,1 s/fotograma): ≤ ~400 muestras
     return await assemble(R, film, timeline, { sampleFps: fs_, audio, B, memoria, story });
   } finally { if (prevEnv === undefined) delete process.env.OPUS_TIMELINE; else process.env.OPUS_TIMELINE = prevEnv; }

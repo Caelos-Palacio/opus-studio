@@ -1,0 +1,13 @@
+{
+ "tarea": "motor",
+ "rama": "motor",
+ "worktree": "/home/carlos/Documentos/MUltia/opus-studio-4/.claude/worktrees/motor",
+ "objetivo": "(sin declarar: orch handoff)",
+ "hecho": [
+  "R1 frame cache + R6 lint incremental hechos; sigo con cut/fxFast, audio R7, tests"
+ ],
+ "pendiente": [],
+ "siguiente": "",
+ "verificacion": [],
+ "riesgos": []
+}

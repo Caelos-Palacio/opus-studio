@@ -28,24 +28,25 @@ Definición (gates.json); el estado de cierre está en la parte viva.
 | [008-gobernanza.md](docs/specs/008-gobernanza.md) | 008 — Gobernanza al límite (roadmap paso 5) | sin nota |
 | [009-world3d-v2.md](docs/specs/009-world3d-v2.md) | 009 — world3d v2: profundidad, escenario y ángulo | (pendiente v2) · — · — |
 | [010-dsl-80.md](docs/specs/010-dsl-80.md) | 010 — DSL de escenas al ~80 % de los shots | sin nota |
+| [011-motor.md](docs/specs/011-motor.md) | 011 — Motor: renderizar una vez, analizar muchas, recalcular solo lo afectado | sin nota |
 
 ## Motor
 
-- versión: 5.0.0 (package.json) · módulos engine/: 73
+- versión: 5.0.0 (package.json) · módulos engine/: 77
 - roles: modo `enforce` (*, director, dp, investigador, td, productor, animator, review) · digest `35a737817acffefa`
 - presupuestos: data/budgets.json digest `5290bbde06ea538a`
 
 ## Tests
 
-Archivos (test/*.mjs): `arc.mjs` `bench-skia.mjs` `critic.mjs` `cut-render.mjs` `film.mjs` `fuzz.mjs` `golden.mjs` `gov.mjs` `guard.mjs` `harness.mjs` `hash.mjs` `lib.mjs` `medios.mjs` `memoria.mjs` `metrics.mjs` `orch.mjs` `orquestacion.mjs` `params.mjs` `perf.mjs` `run.mjs` `schema.mjs` `semantica.mjs` `sound.mjs` `unit.mjs` `world3d.mjs`
+Archivos (test/*.mjs): `arc.mjs` `bench-skia.mjs` `critic.mjs` `cut-render.mjs` `film.mjs` `fuzz.mjs` `golden.mjs` `gov.mjs` `guard.mjs` `harness.mjs` `hash.mjs` `lib.mjs` `medios.mjs` `memoria.mjs` `metrics.mjs` `motor.mjs` `orch.mjs` `orquestacion.mjs` `params.mjs` `perf.mjs` `run.mjs` `schema.mjs` `semantica.mjs` `sound.mjs` `unit.mjs` `world3d.mjs`
 <!-- estatico:fin -->
 
 ---
-## Estado vivo (2026-10-06T04:55Z, no verificado)
+## Estado vivo (2026-10-06T07:39Z, no verificado)
 
 ## Veredictos
 
-Film activo: `main` · engineHash `bf50de6f6b773acff160240898303db6bd54b63b0e3a2a902c5d7f96b4500505` · filmHash `2ba9a9d721cb4a06`
+Film activo: `main` · engineHash `84b82c04851bb3da5a7ce016bd1ce88f396a20aee02c0219ec9540e3acddd531` · filmHash `2ba9a9d721cb4a06`
 
 - out/lint.json: SHIP · CADUCADO
 - out/critic.json: no existe
@@ -58,11 +59,12 @@ Film activo: `main` · engineHash `bf50de6f6b773acff160240898303db6bd54b63b0e3a2
 ## Ramas sin integrar
 
 - `backup/pre-limpieza` (+136 commits)
+- `dsl80` (+4 commits)
 - `gobernanza` (+96 commits)
 - `harness` (+101 commits)
 - `medios` (+57 commits)
 - `metricas` (+76 commits)
-- `motor` (+5 commits)
+- `motor` (+11 commits)
 - `orquestacion` (+101 commits)
 - `perf` (+53 commits)
 - `semantica` (+101 commits)
@@ -81,7 +83,7 @@ Film activo: `main` · engineHash `bf50de6f6b773acff160240898303db6bd54b63b0e3a2
 - `worktree-agent-aeb50bfa4294a3a73` (+1 commits)
 - `worktree-agent-aeecba00c45e50119` (+2 commits)
 - `world3d` (+75 commits)
-- `world3d2` (+2 commits)
+- `world3d2` (+9 commits)
 
 ## Último run de tests
 

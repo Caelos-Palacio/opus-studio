@@ -23,7 +23,8 @@ import { ROOT, timelinePath } from './film.mjs';
 import { rng, hashStr } from './core.mjs';
 import { closure, fileDigest, sha } from './hash.mjs';
 import { loadSoundStyle, soundStylePath, analyzeFilm, composeScore, renderScore } from './score.mjs';
-import { designEvents, renderEvents } from './sounddesign.mjs';
+import { designEvents, renderEvents, eventSynth } from './sounddesign.mjs';
+import { memo, codeSig, fingerprint, astats } from './audiocache.mjs';
 import { mixdown } from './mixer.mjs';
 import { wavBuffer } from './dsp.mjs';
 import { filmId } from './filmid.mjs';
@@ -74,11 +75,25 @@ export function mixHash(tl) {
   return sha(tl, M ? fileDigest(path.join(ROOT, M.file)) : null, v2, code.files.map((f) => f + ':' + fileDigest(path.join(ROOT, f))), code.pkgs);
 }
 // v2: construye partitura, eventos y mezcla en memoria. Devuelve plan, partitura, eventos, buses/stems, master y medidas.
-export function build(tl, { memoria } = {}) {
+// R7 (spec 009): la síntesis de la música y de los buses de efectos sale de caché por CONTENIDO (engine/audiocache.mjs): la clave de cada etapa
+// es lo que esa etapa lee (partitura + plan + estilo + código); editar un sfx no re-sintetiza la música, ni tocar un shot sin efecto en el audio
+// re-sintetiza nada. Bit a bit igual a sintetizar de cero. OPUS_NOCACHE=1 lo desactiva. build.timing = ms por etapa (OPUS_STATS=1 lo imprime).
+export function build(tl, { memoria, tag = filmId(timelinePath()) } = {}) {
+  const T = {}, tm = (k, f) => { const t0 = Date.now(); const r = f(); T[k] = Date.now() - t0; return r; };
   const sd = tl.sound ?? { style: 'epico' }, style = loadSoundStyle(sd.style ?? 'epico', sd.overrides ?? {}), mem = memoria ?? memoriaOf(tl);
-  const plan = analyzeFilm(tl, mem, style), part = composeScore(plan, style), N = Math.ceil((tl.duration + 1.5) * SR);
-  const music = renderScore(part, plan, style, { N }), events = designEvents(tl, plan, style), { buses, renderEvent } = renderEvents(events, plan, style, N);
-  return { sr: SR, plan, style, partitura: part, events, renderEvent, ...mixdown({ plan, style, music, buses, events }) };
+  const plan = tm('plan', () => analyzeFilm(tl, mem, style)), part = tm('compose', () => composeScore(plan, style)), N = Math.ceil((tl.duration + 1.5) * SR);
+  // Claves = SOLO lo que cada etapa lee: renderScore lee la partitura + {impacts, vac, rev0, ret, dur} + I(t); renderEvents, los eventos + I(t). (El plan lleva shots y sfx enteros: no sirven de clave.)
+  const sj = JSON.stringify(style), pI = fingerprint(null, { fn: plan.intensity, dur: plan.dur + 2 }), pM = fingerprint({ impacts: plan.impacts, vac: plan.vac, rev0: plan.rev0, ret: plan.ret, dur: plan.dur });
+  const M = tm('music', () => memo(tag, 'music', sha('music', codeSig('engine/score.mjs'), sj, N, pI, pM, JSON.stringify(part.notes)), () => { const m = renderScore(part, plan, style, { N }); return { arrays: [m.L, m.R] }; }));
+  const music = { L: M.arrays[0], R: M.arrays[1] }, events = tm('design', () => designEvents(tl, plan, style));
+  const E = tm('events', () => memo(tag, 'events', sha('events', codeSig('engine/sounddesign.mjs'), sj, N, pI, JSON.stringify(events)), () => {
+    const { buses: b } = renderEvents(events, plan, style, N);
+    return { arrays: [b.sfx.L, b.sfx.R, b.hit.L, b.hit.R, b.amb.L, b.amb.R], meta: { leads: events.map((e) => e.lead) } };
+  }));
+  events.forEach((e, i) => { e.lead = E.meta.leads[i]; });                       // el render fija e.lead (la mezcla lo lee para el ducking)
+  const [a, b2, c, d, e2, f] = E.arrays, buses = { sfx: { L: a, R: b2 }, hit: { L: c, R: d }, amb: { L: e2, R: f } };
+  const out = tm('mixdown', () => mixdown({ plan, style, music, buses, events }));
+  return { sr: SR, plan, style, partitura: part, events, renderEvent: ((syn) => (e) => syn(e).x)(eventSynth(plan, style)), ...out, timing: T, cache: { music: M.hit, events: E.hit } };
 }
 // Remezcla solo si falta el wav o cambió el hash de entradas. → true si remezcló.
 export function ensureMix(tl, suffix = mixName()) {
@@ -89,6 +104,7 @@ export function ensureMix(tl, suffix = mixName()) {
 export function mix(tl, suffix = mixName()) {
   if (tl.sound) {
     const b = build(tl), inputs = mixHash(tl);
+    if (process.env.OPUS_STATS === '1') console.log(`audio: ${JSON.stringify(b.timing)} caché música ${b.cache.music ? 'acierto' : 'fallo'} · efectos ${b.cache.events ? 'acierto' : 'fallo'}`);
     fs.writeFileSync(path.join(ROOT, `data/mix${suffix}.wav`), wavBuffer(b.master.L, b.master.R));
     fs.mkdirSync(path.join(ROOT, 'out'), { recursive: true });
     const { S, ...rep } = b.report;

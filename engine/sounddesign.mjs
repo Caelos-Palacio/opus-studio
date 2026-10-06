@@ -152,9 +152,11 @@ const VOICE = {
     return { x, lead: 0 };
   },
 };
+// Sintetizador de UN evento (mono, determinista por e.seed): lo usan renderEvents y la medida de los tests.
+export const eventSynth = (plan, style) => { const C = { I: plan.intensity, style }; return (e) => VOICE[e.type](e, rng(e.seed), C); };
 export function renderEvents(events, plan, style, N) {
-  const mkBus = () => ({ ...stereo(N), wL: new Float32Array(N), wR: new Float32Array(N) }), buses = { sfx: mkBus(), hit: mkBus(), amb: mkBus() }, C = { I: plan.intensity, style };
-  const dry = (e) => { const R = rng(e.seed); return VOICE[e.type](e, R, C); };
+  const mkBus = () => ({ ...stereo(N), wL: new Float32Array(N), wR: new Float32Array(N) }), buses = { sfx: mkBus(), hit: mkBus(), amb: mkBus() };
+  const dry = eventSynth(plan, style);
   for (const e of events) {
     if (!VOICE[e.type]) continue; const { x, lead } = dry(e); e.lead = lead; const b = buses[e.bus], s0 = Math.round((e.t - lead) * SR), n = x.length, dl = Math.round(0.011 * SR), wd = e.type === 'bloom' || e.type === 'shimmer' || e.bus === 'amb' ? 0.5 : e.type === 'impact' ? 0.25 : 0.1;
     for (let i = 0; i < n; i++) {
