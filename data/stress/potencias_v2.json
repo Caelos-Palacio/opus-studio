@@ -1,0 +1,724 @@
+{
+ "title": "Potencias — de ti al borde de lo observable en 27 pasos",
+ "style": "cosmos",
+ "profile": "explainer",
+ "styleOverrides": {
+  "typeface": {
+   "family": "Lato",
+   "fallback": "'Nimbus Sans', sans-serif",
+   "weights": [
+    400,
+    700
+   ]
+  }
+ },
+ "fps": 30,
+ "width": 1280,
+ "height": 720,
+ "duration": 78,
+ "autoSfx": false,
+ "music": null,
+ "sound": { "style": "epico", "memoria": "data/stress/memoria.json" },
+ "motif": {
+  "id": "ventana",
+  "states": [
+   "frame",
+   "dot",
+   "bar",
+   "home"
+  ],
+  "roleColor": "accent"
+ },
+ "end_hold_ok": true,
+ "handoffs": [
+  {
+   "from": "P01",
+   "to": "P02",
+   "entity": "win",
+   "at": 6,
+   "tol": 2
+  },
+  {
+   "from": "P02",
+   "to": "P03",
+   "entity": "win",
+   "at": 11.5,
+   "tol": 2
+  },
+  {
+   "from": "P03",
+   "to": "P04",
+   "entity": "win",
+   "at": 19,
+   "tol": 2
+  },
+  {
+   "from": "P04",
+   "to": "P05",
+   "entity": "win",
+   "at": 23.5,
+   "tol": 2
+  },
+  {
+   "from": "P05",
+   "to": "P06",
+   "entity": "win",
+   "at": 28,
+   "tol": 2
+  },
+  {
+   "from": "P06",
+   "to": "P07",
+   "entity": "win",
+   "at": 32.5,
+   "tol": 2
+  },
+  {
+   "from": "P07",
+   "to": "P08",
+   "entity": "win",
+   "at": 37,
+   "tol": 2
+  },
+  {
+   "from": "P08",
+   "to": "P09",
+   "entity": "win",
+   "at": 41.5,
+   "tol": 2
+  },
+  {
+   "from": "P09",
+   "to": "P10",
+   "entity": "win",
+   "at": 46,
+   "tol": 2
+  },
+  {
+   "from": "P10",
+   "to": "P11",
+   "entity": "win",
+   "at": 55.5,
+   "tol": 2
+  },
+  {
+   "from": "P11",
+   "to": "P12",
+   "entity": "win",
+   "at": 63,
+   "tol": 2
+  },
+  {
+   "from": "P12",
+   "to": "P13",
+   "entity": "win",
+   "at": 71,
+   "tol": 2
+  }
+ ],
+ "shots": [
+  {
+   "id": "P01",
+   "t": [
+    0,
+    6
+   ],
+   "size": "CU",
+   "action": "de noche, una persona se dibuja; a su alrededor, una ventana de 1 m (ámbar). El contador escribe 10^0 m",
+   "on_beat": "la ventana se cierra alrededor de la persona",
+   "on_beat_at": [
+    2.4
+   ],
+   "text": "UN METRO",
+   "transition_out": "morph",
+   "after": null,
+   "premise": "la escala humana es la referencia antes del salto",
+   "facts": [
+    "eames_1977"
+   ],
+   "cam": {
+    "move": "push",
+    "why": "approach",
+    "amount": 0.03
+   },
+   "motifState": "frame",
+   "sfx": [
+    {
+     "at": 0.2,
+     "type": "drone",
+     "dur": 11,
+     "gain": 0.3
+    },
+    {
+     "at": 2.4,
+     "type": "tick",
+     "gain": 0.4
+    }
+   ]
+  },
+  {
+   "id": "P02",
+   "t": [
+    6,
+    11.5
+   ],
+   "size": "MS",
+   "action": "la regla (×10) se escribe junto a la ventana y la pregunta se plantea; en t=10 empieza el alejamiento",
+   "on_beat": "el primer ×10: la ventana de 10 m entra por los bordes",
+   "on_beat_at": [
+    4.6
+   ],
+   "text": "¿CUÁNTOS PASOS HASTA EL BORDE DE LO VISIBLE?",
+   "transition_out": "morph",
+   "after": "P01",
+   "premise": "cada ventana es diez veces la anterior",
+   "facts": [
+    "eames_1977"
+   ],
+   "cam": {
+    "move": "static",
+    "chain": true
+   },
+   "motifState": "frame",
+   "sfx": [
+    {
+     "at": 0.4,
+     "type": "tick",
+     "gain": 0.35
+    },
+    {
+     "at": 3.2,
+     "type": "riser",
+     "dur": 1.0,
+     "gain": 0.25
+    }
+   ]
+  },
+  {
+   "id": "P03",
+   "t": [
+    11.5,
+    19
+   ],
+   "size": "WS",
+   "action": "10^1–10^6 m: árboles, casas, una ciudad, montañas; el aire se acaba a 100 km y el suelo se curva",
+   "on_beat": "cada ×10 un tic",
+   "text": "UNA CIUDAD · EL AIRE TERMINA A 100 KM",
+   "transition_out": "morph",
+   "after": "P02",
+   "premise": "la regla, aplicada, sale de lo cotidiano en 5 pasos",
+   "facts": [
+    "karman_100km"
+   ],
+   "cam": {
+    "move": "static",
+    "chain": true
+   },
+   "motifState": "frame",
+   "sfx": [
+    {
+     "at": 0.5,
+     "type": "tick",
+     "gain": 0.35
+    },
+    {
+     "at": 2.0,
+     "type": "tick",
+     "gain": 0.35
+    },
+    {
+     "at": 3.5,
+     "type": "tick",
+     "gain": 0.35
+    },
+    {
+     "at": 5.0,
+     "type": "tick",
+     "gain": 0.35
+    },
+    {
+     "at": 6.5,
+     "type": "tick",
+     "gain": 0.35
+    },
+    {
+     "at": 0.7,
+     "type": "drone",
+     "dur": 18,
+     "gain": 0.3
+    }
+   ]
+  },
+  {
+   "id": "P04",
+   "t": [
+    19,
+    23.5
+   ],
+   "size": "MS",
+   "action": "10^6–10^9 m: la Tierra entera (globo) y la órbita de la Luna (scene graph Tierra→brazo→Luna)",
+   "on_beat": "la Tierra cabe en la ventana",
+   "text": "LA TIERRA · ÓRBITA LUNAR",
+   "transition_out": "morph",
+   "after": "P03",
+   "premise": "el suelo curvo era una esfera",
+   "facts": [
+    "earth_diameter",
+    "moon_orbit"
+   ],
+   "cam": {
+    "move": "static",
+    "chain": true
+   },
+   "motifState": "frame",
+   "sfx": [
+    {
+     "at": 0.5,
+     "type": "tick",
+     "gain": 0.35
+    },
+    {
+     "at": 2.0,
+     "type": "tick",
+     "gain": 0.35
+    },
+    {
+     "at": 3.5,
+     "type": "tick",
+     "gain": 0.35
+    },
+    {
+     "at": 1.4,
+     "type": "whoosh",
+     "dur": 1.2,
+     "gain": 0.25
+    }
+   ]
+  },
+  {
+   "id": "P05",
+   "t": [
+    23.5,
+    28
+   ],
+   "size": "WS",
+   "action": "10^9–10^12 m: la luz del Sol entra desde el borde; la órbita terrestre pasa por el centro (por ti)",
+   "on_beat": "el Sol entra en cuadro",
+   "text": "NUESTRA ÓRBITA",
+   "transition_out": "morph",
+   "after": "P04",
+   "premise": "la Tierra gira alrededor de algo fuera de la ventana",
+   "facts": [
+    "au"
+   ],
+   "cam": {
+    "move": "static",
+    "chain": true
+   },
+   "motifState": "frame",
+   "sfx": [
+    {
+     "at": 0.5,
+     "type": "tick",
+     "gain": 0.35
+    },
+    {
+     "at": 2.0,
+     "type": "tick",
+     "gain": 0.35
+    },
+    {
+     "at": 3.5,
+     "type": "tick",
+     "gain": 0.35
+    },
+    {
+     "at": 2.4,
+     "type": "shimmer",
+     "gain": 0.25
+    }
+   ]
+  },
+  {
+   "id": "P06",
+   "t": [
+    28,
+    32.5
+   ],
+   "size": "EWS",
+   "action": "10^12–10^15 m: órbitas exteriores hasta Neptuno; luego el sistema solar se vuelve un punto en la nada",
+   "on_beat": "el sistema solar colapsa a un punto",
+   "text": "NEPTUNO · Y LUEGO, NADA",
+   "transition_out": "morph",
+   "after": "P05",
+   "anomaly": "tras Neptuno, varios pasos sin nada nuevo: el vacío también es escala",
+   "facts": [
+    "neptune_orbit"
+   ],
+   "cam": {
+    "move": "static",
+    "chain": true
+   },
+   "motifState": "frame",
+   "sfx": [
+    {
+     "at": 0.5,
+     "type": "tick",
+     "gain": 0.35
+    },
+    {
+     "at": 2.0,
+     "type": "tick",
+     "gain": 0.35
+    },
+    {
+     "at": 3.5,
+     "type": "tick",
+     "gain": 0.35
+    },
+    {
+     "at": 1.5,
+     "type": "drone",
+     "dur": 20,
+     "gain": 0.3
+    }
+   ]
+  },
+  {
+   "id": "P07",
+   "t": [
+    32.5,
+    37
+   ],
+   "size": "MS",
+   "action": "10^15–10^18 m: un año luz; aparece Próxima Centauri y el vecindario estelar (estrellas con estela por motion blur)",
+   "on_beat": "la primera estrella vecina",
+   "text": "UN AÑO LUZ · PRÓXIMA CENTAURI",
+   "transition_out": "morph",
+   "after": "P06",
+   "premise": "las estrellas del cielo eran lugares, no puntos",
+   "facts": [
+    "light_year",
+    "proxima"
+   ],
+   "cam": {
+    "move": "static",
+    "chain": true
+   },
+   "motifState": "frame",
+   "sfx": [
+    {
+     "at": 0.5,
+     "type": "tick",
+     "gain": 0.35
+    },
+    {
+     "at": 2.0,
+     "type": "tick",
+     "gain": 0.35
+    },
+    {
+     "at": 3.5,
+     "type": "tick",
+     "gain": 0.35
+    }
+   ]
+  },
+  {
+   "id": "P08",
+   "t": [
+    37,
+    41.5
+   ],
+   "size": "WS",
+   "action": "10^18–10^21 m: los brazos espirales; la Vía Láctea entera cabe en la ventana",
+   "on_beat": "la galaxia entera",
+   "text": "LA VÍA LÁCTEA",
+   "transition_out": "morph",
+   "after": "P07",
+   "premise": "las estrellas forman una estructura",
+   "facts": [
+    "milky_way"
+   ],
+   "cam": {
+    "move": "static",
+    "chain": true
+   },
+   "motifState": "frame",
+   "sfx": [
+    {
+     "at": 0.5,
+     "type": "tick",
+     "gain": 0.35
+    },
+    {
+     "at": 2.0,
+     "type": "tick",
+     "gain": 0.35
+    },
+    {
+     "at": 3.5,
+     "type": "tick",
+     "gain": 0.35
+    },
+    {
+     "at": 3.1,
+     "type": "shimmer",
+     "gain": 0.22
+    }
+   ]
+  },
+  {
+   "id": "P09",
+   "t": [
+    41.5,
+    46
+   ],
+   "size": "EWS",
+   "action": "10^21–10^24 m: Andrómeda y el Grupo Local; todo se vuelve tenue (calma antes del pico)",
+   "on_beat": "Andrómeda",
+   "text": "ANDRÓMEDA",
+   "transition_out": "morph",
+   "after": "P08",
+   "premise": "las galaxias también tienen vecinas",
+   "facts": [
+    "andromeda"
+   ],
+   "cam": {
+    "move": "static",
+    "chain": true
+   },
+   "motifState": "frame",
+   "sfx": [
+    {
+     "at": 0.5,
+     "type": "tick",
+     "gain": 0.3
+    },
+    {
+     "at": 2.0,
+     "type": "tick",
+     "gain": 0.3
+    },
+    {
+     "at": 3.5,
+     "type": "tick",
+     "gain": 0.3
+    }
+   ]
+  },
+  {
+   "id": "P10",
+   "t": [
+    46,
+    55.5
+   ],
+   "size": "EWS",
+   "action": "10^24–10^26,9 m: la red cósmica; el alejamiento choca con el borde (CMB se enciende), el contador no llega a 10^27. Silencio.",
+   "on_beat": "el borde de lo observable",
+   "on_beat_at": [
+    4.917
+   ],
+   "text": "EL BORDE DE LO OBSERVABLE",
+   "transition_out": "morph",
+   "after": "P09",
+   "anomaly": "la regla se rompe: no hay un paso 28 observable",
+   "facts": [
+    "cosmic_web",
+    "observable_universe",
+    "cmb"
+   ],
+   "cam": {
+    "move": "static",
+    "chain": true
+   },
+   "motifState": "frame",
+   "hold_ok": [
+    [
+     5.4,
+     9.5
+    ]
+   ],
+   "sfx": [
+    {
+     "at": 0.5,
+     "type": "tick",
+     "gain": 0.3
+    },
+    {
+     "at": 2.0,
+     "type": "tick",
+     "gain": 0.3
+    },
+    {
+     "at": 3.5,
+     "type": "tick",
+     "gain": 0.3
+    },
+    {
+     "at": 4.917,
+     "type": "riser",
+     "dur": 3.2,
+     "gain": 0.45
+    },
+    {
+     "at": 4.917,
+     "type": "impact",
+     "gain": 0.8
+    }
+   ]
+  },
+  {
+   "id": "P11",
+   "t": [
+    55.5,
+    63
+   ],
+   "size": "WS",
+   "action": "las 27 ventanas salen del centro y se alinean como puntos equidistantes: una regla. El contador se transforma en 10^26,9",
+   "on_beat": "la regla queda completa",
+   "on_beat_at": [
+    2.6
+   ],
+   "text": "≈ 27 PASOS DE ×10",
+   "transition_out": "morph",
+   "after": "P10",
+   "premise": "los pasos que parecían desiguales son iguales en la regla",
+   "facts": [
+    "log_steps"
+   ],
+   "cam": {
+    "move": "pull",
+    "why": "reveal",
+    "amount": 0.06,
+    "chain": true,
+    "delay": 0.5
+   },
+   "motifState": "dot",
+   "sfx": [
+    {
+     "at": 0.3,
+     "type": "whoosh",
+     "dur": 1.6,
+     "gain": 0.3
+    },
+    {
+     "at": 2.6,
+     "type": "rev",
+     "gain": 0.5
+    }
+   ]
+  },
+  {
+   "id": "P12",
+   "t": [
+    63,
+    71
+   ],
+   "size": "MS",
+   "action": "el cursor vuelve por la regla de 27 a 0; la ecuación del logaritmo se escribe con los números que ya están en pantalla",
+   "on_beat": "la ecuación completa",
+   "text": "",
+   "transition_out": "morph",
+   "after": "P11",
+   "premise": "contar pasos de ×10 es tomar el logaritmo",
+   "facts": [
+    "log_steps",
+    "observable_universe"
+   ],
+   "cam": {
+    "move": "slide",
+    "why": "follow",
+    "dir": [
+     -1,
+     0
+    ],
+    "amount": 0.03,
+    "chain": true,
+    "delay": 0.5
+   },
+   "motifState": "bar",
+   "sfx": [
+    {
+     "at": 2.92,
+     "type": "tick",
+     "gain": 0.25
+    },
+    {
+     "at": 3.4,
+     "type": "tick",
+     "gain": 0.25
+    },
+    {
+     "at": 3.79,
+     "type": "tick",
+     "gain": 0.25
+    },
+    {
+     "at": 4.13,
+     "type": "tick",
+     "gain": 0.25
+    },
+    {
+     "at": 4.48,
+     "type": "tick",
+     "gain": 0.25
+    },
+    {
+     "at": 6.5,
+     "type": "pop",
+     "gain": 0.3
+    }
+   ]
+  },
+  {
+   "id": "P13",
+   "t": [
+    71,
+    78
+   ],
+   "size": "CU",
+   "action": "el cursor, en 10^0, vuelve a ser la ventana de 1 m alrededor de la persona; la regla queda como memoria abajo",
+   "on_beat": "la ventana se cierra otra vez",
+   "on_beat_at": [
+    1.6
+   ],
+   "text": "TÚ: EL PASO CERO",
+   "transition_out": "cut",
+   "after": "P12",
+   "premise": "la escala humana es el origen de la cuenta",
+   "facts": [
+    "log_steps"
+   ],
+   "cam": {
+    "move": "push",
+    "why": "approach",
+    "amount": 0.06,
+    "chain": true,
+    "recenter": true,
+    "delay": 0.5
+   },
+   "motifState": "home",
+   "sfx": [
+    {
+     "at": 1.6,
+     "type": "shimmer",
+     "gain": 0.3
+    },
+    {
+     "at": 0.3,
+     "type": "drone",
+     "dur": 6.4,
+     "gain": 0.22
+    }
+   ]
+  }
+ ],
+ "variants": {
+  "w3d": {
+   "ops": [
+    { "op": "add", "path": "/shots/P03/params", "value": { "w3d": true } }
+   ]
+  }
+ }
+}
