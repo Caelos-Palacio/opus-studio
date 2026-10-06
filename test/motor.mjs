@@ -73,6 +73,12 @@ try {
   await run(['engine/lint.mjs'], { cwd: d, env: { ...ENV, OPUS_NOCACHE: '1' }, timeout: 600000 }); const nocache = lintIssues(d);
   ok(cold && JSON.stringify(cold) === JSON.stringify(warm) && JSON.stringify(cold) === JSON.stringify(nocache), 'M3: lint en frío = en caliente = con OPUS_NOCACHE=1 (mismos avisos)');
   ok(sc?.frames.miss > 0 && sw?.frames.miss === 0 && sw?.frames.hit > 0 && sw?.det.miss === 0 && sw?.det.hit > 0, `M3: la 2.ª pasada no renderiza nada (fallos ${sw?.frames.miss}, determinismo ${sw?.det.miss}; aciertos ${sw?.frames.hit}/${sw?.det.hit})`);
+  // M10 precalentamiento en paralelo: en frío el lint reparte el render entre procesos; el parent analiza todo desde caché y el resultado es el mismo
+  { const d2 = copyRepo();
+    try {
+      await run(['engine/lint.mjs'], { cwd: d2, env: { ...ENV, OPUS_WARM_MIN: '20' }, timeout: 600000 }); const sp = stats(d2);
+      ok(sp?.ms.prewarm !== undefined && sp.frames.miss === 0 && JSON.stringify(lintIssues(d2)) === JSON.stringify(cold), `M10: lint en frío con precalentamiento: mismos avisos, el parent no renderiza nada (fallos ${sp?.frames.miss}; ${sp?.ms.warmFrames} fotogramas repartidos en ${sp?.ms.prewarm} ms)`);
+    } finally { rmrf(d2); } }
   // M4 cambiar A2 → lint --shot A2 solo renderiza donde A2 está activo
   const a2 = path.join(d, 'shots/A2.mjs'); fs.writeFileSync(a2, fs.readFileSync(a2, 'utf8') + '\n// toque\n');
   await run(['engine/lint.mjs', '--shot', 'A2'], { cwd: d, env: ENV, timeout: 600000 }); const s4 = stats(d);

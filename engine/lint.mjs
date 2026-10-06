@@ -404,6 +404,7 @@ let R2 = null;
 const FCL = frameCache({ film: R.film, size: arg('--size', undefined), grade: false, make: async () => R });
 const FCS_ = frameCache({ film: R.film, size: SMALL, grade: false, make: async () => (R2 ??= await makeRenderer({ size: SMALL, grade: false })) });
 const stepMs = {};
+{ const { prewarm } = await import('./framewarm.mjs'), t0 = Date.now(), n = await prewarm({ film: R.film, FCL, FCS_, lfps, scope: R.film.lintScope ?? null, needLayout: want('layout'), needSmall: want('motion') || want('arc') }); if (n) stepMs.prewarm = Date.now() - t0, stepMs.warmFrames = n; }   // R6: relleno de la caché en paralelo (solo en frío y si merece la pena)
 const step = async (k, f) => { if (want(k)) { CHECK = k; const t0 = Date.now(); try { await f(); } finally { stepMs[k] = Date.now() - t0; } } };
 try {
 await step('validate', () => { validate(R.film); for (const x of scanShots(ROOT, R.film.shots.map((s) => s.id))) (x.level === 'FIX' ? fix : warn)(x.shot, 0, x.problem, x.remedy); fonts(R); });

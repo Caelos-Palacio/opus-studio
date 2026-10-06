@@ -61,6 +61,7 @@ const labelFor = (film, t) => {
 };
 
 async function stills() {
+  process.env.OPUS_FXFAST ??= '1';                                           // R3 (spec 009): hojas de contacto = vista previa → fx rápidos por defecto (OPUS_FXFAST=0 los apaga); el master (--range) no
   const R = await makeRenderer({ size: arg('--size'), animatic: has('--animatic') });
   const { film } = R; mk(path.join(OUT, 'sheets'));
   const id = arg('--shot');
@@ -81,6 +82,7 @@ async function stills() {
 }
 
 async function strips() {
+  process.env.OPUS_FXFAST ??= '1';
   const R = await makeRenderer({ size: arg('--size') });
   const { film } = R; mk(path.join(OUT, 'strips'));
   const n = +arg('--around-cuts', 8), fps = film.fps;

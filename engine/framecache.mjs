@@ -69,6 +69,12 @@ export function frameCache({ film, size, grade = true, make }) {
   };
   return {
     stats,
+    // Los fotogramas de `items` ({t, px, guard}) que NO están en disco (para el precalentamiento en paralelo del lint).
+    missing(items) {
+      if (noCache()) return items; const [W, H] = dims();
+      const hasPx = (f) => { try { const fd = fs.openSync(f, 'r'); const b = Buffer.alloc(4); fs.readSync(fd, b, 0, 4, 0); const hl = b.readUInt32LE(0), hb = Buffer.alloc(hl); fs.readSync(fd, hb, 0, hl, 4); fs.closeSync(fd); return v8.deserialize(hb).hasPx; } catch { return false; } };
+      return items.filter((it) => { const f = fileOf(frameKey(film, it.t, { W, H, grade, guard: !!it.guard })); return it.px ? !hasPx(f) : !fs.existsSync(f); });
+    },
     // ¿están TODOS esos fotogramas en disco? (lint --shot: arc solo corre si no hay que renderizar nada)
     hasAll(ts, { px = false } = {}) {
       if (noCache()) return false; const [W, H] = dims();
