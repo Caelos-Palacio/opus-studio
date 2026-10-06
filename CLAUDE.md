@@ -4,7 +4,7 @@
 - Proceso 3DD (docs/specs/README.md): Claude escribe specs desde la intención del usuario → escenarios BDD → tests en
   rojo → código. El usuario es el juez de gusto: ningún output audiovisual está "hecho" sin su nota.
 - Gusto del usuario: asombro, épico/vibrante, con personalidad. Anti-patrones: monotonía, prisa, audio pobre,
-  fondo negro vacío, paleta por defecto (dorado sobre azul noche). Ver docs/specs/001–003.
+  fondo negro VACÍO (sin profundidad ni motivo; el oscuro elegido por el tema —cosmos, noche, luz— es válido: spec 012 Lección), paleta por defecto (dorado sobre azul noche). Ver docs/specs/001–003.
 - Antes de tocar nada: STATUS.md (estado real, generado), docs/HANDOFF.md y docs/ROADMAP.md (rumbo); plan viejo en docs/history/PLAN.md. Memoria conceptual: docs/MEMORIA.md.
 - Films ≠ demo: fija el film con `npm run use -- <film>` (out/.film; prioridad --timeline > OPUS_TIMELINE > use > demo). Toda CLI imprime en su
   1.ª línea `film: <clave> (<ruta>, fuente: …)`: léela. story/memoria se derivan de la carpeta del film. `npm run peek -- [film]` = hoja de contacto en segundos: míralo antes de entregar.

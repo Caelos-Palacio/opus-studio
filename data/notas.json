@@ -126,6 +126,42 @@
       "texto": "cualquiera de los 3 está bien, tal vez terracota → se adopta terracota",
       "fuente": "003",
       "medible": false
+    },
+    {
+      "film": "mate_papel",
+      "version": "terracota",
+      "dim": "general",
+      "nota": null,
+      "texto": "está muy bien",
+      "fuente": "012",
+      "medible": false
+    },
+    {
+      "film": "regla",
+      "version": "v2 pizarra",
+      "dim": "general",
+      "nota": null,
+      "texto": "no es el mejor concepto pero está bien ejecutado",
+      "fuente": "012",
+      "medible": false
+    },
+    {
+      "film": "stress/potencias",
+      "version": "v3 técnico",
+      "dim": "general",
+      "nota": null,
+      "texto": "antes estaba mejor, sea el fondo negro: hay que saber distinguir cuándo usar cada uno",
+      "fuente": "012",
+      "medible": false
+    },
+    {
+      "film": "reel",
+      "version": "v2 neón",
+      "dim": "general",
+      "nota": null,
+      "texto": "bastante muy bien",
+      "fuente": "012",
+      "medible": false
     }
   ]
 }

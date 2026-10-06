@@ -34,7 +34,17 @@
 ## Calificaciones
 | film | versión | nota | comentario |
 |---|---|---|---|
-| regla | v2 | — | — |
-| reel | v2 | — | — |
-| potencias | v2 | — | — |
-| mate_papel | terracota | — | (re-render con el acento elegido) |
+| regla | v2 (pizarra) | — (2026-10-06) | "no es el mejor concepto pero está bien ejecutado" |
+| reel | v2 (neón) | — (2026-10-06) | "bastante muy bien" |
+| potencias | v3 (técnico) | — (2026-10-06) | "antes estaba mejor, sea el fondo negro": peor que v2 |
+| mate_papel | terracota | — (2026-10-06) | "está muy bien" |
+
+## Lección (2026-10-06): el negro no es el anti-patrón; el negro VACÍO sí
+Potencias v3 (plano técnico) quedó peor que v2 (fondo oscuro). Un viaje por escalas hasta el cosmos PIDE la oscuridad:
+el espacio es el tema, las estrellas, el globo y la órbita viven sobre negro. El anti-patrón es el negro sin profundidad
+ni motivo (relleno por defecto), no el negro elegido. Regla de elección de medio/fondo:
+- Oscuro cuando el tema es luz, noche, cosmos, vacío o escala inmensa, y el fondo aporta profundidad (estrellas, atmósfera, niebla, viñeta, parallax).
+- Soporte con textura (papel, pizarra, kraft, técnico) cuando el tema es razonar, construir, medir o escribir, y el soporte es parte de la metáfora.
+- Neón cuando la luz es el sujeto y hay ritmo o ruptura.
+- El `porque` del medio en story.json debe nombrar el tema y por qué ese fondo lo sirve; si el porqué es "evitar el negro", está mal elegido.
+Escenario nuevo (P6): el lint avisa `fondo.vacio` solo si el fondo oscuro no tiene profundidad medible (varianza espacial y temporal baja); un fondo oscuro con profundidad pasa.
