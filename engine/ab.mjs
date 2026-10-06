@@ -14,7 +14,8 @@ import { ROOT } from './film.mjs';
 import { x264Args } from './encode.mjs';
 const { createCanvas } = canvasPkg;
 const argv = process.argv.slice(2), arg = (k, d) => { const i = argv.indexOf('--' + k); return i >= 0 ? argv[i + 1] : d; }, has = (k) => argv.includes('--' + k);
-const pos = argv.filter((a, i) => !a.startsWith('--') && !(i > 0 && argv[i - 1].startsWith('--') && !['plan', 'no-video'].includes(argv[i - 1].slice(2))));
+const VAL = new Set(['a', 'b', 'out', 'times', 'w', 'fps', 'range']), pos = [];
+for (let i = 0; i < argv.length; i++) { if (argv[i].startsWith('--')) { if (VAL.has(argv[i].slice(2))) i++; } else pos.push(argv[i]); }
 
 // ── resolución de la forma corta ─────────────────────────────────────────────────────────────────────────────────────
 const findFilm = (n) => [n, `data/${n}.json`, `data/stress/${n}.json`, `data/${n}/timeline.json`, `data/stress/${n}/timeline.json`].find((p) => fs.existsSync(path.join(ROOT, p)));

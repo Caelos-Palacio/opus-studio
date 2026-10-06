@@ -25,6 +25,7 @@
     "master": "node engine/cut.mjs",
     "use": "node engine/opus.mjs use",
     "peek": "node engine/peek.mjs",
+    "ab": "node engine/ab.mjs",
     "plan": "node engine/cut.mjs --plan",
     "index": "node engine/index.mjs",
     "q": "node engine/q.mjs",
