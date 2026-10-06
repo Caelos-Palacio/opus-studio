@@ -31,7 +31,7 @@ Definición (gates.json); el estado de cierre está en la parte viva.
 
 ## Motor
 
-- versión: 5.0.0 (package.json) · módulos engine/: 73
+- versión: 5.0.0 (package.json) · módulos engine/: 74
 - roles: modo `enforce` (*, director, dp, investigador, td, productor, animator, review) · digest `35a737817acffefa`
 - presupuestos: data/budgets.json digest `5290bbde06ea538a`
 
@@ -41,15 +41,15 @@ Archivos (test/*.mjs): `arc.mjs` `bench-skia.mjs` `critic.mjs` `cut-render.mjs` 
 <!-- estatico:fin -->
 
 ---
-## Estado vivo (2026-10-06T04:38Z, no verificado)
+## Estado vivo (2026-10-06T07:39Z, no verificado)
 
 ## Veredictos
 
-Film activo: `main` · engineHash `4115f575c7ed7695c38114cda530afb885601a4109b206eadd28b53483602469` · filmHash `2ba9a9d721cb4a06`
+Film activo: `main` · engineHash `6dba15792e3cf493dd9f389268402f43757b38f99c57ce89daa000ded05ccd6c` · filmHash `2ba9a9d721cb4a06`
 
-- out/lint.json: SHIP · CADUCADO
+- out/lint.json: no existe
 - out/critic.json: no existe
-- veredictos por shot: 0 vigentes, 3 caducados
+- veredictos por shot: 0 vigentes, 0 caducados
 
 ### Estado de gates (out/gates.json)
 
@@ -58,12 +58,12 @@ Film activo: `main` · engineHash `4115f575c7ed7695c38114cda530afb885601a4109b20
 ## Ramas sin integrar
 
 - `backup/pre-limpieza` (+136 commits)
+- `dsl80` (+3 commits)
 - `gobernanza` (+96 commits)
 - `harness` (+101 commits)
 - `medios` (+57 commits)
-- `medios2` (+3 commits)
 - `metricas` (+76 commits)
-- `motor` (+3 commits)
+- `motor` (+11 commits)
 - `orquestacion` (+101 commits)
 - `perf` (+53 commits)
 - `semantica` (+101 commits)
@@ -82,14 +82,15 @@ Film activo: `main` · engineHash `4115f575c7ed7695c38114cda530afb885601a4109b20
 - `worktree-agent-aeb50bfa4294a3a73` (+1 commits)
 - `worktree-agent-aeecba00c45e50119` (+2 commits)
 - `world3d` (+75 commits)
+- `world3d2` (+8 commits)
 
 ## Último run de tests
 
-- 2026-10-05T21:38:42.545Z: todo verde
+- 2026-10-06T07:38:58.205Z: 1 fallos
 
 ## Ledger
 
-- cadena: íntegra · 11 entradas (0 encadenadas, 11 heredadas, 0 firmadas) · códigos 100 %
+- cadena: íntegra · 0 entradas (0 encadenadas, 0 heredadas, 0 firmadas) · códigos 0 %
 
 ## Presupuestos
 
