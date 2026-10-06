@@ -19,7 +19,51 @@
  "duration": 78,
  "autoSfx": false,
  "music": null,
- "sound": { "style": "epico", "memoria": "data/stress/memoria.json" },
+ "sound": {
+  "style": "epico",
+  "memoria": "data/stress/memoria.json",
+  "overrides": {
+   "dynamics": {
+    "floorDb": -27,
+    "pow": 1.1,
+    "revDb": -3
+   },
+   "mix": {
+    "macro": {
+     "floorDb": -20,
+     "pow": 1.0
+    }
+   },
+   "impact": {
+    "mix": {
+     "sd": 1.0,
+     "bd": 1.0,
+     "trn": 1.6,
+     "rb": 0.6
+    }
+   },
+   "layers": {
+    "riser": {
+     "frac": 0.43,
+     "gain": 0.26
+    },
+    "roll": {
+     "frac": 0.215,
+     "gain": [
+      0.09,
+      0.38
+     ]
+    },
+    "tom": {
+     "thr": 0.56,
+     "gain": [
+      0.18,
+      0.36
+     ]
+    }
+   }
+  }
+ },
  "motif": {
   "id": "ventana",
   "states": [
@@ -247,6 +291,11 @@
      "type": "drone",
      "dur": 18,
      "gain": 0.3
+    },
+    {
+     "at": 0.45,
+     "type": "shimmer",
+     "gain": 0.22
     }
    ]
   },
@@ -293,6 +342,11 @@
      "type": "whoosh",
      "dur": 1.2,
      "gain": 0.25
+    },
+    {
+     "at": 0.75,
+     "type": "bloom",
+     "gain": 0.45
     }
    ]
   },
@@ -566,6 +620,22 @@
      "at": 4.917,
      "type": "impact",
      "gain": 0.8
+    },
+    {
+     "at": 4.917,
+     "type": "riser",
+     "dur": 7.5,
+     "gain": 0.3
+    },
+    {
+     "at": 4.95,
+     "type": "bloom",
+     "gain": 0.7
+    },
+    {
+     "at": 5.5,
+     "type": "shimmer",
+     "gain": 0.35
     }
    ]
   },
@@ -718,7 +788,13 @@
  "variants": {
   "w3d": {
    "ops": [
-    { "op": "add", "path": "/shots/P03/params", "value": { "w3d": true } }
+    {
+     "op": "add",
+     "path": "/shots/P03/params",
+     "value": {
+      "w3d": true
+     }
+    }
    ]
   }
  }

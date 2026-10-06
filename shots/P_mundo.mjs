@@ -198,7 +198,7 @@ function moon(api, G, L) {
   const a = seg(L, 7.3, 7.8) * (1 - seg(L, 10, 10.6)); if (a <= 0) return null;
   const { ppm, P } = proj(G, L), [ex, ey] = P(0, -(RE + H0)), rm = MOON_R * ppm, ink = api.color('ink');
   api.scene({ id: 'tierra', x: ex, y: ey, opacity: a, children: [
-    { id: 'orbitaLuna', draw: (c) => { c.strokeStyle = ink; c.globalAlpha *= 0.38; c.lineWidth = 1.2; c.setLineDash([4, 5]); c.beginPath(); c.arc(0, 0, rm, 0, TAU); c.stroke(); } },
+    { id: 'orbitaLuna', draw: (c) => { c.strokeStyle = ink; c.globalAlpha *= 0.6; c.lineWidth = 1.5; c.setLineDash([4, 5]); c.beginPath(); c.arc(0, 0, rm, 0, TAU); c.stroke(); } },
     { id: 'brazoLuna', rot: -MOON_ANG, children: [{ id: 'luna', x: rm, draw: (c) => { c.fillStyle = ink; disc(c, 0, 0, Math.max(1.6, 1.737e6 * ppm)); } }] },
   ] });
   return { ex, ey, rm };
@@ -253,6 +253,10 @@ export function edge(ctx, api, G, L, t) {
   const a2 = api.color('accent2'), hit = t - TE, flash = hit >= 0 ? Math.exp(-hit / 0.55) : 0, imp = hit >= 0 && hit < 3 / 30;
   const draw = (c) => { c.save(); c.strokeStyle = imp ? api.color('ink') : a2; c.globalAlpha = clamp(0.1 + flash); c.lineWidth = (2 + 6 * flash + (imp ? 6 : 0)) * G.k * 1.5; c.beginPath(); c.arc(G.cx, G.cy, R, 0, TAU); c.stroke();
     if (flash > 0.02) { const hot = hit >= 0 && hit < 6 / 30; c.fillStyle = hot ? api.color('accent') : a2; c.globalAlpha = hot ? 0.85 - 0.3 * (hit * 5) : 0.3 * flash; disc(c, G.cx, G.cy, R); } c.restore(); };   // el golpe: 2 fotogramas de bermellón (el acento marca el pico)
+  if (hit >= 0 && hit < 1.2) {                                       // el golpe, en capas: velo blanco de pantalla completa (la hoja del plano se sobreexpone) + onda de choque que sale del borde
+    ctx.save(); ctx.fillStyle = api.color('ink'); ctx.globalAlpha = 0.5 * Math.exp(-hit / 0.1); ctx.fillRect(0, 0, G.W, G.H);
+    ctx.strokeStyle = api.color('ink'); ctx.globalAlpha = 0.7 * Math.exp(-hit / 0.45); ctx.lineWidth = Math.max(1, (5 * Math.exp(-hit / 0.5)) * G.k * 1.5); ctx.beginPath(); ctx.arc(G.cx, G.cy, R * (1 + 3.5 * (1 - Math.exp(-hit / 0.4))), 0, TAU); ctx.stroke(); ctx.restore();
+  }
   if (flash > 0.02) api.layer({ bloom: { threshold: 0.35, strength: 1.4 * flash + 0.3, radius: 34 } }, (c) => draw(c)); else draw(ctx);
   if (R > 30 && R < G.S0 * 1.3) api.focus(G.cx - R, G.cy - R, 2 * R, 2 * R, 'borde observable', { weight: 1, hollow: 0.85 });
   return { R, flash };
