@@ -26,7 +26,7 @@ Reescrito con v2 (`shots/P03.mjs`, `shots/W_datacenter.mjs` → `datacenterScene
 - El hash de fragmentos ya incluye backend (+ el estilo completo ⇒ los flags v2 entran solos).
 
 ## Medidas
-Ver el bloque «Medidas» al final (rellenado tras la entrega).
+1280×720, SSAA 2×, datacenter, máquina con carga ≈ 16–20 (12 núcleos, otros agentes): en aislamiento v1 ≈ 106 ms, v2 completo ≈ 107 ms (sombras 114, AO 101, rim 88); bajo carga en el test v1 57–175 y v2 80–231 ms. Límite spec 220 ms: cumplido en reposo. Vídeo A/B: 345 fotogramas (9,5–21 s) en 82 s de pared. Tests: world3d 76 comprobaciones; suite completa verde salvo STATUS.md (regenerado).
 
 ## Pendiente
 - Juicio del usuario (H1). Si pide más «volumen»: subir `ao`, `groundLit`, o añadir luz de relleno hemisférica.
