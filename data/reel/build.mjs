@@ -78,7 +78,7 @@ const signals = {
   tom: { op: 'audio', feature: 'onsets', track: 'tom', decay: 0.18, attack: 0.004, description: 'toms' },
   chaos: { op: 'keys', description: 'del ruido al orden: 1 = caos, 0 = rejilla; se desordena de golpe en el pico', keys: [
     { t: 0, v: 1 }, { t: r(B[8]), v: 1, ease: 'inOut' }, { t: r(B[16]), v: 0.7, ease: 'inOut' }, { t: r(B[24]), v: 0.3, ease: 'inOut' }, { t: r(B[32]), v: 0.12, ease: 'in' },
-    { t: r(B[38]), v: 0.65, ease: 'out' }, { t: r(B[39]), v: 0 }, { t: A.hit, v: 1 }, { t: r(B[HIT + 2]), v: 0.4, ease: 'out' }, { t: A.rev0, v: 0.2, ease: 'out' }, { t: r(B[REV0 + 2]), v: 0 }] },
+    { t: r(B[38]), v: 0.65, ease: 'out' }, { t: r(B[39]), v: 0 }, { t: A.hit, v: 1 }, { t: r(B[HIT + 2]), v: 0.4, ease: 'out' }, { t: A.rev0, v: 0.7, ease: 'out' }, { t: r(B[REV0 + 2]), v: 0 }] },
   lock: { op: 'keys', description: 'cuánto se pega todo a la rejilla (sube durante el enganche, se suelta en el golpe)', keys: [
     { t: 0, v: 0 }, { t: r(B[12]), v: 0, ease: 'inOut' }, { t: r(B[16]), v: 0.3, ease: 'inOut' }, { t: r(B[22]), v: 0.8, ease: 'inOut' }, { t: r(B[28]), v: 1 }, { t: A.hit - 0.001, v: 1 }, { t: A.hit, v: 0 }] },
   shock: { op: 'env', at: [A.hit, A.rev0], attack: 0, decay: 0.5, peak: 1.4, description: 'onda de choque: el golpe y el reencaje' },
@@ -91,7 +91,7 @@ const signals = {
 
 const tl = {
   title: 'Pulso — ¿Qué suena cuando todo se rompe?', style: 'pulso', profile: 'reel',
-  profileOverrides: { shotLen: [0.4, 3.2], readCps: 20 },
+  medium: 'neon_pulso', profileOverrides: { shotLen: [0.4, 3.2], readCps: 20 },
   fps: FPS, width: 1080, height: 1920, duration: DUR, end_hold_ok: true,
   sound: { style: 'electro', memoria: 'data/reel/memoria.json', overrides: { impact: { vacuum: r(A.hit - B[HIT - 1]) } } },
   signals, shots,

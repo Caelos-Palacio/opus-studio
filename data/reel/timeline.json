@@ -2,6 +2,7 @@
  "title": "Pulso — ¿Qué suena cuando todo se rompe?",
  "style": "pulso",
  "profile": "reel",
+ "medium": "neon_pulso",
  "profileOverrides": {
   "shotLen": [
    0.4,
@@ -104,7 +105,7 @@
     },
     {
      "t": 24.1926,
-     "v": 0.2,
+     "v": 0.7,
      "ease": "out"
     },
     {
