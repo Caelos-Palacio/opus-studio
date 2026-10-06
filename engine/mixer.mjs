@@ -57,8 +57,10 @@ export function mixdown({ plan, style, music, buses, events }) {
   if (M.saturation > 0) for (let i = 0; i < N; i++) { pre.L[i] = Math.tanh(pre.L[i] * (1 + M.saturation)) / (1 + M.saturation); pre.R[i] = Math.tanh(pre.R[i] * (1 + M.saturation)) / (1 + M.saturation); }
   // master: ganancia hasta −14 LUFS integrados bajo limitador de ladrillo con techo de true peak
   const target = style.master.lufs, tpT = style.master.tp; let s = 1, ceil = db2lin(tpT) * 0.97, out = pre, meas = null;
+  const gL = new Float32Array(N), gR = new Float32Array(N), scr = {};
   for (let it = 0; it < 14; it++) {
-    const L = Float32Array.from(pre.L, (v) => v * s), R = Float32Array.from(pre.R, (v) => v * s); out = limiter(L, R, ceil); meas = loudness(out.L, out.R);
+    for (let i = 0; i < N; i++) { gL[i] = pre.L[i] * s; gR[i] = pre.R[i] * s; }   // R7: bucle directo (Float32Array.from con callback costaba ~4 s por mezcla de 90 s); mismos valores
+    out = limiter(gL, gR, ceil, { scratch: scr }); meas = loudness(out.L, out.R);
     const tp = truePeak(out.L, out.R), eI = target - meas.I, eT = tp - tpT;
     if (Math.abs(eI) < 0.04 && eT <= 0.02) break;
     if (eT > 0.02) ceil *= db2lin(-(eT + 0.05)); if (Math.abs(eI) >= 0.04) s *= db2lin(eI * 0.9);

@@ -236,7 +236,8 @@ export function renderScore(part, plan, style, { N = Math.ceil((plan.dur + 1.5) 
   const dL = new Float32Array(N), dR = new Float32Array(N), W = Array.from({ length: nseg }, () => ({ L: new Float32Array(N), R: new Float32Array(N) }));
   const R = rng(hashStr('score:' + part.meta.style + ':' + N)), I = plan.intensity;
   let seg = 0, lim = N;
-  const put = (t0, i, v, pan = 0, send = 0.2) => { const k = Math.floor(t0 * SR) + i; if (k < 0 || k >= lim) return; const l = Math.cos(((pan + 1) * Math.PI) / 4), r = Math.sin(((pan + 1) * Math.PI) / 4); dL[k] += v * l; dR[k] += v * r; W[seg].L[k] += v * l * send; W[seg].R[k] += v * r * send; };
+  let pP = NaN, pL = 0, pR = 0;                                                  // R7: los gains del paneo se calculaban (cos+sin) en CADA muestra; ahora solo cuando cambia el pan (mismos valores)
+  const put = (t0, i, v, pan = 0, send = 0.2) => { const k = Math.floor(t0 * SR) + i; if (k < 0 || k >= lim) return; if (pan !== pP) { pP = pan; pL = Math.cos(((pan + 1) * Math.PI) / 4); pR = Math.sin(((pan + 1) * Math.PI) / 4); } const l = pL, r = pR; dL[k] += v * l; dR[k] += v * r; W[seg].L[k] += v * l * send; W[seg].R[k] += v * r * send; };
   const V = {
     pad(n) { // dientes de sierra desafinados con filtro paso bajo cuyo brillo sigue a la intensidad
       const s0 = Math.max(0, Math.floor((n.t0 - n.atk) * SR)), s1 = Math.min(lim, Math.floor((n.t1 + n.rel) * SR)), brightF = n.bright === 'I' ? (t) => 0.25 + 0.75 * I(t) : () => n.bright;
@@ -260,13 +261,26 @@ export function renderScore(part, plan, style, { N = Math.ceil((plan.dur + 1.5) 
     piano(n) { // piano suave sintético (estilo contemplativo): parciales algo inarmónicos con decaimiento propio, dos cuerdas, fieltro y pedal
       const f = mtof(n.m), br = n.bright ?? 1, len = Math.min(8, n.d * 1.2 + 1.8), tau0 = 0.9 + 5.5 * Math.exp(-(n.m - 36) / 20), K = Math.max(3, Math.min(14, Math.floor((4200 + 3200 * br) / f))), hold = n.d * 1.15;
       const parts = []; for (let k = 1; k <= K; k++) { const a = (1 / k ** 1.12) * Math.exp(-(((f * k) / (1400 + 2300 * br)) ** 2)) * (k === 2 ? 1.1 : 1), tau = tau0 / (1 + 0.5 * (k - 1)); if (a > 0.004) parts.push([f * k * Math.sqrt(1 + 0.00018 * k * k), a, tau, R() * TAU, Math.min(len, tau * 5 * 9.2 * 0.5)]); }
-      const ph2 = R() * TAU, N = Math.floor(len * SR);
+      const ph2 = R() * TAU, N = Math.floor(len * SR), P = parts.length, a0 = 0.42 * parts[0][1], f2 = TAU * f * 1.0006, k05 = 0.05 * br, pg = n.g * 0.5, pn = n.pan ?? 0, ps = n.send ?? 0.6;
+      // R7: decaimientos y senos por RECURRENCIA (e·m, rotación) en vez de Math.exp/Math.sin por parcial y muestra (eran el 40 % de una mezcla contemplativa).
+      // Error relativo ≲1e-10 tras 400 k muestras (< −190 dB: por debajo del float32 del bus); el R() del fieltro se consume igual (misma secuencia aleatoria).
+      const m1 = new Float64Array(P + 1), m2 = new Float64Array(P + 1), e1 = new Float64Array(P + 1).fill(1), e2 = new Float64Array(P + 1).fill(1), cs = new Float64Array(P + 1), sn = new Float64Array(P + 1), cd = new Float64Array(P + 1), sd = new Float64Array(P + 1), AA = new Float64Array(P + 1), END = new Int32Array(P + 1);
+      for (let p = 0; p <= P; p++) {                                                  // p = P: la segunda cuerda (decae como la parcial 1, sin límite de vida)
+        const q = p < P ? parts[p] : parts[0], fk = p < P ? TAU * q[0] : f2, ph = p < P ? q[3] : ph2;
+        m1[p] = Math.exp(-1 / (SR * q[2])); m2[p] = Math.exp(-1 / (SR * 5 * q[2])); cs[p] = Math.cos(ph); sn[p] = Math.sin(ph); cd[p] = Math.cos(fk / SR); sd[p] = Math.sin(fk / SR);
+        AA[p] = p < P ? q[1] : a0; END[p] = p < P ? Math.min(N, Math.floor(q[4] * SR) + 1) : N;
+      }
+      const m3 = Math.exp(-1 / (SR * 0.014)), m4 = Math.exp(-1 / (SR * 0.9)); let e3 = 1, rel = 1, relOn = false;
       for (let i = 0; i < N; i++) {
-        const t = i / SR, rel = t < hold ? 1 : Math.exp(-(t - hold) / 0.9); let v = 0;
-        for (const [fk, a, tau, ph, tmax] of parts) { if (t > tmax) continue; v += a * (0.62 * Math.exp(-t / tau) + 0.38 * Math.exp(-t / (5 * tau))) * Math.sin(TAU * fk * t + ph); }
-        v += 0.42 * parts[0][1] * (0.62 * Math.exp(-t / parts[0][2]) + 0.38 * Math.exp(-t / (5 * parts[0][2]))) * Math.sin(TAU * f * 1.0006 * t + ph2);   // segunda cuerda
-        v += 0.05 * br * (R() * 2 - 1) * Math.exp(-t / 0.014);                                                                                         // fieltro
-        put(n.t, i, n.g * 0.5 * v * rel * clamp(t / 0.0025), n.pan ?? 0, n.send ?? 0.6);
+        const t = i / SR; if (!relOn && t >= hold) { relOn = true; rel = Math.exp(-(t - hold) / 0.9); } else if (relOn) rel *= m4;
+        let v = 0;
+        for (let p = 0; p <= P; p++) {
+          if (i >= END[p]) continue;
+          v += AA[p] * (0.62 * e1[p] + 0.38 * e2[p]) * sn[p];
+          e1[p] *= m1[p]; e2[p] *= m2[p]; const c = cs[p]; cs[p] = c * cd[p] - sn[p] * sd[p]; sn[p] = sn[p] * cd[p] + c * sd[p];
+        }
+        v += k05 * (R() * 2 - 1) * e3; e3 *= m3;
+        put(n.t, i, pg * v * rel * clamp(t / 0.0025), pn, ps);
       }
     },
     kick(n) { let ph = 0; for (let i = 0; i < 0.35 * SR; i++) { const t = i / SR; ph += (48 + 110 * Math.exp(-t * 28)) / SR; put(n.t, i, n.g * Math.sin(TAU * ph) * Math.exp(-t / 0.12) * clamp(t / 0.002), 0, 0.05); } },
