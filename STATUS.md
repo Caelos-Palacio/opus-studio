@@ -26,6 +26,8 @@ Definición (gates.json); el estado de cierre está en la parte viva.
 | [006-semantica.md](docs/specs/006-semantica.md) | 006 — Semántica al límite: el vídeo como datos con significado | sin nota |
 | [007-orquestacion.md](docs/specs/007-orquestacion.md) | 007 · Orquestación al límite (paso 4 del roadmap) | sin nota |
 | [008-gobernanza.md](docs/specs/008-gobernanza.md) | 008 — Gobernanza al límite (roadmap paso 5) | sin nota |
+| [009-world3d-v2.md](docs/specs/009-world3d-v2.md) | 009 — world3d v2: profundidad, escenario y ángulo | (pendiente v2) · — · — |
+| [010-dsl-80.md](docs/specs/010-dsl-80.md) | 010 — DSL de escenas al ~80 % de los shots | sin nota |
 
 ## Motor
 
@@ -39,15 +41,15 @@ Archivos (test/*.mjs): `arc.mjs` `bench-skia.mjs` `critic.mjs` `cut-render.mjs` 
 <!-- estatico:fin -->
 
 ---
-## Estado vivo (2026-10-06T04:34Z, no verificado)
+## Estado vivo (2026-10-06T04:38Z, no verificado)
 
 ## Veredictos
 
 Film activo: `main` · engineHash `4115f575c7ed7695c38114cda530afb885601a4109b206eadd28b53483602469` · filmHash `2ba9a9d721cb4a06`
 
-- out/lint.json: no existe
+- out/lint.json: SHIP · CADUCADO
 - out/critic.json: no existe
-- veredictos por shot: 0 vigentes, 0 caducados
+- veredictos por shot: 0 vigentes, 3 caducados
 
 ### Estado de gates (out/gates.json)
 
@@ -56,12 +58,12 @@ Film activo: `main` · engineHash `4115f575c7ed7695c38114cda530afb885601a4109b20
 ## Ramas sin integrar
 
 - `backup/pre-limpieza` (+136 commits)
-- `deuda` (+4 commits)
 - `gobernanza` (+96 commits)
 - `harness` (+101 commits)
 - `medios` (+57 commits)
-- `medios2` (+1 commits)
+- `medios2` (+3 commits)
 - `metricas` (+76 commits)
+- `motor` (+3 commits)
 - `orquestacion` (+101 commits)
 - `perf` (+53 commits)
 - `semantica` (+101 commits)
@@ -83,11 +85,11 @@ Film activo: `main` · engineHash `4115f575c7ed7695c38114cda530afb885601a4109b20
 
 ## Último run de tests
 
-- 2026-10-06T04:27:35.865Z: todo verde (--fast)
+- 2026-10-05T21:38:42.545Z: todo verde
 
 ## Ledger
 
-- cadena: íntegra · 0 entradas (0 encadenadas, 0 heredadas, 0 firmadas) · códigos 0 %
+- cadena: íntegra · 11 entradas (0 encadenadas, 11 heredadas, 0 firmadas) · códigos 100 %
 
 ## Presupuestos
 
