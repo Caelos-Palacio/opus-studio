@@ -16,6 +16,16 @@ export function lintFrames(film, { lfps = 12, scope = null } = {}) {
   for (const s of film.shots) if (s.compose !== 'free' && (!scope || scope.ids.has(s.id))) layout.push({ t: (s.t[0] + s.t[1]) / 2, px: true, guard: true });
   const m = Math.round(film.duration * lfps), f0 = scope ? Math.max(0, Math.floor(scope.t0 * lfps) - 3) : 0, f1 = scope ? Math.min(m, Math.ceil(scope.t1 * lfps) + 3) : m;
   for (let i = f0; i <= f1; i++) small.push({ t: i / lfps, px: true });
+  // rima (primer y último fotograma, tamaño del lint, sin guardia) y firma de ritmo (series a 30 fps alrededor de beats y cortes): mismos instantes que usan sus checks en lint.mjs
+  if (!scope && film.rhyme !== false) layout.push({ t: Math.min(0.6, film.duration * 0.1), px: true, guard: false }, { t: film.duration - 0.05, px: true, guard: false });
+  const F = 30, series = (t0, t1, f) => { for (let t = Math.max(0, t0 - 1 / f); t <= Math.min(film.duration, t1) + 1e-9; t += 1 / f) small.push({ t, px: true }); };
+  const ev = film.shots.flatMap((s) => (s.on_beat_at ?? []).map((x) => [s.id, s.t[0] + x])), stepE = Math.max(1, Math.ceil(ev.length / 40));
+  for (const [id, b] of ev.filter((_, i) => i % stepE === 0).filter(([id]) => !scope || scope.ids.has(id))) { series(b - 0.25, b - 0.06, F); series(b - 1 / F, b + 0.15, F); }
+  for (let i = 0; i < film.shots.length - 1; i++) {
+    const A = film.shots[i], c = A.t[1], tr = (A.transition_out ?? '').toLowerCase().trim(); if (scope && !scope.ids.has(A.id)) continue;
+    if (tr === 'cut' || tr === 'scale-cut') { series(c - 0.1, c - 1 / F, F); series(c - 0.6, c - 0.1, F); }
+    if (tr === 'hold-cut') series(c - 10 / film.fps, c - 1 / film.fps, film.fps);
+  }
   void n; return { layout, small };
 }
 

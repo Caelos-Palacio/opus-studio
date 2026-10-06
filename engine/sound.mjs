@@ -93,7 +93,7 @@ export function build(tl, { memoria, tag = filmId(timelinePath()) } = {}) {
   events.forEach((e, i) => { e.lead = E.meta.leads[i]; });                       // el render fija e.lead (la mezcla lo lee para el ducking)
   const [a, b2, c, d, e2, f] = E.arrays, buses = { sfx: { L: a, R: b2 }, hit: { L: c, R: d }, amb: { L: e2, R: f } };
   const out = tm('mixdown', () => mixdown({ plan, style, music, buses, events }));
-  return { sr: SR, plan, style, partitura: part, events, renderEvent: eventSynth(plan, style), ...out, timing: T, cache: { music: M.hit, events: E.hit } };
+  return { sr: SR, plan, style, partitura: part, events, renderEvent: ((syn) => (e) => syn(e).x)(eventSynth(plan, style)), ...out, timing: T, cache: { music: M.hit, events: E.hit } };
 }
 // Remezcla solo si falta el wav o cambió el hash de entradas. → true si remezcló.
 export function ensureMix(tl, suffix = mixName()) {
