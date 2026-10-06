@@ -27,16 +27,18 @@ export function angleCheck(a) {
 // → { fov, el, shiftY, horizonY, groundY, angle:{ el, scale, rule, range, ok, override } }
 export function resolveCameraInfo(cam, ctx = {}) {
   const W = ctx.W ?? 16, H = ctx.H ?? 9, fov = cam.fov ?? fovFromFocal(ctx.focal ?? 1.2, W, H), T = Math.tan((fov * RAD) / 2);
-  const yg = cam.groundFy ?? ctx.groundFy ?? 0.78, d = Math.max(1e-6, cam.dist ?? 10), ty = cam.target?.[1] ?? 0;
+  const gExp = cam.groundFy ?? ctx.groundFy, d = Math.max(1e-6, cam.dist ?? 10), ty = cam.target?.[1] ?? 0;
   const key = cam.heroic ? 'heroic' : scaleKey(cam.scale), rule = key ? ANGLE_RULES[key] : null;
   const k = (el) => Math.tan(el * RAD) + (ty * Math.cos(el * RAD)) / (d + ty * Math.sin(el * RAD));
-  let el;
-  if (cam.horizon != null) {                                               // horizonte declarado ⇒ la elevación sale de la geometría (bisección: k es monótona)
+  let el, yg = gExp ?? 0.78, horizonY;
+  if (cam.horizon != null && gExp != null) {                               // horizonte y suelo declarados ⇒ la elevación sale de la geometría (bisección: k es monótona)
     const want = 2 * (yg - cam.horizon) * T; let lo = -70, hi = 70;
     for (let i = 0; i < 60; i++) { const m = (lo + hi) / 2; if (k(m) < want) lo = m; else hi = m; }
-    el = (lo + hi) / 2;
-  } else el = cam.el ?? rule?.pref ?? 15;
-  const shiftY = 1 - 2 * yg + k0(ty, el, d) / T, horizonY = yg - k(el) / (2 * T);
+    el = (lo + hi) / 2; horizonY = cam.horizon;
+  } else if (cam.horizon != null) {                                        // horizonte (la línea de suelo del 2D) + elevación de la regla ⇒ el pie del sujeto cae donde diga la geometría
+    el = cam.el ?? rule?.pref ?? 14; horizonY = cam.horizon; yg = cam.horizon + k(el) / (2 * T);
+  } else { el = cam.el ?? rule?.pref ?? 15; horizonY = yg - k(el) / (2 * T); }
+  const shiftY = 1 - 2 * yg + k0(ty, el, d) / T;
   const override = !!cam.override, ok = !rule || override || (el >= rule.range[0] - 1e-6 && el <= rule.range[1] + 1e-6);
   return { fov, el, shiftY, horizonY, groundY: yg, angle: { el, scale: key ?? null, rule: rule?.name ?? null, range: rule?.range ?? null, ok, override } };
 }

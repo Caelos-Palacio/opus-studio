@@ -96,6 +96,12 @@
             "contact": {
               "type": "boolean"
             },
+            "lit": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 1,
+              "description": "v2: cuánto se ilumina el suelo en el charco de luz (por defecto el del estilo world3d.groundLit)"
+            },
             "catcher": {
               "type": "boolean",
               "description": "v2: el suelo solo dibuja la sombra proyectada (alfa) para componerla sobre el suelo 2D del shot"

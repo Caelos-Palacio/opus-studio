@@ -121,7 +121,7 @@ void main() {
       gl_FragColor = vec4(uMask > 0.5 ? vec3(0.0) : uDark, uMask > 0.5 ? 0.0 : ac);
     #else
       vec2 dp = vW.xz - uPool.xy;
-      float pool = mix(0.45, 1.0, exp(-dot(dp, dp) / (uPool.z * uPool.z)));
+      float pool = exp(-dot(dp, dp) / (uPool.z * uPool.z));       // charco de luz alrededor del sujeto; lejos el suelo vuelve a su color (sin costura con el suelo 2D)
       vec3 litc = mix(base, uBright, uGroundLit * pool), shc = mix(base, uDark, 0.6);
       col = mix(litc, shc, (1.0 - sh) * uShA);
       #ifdef GRAD

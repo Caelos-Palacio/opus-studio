@@ -57,6 +57,7 @@ export function createWorld3d() {
         const cam = merge(merge(CAM0, scene.camera), withDyn ? ev(o.cam, tt) : undefined); cam.target = [...(cam.target ?? CAM0.target)];
         if (scene.camera?.fromShot) {
           const userEl = (withDyn ? ev(o.cam, tt)?.el : undefined) ?? scene.camera.el, ctx = { focal: o.focal ?? S.depth?.focal ?? 1.2, W: o.unitW ?? W, H: o.unitH ?? H, groundFy: ev(o.groundFy, tt) ?? scene.camera.groundY };
+          if (cam.nearK) { cam.near = cam.dist * cam.nearK; cam.far = cam.dist * (cam.farK ?? 40); }
           if (cam.ppm) { const fv = cam.fov ?? fovFromFocal(ctx.focal, ctx.W, ctx.H); cam.dist = (o.unitH ?? H) / (2 * Math.tan((fv * Math.PI) / 360) * cam.ppm); }
           const r = resolveCameraInfo({ ...cam, el: userEl, scale: cam.scale ?? o.scale, override: cam.override ?? o.override }, ctx);
           cam.fov = r.fov; cam.el = r.el; cam.shiftY = r.shiftY; if (withDyn) info = { el: r.el, fov: r.fov, horizonY: r.horizonY, groundY: r.groundY, angle: r.angle, dist: cam.dist };
@@ -73,7 +74,7 @@ export function createWorld3d() {
           buildKey: JSON.stringify([S.palette, W3.shading, line !== false]), bands: W3.bands, snap: W3.snap ?? { toon: 0.8, soft: 0.25, ink: 0.7 }[W3.shading] ?? 0.7, hatchPx: W3.hatch * k * 2, shadowMix: W3.shadowMix, contactAlpha: W3.contact,
           lightDir: new THREE.Vector3(lightDir.x, lightDir.y, lightDir.z).normalize(), fogDensity: fogD, cam, overrides: ev(o.overrides, tt),
           fx: { ...fxOn, grad: !!bgStops, hard: W3.shading === 'toon', catcher }, bgStops, pass: o.pass, unitH: o.unitH, refCam: { az: refCam.az, el: refCam.el, roll: 0, target: refCam.target },
-          ao: W3.ao ?? 0, rim: W3.rim || null, rimPx: (W3.rim?.width ?? 3) * k, shadowMap: W3.shadowMap, shadowStrength: W3.shadowStrength, groundLit: W3.groundLit, hardShadow: W3.shading === 'toon',
+          ao: W3.ao ?? 0, rim: W3.rim || null, rimPx: (W3.rim?.width ?? 3) * k, shadowMap: W3.shadowMap, shadowStrength: W3.shadowStrength, groundLit: scene.ground?.lit ?? W3.groundLit, hardShadow: W3.shading === 'toon',
         });
       };
       let out;
