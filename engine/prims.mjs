@@ -4,7 +4,7 @@
 import { clamp, lerp, hash2, noise1, rng, hashStr, TAU } from './core.mjs';
 import { WARPS, parsePath, shapes, affine, tracePath, tracePolys, traceTrim, morphPolys, bbox, warpShape, mapPts } from './geom.mjs';
 import { layer as fxLayer, bloom as fxBloom, pool as fxPool } from './fx.mjs';
-import { angleCheck } from './world3d/camera.mjs';
+import { angleCheck } from './w3d-camera.mjs';
 import { span } from './perf.mjs';
 import { rgba, mix } from './color.mjs';
 
