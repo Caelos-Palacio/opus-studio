@@ -169,7 +169,7 @@
     6
    ],
    "size": "CU",
-   "action": "de noche, una persona se dibuja; a su alrededor, una ventana de 1 m (ámbar). El contador escribe 10^0 m",
+   "action": "sobre el plano, una persona se dibuja; a su alrededor, una ventana de 1 m acotada (coral). El contador escribe 10^0 m",
    "on_beat": "la ventana se cierra alrededor de la persona",
    "on_beat_at": [
     2.4
@@ -246,7 +246,7 @@
     19
    ],
    "size": "WS",
-   "action": "10^1–10^6 m: árboles, casas, una ciudad, montañas; el aire se acaba a 100 km y el suelo se curva",
+   "action": "10^1–10^6 m: árboles, casas, una ciudad que ES VOLUMEN (beat 3D b3: se eleva la cámara y se aplana en silueta), montañas; el aire se acaba a 100 km y el suelo se curva",
    "on_beat": "cada ×10 un tic",
    "text": "UNA CIUDAD · EL AIRE TERMINA A 100 KM",
    "transition_out": "morph",
@@ -306,7 +306,7 @@
     23.5
    ],
    "size": "MS",
-   "action": "10^6–10^9 m: la Tierra entera (globo) y la órbita de la Luna (scene graph Tierra→brazo→Luna)",
+   "action": "10^6–10^9 m: la Tierra entera como globo 3D con luz (beat 3D b4: el suelo plano era una esfera) y la órbita de la Luna (scene graph Tierra→brazo→Luna, 2D)",
    "on_beat": "la Tierra cabe en la ventana",
    "text": "LA TIERRA · ÓRBITA LUNAR",
    "transition_out": "morph",
