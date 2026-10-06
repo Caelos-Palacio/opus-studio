@@ -51,7 +51,7 @@ export function loadBackend() {
     uPal: { value: Array.from({ length: 8 }, () => new THREE.Vector3()) }, uShadowC: { value: new THREE.Vector3() }, uShadowA: { value: 0.5 },
     // v2 (spec 009)
     uMask: { value: 0 }, uShT: { value: null }, uShM: { value: new THREE.Matrix4() }, uShP: { value: new THREE.Vector4(1, 0.002, 0, 1) }, uShStr: { value: 1 }, uShA: { value: 0.8 },
-    uBgG: { value: Array.from({ length: 8 }, () => new THREE.Vector3()) }, uBgN: { value: 1 }, uBright: { value: new THREE.Vector3() }, uDark: { value: new THREE.Vector3() },
+    uGrad: { value: Array.from({ length: 8 }, () => new THREE.Vector3()) }, uGradN: { value: 1 }, uBright: { value: new THREE.Vector3() }, uDark: { value: new THREE.Vector3() },
     uGroundLit: { value: 0 }, uPool: { value: new THREE.Vector3(0, 0, 1e9) }, uAO: { value: 0 }, uGY: { value: 0 }, uRimC: { value: new THREE.Vector3() }, uRimS: { value: 0 }, uRimPx: { value: 3 }, uPxU: { value: 1 },
   };
   const mats = new Map();
@@ -142,7 +142,7 @@ export function loadBackend() {
   const quadMat = new THREE.ShaderMaterial({ uniforms: { tMap: { value: null } }, vertexShader: QUAD_VERT, fragmentShader: QUAD_FRAG, depthTest: false, depthWrite: false, blending: THREE.NoBlending });
   quadScene.add(new THREE.Mesh(new THREE.PlaneGeometry(2, 2), quadMat));
   const cam = new THREE.PerspectiveCamera(34, 1, 0.5, 4000), refCam = new THREE.PerspectiveCamera(34, 1, 0.5, 4000), shCam = new THREE.OrthographicCamera(-1, 1, 1, -1, 0.01, 10);
-  const bgScene = new THREE.Scene(), bgMat = new THREE.ShaderMaterial({ uniforms: { uBgG: U.uBgG, uBgN: U.uBgN }, vertexShader: BG_VERT, fragmentShader: BG_FRAG, depthTest: false, depthWrite: false, blending: THREE.NoBlending });
+  const bgScene = new THREE.Scene(), bgMat = new THREE.ShaderMaterial({ uniforms: { uGrad: U.uGrad, uGradN: U.uGradN }, vertexShader: BG_VERT, fragmentShader: BG_FRAG, depthTest: false, depthWrite: false, blending: THREE.NoBlending });
   bgScene.add(new THREE.Mesh(new THREE.PlaneGeometry(2, 2), bgMat));
   const shRT = new Map(), shadowTarget = (n) => { let t = shRT.get(n); if (!t) { t = new THREE.WebGLRenderTarget(n, n, { minFilter: THREE.NearestFilter, magFilter: THREE.NearestFilter, generateMipmaps: false, depthBuffer: true, stencilBuffer: false, type: THREE.UnsignedByteType, format: THREE.RGBAFormat }); shRT.set(n, t); } return t; };
   let curW = 0, curH = 0, buf = null;
@@ -161,13 +161,13 @@ export function loadBackend() {
     const shadowOn = !!fx.shadow && !!built.bounds && !mask;
     // uniformes del estilo
     const v = (a, x) => a.value.set(x[0], x[1], x[2]);
-    v(U.uInk, hex(p.palette.ink ?? '#ffffff')); v(U.uLine, hex(p.palette[p.outlineColor] ?? p.outlineColor ?? p.palette.ink ?? '#ffffff')); const bgc = hex(p.palette[spec.background ?? 'paper'] ?? spec.background ?? p.palette.paper ?? '#000000'); v(U.uBg, bgc); v(U.uFogC, bgc);
+    v(U.uInk, hex(p.palette.ink ?? '#ffffff')); v(U.uLine, hex(p.palette[p.outlineColor] ?? p.outlineColor ?? p.palette.ink ?? '#ffffff')); const bgS = typeof spec.background === 'string' ? spec.background : 'paper', bgc = p.bgStops ? [...p.bgStops[0]] : hex(p.palette[bgS] ?? bgS ?? p.palette.paper ?? '#000000'); v(U.uBg, bgc); v(U.uFogC, bgc);
     U.uShadowC.value.set(bgc[0] * 0.35, bgc[1] * 0.35, bgc[2] * 0.35);
     const pal = [...new Set(Object.values(p.palette))].slice(0, 8).map(hex); while (pal.length < 8) pal.push(pal[pal.length - 1]); pal.forEach((c, i) => U.uPal.value[i].set(c[0], c[1], c[2]));
     U.uRes.value.set(SW, SH); U.uHullPx.value = p.outlinePx * ss; U.uBands.value = p.bands; U.uSnap.value = p.snap; U.uHatch.value = Math.max(3, p.hatchPx * ss); U.uShadowMix.value = p.shadowMix; U.uShadowA.value = p.contactAlpha;
     U.uFogD.value = p.fogDensity; U.uMask.value = mask ? 1 : 0;
     const grad = p.bgStops;                                                 // [[r,g,b]×n] (≤ 8) de arriba abajo, o null
-    if (grad) { U.uBgN.value = grad.length; for (let i = 0; i < 8; i++) { const c = grad[Math.min(i, grad.length - 1)]; U.uBgG.value[i].set(c[0], c[1], c[2]); } }
+    if (grad) { U.uGradN.value = grad.length; for (let i = 0; i < 8; i++) { const c = grad[Math.min(i, grad.length - 1)]; U.uGrad.value[i].set(c[0], c[1], c[2]); } }
     if (fx.shadow) {
       const lum = (c) => 0.2126 * c[0] + 0.7152 * c[1] + 0.0722 * c[2], cols = Object.values(p.palette).map(hex), br = cols.reduce((a, b) => (lum(b) > lum(a) ? b : a)), dk = cols.reduce((a, b) => (lum(b) < lum(a) ? b : a));
       v(U.uBright, br); U.uDark.value.set(dk[0] * 0.45, dk[1] * 0.45, dk[2] * 0.45); U.uGroundLit.value = p.groundLit ?? 0.12; U.uShA.value = p.shadowStrength ?? 0.8; U.uShStr.value = p.shadowStrength ?? 0.8;

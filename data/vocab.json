@@ -670,6 +670,16 @@
         }
       ]
     },
+    "lint.rule": {
+      "doc": "Códigos de aviso del lint/crítico para reglas de dirección (no confundir con lint.stage).",
+      "terms": [
+        {
+          "id": "w3d.angulo",
+          "def": "elevación de la cámara 3D fuera de la regla de su escala de plano (PG [8°,20°], PM [5°,15°], contrapicado heroico [−12°,−4°]) sin camera.override",
+          "forbid": []
+        }
+      ]
+    },
     "medium": {
       "doc": "Medio (soporte/técnica) de styles/medios/.",
       "terms": [

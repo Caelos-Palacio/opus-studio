@@ -58,7 +58,7 @@ export function createWorld3d() {
         if (scene.camera?.fromShot) {
           const userEl = (withDyn ? ev(o.cam, tt)?.el : undefined) ?? scene.camera.el, ctx = { focal: o.focal ?? S.depth?.focal ?? 1.2, W: o.unitW ?? W, H: o.unitH ?? H, groundFy: ev(o.groundFy, tt) ?? scene.camera.groundY };
           if (cam.ppm) { const fv = cam.fov ?? fovFromFocal(ctx.focal, ctx.W, ctx.H); cam.dist = (o.unitH ?? H) / (2 * Math.tan((fv * Math.PI) / 360) * cam.ppm); }
-          const r = resolveCameraInfo({ ...cam, el: userEl }, ctx);
+          const r = resolveCameraInfo({ ...cam, el: userEl, scale: cam.scale ?? o.scale, override: cam.override ?? o.override }, ctx);
           cam.fov = r.fov; cam.el = r.el; cam.shiftY = r.shiftY; if (withDyn) info = { el: r.el, fov: r.fov, horizonY: r.horizonY, groundY: r.groundY, angle: r.angle, dist: cam.dist };
         }
         return cam;

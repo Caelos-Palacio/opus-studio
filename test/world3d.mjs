@@ -62,7 +62,7 @@ if (!w3.available) {
 
 const style = (over = {}) => resolveStyle(JSON.parse(fs.readFileSync(path.join(ROOT, 'styles/cosmos.json'), 'utf8')), { styleOverrides: over });
 const V1 = { shadows: false, ao: 0, rim: false };                             // todo lo de v2 apagado = regresión a v1
-const S0 = style(), PAL = Object.values(S0.palette), hexRGB = (h) => [1, 3, 5].map((i) => parseInt(h.slice(i, i + 2), 16));
+const S0 = style(), V1S = style({ world3d: V1 }), PAL = Object.values(S0.palette), hexRGB = (h) => [1, 3, 5].map((i) => parseInt(h.slice(i, i + 2), 16));
 const BG = hexRGB(S0.palette.paper), INK = hexRGB(S0.palette.ink), AZ = S0.light.az;
 const SPH = (o = {}) => ({ id: 'sph', background: 'paper', fog: false, camera: { fov: 30, dist: 6, target: [0, 0, 0] }, objects: [{ shape: 'sphere', size: 1, pos: [0, 0, 0], color: 'accent', ...o }] });
 const R = (scene, o = {}) => w3.render(scene, { size: [1280, 720], style: S0, t: 0, u: 0, fps: 30, k: 720 / 1080, cache: false, ...o });
@@ -113,10 +113,10 @@ const px = (im, x, y) => { const i = (y * im.width + x) * 4; return [im.data[i],
   const im = R(two(null)), near = M.objMean(im, [0, 0, 0.5, 1]), farC = M.objMean(im, [0.5, 0, 1, 1]);
   const dn = M.deltaE(near, BG), df = M.deltaE(farC, BG);
   ok(near && farC && df < dn * 0.6, `niebla: el cubo lejano se funde hacia el fondo (ΔE ${f2(df)} < 0,6 × cercano ${f2(dn)})`);
-  const withC = R(two({ color: 'shade', contact: true })), without = R(two({ color: 'shade', contact: false })), ch = M.diffRegion(withC, without, 8);
+  const withC = R(two({ color: 'shade', contact: true }), { style: V1S }), without = R(two({ color: 'shade', contact: false }), { style: V1S }), ch = M.diffRegion(withC, without, 8);
   ok(ch.count >= 60, `sombra de contacto: ${ch.count} px oscurecidos junto a la base (≥ 60)`);
   ok(ch.darker >= 0.95, `la sombra solo oscurece (${f2(ch.darker * 100)} % de los píxeles que cambian son más oscuros)`);
-  const edgeHalo = M.haloRing(R(two(null), { transparent: true }), S0.palette.paper);
+  const edgeHalo = M.haloRing(R(two(null), { transparent: true, style: V1S }), S0.palette.paper);
   ok(edgeHalo <= 6, `sin halos de recorte: el borde de la capa con alfa tiene ΔE ${f2(edgeHalo)} ≤ 6 respecto al fondo`);
 }
 
@@ -260,11 +260,11 @@ const lumAt = (im, x, y) => mean(im, (a, b) => a === x && b === y);
   ok(ring(base, 1.15, 2.5) < 1.5, `S4 el backend no hace bloom propio (halo ΔE ${f2(ring(base, 1.15, 2.5))} < 1,5 fuera del objeto)`);
   const paint = (draw) => { const c = createCanvas(Wc, Hc), x = c.getContext('2d'); x.fillStyle = S0.palette.paper; x.fillRect(0, 0, Wc, Hc); draw(x); return c; };
   const c3 = paint((x) => { const id = x.createImageData(Wc, Hc); id.data.set(mask.data); x.putImageData(id, 0, 0); }), c2 = paint((x) => { x.fillStyle = S0.palette.accent; x.beginPath(); x.arc(Wc / 2, Hc / 2, Rr, 0, 7); x.fill(); });
-  const out = (c) => { const o = createCanvas(Wc, Hc), x = o.getContext('2d'); x.drawImage(c, 0, 0); fx.bloom(film, x, c, { threshold: 0.5, strength: 1, radius: 24 * (Hc / 1080) * 3 }); return x.getImageData(0, 0, Wc, Hc).data; };
+  const out = (c) => { const o = createCanvas(Wc, Hc), x = o.getContext('2d'); x.fillStyle = '#000'; x.fillRect(0, 0, Wc, Hc); fx.bloom(film, x, c, { threshold: 0.5, strength: 1, radius: 40 }); return x.getImageData(0, 0, Wc, Hc).data; };   // solo la contribución del bloom (sobre negro)
   const a = out(c3), b = out(c2); let s = 0, nn = 0, mx = 0; for (let y = 0; y < Hc; y++) for (let x = 0; x < Wc; x++) { const r = Math.hypot(x - Wc / 2, y - Hc / 2); if (r > Rr * 1.2 && r < Rr * 3) for (let k = 0; k < 3; k++) { const d = Math.abs(a[(y * Wc + x) * 4 + k] - b[(y * Wc + x) * 4 + k]); s += d; nn++; mx = Math.max(mx, d); } }
   ok(s / nn <= 2 && nn > 1000, `S4 bloom del post 2D sobre el emisivo 3D = glow 2D del mismo color/radio (Δ medio ${f2(s / nn)}/255 ≤ 2, máx ${mx})`);
   let halo = 0; for (let y = 0; y < Hc; y++) for (let x = 0; x < Wc; x++) { const r = Math.hypot(x - Wc / 2, y - Hc / 2); if (r > Rr * 1.3 && r < Rr * 1.8) halo = Math.max(halo, a[(y * Wc + x) * 4]); }
-  ok(halo > 20, `S4 el bloom existe (halo ${halo} sobre el fondo oscuro)`);
+  ok(halo > 8, `S4 el bloom existe (halo ${halo}/255 junto al emisivo)`);
 }
 
 // S5 niebla con el degradado del fondo: el objeto lejano adopta el color del degradado a su altura

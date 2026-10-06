@@ -1,0 +1,30 @@
+{
+ "title": "fixture world3d2 — cámara desde el shot y aviso w3d.angulo",
+ "style": "cosmos",
+ "profile": "cinematic",
+ "fps": 30,
+ "width": 1280,
+ "height": 720,
+ "duration": 2,
+ "handoffs": [],
+ "shots": [
+  {
+   "id": "W2a",
+   "t": [0, 1],
+   "size": "WS",
+   "action": "plano general con la cámara 3D a 40° de elevación sin override: el lint avisa w3d.angulo",
+   "text": "",
+   "cam": { "move": "static" },
+   "transition_out": "cut"
+  },
+  {
+   "id": "W2b",
+   "t": [1, 2],
+   "size": "WS",
+   "action": "plano general con la cámara 3D a 40° de elevación PERO con camera.override: sin aviso",
+   "text": "",
+   "cam": { "move": "static" },
+   "transition_out": "cut"
+  }
+ ]
+}

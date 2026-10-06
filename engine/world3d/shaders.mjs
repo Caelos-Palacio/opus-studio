@@ -54,7 +54,7 @@ uniform float uFogD; uniform float uBands; uniform float uSnap; uniform float uH
 uniform vec2 uRes;
 uniform vec3 uPal[8];
 #ifdef GRAD
-uniform vec3 uBgG[8]; uniform float uBgN;
+uniform vec3 uGrad[8]; uniform float uGradN;
 #endif
 #ifdef SHADOW
 uniform sampler2D uShT; uniform mat4 uShM; uniform vec4 uShP;   // x: tamaño de texel, y: sesgo de profundidad, z: sesgo por normal (mundo), w: radio PCF (texeles)
@@ -82,9 +82,9 @@ uniform vec3 uRimC; uniform float uRimS; uniform float uRimPx; uniform float uPx
 // color del fondo a la altura del fragmento: plano, o muestreo del degradado vertical (niebla = lo que hay detrás, no un color fijo)
 vec3 fogCol() {
   #ifdef GRAD
-    float f = clamp(1.0 - gl_FragCoord.y / uRes.y, 0.0, 1.0) * (uBgN - 1.0);
-    vec3 c = uBgG[0];
-    for (int k = 0; k < 7; k++) { if (float(k) < uBgN - 1.0) c = mix(c, mix(uBgG[k], uBgG[k + 1], clamp(f - float(k), 0.0, 1.0)), step(float(k), f + 1e-4)); }
+    float f = clamp(1.0 - gl_FragCoord.y / uRes.y, 0.0, 1.0) * (uGradN - 1.0);
+    vec3 c = uGrad[0];
+    for (int k = 0; k < 7; k++) { if (float(k) < uGradN - 1.0) c = mix(c, mix(uGrad[k], uGrad[k + 1], clamp(f - float(k), 0.0, 1.0)), step(float(k), f + 1e-4)); }
     return c;
   #else
     return uFogC;
@@ -255,10 +255,10 @@ varying vec2 vUv;
 void main() { vUv = uv; gl_Position = vec4(position.xy, 0.9999, 1.0); }`;
 export const BG_FRAG = /* glsl */ `
 precision highp float;
-varying vec2 vUv; uniform vec3 uBgG[8]; uniform float uBgN;
+varying vec2 vUv; uniform vec3 uGrad[8]; uniform float uGradN;
 void main() {
-  float f = clamp(1.0 - vUv.y, 0.0, 1.0) * (uBgN - 1.0);
-  vec3 c = uBgG[0];
-  for (int k = 0; k < 7; k++) { if (float(k) < uBgN - 1.0) c = mix(c, mix(uBgG[k], uBgG[k + 1], clamp(f - float(k), 0.0, 1.0)), step(float(k), f + 1e-4)); }
+  float f = clamp(1.0 - vUv.y, 0.0, 1.0) * (uGradN - 1.0);
+  vec3 c = uGrad[0];
+  for (int k = 0; k < 7; k++) { if (float(k) < uGradN - 1.0) c = mix(c, mix(uGrad[k], uGrad[k + 1], clamp(f - float(k), 0.0, 1.0)), step(float(k), f + 1e-4)); }
   gl_FragColor = vec4(c, 1.0);
 }`;
