@@ -72,4 +72,12 @@ export function formatCoverage(C) {
   if (C.freq.length) L.push('falta (por nº de shots que lo necesitan): ' + C.freq.map(([k, n]) => `${k}×${n}`).join(' '));
   return L.join('\n');
 }
+export function formatCoverageSummary(C) {
+  const by = {}; for (const r of C.rows) { const k = r.cls.startsWith('falta') ? 'falta' : r.cls; by[k] = (by[k] ?? 0) + 1; }
+  const L = [`- cobertura: **${C.pct.toFixed(1)} %** (${C.dsl}/${C.total} shots en DSL; honesta: los ${C.pendientes} pendientes de otra rama cuentan en contra; sin ellos ${C.pctSinPendientes.toFixed(1)} %) · umbral ratchet ${SPEC.ratchet?.min ?? '—'} %`,
+    `- clases: ${Object.entries(by).sort((a, b) => a[0].localeCompare(b[0])).map(([k, n]) => `${k} ${n}`).join(' · ')} · shots 100 % nativos ${C.native} · el resto usa objetos respaldados por una función de módulo (plot/axis/world/hud/word…) con semántica y deps declaradas`];
+  const esc = C.rows.filter((r) => r.cls === 'escape'); if (esc.length) L.push(`- escapes: ${esc.map((r) => `${r.id} (${r.via})`).join('; ')}`);
+  const pen = C.rows.filter((r) => r.cls.startsWith('pendiente')); if (pen.length) L.push(`- pendientes: ${pen.map((r) => `${r.id} (${r.cls.slice(10)})`).join(', ')}`);
+  return L;
+}
 export const coverageStatusLines = (root) => { const C = coverage(root); return [`- cobertura DSL (spec 010): **${C.pct.toFixed(1)} %** (${C.dsl}/${C.total} shots; ${C.pctSinPendientes.toFixed(1)} % sin los ${C.pendientes} pendientes de otra rama) · nativos puros ${C.native} · umbral ratchet en data/dsl-coverage.json`]; };
