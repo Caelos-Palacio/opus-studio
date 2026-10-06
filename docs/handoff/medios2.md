@@ -1,0 +1,5 @@
+# Handoff — medios2 (spec 003, escenarios añadidos)
+Hecho: medios kraft, pizarra, tecnico, neon (styles/medios/*.json) + primitivas en engine/medium.mjs (blend screen, halo, flicker, reflection, decor); `OPUS_MEDIUM`/`--medium` en engine/film.mjs; `encode {crf,tune}` por medio (engine/encode.mjs, render.mjs, cut.mjs: 1 línea cada uno); variantes del acento morado; herramientas tools/medios-sheets.mjs y tools/medios-variantes.mjs. Tests: test/medios.mjs (K/X/N/T/C/V/H).
+papel_crema renderiza bit a bit igual que antes (md5 de 4 fotogramas verificado contra a093ea6); sin medio nada cambia. Los fragmentos de mate_papel se re-renderizan (el hash incluye `encode`).
+Hojas (out/ab, no versionadas): kraft.jpg pizarra.jpg tecnico.jpg neon.jpg comparativa.jpg mate_papel_acento.jpg (`node tools/medios-sheets.mjs`, `node tools/medios-variantes.mjs`).
+Pendiente (gusto del usuario): nota de los 4 medios; elegir acento (por defecto / ciruela / terracota); medios oscuros usan bloom/halo propios, no el del estilo. Idea: sello de kraft y HUD técnico con texto por film.
