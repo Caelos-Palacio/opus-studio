@@ -23,7 +23,8 @@
         "type": "object", "required": ["t", "text"],
         "properties": {
           "id": { "type": "string" }, "t": { "type": "number", "minimum": 0 }, "text": { "type": "string" }, "shot": { "type": "string" },
-          "link": { "enum": ["pero", "por lo tanto", "but", "therefore", "y luego", "and then", null] }
+          "link": { "enum": ["pero", "por lo tanto", "but", "therefore", "y luego", "and then", null] },
+          "w3d": { "type": "object", "description": "S10 (spec 009): beat 3D declarado desde el guion; todo shot con world3d debe caer en uno (lint arc: w3d.sin-guion). El beat dura hasta el siguiente beat.", "required": ["concepto", "porque"], "properties": { "concepto": { "type": "string", "minLength": 3, "description": "concepto de la memoria que el 3D encarna" }, "porque": { "type": "string", "minLength": 3, "description": "por qué el volumen aporta aquí y lo plano no" } } }
         }
       }
     },

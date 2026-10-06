@@ -677,6 +677,11 @@
           "id": "w3d.angulo",
           "def": "elevación de la cámara 3D fuera de la regla de su escala de plano (PG [8°,20°], PM [5°,15°], contrapicado heroico [−12°,−4°]) sin camera.override",
           "forbid": []
+        },
+        {
+          "id": "w3d.sin-guion",
+          "def": "un shot usa world3d sin pertenecer a un beat 3D (beat.w3d = {concepto, porque}) declarado en story.json: el 3D se guioniza desde el principio, no se añade después (spec 009, S10)",
+          "forbid": []
         }
       ]
     },
