@@ -693,7 +693,8 @@
         { "id": "kraft", "def": "tinta negra de estampa sobre cartón de estraza", "forbid": [] },
         { "id": "pizarra", "def": "tiza sobre pizarra con borrado parcial", "forbid": [] },
         { "id": "tecnico", "def": "plano técnico azul con cuadrícula, cotas y HUD", "forbid": [] },
-        { "id": "neon", "def": "tubos de luz sobre muro mojado con parpadeo y reflejo", "forbid": [] }
+        { "id": "neon", "def": "tubos de luz sobre muro mojado con parpadeo y reflejo", "forbid": [] },
+        { "id": "neon_pulso", "def": "neón del reel: letrero roto de tubos lima y magenta sobre ladrillo ciruela, con parpadeo, zumbido y suelo mojado", "forbid": [] }
       ]
     },
     "prose": {

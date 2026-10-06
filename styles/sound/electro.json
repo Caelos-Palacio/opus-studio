@@ -9,7 +9,7 @@
   "crescendo": { "from": 0.46, "top": 0.8, "frac": 0.5, "maxSec": 14, "pow": 1.5 },
   "breath": [0.05, 0.35], "revelation": { "start": 0.40, "peak": [0.5, 0.58] }, "descent": [0.64, 0.36], "tail": [0.36, 0.14], "arcWeight": 0.2
  },
- "dynamics": { "floorDb": -18, "pow": 0.9, "revDb": 0 },
+ "dynamics": { "floorDb": -21, "pow": 0.9, "revDb": 0 },
  "harmony": {
   "build": ["i", "bVI", "bIII", "bVII"], "climax": "bVI/i", "prelude": "i", "bloom": "I",
   "descent": ["I", "vi", "IV"], "return": ["i", "I"]
