@@ -15,11 +15,13 @@ export const FONDO = {
   grid: 6,                // bloques por ancho: la banda gruesa (viñeta/degradado) = rejilla de 6×(≈3) bloques, sea cual sea la resolución
   margin: 0.04,           // ensanche de las cajas (fracción del lado menor)
   minBg: 0.08,            // fracción mínima de fondo visible para medir; por debajo la ventana es 'sin dato' (cuenta como con profundidad)
+  fps: 4,                 // muestreo del check (fotogramas/s) a 384 px, con gradación (lo que ve el espectador)
+  size: 384,
   windowS: 2,             // s por ventana
   dark: 18,               // Y' mediana del fondo ≤ 18 % ⇒ fondo oscuro (el negro de un cosmos ronda 2–10 %; el de pizarra/neón ~10–20 %)
-  empty: 3.0,             // P < 3 % ⇒ sin profundidad (calibrado: ver docs/handoff/fondo.md)
-  fixFrac: 0.5,           // FIX si ≥ 50 % de la duración medida es fondo oscuro vacío
-  warnS: 1.5,             // WARN si un tramo continuo de vacío dura ≥ 1,5 s
+  empty: 1.0,             // P < 1,0 % ⇒ sin profundidad. Calibrado: negro vacío (Mate v1) 0,7–0,9 en el 90 % de sus ventanas; Potencias v2 oscuro 0,9–5 (estrellas, galaxia, globo)
+  warnFrac: 0.3,          // WARN si ≥ 30 % de la duración medida es fondo oscuro vacío (los tramos de calma sueltos son dramaturgia, no defecto)
+  fixFrac: 0.6,           // FIX si ≥ 60 %: el film ES negro vacío
 };
 
 const lumaOf = (d, n) => { const y = new Float32Array(n); for (let i = 0; i < n; i++) y[i] = (0.2126 * d[i * 4] + 0.7152 * d[i * 4 + 1] + 0.0722 * d[i * 4 + 2]) * (100 / 255); return y; };

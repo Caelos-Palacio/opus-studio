@@ -344,6 +344,20 @@ async function motion(fps, film, FC) {
   writeAtomic(path.join(ROOT, 'out/motion.json'), JSON.stringify({ fps, energy: E.map((e) => +e.toFixed(5)) }));
 }
 
+// Fondo vacío (spec 012 P6): el negro ELEGIDO por el tema pasa; el negro VACÍO (oscuro y sin profundidad) avisa. Métrica fondo.profundidad.
+// Cadencia/tamaño propios (4 fps, 384 px, CON gradación: lo que ve el espectador); fotogramas cacheados como los demás. Solo film entero.
+async function fondo(film, FC) {
+  if (film.lintScope) return;
+  const { FONDO, fondoSeries } = await import('./metrics/fondo.mjs'), n = Math.floor(film.duration * FONDO.fps), fr = [];
+  for (let i = 0; i < n; i++) { const t = i / FONDO.fps, F = await FC.get(t, { px: true }); fr.push({ t, W: F.W, H: F.H, data: F.data, boxes: F.boxes }); }
+  const S = fondoSeries(fr, { fps: FONDO.fps }), pct = (x) => Math.round(x * 100), long = [...S.runs].sort((a, b) => b.t1 - b.t0 - (a.t1 - a.t0))[0];
+  writeAtomic(path.join(ROOT, 'out/fondo.json'), JSON.stringify({ P: S.P, darkFrac: S.darkFrac, emptyFrac: S.emptyFrac, runs: S.runs, wins: S.wins.map((w) => [+w.t0.toFixed(2), +(w.P ?? 0).toFixed(2), +(w.lum ?? 0).toFixed(1)]) }));
+  if (S.emptyFrac < FONDO.warnFrac) return;
+  const sh = film.shots.find((x) => long.t0 >= x.t[0] && long.t0 < x.t[1]);
+  const lvl = S.emptyFrac >= FONDO.fixFrac ? fix : warn;
+  lvl(sh?.id ?? '-', long.t0, `fondo.vacio: ${pct(S.emptyFrac)} % del film es fondo oscuro sin profundidad (fondo.profundidad ${S.P.toFixed(2)} % < ${FONDO.empty}; tramo mayor ${long.t0.toFixed(0)}–${long.t1.toFixed(0)} s)`, 'dar al fondo estrellas, niebla, viñeta, parallax o un soporte con textura (medio); o aclarar si el negro NO es del tema');
+}
+
 // Rima: el primer y el último frame dialogan (mismo tipo de masa/lugar) sin ser un clon.
 async function rima(R, FC) {
   const { film, W, H } = R; if (film.rhyme === false) return;
@@ -401,9 +415,10 @@ fs.mkdirSync(path.join(ROOT, 'out'), { recursive: true });
 let aborted = null;
 // R1: dos cachés de fotogramas compartidas por los checks (tamaño del lint para layout/transiciones/rima; 192 px para energía, ritmo y arco).
 const SMALL = `192x${Math.round((192 * R.film.height) / R.film.width / 2) * 2}`;
-let R2 = null;
+let R2 = null, R3 = null;
 const FCL = frameCache({ film: R.film, size: arg('--size', undefined), grade: false, make: async () => R });
 const FCS_ = frameCache({ film: R.film, size: SMALL, grade: false, make: async () => (R2 ??= await makeRenderer({ size: SMALL, grade: false })) });
+const FCF = frameCache({ film: R.film, size: '384x' + Math.round((384 * R.film.height) / R.film.width / 2) * 2, grade: true, make: async () => (R3 ??= await makeRenderer({ size: '384x' + Math.round((384 * R.film.height) / R.film.width / 2) * 2, grade: true })) });
 const stepMs = {};
 let warmP = null;                                                            // R6: relleno de la caché en paralelo (solo en frío y si merece la pena); corre MIENTRAS validate y determinismo (que no usan la caché)
 { const { prewarm } = await import('./framewarm.mjs'), t0 = Date.now(); warmP = prewarm({ film: R.film, FCL, FCS_, lfps, scope: R.film.lintScope ?? null, needLayout: want('layout') || want('rhythm'), needSmall: want('motion') || want('arc') || want('rhythm') }).then((n) => { if (n) { stepMs.prewarm = Date.now() - t0; stepMs.warmFrames = n; } }); }
@@ -419,6 +434,7 @@ await step('handoffs', () => handoffs(R.film));
 await step('contracts', () => { for (const x of contractIssues(R.film)) (x.level === 'FIX' ? fix : warn)(x.shot, x.t, x.problem, x.remedy); });   // F3: contratos congelados en el animatic
 await step('motion', () => motion(lfps, R.film, FCS_));
 await step('rhythm', async () => { if (!R.film.lintScope) await rima(R, FCL); await rhythm(R.film, FCS_); });
+await step('fondo', () => fondo(R.film, FCF));
 await step('arc', async () => {                                             // F5: lint dramático, solo si hay story.json (sin story no cambia nada)
   const A = await import('./arc.mjs');
   if (A.storyPath(R.film)) { const r = await A.runArc({ fps: lfps, film: R.film, fc: FCS_, cacheOnly: !!R.film.lintScope }); /* --shot: el arco es del film entero; solo corre si todos sus fotogramas ya están en caché */ for (const x of r.issues) push(x.level)(x.shot, x.t, `[arc] ${x.problem}`, x.remedy); }

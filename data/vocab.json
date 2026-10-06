@@ -1,1154 +1,1196 @@
 {
-  "schema": "opus-vocab/1",
-  "version": 1,
-  "doc": "Vocabulario controlado (spec 006). Fuente única de términos; engine/vocab.mjs lo carga. Cambiar un término = subir version y pasar `npm test`.",
-  "sections": {
-    "concept.kind": {
-      "doc": "Clase de concepto en la memoria conceptual (memoria.schema.json: concepto.kind).",
-      "terms": [
-        {
-          "id": "entidad",
-          "def": "algo que existe en pantalla o en la idea y persiste (personaje, objeto, cifra)",
-          "forbid": [
-            "entity"
-          ]
-        },
-        {
-          "id": "regla",
-          "def": "principio que el espectador aprende y luego aplica",
-          "forbid": [
-            "rule"
-          ]
-        },
-        {
-          "id": "pregunta",
-          "def": "incógnita abierta que pide respuesta",
-          "forbid": [
-            "question"
-          ]
-        },
-        {
-          "id": "tensión",
-          "def": "diferencia entre lo esperado y lo presente que empuja a seguir",
-          "forbid": [
-            "tension"
-          ]
-        },
-        {
-          "id": "revelación",
-          "def": "información que cambia lo que se creía",
-          "forbid": [
-            "revelacion",
-            "reveal"
-          ]
-        },
-        {
-          "id": "emoción",
-          "def": "estado afectivo que el film busca provocar",
-          "forbid": [
-            "emocion",
-            "emotion"
-          ]
-        },
-        {
-          "id": "motivo",
-          "def": "forma o gesto que reaparece y se transforma (leitmotiv visual/sonoro)",
-          "forbid": [
-            "motif"
-          ]
-        },
-        {
-          "id": "tema",
-          "def": "idea de fondo que organiza el film",
-          "forbid": [
-            "theme"
-          ]
-        }
-      ]
+ "schema": "opus-vocab/1",
+ "version": 1,
+ "doc": "Vocabulario controlado (spec 006). Fuente única de términos; engine/vocab.mjs lo carga. Cambiar un término = subir version y pasar `npm test`.",
+ "sections": {
+  "concept.kind": {
+   "doc": "Clase de concepto en la memoria conceptual (memoria.schema.json: concepto.kind).",
+   "terms": [
+    {
+     "id": "entidad",
+     "def": "algo que existe en pantalla o en la idea y persiste (personaje, objeto, cifra)",
+     "forbid": [
+      "entity"
+     ]
     },
-    "relation.type": {
-      "doc": "Tipo de relación entre conceptos (memoria.schema.json: relacion.tipo).",
-      "terms": [
-        {
-          "id": "causa",
-          "def": "A hace que B ocurra o se entienda",
-          "forbid": [
-            "provoca",
-            "origina"
-          ]
-        },
-        {
-          "id": "depende",
-          "def": "A solo se entiende si B ya está",
-          "forbid": []
-        },
-        {
-          "id": "contradice",
-          "def": "A choca con B",
-          "forbid": [
-            "contradicts"
-          ]
-        },
-        {
-          "id": "reinterpreta",
-          "def": "A cambia la lectura que se tenía de B",
-          "forbid": [
-            "reinterprets"
-          ]
-        },
-        {
-          "id": "revela",
-          "def": "A destapa algo de B que estaba oculto",
-          "forbid": []
-        },
-        {
-          "id": "escala",
-          "def": "A es B llevado a otra magnitud",
-          "forbid": []
-        },
-        {
-          "id": "rima",
-          "def": "A y B se corresponden formal o sonoramente",
-          "forbid": [
-            "rhymes"
-          ]
-        },
-        {
-          "id": "resuelve",
-          "def": "A cierra la pregunta o tensión B",
-          "forbid": []
-        },
-        {
-          "id": "prepara",
-          "def": "A planta lo que B cosechará",
-          "forbid": []
-        }
-      ]
+    {
+     "id": "regla",
+     "def": "principio que el espectador aprende y luego aplica",
+     "forbid": [
+      "rule"
+     ]
     },
-    "memory.role": {
-      "doc": "Rol de un ancla: qué magnitud del shot gobierna la memoria (memoria.schema.json: rol).",
-      "terms": [
-        {
-          "id": "intensidad",
-          "def": "cuánto brilla o golpea el momento",
-          "forbid": []
-        },
-        {
-          "id": "tamaño",
-          "def": "escala del objeto anclado",
-          "forbid": []
-        },
-        {
-          "id": "ritmo",
-          "def": "cadencia o velocidad",
-          "forbid": []
-        },
-        {
-          "id": "eco",
-          "def": "repetición atenuada de algo ya visto",
-          "forbid": []
-        },
-        {
-          "id": "rima",
-          "def": "correspondencia formal con un momento previo",
-          "forbid": []
-        },
-        {
-          "id": "hold",
-          "def": "pausa que deja respirar",
-          "forbid": []
-        },
-        {
-          "id": "retencion",
-          "def": "cuánto tiempo se mantiene un recuerdo",
-          "forbid": []
-        },
-        {
-          "id": "enfasis",
-          "def": "subrayado puntual",
-          "forbid": []
-        }
-      ]
+    {
+     "id": "pregunta",
+     "def": "incógnita abierta que pide respuesta",
+     "forbid": [
+      "question"
+     ]
     },
-    "rule.when": {
-      "doc": "Disparador de una regla de dirección (memoria.schema.json: regla.cuando).",
-      "terms": [
-        {
-          "id": "escala",
-          "def": "un concepto sube de magnitud",
-          "forbid": []
-        },
-        {
-          "id": "reinterpreta",
-          "def": "un giro relee el pasado",
-          "forbid": []
-        },
-        {
-          "id": "rima",
-          "def": "dos momentos se corresponden",
-          "forbid": []
-        },
-        {
-          "id": "pregunta",
-          "def": "se abre o cierra una pregunta",
-          "forbid": []
-        },
-        {
-          "id": "peso",
-          "def": "el peso narrativo supera un umbral",
-          "forbid": []
-        }
-      ]
+    {
+     "id": "tensión",
+     "def": "diferencia entre lo esperado y lo presente que empuja a seguir",
+     "forbid": [
+      "tension"
+     ]
     },
-    "lint.stage": {
-      "doc": "Etapa del lint (engine/lint.mjs: --only).",
-      "terms": [
-        {
-          "id": "validate",
-          "def": "esquema y referencias",
-          "forbid": []
-        },
-        {
-          "id": "determinism",
-          "def": "misma entrada, mismos píxeles",
-          "forbid": []
-        },
-        {
-          "id": "layout",
-          "def": "cajas, safe area, texto",
-          "forbid": []
-        },
-        {
-          "id": "camera",
-          "def": "movimiento de cámara dentro del estilo",
-          "forbid": []
-        },
-        {
-          "id": "transitions",
-          "def": "coherencia de transiciones",
-          "forbid": []
-        },
-        {
-          "id": "beats",
-          "def": "cortes en el pulso",
-          "forbid": []
-        },
-        {
-          "id": "handoffs",
-          "def": "continuidad entre shots",
-          "forbid": []
-        },
-        {
-          "id": "contracts",
-          "def": "contratos congelados",
-          "forbid": []
-        },
-        {
-          "id": "motion",
-          "def": "movimiento y pops",
-          "forbid": []
-        },
-        {
-          "id": "rhythm",
-          "def": "ritmo de montaje",
-          "forbid": []
-        },
-        {
-          "id": "arc",
-          "def": "arco dramático",
-          "forbid": []
-        }
-      ]
+    {
+     "id": "revelación",
+     "def": "información que cambia lo que se creía",
+     "forbid": [
+      "revelacion",
+      "reveal"
+     ]
     },
-    "arc.check": {
-      "doc": "Id de comprobación del arco (engine/arc.mjs add(...)).",
-      "terms": [
-        {
-          "id": "accent-contained",
-          "def": "comprobación del arco: accent contained",
-          "forbid": []
-        },
-        {
-          "id": "accent-function",
-          "def": "comprobación del arco: accent function",
-          "forbid": []
-        },
-        {
-          "id": "accent-used",
-          "def": "comprobación del arco: accent used",
-          "forbid": []
-        },
-        {
-          "id": "accommodation-peak",
-          "def": "comprobación del arco: accommodation peak",
-          "forbid": []
-        },
-        {
-          "id": "accommodation-scale",
-          "def": "comprobación del arco: accommodation scale",
-          "forbid": []
-        },
-        {
-          "id": "budget-impact",
-          "def": "comprobación del arco: budget impact",
-          "forbid": []
-        },
-        {
-          "id": "budget-smear",
-          "def": "comprobación del arco: budget smear",
-          "forbid": []
-        },
-        {
-          "id": "calm-before",
-          "def": "comprobación del arco: calm before",
-          "forbid": []
-        },
-        {
-          "id": "camera-inertia",
-          "def": "comprobación del arco: camera inertia",
-          "forbid": []
-        },
-        {
-          "id": "end-descent",
-          "def": "comprobación del arco: end descent",
-          "forbid": []
-        },
-        {
-          "id": "few-peaks",
-          "def": "comprobación del arco: few peaks",
-          "forbid": []
-        },
-        {
-          "id": "fps-intensity",
-          "def": "comprobación del arco: fps intensity",
-          "forbid": []
-        },
-        {
-          "id": "gap-late",
-          "def": "comprobación del arco: gap late",
-          "forbid": []
-        },
-        {
-          "id": "gap-posed",
-          "def": "comprobación del arco: gap posed",
-          "forbid": []
-        },
-        {
-          "id": "gap-screen",
-          "def": "comprobación del arco: gap screen",
-          "forbid": []
-        },
-        {
-          "id": "hold-near-peak",
-          "def": "comprobación del arco: hold near peak",
-          "forbid": []
-        },
-        {
-          "id": "impact-peak",
-          "def": "comprobación del arco: impact peak",
-          "forbid": []
-        },
-        {
-          "id": "impact-sync",
-          "def": "comprobación del arco: impact sync",
-          "forbid": []
-        },
-        {
-          "id": "mayer-animated",
-          "def": "comprobación del arco: mayer animated",
-          "forbid": []
-        },
-        {
-          "id": "mayer-coherence",
-          "def": "comprobación del arco: mayer coherence",
-          "forbid": []
-        },
-        {
-          "id": "mayer-contiguity",
-          "def": "comprobación del arco: mayer contiguity",
-          "forbid": []
-        },
-        {
-          "id": "mayer-load",
-          "def": "comprobación del arco: mayer load",
-          "forbid": []
-        },
-        {
-          "id": "mayer-redundancy",
-          "def": "comprobación del arco: mayer redundancy",
-          "forbid": []
-        },
-        {
-          "id": "mayer-segments",
-          "def": "comprobación del arco: mayer segments",
-          "forbid": []
-        },
-        {
-          "id": "mayer-signal",
-          "def": "comprobación del arco: mayer signal",
-          "forbid": []
-        },
-        {
-          "id": "peak-pos",
-          "def": "comprobación del arco: peak pos",
-          "forbid": []
-        },
-        {
-          "id": "peak-ratio",
-          "def": "comprobación del arco: peak ratio",
-          "forbid": []
-        },
-        {
-          "id": "sakuga-declared",
-          "def": "comprobación del arco: sakuga declared",
-          "forbid": []
-        },
-        {
-          "id": "sakuga-peak",
-          "def": "comprobación del arco: sakuga peak",
-          "forbid": []
-        },
-        {
-          "id": "sakuga-share",
-          "def": "comprobación del arco: sakuga share",
-          "forbid": []
-        },
-        {
-          "id": "scale-declared",
-          "def": "comprobación del arco: scale declared",
-          "forbid": []
-        },
-        {
-          "id": "scale-ref",
-          "def": "comprobación del arco: scale ref",
-          "forbid": []
-        },
-        {
-          "id": "w3d-sin-guion",
-          "def": "comprobación del arco: un shot con world3d no cae en ningún beat 3D declarado (beat.w3d) de story.json; emite el aviso w3d.sin-guion (spec 009, S10)",
-          "forbid": []
-        },
-        {
-          "id": "schema",
-          "def": "comprobación del arco: schema",
-          "forbid": []
-        },
-        {
-          "id": "size-entropy",
-          "def": "comprobación del arco: size entropy",
-          "forbid": []
-        },
-        {
-          "id": "spine",
-          "def": "comprobación del arco: spine",
-          "forbid": []
-        },
-        {
-          "id": "spine-order",
-          "def": "comprobación del arco: spine order",
-          "forbid": []
-        },
-        {
-          "id": "spine-shot",
-          "def": "comprobación del arco: spine shot",
-          "forbid": []
-        }
-      ]
+    {
+     "id": "emoción",
+     "def": "estado afectivo que el film busca provocar",
+     "forbid": [
+      "emocion",
+      "emotion"
+     ]
     },
-    "critic.dimension": {
-      "doc": "Dimensión de la rúbrica del crítico (engine/critic.mjs RUBRIC).",
-      "terms": [
-        {
-          "id": "framing",
-          "def": "encuadre y tamaño de plano que sirve a la idea",
-          "forbid": []
-        },
-        {
-          "id": "hierarchy",
-          "def": "un foco domina",
-          "forbid": []
-        },
-        {
-          "id": "aesthetic",
-          "def": "coherencia con el estilo, sin look de plantilla",
-          "forbid": []
-        },
-        {
-          "id": "coherence",
-          "def": "continuidad con los shots vecinos",
-          "forbid": []
-        },
-        {
-          "id": "clarity",
-          "def": "se entiende sin sonido",
-          "forbid": []
-        }
-      ]
+    {
+     "id": "motivo",
+     "def": "forma o gesto que reaparece y se transforma (leitmotiv visual/sonoro)",
+     "forbid": [
+      "motif"
+     ]
     },
-    "severity": {
-      "doc": "Gravedad de un problema (lint, crítico).",
-      "terms": [
-        {
-          "id": "FIX",
-          "def": "bloquea: hay que arreglarlo",
-          "forbid": []
-        },
-        {
-          "id": "WARN",
-          "def": "avisa: puede ser intencional",
-          "forbid": []
-        }
-      ]
-    },
-    "verdict": {
-      "doc": "Veredicto de un lint o gate.",
-      "terms": [
-        {
-          "id": "SHIP",
-          "def": "listo para master",
-          "forbid": []
-        },
-        {
-          "id": "PASS",
-          "def": "parcial (--only) sin FIX",
-          "forbid": []
-        },
-        {
-          "id": "FIX",
-          "def": "hay FIX",
-          "forbid": []
-        }
-      ]
-    },
-    "orch.code": {
-      "doc": "Código cerrado de motivo de aceptación/rechazo/escalado de la orquestación (clasifica el texto libre de engine/orch.mjs y engine/gate.mjs).",
-      "terms": [
-        {
-          "id": "accepted",
-          "def": "cambio o entrega aceptados",
-          "forbid": []
-        },
-        {
-          "id": "rejected",
-          "def": "cambio o entrega rechazados",
-          "forbid": []
-        },
-        {
-          "id": "oscillation",
-          "def": "el cambio vuelve a un estado ya visto",
-          "forbid": []
-        },
-        {
-          "id": "frozen",
-          "def": "shot o gate congelado tras agotar intentos",
-          "forbid": []
-        },
-        {
-          "id": "forced",
-          "def": "master forzado con razón explícita",
-          "forbid": []
-        },
-        {
-          "id": "worsens",
-          "def": "un shot cambiado empeora (más FIX)",
-          "forbid": []
-        },
-        {
-          "id": "check-regression",
-          "def": "un check pasa de verde a rojo",
-          "forbid": []
-        },
-        {
-          "id": "fix-global-up",
-          "def": "sube el total de FIX",
-          "forbid": []
-        },
-        {
-          "id": "not-writer",
-          "def": "el rol no puede escribir esa ruta",
-          "forbid": []
-        },
-        {
-          "id": "evidence-mismatch",
-          "def": "la evidencia reproducida no coincide con lo declarado",
-          "forbid": []
-        },
-        {
-          "id": "delivery-invalid",
-          "def": "entrega con esquema inválido",
-          "forbid": []
-        },
-        {
-          "id": "lint-not-ship",
-          "def": "sin SHIP vigente del lint",
-          "forbid": []
-        },
-        {
-          "id": "critic-not-ship",
-          "def": "crítico sin SHIP vigente",
-          "forbid": []
-        },
-        {
-          "id": "force-no-reason",
-          "def": "--force sin razón",
-          "forbid": []
-        }
-      ]
-    },
-    "gov.role": {
-      "doc": "Rol de gobernanza (roles.json).",
-      "terms": [
-        {
-          "id": "director",
-          "def": "decide y edita configuración",
-          "forbid": []
-        },
-        {
-          "id": "dp",
-          "def": "dirección de fotografía: storyboard",
-          "forbid": []
-        },
-        {
-          "id": "investigador",
-          "def": "hechos",
-          "forbid": []
-        },
-        {
-          "id": "td",
-          "def": "dirección técnica: motor, tests, docs",
-          "forbid": []
-        },
-        {
-          "id": "animator",
-          "def": "escribe shots",
-          "forbid": []
-        },
-        {
-          "id": "review",
-          "def": "solo lee",
-          "forbid": []
-        },
-        {
-          "id": "productor",
-          "def": "producción de un film completo: datos del film, shots y estilos propios (no motor)",
-          "forbid": []
-        }
-      ]
-    },
-    "shot.scale": {
-      "doc": "Escala de plano (engine/metrics/units.mjs SCALES; Bordwell & Thompson).",
-      "terms": [
-        {
-          "id": "ECU",
-          "def": "extreme close-up",
-          "forbid": []
-        },
-        {
-          "id": "CU",
-          "def": "close-up",
-          "forbid": []
-        },
-        {
-          "id": "MCU",
-          "def": "medium close-up",
-          "forbid": []
-        },
-        {
-          "id": "MS",
-          "def": "medium shot",
-          "forbid": []
-        },
-        {
-          "id": "MLS",
-          "def": "medium long shot",
-          "forbid": []
-        },
-        {
-          "id": "LS",
-          "def": "long shot",
-          "forbid": []
-        },
-        {
-          "id": "ELS",
-          "def": "extreme long shot",
-          "forbid": []
-        }
-      ]
-    },
-    "lint.rule": {
-      "doc": "Códigos de aviso del lint/crítico para reglas de dirección (no confundir con lint.stage).",
-      "terms": [
-        {
-          "id": "w3d.angulo",
-          "def": "elevación de la cámara 3D fuera de la regla de su escala de plano (PG [8°,20°], PM [5°,15°], contrapicado heroico [−12°,−4°]) sin camera.override",
-          "forbid": []
-        },
-        {
-          "id": "w3d.sin-guion",
-          "def": "un shot usa world3d sin pertenecer a un beat 3D (beat.w3d = {concepto, porque}) declarado en story.json: el 3D se guioniza desde el principio, no se añade después (spec 009, S10)",
-          "forbid": []
-        }
-      ]
-    },
-    "medium": {
-      "doc": "Medio (soporte/técnica) de styles/medios/.",
-      "terms": [
-        {
-          "id": "papel_crema",
-          "def": "tinta sobre papel crema",
-          "forbid": []
-        },
-        { "id": "papel_crema_ciruela", "def": "papel crema con acento violeta profundo (variante A)", "forbid": [] },
-        { "id": "papel_crema_terracota", "def": "papel crema con acento terracota (variante B)", "forbid": [] },
-        { "id": "kraft", "def": "tinta negra de estampa sobre cartón de estraza", "forbid": [] },
-        { "id": "pizarra", "def": "tiza sobre pizarra con borrado parcial", "forbid": [] },
-        { "id": "tecnico", "def": "plano técnico azul con cuadrícula, cotas y HUD", "forbid": [] },
-        { "id": "tecnico_bermellon", "def": "plano técnico azul con acento bermellón (redline de ingeniero) en vez del ámbar", "forbid": [] },
-        { "id": "neon", "def": "tubos de luz sobre muro mojado con parpadeo y reflejo", "forbid": [] },
-        { "id": "neon_pulso", "def": "neón del reel: letrero roto de tubos lima y magenta sobre ladrillo ciruela, con parpadeo, zumbido y suelo mojado", "forbid": [] }
-      ]
-    },
-    "prose": {
-      "doc": "Glosario de prosa: el término canónico y los sinónimos prohibidos (se buscan en docs/specs, memoria, notas y story).",
-      "terms": [
-        {
-          "id": "pico",
-          "def": "momento de máxima intensidad del arco",
-          "forbid": [
-            "clímax",
-            "climax"
-          ]
-        },
-        {
-          "id": "soundtrack",
-          "def": "banda sonora generada por el motor (engine/sound.mjs)",
-          "forbid": [
-            "banda sonora"
-          ]
-        },
-        {
-          "id": "shot",
-          "def": "unidad de montaje: tramo de tiempo con su dibujo",
-          "forbid": [
-            "toma",
-            "tomas"
-          ]
-        },
-        {
-          "id": "escala de plano",
-          "def": "tamaño relativo del sujeto en el encuadre (ECU…ELS)",
-          "forbid": [
-            "tamaño de plano",
-            "tamano de plano"
-          ]
-        },
-        {
-          "id": "duración media de plano",
-          "def": "ASL, montaje.asl",
-          "forbid": [
-            "duración promedio de plano",
-            "duracion promedio de plano"
-          ]
-        },
-        {
-          "id": "saliencia",
-          "def": "cuánto se graba un concepto (0–1)",
-          "forbid": [
-            "salience"
-          ]
-        },
-        {
-          "id": "ancla",
-          "def": "puntero verificable de un concepto a shot, t, entidad o param",
-          "forbid": [
-            "anclaje",
-            "anchor"
-          ]
-        },
-        {
-          "id": "umbral",
-          "def": "valor a partir del cual algo cuenta",
-          "forbid": [
-            "threshold"
-          ]
-        },
-        {
-          "id": "asombro",
-          "def": "meta del estudio: nota del usuario ≥ 8",
-          "forbid": [
-            "wow"
-          ]
-        },
-        {
-          "id": "épico",
-          "def": "adjetivo de la spec 001",
-          "forbid": [
-            "epic"
-          ]
-        },
-        {
-          "id": "cámara",
-          "def": "cámara virtual del shot",
-          "forbid": [
-            "camara"
-          ]
-        }
-      ]
-    },
-    "metric": {
-      "doc": "Id de métrica (engine/metrics/registry.mjs es la fuente de las definiciones; esta sección es su índice canónico: `node engine/vocab.mjs sync`).",
-      "terms": [
-        {
-          "id": "montaje.asl",
-          "def": "Duración media de plano (ASL)",
-          "forbid": []
-        },
-        {
-          "id": "montaje.msl",
-          "def": "Duración mediana de plano",
-          "forbid": []
-        },
-        {
-          "id": "montaje.cutRate",
-          "def": "Ritmo de corte",
-          "forbid": []
-        },
-        {
-          "id": "montaje.slCV",
-          "def": "Dispersión de duraciones (CV)",
-          "forbid": []
-        },
-        {
-          "id": "montaje.hardCutRatio",
-          "def": "Proporción de cortes duros",
-          "forbid": []
-        },
-        {
-          "id": "montaje.cutOnBeat",
-          "def": "Cortes en el pulso",
-          "forbid": []
-        },
-        {
-          "id": "montaje.cutOnBeatZ",
-          "def": "Sincronía de corte vs. azar (z)",
-          "forbid": []
-        },
-        {
-          "id": "plano.scaleIndex",
-          "def": "Índice de escala de plano",
-          "forbid": []
-        },
-        {
-          "id": "plano.scaleMix",
-          "def": "Distribución de escalas de plano",
-          "forbid": []
-        },
-        {
-          "id": "plano.declaredAgreement",
-          "def": "Concordancia escala declarada–medida",
-          "forbid": []
-        },
-        {
-          "id": "camara.focalEq",
-          "def": "Focal equivalente media",
-          "forbid": []
-        },
-        {
-          "id": "camara.fov",
-          "def": "Campo de visión horizontal medio",
-          "forbid": []
-        },
-        {
-          "id": "camara.panSpeed",
-          "def": "Velocidad angular de paneo (media)",
-          "forbid": []
-        },
-        {
-          "id": "camara.panSpeedP95",
-          "def": "Velocidad angular de paneo (p95)",
-          "forbid": []
-        },
-        {
-          "id": "camara.rollRate",
-          "def": "Velocidad de balanceo (roll)",
-          "forbid": []
-        },
-        {
-          "id": "camara.zoomRate",
-          "def": "Velocidad de zoom (media)",
-          "forbid": []
-        },
-        {
-          "id": "camara.zoomRateP95",
-          "def": "Velocidad de zoom (p95)",
-          "forbid": []
-        },
-        {
-          "id": "camara.dollySpeed",
-          "def": "Velocidad de dolly equivalente",
-          "forbid": []
-        },
-        {
-          "id": "camara.motionFraction",
-          "def": "Fracción del tiempo con cámara en movimiento",
-          "forbid": []
-        },
-        {
-          "id": "camara.shake",
-          "def": "Temblor handheld (RMS)",
-          "forbid": []
-        },
-        {
-          "id": "movimiento.speed",
-          "def": "Velocidad en pantalla (media)",
-          "forbid": []
-        },
-        {
-          "id": "movimiento.speedP95",
-          "def": "Velocidad en pantalla (p95)",
-          "forbid": []
-        },
-        {
-          "id": "movimiento.accel",
-          "def": "Aceleración en pantalla (RMS)",
-          "forbid": []
-        },
-        {
-          "id": "movimiento.jerk",
-          "def": "Tirón (jerk) en pantalla (RMS)",
-          "forbid": []
-        },
-        {
-          "id": "escala.logRate",
-          "def": "Ritmo de cambio de escala",
-          "forbid": []
-        },
-        {
-          "id": "escala.cutJump",
-          "def": "Salto de escala en el corte (mediana)",
-          "forbid": []
-        },
-        {
-          "id": "composicion.thirdsOffset",
-          "def": "Distancia a los puntos de tercios",
-          "forbid": []
-        },
-        {
-          "id": "composicion.headroom",
-          "def": "Aire superior (headroom)",
-          "forbid": []
-        },
-        {
-          "id": "composicion.leadRoom",
-          "def": "Aire de avance (lead room)",
-          "forbid": []
-        },
-        {
-          "id": "composicion.balance",
-          "def": "Desequilibrio de peso visual",
-          "forbid": []
-        },
-        {
-          "id": "color.paletteNeutrals",
-          "def": "Nº de neutros de la paleta",
-          "forbid": []
-        },
-        {
-          "id": "color.paletteAccents",
-          "def": "Nº de acentos de la paleta",
-          "forbid": []
-        },
-        {
-          "id": "color.harmony",
-          "def": "Esquema de armonía",
-          "forbid": []
-        },
-        {
-          "id": "color.meanDeltaE",
-          "def": "Diversidad cromática de la paleta",
-          "forbid": []
-        },
-        {
-          "id": "color.inkPaperContrast",
-          "def": "Contraste tinta/papel (WCAG)",
-          "forbid": []
-        },
-        {
-          "id": "color.inkPaperLc",
-          "def": "Contraste tinta/papel (APCA Lc)",
-          "forbid": []
-        },
-        {
-          "id": "color.accentContrast",
-          "def": "Contraste acento/papel (WCAG)",
-          "forbid": []
-        },
-        {
-          "id": "color.cutDeltaE",
-          "def": "Salto cromático en los cortes (mediana)",
-          "forbid": []
-        },
-        {
-          "id": "texto.xHeight",
-          "def": "Altura x mediana del texto",
-          "forbid": []
-        },
-        {
-          "id": "texto.belowMinFraction",
-          "def": "Texto por debajo de 16′",
-          "forbid": []
-        },
-        {
-          "id": "texto.readingRate",
-          "def": "Ritmo de lectura exigido (p90)",
-          "forbid": []
-        },
-        {
-          "id": "texto.readingCps",
-          "def": "Caracteres por segundo exigidos (p90)",
-          "forbid": []
-        },
-        {
-          "id": "informacion.simultaneous",
-          "def": "Elementos simultáneos (media)",
-          "forbid": []
-        },
-        {
-          "id": "informacion.overload",
-          "def": "Tiempo con sobrecarga (> 4 elementos)",
-          "forbid": []
-        },
-        {
-          "id": "informacion.conceptRate",
-          "def": "Conceptos nuevos por minuto",
-          "forbid": []
-        },
-        {
-          "id": "informacion.openQuestions",
-          "def": "Preguntas abiertas simultáneas (media)",
-          "forbid": []
-        },
-        {
-          "id": "drama.peakPos",
-          "def": "Posición del clímax",
-          "forbid": []
-        },
-        {
-          "id": "drama.peakProminence",
-          "def": "Prominencia del clímax",
-          "forbid": []
-        },
-        {
-          "id": "drama.peaks",
-          "def": "Nº de picos de tensión",
-          "forbid": []
-        },
-        {
-          "id": "drama.centroid",
-          "def": "Centro de masa temporal de la tensión",
-          "forbid": []
-        },
-        {
-          "id": "drama.entropy",
-          "def": "Entropía de la curva de tensión",
-          "forbid": []
-        },
-        {
-          "id": "drama.periodicity",
-          "def": "Periodicidad de la tensión",
-          "forbid": []
-        },
-        {
-          "id": "drama.freytagFit",
-          "def": "Ajuste a la pirámide de Freytag (RMSE)",
-          "forbid": []
-        },
-        {
-          "id": "drama.phases",
-          "def": "Fases dramáticas",
-          "forbid": []
-        },
-        {
-          "id": "historia.causalLinks",
-          "def": "Proporción de enlaces causales (pero/por lo tanto)",
-          "forbid": []
-        },
-        {
-          "id": "audio.loudness",
-          "def": "Sonoridad integrada",
-          "forbid": []
-        },
-        {
-          "id": "audio.lra",
-          "def": "Rango de sonoridad",
-          "forbid": []
-        },
-        {
-          "id": "audio.truePeak",
-          "def": "Pico verdadero",
-          "forbid": []
-        },
-        {
-          "id": "audio.plr",
-          "def": "Razón pico/sonoridad (PLR)",
-          "forbid": []
-        },
-        {
-          "id": "audio.tempo",
-          "def": "Tempo medido",
-          "forbid": []
-        },
-        {
-          "id": "audio.key",
-          "def": "Tonalidad medida",
-          "forbid": []
-        },
-        {
-          "id": "audio.avSync",
-          "def": "Desfase audio–imagen (mediana)",
-          "forbid": []
-        },
-        {
-          "id": "audio.r128dev",
-          "def": "Desviación de la sonoridad objetivo",
-          "forbid": []
-        },
-        {
-          "id": "medio.type",
-          "def": "Soporte / medio",
-          "forbid": []
-        },
-        {
-          "id": "medio.grainISO",
-          "def": "Grano (ISO equivalente)",
-          "forbid": []
-        }
-      ]
+    {
+     "id": "tema",
+     "def": "idea de fondo que organiza el film",
+     "forbid": [
+      "theme"
+     ]
     }
+   ]
   },
-  "groups": {
-    "relation.cadenaCausal": [
-      "causa",
-      "depende",
-      "prepara",
-      "escala"
-    ],
-    "relation.causal": [
-      "causa",
-      "depende"
-    ],
-    "relation.cosecha": [
-      "revela",
-      "reinterpreta",
-      "resuelve"
-    ],
-    "relation.cosechaPago": [
-      "revela",
-      "reinterpreta",
-      "resuelve",
-      "rima",
-      "prepara",
-      "escala"
-    ]
+  "relation.type": {
+   "doc": "Tipo de relación entre conceptos (memoria.schema.json: relacion.tipo).",
+   "terms": [
+    {
+     "id": "causa",
+     "def": "A hace que B ocurra o se entienda",
+     "forbid": [
+      "provoca",
+      "origina"
+     ]
+    },
+    {
+     "id": "depende",
+     "def": "A solo se entiende si B ya está",
+     "forbid": []
+    },
+    {
+     "id": "contradice",
+     "def": "A choca con B",
+     "forbid": [
+      "contradicts"
+     ]
+    },
+    {
+     "id": "reinterpreta",
+     "def": "A cambia la lectura que se tenía de B",
+     "forbid": [
+      "reinterprets"
+     ]
+    },
+    {
+     "id": "revela",
+     "def": "A destapa algo de B que estaba oculto",
+     "forbid": []
+    },
+    {
+     "id": "escala",
+     "def": "A es B llevado a otra magnitud",
+     "forbid": []
+    },
+    {
+     "id": "rima",
+     "def": "A y B se corresponden formal o sonoramente",
+     "forbid": [
+      "rhymes"
+     ]
+    },
+    {
+     "id": "resuelve",
+     "def": "A cierra la pregunta o tensión B",
+     "forbid": []
+    },
+    {
+     "id": "prepara",
+     "def": "A planta lo que B cosechará",
+     "forbid": []
+    }
+   ]
+  },
+  "memory.role": {
+   "doc": "Rol de un ancla: qué magnitud del shot gobierna la memoria (memoria.schema.json: rol).",
+   "terms": [
+    {
+     "id": "intensidad",
+     "def": "cuánto brilla o golpea el momento",
+     "forbid": []
+    },
+    {
+     "id": "tamaño",
+     "def": "escala del objeto anclado",
+     "forbid": []
+    },
+    {
+     "id": "ritmo",
+     "def": "cadencia o velocidad",
+     "forbid": []
+    },
+    {
+     "id": "eco",
+     "def": "repetición atenuada de algo ya visto",
+     "forbid": []
+    },
+    {
+     "id": "rima",
+     "def": "correspondencia formal con un momento previo",
+     "forbid": []
+    },
+    {
+     "id": "hold",
+     "def": "pausa que deja respirar",
+     "forbid": []
+    },
+    {
+     "id": "retencion",
+     "def": "cuánto tiempo se mantiene un recuerdo",
+     "forbid": []
+    },
+    {
+     "id": "enfasis",
+     "def": "subrayado puntual",
+     "forbid": []
+    }
+   ]
+  },
+  "rule.when": {
+   "doc": "Disparador de una regla de dirección (memoria.schema.json: regla.cuando).",
+   "terms": [
+    {
+     "id": "escala",
+     "def": "un concepto sube de magnitud",
+     "forbid": []
+    },
+    {
+     "id": "reinterpreta",
+     "def": "un giro relee el pasado",
+     "forbid": []
+    },
+    {
+     "id": "rima",
+     "def": "dos momentos se corresponden",
+     "forbid": []
+    },
+    {
+     "id": "pregunta",
+     "def": "se abre o cierra una pregunta",
+     "forbid": []
+    },
+    {
+     "id": "peso",
+     "def": "el peso narrativo supera un umbral",
+     "forbid": []
+    }
+   ]
+  },
+  "lint.stage": {
+   "doc": "Etapa del lint (engine/lint.mjs: --only).",
+   "terms": [
+    {
+     "id": "validate",
+     "def": "esquema y referencias",
+     "forbid": []
+    },
+    {
+     "id": "determinism",
+     "def": "misma entrada, mismos píxeles",
+     "forbid": []
+    },
+    {
+     "id": "layout",
+     "def": "cajas, safe area, texto",
+     "forbid": []
+    },
+    {
+     "id": "camera",
+     "def": "movimiento de cámara dentro del estilo",
+     "forbid": []
+    },
+    {
+     "id": "transitions",
+     "def": "coherencia de transiciones",
+     "forbid": []
+    },
+    {
+     "id": "beats",
+     "def": "cortes en el pulso",
+     "forbid": []
+    },
+    {
+     "id": "handoffs",
+     "def": "continuidad entre shots",
+     "forbid": []
+    },
+    {
+     "id": "contracts",
+     "def": "contratos congelados",
+     "forbid": []
+    },
+    {
+     "id": "motion",
+     "def": "movimiento y pops",
+     "forbid": []
+    },
+    {
+     "id": "rhythm",
+     "def": "ritmo de montaje",
+     "forbid": []
+    },
+    {
+     "id": "arc",
+     "def": "arco dramático",
+     "forbid": []
+    }
+   ]
+  },
+  "arc.check": {
+   "doc": "Id de comprobación del arco (engine/arc.mjs add(...)).",
+   "terms": [
+    {
+     "id": "accent-contained",
+     "def": "comprobación del arco: accent contained",
+     "forbid": []
+    },
+    {
+     "id": "accent-function",
+     "def": "comprobación del arco: accent function",
+     "forbid": []
+    },
+    {
+     "id": "accent-used",
+     "def": "comprobación del arco: accent used",
+     "forbid": []
+    },
+    {
+     "id": "accommodation-peak",
+     "def": "comprobación del arco: accommodation peak",
+     "forbid": []
+    },
+    {
+     "id": "accommodation-scale",
+     "def": "comprobación del arco: accommodation scale",
+     "forbid": []
+    },
+    {
+     "id": "budget-impact",
+     "def": "comprobación del arco: budget impact",
+     "forbid": []
+    },
+    {
+     "id": "budget-smear",
+     "def": "comprobación del arco: budget smear",
+     "forbid": []
+    },
+    {
+     "id": "calm-before",
+     "def": "comprobación del arco: calm before",
+     "forbid": []
+    },
+    {
+     "id": "camera-inertia",
+     "def": "comprobación del arco: camera inertia",
+     "forbid": []
+    },
+    {
+     "id": "end-descent",
+     "def": "comprobación del arco: end descent",
+     "forbid": []
+    },
+    {
+     "id": "few-peaks",
+     "def": "comprobación del arco: few peaks",
+     "forbid": []
+    },
+    {
+     "id": "fps-intensity",
+     "def": "comprobación del arco: fps intensity",
+     "forbid": []
+    },
+    {
+     "id": "gap-late",
+     "def": "comprobación del arco: gap late",
+     "forbid": []
+    },
+    {
+     "id": "gap-posed",
+     "def": "comprobación del arco: gap posed",
+     "forbid": []
+    },
+    {
+     "id": "gap-screen",
+     "def": "comprobación del arco: gap screen",
+     "forbid": []
+    },
+    {
+     "id": "hold-near-peak",
+     "def": "comprobación del arco: hold near peak",
+     "forbid": []
+    },
+    {
+     "id": "impact-peak",
+     "def": "comprobación del arco: impact peak",
+     "forbid": []
+    },
+    {
+     "id": "impact-sync",
+     "def": "comprobación del arco: impact sync",
+     "forbid": []
+    },
+    {
+     "id": "mayer-animated",
+     "def": "comprobación del arco: mayer animated",
+     "forbid": []
+    },
+    {
+     "id": "mayer-coherence",
+     "def": "comprobación del arco: mayer coherence",
+     "forbid": []
+    },
+    {
+     "id": "mayer-contiguity",
+     "def": "comprobación del arco: mayer contiguity",
+     "forbid": []
+    },
+    {
+     "id": "mayer-load",
+     "def": "comprobación del arco: mayer load",
+     "forbid": []
+    },
+    {
+     "id": "mayer-redundancy",
+     "def": "comprobación del arco: mayer redundancy",
+     "forbid": []
+    },
+    {
+     "id": "mayer-segments",
+     "def": "comprobación del arco: mayer segments",
+     "forbid": []
+    },
+    {
+     "id": "mayer-signal",
+     "def": "comprobación del arco: mayer signal",
+     "forbid": []
+    },
+    {
+     "id": "peak-pos",
+     "def": "comprobación del arco: peak pos",
+     "forbid": []
+    },
+    {
+     "id": "peak-ratio",
+     "def": "comprobación del arco: peak ratio",
+     "forbid": []
+    },
+    {
+     "id": "sakuga-declared",
+     "def": "comprobación del arco: sakuga declared",
+     "forbid": []
+    },
+    {
+     "id": "sakuga-peak",
+     "def": "comprobación del arco: sakuga peak",
+     "forbid": []
+    },
+    {
+     "id": "sakuga-share",
+     "def": "comprobación del arco: sakuga share",
+     "forbid": []
+    },
+    {
+     "id": "scale-declared",
+     "def": "comprobación del arco: scale declared",
+     "forbid": []
+    },
+    {
+     "id": "scale-ref",
+     "def": "comprobación del arco: scale ref",
+     "forbid": []
+    },
+    {
+     "id": "w3d-sin-guion",
+     "def": "comprobación del arco: un shot con world3d no cae en ningún beat 3D declarado (beat.w3d) de story.json; emite el aviso w3d.sin-guion (spec 009, S10)",
+     "forbid": []
+    },
+    {
+     "id": "schema",
+     "def": "comprobación del arco: schema",
+     "forbid": []
+    },
+    {
+     "id": "size-entropy",
+     "def": "comprobación del arco: size entropy",
+     "forbid": []
+    },
+    {
+     "id": "spine",
+     "def": "comprobación del arco: spine",
+     "forbid": []
+    },
+    {
+     "id": "spine-order",
+     "def": "comprobación del arco: spine order",
+     "forbid": []
+    },
+    {
+     "id": "spine-shot",
+     "def": "comprobación del arco: spine shot",
+     "forbid": []
+    }
+   ]
+  },
+  "critic.dimension": {
+   "doc": "Dimensión de la rúbrica del crítico (engine/critic.mjs RUBRIC).",
+   "terms": [
+    {
+     "id": "framing",
+     "def": "encuadre y tamaño de plano que sirve a la idea",
+     "forbid": []
+    },
+    {
+     "id": "hierarchy",
+     "def": "un foco domina",
+     "forbid": []
+    },
+    {
+     "id": "aesthetic",
+     "def": "coherencia con el estilo, sin look de plantilla",
+     "forbid": []
+    },
+    {
+     "id": "coherence",
+     "def": "continuidad con los shots vecinos",
+     "forbid": []
+    },
+    {
+     "id": "clarity",
+     "def": "se entiende sin sonido",
+     "forbid": []
+    }
+   ]
+  },
+  "severity": {
+   "doc": "Gravedad de un problema (lint, crítico).",
+   "terms": [
+    {
+     "id": "FIX",
+     "def": "bloquea: hay que arreglarlo",
+     "forbid": []
+    },
+    {
+     "id": "WARN",
+     "def": "avisa: puede ser intencional",
+     "forbid": []
+    }
+   ]
+  },
+  "verdict": {
+   "doc": "Veredicto de un lint o gate.",
+   "terms": [
+    {
+     "id": "SHIP",
+     "def": "listo para master",
+     "forbid": []
+    },
+    {
+     "id": "PASS",
+     "def": "parcial (--only) sin FIX",
+     "forbid": []
+    },
+    {
+     "id": "FIX",
+     "def": "hay FIX",
+     "forbid": []
+    }
+   ]
+  },
+  "orch.code": {
+   "doc": "Código cerrado de motivo de aceptación/rechazo/escalado de la orquestación (clasifica el texto libre de engine/orch.mjs y engine/gate.mjs).",
+   "terms": [
+    {
+     "id": "accepted",
+     "def": "cambio o entrega aceptados",
+     "forbid": []
+    },
+    {
+     "id": "rejected",
+     "def": "cambio o entrega rechazados",
+     "forbid": []
+    },
+    {
+     "id": "oscillation",
+     "def": "el cambio vuelve a un estado ya visto",
+     "forbid": []
+    },
+    {
+     "id": "frozen",
+     "def": "shot o gate congelado tras agotar intentos",
+     "forbid": []
+    },
+    {
+     "id": "forced",
+     "def": "master forzado con razón explícita",
+     "forbid": []
+    },
+    {
+     "id": "worsens",
+     "def": "un shot cambiado empeora (más FIX)",
+     "forbid": []
+    },
+    {
+     "id": "check-regression",
+     "def": "un check pasa de verde a rojo",
+     "forbid": []
+    },
+    {
+     "id": "fix-global-up",
+     "def": "sube el total de FIX",
+     "forbid": []
+    },
+    {
+     "id": "not-writer",
+     "def": "el rol no puede escribir esa ruta",
+     "forbid": []
+    },
+    {
+     "id": "evidence-mismatch",
+     "def": "la evidencia reproducida no coincide con lo declarado",
+     "forbid": []
+    },
+    {
+     "id": "delivery-invalid",
+     "def": "entrega con esquema inválido",
+     "forbid": []
+    },
+    {
+     "id": "lint-not-ship",
+     "def": "sin SHIP vigente del lint",
+     "forbid": []
+    },
+    {
+     "id": "critic-not-ship",
+     "def": "crítico sin SHIP vigente",
+     "forbid": []
+    },
+    {
+     "id": "force-no-reason",
+     "def": "--force sin razón",
+     "forbid": []
+    }
+   ]
+  },
+  "gov.role": {
+   "doc": "Rol de gobernanza (roles.json).",
+   "terms": [
+    {
+     "id": "director",
+     "def": "decide y edita configuración",
+     "forbid": []
+    },
+    {
+     "id": "dp",
+     "def": "dirección de fotografía: storyboard",
+     "forbid": []
+    },
+    {
+     "id": "investigador",
+     "def": "hechos",
+     "forbid": []
+    },
+    {
+     "id": "td",
+     "def": "dirección técnica: motor, tests, docs",
+     "forbid": []
+    },
+    {
+     "id": "animator",
+     "def": "escribe shots",
+     "forbid": []
+    },
+    {
+     "id": "review",
+     "def": "solo lee",
+     "forbid": []
+    },
+    {
+     "id": "productor",
+     "def": "producción de un film completo: datos del film, shots y estilos propios (no motor)",
+     "forbid": []
+    }
+   ]
+  },
+  "shot.scale": {
+   "doc": "Escala de plano (engine/metrics/units.mjs SCALES; Bordwell & Thompson).",
+   "terms": [
+    {
+     "id": "ECU",
+     "def": "extreme close-up",
+     "forbid": []
+    },
+    {
+     "id": "CU",
+     "def": "close-up",
+     "forbid": []
+    },
+    {
+     "id": "MCU",
+     "def": "medium close-up",
+     "forbid": []
+    },
+    {
+     "id": "MS",
+     "def": "medium shot",
+     "forbid": []
+    },
+    {
+     "id": "MLS",
+     "def": "medium long shot",
+     "forbid": []
+    },
+    {
+     "id": "LS",
+     "def": "long shot",
+     "forbid": []
+    },
+    {
+     "id": "ELS",
+     "def": "extreme long shot",
+     "forbid": []
+    }
+   ]
+  },
+  "lint.rule": {
+   "doc": "Códigos de aviso del lint/crítico para reglas de dirección (no confundir con lint.stage).",
+   "terms": [
+    {
+     "id": "w3d.angulo",
+     "def": "elevación de la cámara 3D fuera de la regla de su escala de plano (PG [8°,20°], PM [5°,15°], contrapicado heroico [−12°,−4°]) sin camera.override",
+     "forbid": []
+    },
+    {
+     "id": "w3d.sin-guion",
+     "def": "un shot usa world3d sin pertenecer a un beat 3D (beat.w3d = {concepto, porque}) declarado en story.json: el 3D se guioniza desde el principio, no se añade después (spec 009, S10)",
+     "forbid": []
+    },
+    {
+     "id": "fondo.vacio",
+     "def": "el fondo es oscuro Y sin profundidad medible (fondo.profundidad < 1 %) en ≥ 30 % del film (FIX ≥ 60 %): negro vacío, no el negro elegido por el tema (spec 012 P6)",
+     "forbid": []
+    }
+   ]
+  },
+  "medium": {
+   "doc": "Medio (soporte/técnica) de styles/medios/.",
+   "terms": [
+    {
+     "id": "papel_crema",
+     "def": "tinta sobre papel crema",
+     "forbid": []
+    },
+    {
+     "id": "papel_crema_ciruela",
+     "def": "papel crema con acento violeta profundo (variante A)",
+     "forbid": []
+    },
+    {
+     "id": "papel_crema_terracota",
+     "def": "papel crema con acento terracota (variante B)",
+     "forbid": []
+    },
+    {
+     "id": "kraft",
+     "def": "tinta negra de estampa sobre cartón de estraza",
+     "forbid": []
+    },
+    {
+     "id": "pizarra",
+     "def": "tiza sobre pizarra con borrado parcial",
+     "forbid": []
+    },
+    {
+     "id": "tecnico",
+     "def": "plano técnico azul con cuadrícula, cotas y HUD",
+     "forbid": []
+    },
+    {
+     "id": "tecnico_bermellon",
+     "def": "plano técnico azul con acento bermellón (redline de ingeniero) en vez del ámbar",
+     "forbid": []
+    },
+    {
+     "id": "neon",
+     "def": "tubos de luz sobre muro mojado con parpadeo y reflejo",
+     "forbid": []
+    },
+    {
+     "id": "neon_pulso",
+     "def": "neón del reel: letrero roto de tubos lima y magenta sobre ladrillo ciruela, con parpadeo, zumbido y suelo mojado",
+     "forbid": []
+    }
+   ]
+  },
+  "prose": {
+   "doc": "Glosario de prosa: el término canónico y los sinónimos prohibidos (se buscan en docs/specs, memoria, notas y story).",
+   "terms": [
+    {
+     "id": "pico",
+     "def": "momento de máxima intensidad del arco",
+     "forbid": [
+      "clímax",
+      "climax"
+     ]
+    },
+    {
+     "id": "soundtrack",
+     "def": "banda sonora generada por el motor (engine/sound.mjs)",
+     "forbid": [
+      "banda sonora"
+     ]
+    },
+    {
+     "id": "shot",
+     "def": "unidad de montaje: tramo de tiempo con su dibujo",
+     "forbid": [
+      "toma",
+      "tomas"
+     ]
+    },
+    {
+     "id": "escala de plano",
+     "def": "tamaño relativo del sujeto en el encuadre (ECU…ELS)",
+     "forbid": [
+      "tamaño de plano",
+      "tamano de plano"
+     ]
+    },
+    {
+     "id": "duración media de plano",
+     "def": "ASL, montaje.asl",
+     "forbid": [
+      "duración promedio de plano",
+      "duracion promedio de plano"
+     ]
+    },
+    {
+     "id": "saliencia",
+     "def": "cuánto se graba un concepto (0–1)",
+     "forbid": [
+      "salience"
+     ]
+    },
+    {
+     "id": "ancla",
+     "def": "puntero verificable de un concepto a shot, t, entidad o param",
+     "forbid": [
+      "anclaje",
+      "anchor"
+     ]
+    },
+    {
+     "id": "umbral",
+     "def": "valor a partir del cual algo cuenta",
+     "forbid": [
+      "threshold"
+     ]
+    },
+    {
+     "id": "asombro",
+     "def": "meta del estudio: nota del usuario ≥ 8",
+     "forbid": [
+      "wow"
+     ]
+    },
+    {
+     "id": "épico",
+     "def": "adjetivo de la spec 001",
+     "forbid": [
+      "epic"
+     ]
+    },
+    {
+     "id": "cámara",
+     "def": "cámara virtual del shot",
+     "forbid": [
+      "camara"
+     ]
+    }
+   ]
+  },
+  "metric": {
+   "doc": "Id de métrica (engine/metrics/registry.mjs es la fuente de las definiciones; esta sección es su índice canónico: `node engine/vocab.mjs sync`).",
+   "terms": [
+    {
+     "id": "montaje.asl",
+     "def": "Duración media de plano (ASL)",
+     "forbid": []
+    },
+    {
+     "id": "montaje.msl",
+     "def": "Duración mediana de plano",
+     "forbid": []
+    },
+    {
+     "id": "montaje.cutRate",
+     "def": "Ritmo de corte",
+     "forbid": []
+    },
+    {
+     "id": "montaje.slCV",
+     "def": "Dispersión de duraciones (CV)",
+     "forbid": []
+    },
+    {
+     "id": "montaje.hardCutRatio",
+     "def": "Proporción de cortes duros",
+     "forbid": []
+    },
+    {
+     "id": "montaje.cutOnBeat",
+     "def": "Cortes en el pulso",
+     "forbid": []
+    },
+    {
+     "id": "montaje.cutOnBeatZ",
+     "def": "Sincronía de corte vs. azar (z)",
+     "forbid": []
+    },
+    {
+     "id": "plano.scaleIndex",
+     "def": "Índice de escala de plano",
+     "forbid": []
+    },
+    {
+     "id": "plano.scaleMix",
+     "def": "Distribución de escalas de plano",
+     "forbid": []
+    },
+    {
+     "id": "plano.declaredAgreement",
+     "def": "Concordancia escala declarada–medida",
+     "forbid": []
+    },
+    {
+     "id": "camara.focalEq",
+     "def": "Focal equivalente media",
+     "forbid": []
+    },
+    {
+     "id": "camara.fov",
+     "def": "Campo de visión horizontal medio",
+     "forbid": []
+    },
+    {
+     "id": "camara.panSpeed",
+     "def": "Velocidad angular de paneo (media)",
+     "forbid": []
+    },
+    {
+     "id": "camara.panSpeedP95",
+     "def": "Velocidad angular de paneo (p95)",
+     "forbid": []
+    },
+    {
+     "id": "camara.rollRate",
+     "def": "Velocidad de balanceo (roll)",
+     "forbid": []
+    },
+    {
+     "id": "camara.zoomRate",
+     "def": "Velocidad de zoom (media)",
+     "forbid": []
+    },
+    {
+     "id": "camara.zoomRateP95",
+     "def": "Velocidad de zoom (p95)",
+     "forbid": []
+    },
+    {
+     "id": "camara.dollySpeed",
+     "def": "Velocidad de dolly equivalente",
+     "forbid": []
+    },
+    {
+     "id": "camara.motionFraction",
+     "def": "Fracción del tiempo con cámara en movimiento",
+     "forbid": []
+    },
+    {
+     "id": "camara.shake",
+     "def": "Temblor handheld (RMS)",
+     "forbid": []
+    },
+    {
+     "id": "movimiento.speed",
+     "def": "Velocidad en pantalla (media)",
+     "forbid": []
+    },
+    {
+     "id": "movimiento.speedP95",
+     "def": "Velocidad en pantalla (p95)",
+     "forbid": []
+    },
+    {
+     "id": "movimiento.accel",
+     "def": "Aceleración en pantalla (RMS)",
+     "forbid": []
+    },
+    {
+     "id": "movimiento.jerk",
+     "def": "Tirón (jerk) en pantalla (RMS)",
+     "forbid": []
+    },
+    {
+     "id": "escala.logRate",
+     "def": "Ritmo de cambio de escala",
+     "forbid": []
+    },
+    {
+     "id": "escala.cutJump",
+     "def": "Salto de escala en el corte (mediana)",
+     "forbid": []
+    },
+    {
+     "id": "composicion.thirdsOffset",
+     "def": "Distancia a los puntos de tercios",
+     "forbid": []
+    },
+    {
+     "id": "composicion.headroom",
+     "def": "Aire superior (headroom)",
+     "forbid": []
+    },
+    {
+     "id": "composicion.leadRoom",
+     "def": "Aire de avance (lead room)",
+     "forbid": []
+    },
+    {
+     "id": "composicion.balance",
+     "def": "Desequilibrio de peso visual",
+     "forbid": []
+    },
+    {
+     "id": "color.paletteNeutrals",
+     "def": "Nº de neutros de la paleta",
+     "forbid": []
+    },
+    {
+     "id": "color.paletteAccents",
+     "def": "Nº de acentos de la paleta",
+     "forbid": []
+    },
+    {
+     "id": "color.harmony",
+     "def": "Esquema de armonía",
+     "forbid": []
+    },
+    {
+     "id": "color.meanDeltaE",
+     "def": "Diversidad cromática de la paleta",
+     "forbid": []
+    },
+    {
+     "id": "color.inkPaperContrast",
+     "def": "Contraste tinta/papel (WCAG)",
+     "forbid": []
+    },
+    {
+     "id": "color.inkPaperLc",
+     "def": "Contraste tinta/papel (APCA Lc)",
+     "forbid": []
+    },
+    {
+     "id": "color.accentContrast",
+     "def": "Contraste acento/papel (WCAG)",
+     "forbid": []
+    },
+    {
+     "id": "color.cutDeltaE",
+     "def": "Salto cromático en los cortes (mediana)",
+     "forbid": []
+    },
+    {
+     "id": "texto.xHeight",
+     "def": "Altura x mediana del texto",
+     "forbid": []
+    },
+    {
+     "id": "texto.belowMinFraction",
+     "def": "Texto por debajo de 16′",
+     "forbid": []
+    },
+    {
+     "id": "texto.readingRate",
+     "def": "Ritmo de lectura exigido (p90)",
+     "forbid": []
+    },
+    {
+     "id": "texto.readingCps",
+     "def": "Caracteres por segundo exigidos (p90)",
+     "forbid": []
+    },
+    {
+     "id": "informacion.simultaneous",
+     "def": "Elementos simultáneos (media)",
+     "forbid": []
+    },
+    {
+     "id": "informacion.overload",
+     "def": "Tiempo con sobrecarga (> 4 elementos)",
+     "forbid": []
+    },
+    {
+     "id": "informacion.conceptRate",
+     "def": "Conceptos nuevos por minuto",
+     "forbid": []
+    },
+    {
+     "id": "informacion.openQuestions",
+     "def": "Preguntas abiertas simultáneas (media)",
+     "forbid": []
+    },
+    {
+     "id": "fondo.profundidad",
+     "def": "Profundidad del fondo",
+     "forbid": []
+    },
+    {
+     "id": "drama.peakPos",
+     "def": "Posición del clímax",
+     "forbid": []
+    },
+    {
+     "id": "drama.peakProminence",
+     "def": "Prominencia del clímax",
+     "forbid": []
+    },
+    {
+     "id": "drama.peaks",
+     "def": "Nº de picos de tensión",
+     "forbid": []
+    },
+    {
+     "id": "drama.centroid",
+     "def": "Centro de masa temporal de la tensión",
+     "forbid": []
+    },
+    {
+     "id": "drama.entropy",
+     "def": "Entropía de la curva de tensión",
+     "forbid": []
+    },
+    {
+     "id": "drama.periodicity",
+     "def": "Periodicidad de la tensión",
+     "forbid": []
+    },
+    {
+     "id": "drama.freytagFit",
+     "def": "Ajuste a la pirámide de Freytag (RMSE)",
+     "forbid": []
+    },
+    {
+     "id": "drama.phases",
+     "def": "Fases dramáticas",
+     "forbid": []
+    },
+    {
+     "id": "historia.causalLinks",
+     "def": "Proporción de enlaces causales (pero/por lo tanto)",
+     "forbid": []
+    },
+    {
+     "id": "audio.loudness",
+     "def": "Sonoridad integrada",
+     "forbid": []
+    },
+    {
+     "id": "audio.lra",
+     "def": "Rango de sonoridad",
+     "forbid": []
+    },
+    {
+     "id": "audio.truePeak",
+     "def": "Pico verdadero",
+     "forbid": []
+    },
+    {
+     "id": "audio.plr",
+     "def": "Razón pico/sonoridad (PLR)",
+     "forbid": []
+    },
+    {
+     "id": "audio.tempo",
+     "def": "Tempo medido",
+     "forbid": []
+    },
+    {
+     "id": "audio.key",
+     "def": "Tonalidad medida",
+     "forbid": []
+    },
+    {
+     "id": "audio.avSync",
+     "def": "Desfase audio–imagen (mediana)",
+     "forbid": []
+    },
+    {
+     "id": "audio.r128dev",
+     "def": "Desviación de la sonoridad objetivo",
+     "forbid": []
+    },
+    {
+     "id": "medio.type",
+     "def": "Soporte / medio",
+     "forbid": []
+    },
+    {
+     "id": "medio.grainISO",
+     "def": "Grano (ISO equivalente)",
+     "forbid": []
+    }
+   ]
   }
+ },
+ "groups": {
+  "relation.cadenaCausal": [
+   "causa",
+   "depende",
+   "prepara",
+   "escala"
+  ],
+  "relation.causal": [
+   "causa",
+   "depende"
+  ],
+  "relation.cosecha": [
+   "revela",
+   "reinterpreta",
+   "resuelve"
+  ],
+  "relation.cosechaPago": [
+   "revela",
+   "reinterpreta",
+   "resuelve",
+   "rima",
+   "prepara",
+   "escala"
+  ]
+ }
 }
