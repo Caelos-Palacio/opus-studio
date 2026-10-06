@@ -254,7 +254,7 @@ const pathGet = (obj, p) => String(p).split('.').reduce((a, k) => a?.[k], obj);
 export function shot(scene, libs = {}) {
   assertScene(scene, `escena ${scene?.id ?? '?'}`);
   const names = new Set([...BUILTIN, ...Object.keys(scene.params ?? {}), ...entityVars(scene.entities)]), cache = new Map(), fnDefs = scene.fns ?? {}, funcs = [...KIT, ...Object.keys(fnDefs)];
-  const ce = (src) => { let c = cache.get(src); if (!c) { c = compileExpr(src, { vars: [...names, ...allOut(scene), 'i', 'n'], funcs }); cache.set(src, c); } return c; };
+  const ce = (src) => { let c = cache.get(src); if (!c) { c = compileExpr(src, { vars: [...names, ...allOut(scene), 'i', 'n', 'pk', 'pn'], funcs }); cache.set(src, c); } return c; };
   const ents = scene.entities ?? {}, getFn = (lib, fn) => { const f = pathGet(libs[lib], fn); if (typeof f !== 'function') throw new Error(`dsl: ${lib}.${fn} no es una función (¿lib sin pasar a shot()?)`); return f; };
   const entities = Object.fromEntries(Object.entries(ents).map(([n, e]) => { let made = null; return [n, e.make ? (...a) => (made ??= getFn(e.lib, e.fn)(...e.make))(...a) : (...a) => getFn(e.lib, e.fn)(...a)]; }));
   const libFns = (cur, shotDef, film, env) => Object.fromEntries(Object.entries(fnDefs).map(([n, f]) => [n, (...a) => getFn(f.lib, f.fn)(...(f.bind ?? []).map((b) => ({ film, shot: shotDef, t: env.t, api: cur.api, P: cur.api.params })[b]), ...a)]));

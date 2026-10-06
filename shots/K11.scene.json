@@ -221,7 +221,7 @@
           }
         },
         {
-          "id": "en",
+          "id": "enP",
           "type": "let",
           "value": {
             "$expr": "kick"
@@ -238,17 +238,17 @@
             "$expr": "S_cy + J_1"
           },
           "size": {
-            "$expr": "size * p_s * (1 + 0.05 * en)"
+            "$expr": "size * p_s * (1 + 0.05 * enP)"
           },
           "opts": {
             "rot": {
               "$expr": "-pi / 2"
             },
             "color": {
-              "$expr": "en > 0.4 ? 'accent' : 'ink'"
+              "$expr": "enP > 0.4 ? 'accent' : 'ink'"
             },
             "split": {
-              "$expr": "14 * en + 18 * exp(-since0 * 11)"
+              "$expr": "14 * enP + 18 * exp(-since0 * 11)"
             }
           }
         }
