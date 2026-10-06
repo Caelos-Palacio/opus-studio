@@ -7,3 +7,5 @@ Estado: hecho, falta nota del usuario (H1).
 - Shots: ningún .scene.json tocado (los colores salen de los roles del medio); hashes dsl-cov intactos.
 - Crítico: veredicto manual (SHIP) con 2 WARN (R11 rueda tenue en el hold; R12 respuesta con poco contraste).
 - Entregas: out/entregas/regla_v2.mp4, regla_v2.jpg, regla_ab.jpg (arriba v1, abajo v2).
+- Hashes dsl-cov: regenerados SOLO R01–R14 (`node test/dsl-cov.mjs --gen`; 84 líneas = 14 shots × 6 instantes) porque el cambio de medio (pizarra) cambia los píxeles a propósito; el JS legado y el DSL siguen coincidiendo.
+- Tests: `npm test` deja 2 fallos de medios (mate_papel→terracota, ya fallaban en main, ajenos a Regla). Con `out/.film`=regla, semantica I2b falla (usa el film activo): borrar out/.film antes de testear.
