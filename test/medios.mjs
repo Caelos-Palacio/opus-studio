@@ -124,7 +124,7 @@ ok(names.length === 4 && minD >= 40, 'X1 los 5 medios son visualmente distintos 
     ok(sd >= 0.004 && Math.min(...fl) >= 0.85 && Math.max(...fl) <= 1.0001, 'N2 parpadeo sutil (σ ≥ 0,4 %, caída ≤ 15 %)', `σ ${(sd * 100).toFixed(2)} %  mín ${Math.min(...fl).toFixed(3)}`);
     const dipT = 30 + fl.indexOf(Math.min(...fl)) / 30, a = grab(R, dipT), I = R.film.medium.ink, saved = I.flicker; I.flicker = null; const b = grab(R, dipT); I.flicker = saved;
     ok(meanLum(b) - meanLum(a) >= 0.05, 'N2b el parpadeo oscurece de verdad el fotograma', `Δ ${(meanLum(b) - meanLum(a)).toFixed(2)}`);
-    const hz = Math.round(R.h * (R.film.medium.ink.reflection?.y ?? 0.8)), on = grab(R, 55), ref = I.reflection; I.reflection = null; const off = grab(R, 55); I.reflection = ref;
+    const hz = Math.round(R.H * (R.film.medium.ink.reflection?.y ?? 0.8)), on = grab(R, 55), ref = I.reflection; I.reflection = null; const off = grab(R, 55); I.reflection = ref;
     ok(meanLum(on, hz) - meanLum(off, hz) >= 0.3 && Math.abs(meanLum(on, 0, hz) - meanLum(off, 0, hz)) < 0.02, 'N3 reflejo en superficie húmeda: más luz bajo el horizonte, nada encima', `Δ abajo ${(meanLum(on, hz) - meanLum(off, hz)).toFixed(2)}`);
   }
 }
