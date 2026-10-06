@@ -5,16 +5,14 @@
  "font": "DejaVu Sans Mono, monospace",
  "blend": "screen",
  "accents": [
-  "#FF5B36",
+  "#F27A5E",
   "#7FD6FF"
  ],
  "palette": {
   "paper": "#123C6E",
   "ink": "#EAF3FF",
-  "accent": "#FF5B36",
+  "accent": "#F27A5E",
   "accent2": "#7FD6FF",
-  "quant": "#FF5B36",
-  "anom": "#EAF3FF",
   "shade": "#3C6FA8"
  },
  "support": {

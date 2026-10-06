@@ -251,7 +251,7 @@ function web(ctx, api, G, L) {
 export function edge(ctx, api, G, L, t) {
   const R = R_OBS * ppmOf(G, L); if (R > 3 * G.W) return null;
   const a2 = api.color('accent2'), hit = t - TE, flash = hit >= 0 ? Math.exp(-hit / 0.55) : 0, imp = hit >= 0 && hit < 3 / 30;
-  const draw = (c) => { c.save(); c.strokeStyle = imp ? api.color('ink') : a2; c.globalAlpha = clamp(0.1 + flash); c.lineWidth = (2 + 6 * flash + (imp ? 6 : 0)) * G.k * 1.5; c.beginPath(); c.arc(G.cx, G.cy, R, 0, TAU); c.stroke();
+  const draw = (c) => { c.save(); c.strokeStyle = imp ? api.color('ink') : a2; c.globalAlpha = clamp(0.2 + flash); c.lineWidth = (2 + 6 * flash + (imp ? 6 : 0)) * G.k * 1.5; c.beginPath(); c.arc(G.cx, G.cy, R, 0, TAU); c.stroke();
     if (flash > 0.02) { const hot = hit >= 0 && hit < 6 / 30; c.fillStyle = hot ? api.color('accent') : a2; c.globalAlpha = hot ? 0.85 - 0.3 * (hit * 5) : 0.3 * flash; disc(c, G.cx, G.cy, R); } c.restore(); };   // el golpe: 2 fotogramas de bermellón (el acento marca el pico)
   if (hit >= 0 && hit < 1.2) {                                       // el golpe, en capas: velo blanco de pantalla completa (la hoja del plano se sobreexpone) + onda de choque que sale del borde
     ctx.save(); ctx.fillStyle = api.color('ink'); ctx.globalAlpha = 0.5 * Math.exp(-hit / 0.1); ctx.fillRect(0, 0, G.W, G.H);
