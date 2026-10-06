@@ -17,7 +17,8 @@ const r = (x) => +x.toFixed(4);
 // ── los shots, en pulsos. a,b = índices de `beats` (b: 'fin' = DUR). hits: pulsos (desde el inicio del shot) con acento visual+sonoro (on_beat_at).
 //    sfx: [pulso, tipo, ganancia, dur?]. Cada shot lleva su porqué (action/on_beat) y su plano.
 const S = [
-  { id: 'K01', a: 0, b: 1, size: 'ECU', text: '¿', action: 'una ¿ lima gigante golpea el primer pulso y se asienta', on_beat: 'el golpe de la ¿ es el primer pulso del film', hits: [0], cam: { move: 'push', why: 'approach', amount: 0.05 }, sakuga: 'normal' },
+  { id: 'K01', a: 0, b: 1, size: 'ECU', text: '¿', action: 'una ¿ lima gigante golpea el primer pulso y se asienta', on_beat: 'el golpe de la ¿ es el primer pulso del film', hits: [0], cam: { move: 'push', why: 'approach', amount: 0.05 }, sakuga: 'normal',
+    sfx: [[0.38, 'tick', 0.6], [0.7, 'tick', 0.75]] },   // dos tics que ascienden: la entonación de la pregunta
   { id: 'K02', a: 1, b: 2, size: 'ECU', text: 'QUÉ', action: 'QUÉ entra a golpe, tembloroso (ruido); la ¿ queda de viñeta', on_beat: 'QUÉ cae en el pulso', hits: [0], cam: { move: 'push', why: 'approach', amount: 0.05 }, sakuga: 'normal' },
   { id: 'K03', a: 2, b: 4, size: 'CU', text: 'SUENA', action: 'SUENA tiembla; en el 2.º pulso se parte en tiras y canales', on_beat: 'pulso 1 entra; pulso 2 glitch', hits: [0, 1], cam: { move: 'push', why: 'approach', amount: 0.06 }, sakuga: 'normal' },
   { id: 'K04', a: 4, b: 5, size: 'ECU', text: 'CUANDO', action: 'CUANDO barre de izquierda a derecha en un pulso', on_beat: 'el barrido termina en el pulso', hits: [0], cam: { move: 'push', why: 'approach', amount: 0.04 }, sakuga: 'normal' },

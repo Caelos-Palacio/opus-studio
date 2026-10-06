@@ -1,51 +1,229 @@
 {
   "version": 1,
-  "titulo": "Pulso · ¿qué suena cuando todo se rompe?",
+  "titulo": "Pulso · ¿qué suena cuando todo se rompe? (letrero de neón)",
   "timeline": "data/reel/timeline.json",
-  "memoria": { "vidaMedia": 5, "piso": 0.1, "umbral": 0.15 },
+  "memoria": {
+    "vidaMedia": 5,
+    "piso": 0.1,
+    "umbral": 0.15
+  },
   "conceptos": [
     {
-      "id": "pregunta", "label": "¿qué suena cuando todo se rompe?", "kind": "pregunta", "saliencia": 0.9, "planta": true,
-      "abre": 0.6, "resuelve": { "t": 24.19, "por": "sonar" },
-      "anclas": [ { "shot": "K01" }, { "shot": "K02" }, { "shot": "K03" }, { "shot": "K06" } ],
-      "estados": [ { "t": [0, 4.9], "lectura": "una pregunta lima abierta: la ¿ espera su ?", "siente": "curiosidad seca", "espera": "una respuesta" } ]
+      "id": "pregunta",
+      "label": "¿qué suena cuando todo se rompe?",
+      "kind": "pregunta",
+      "saliencia": 0.9,
+      "planta": true,
+      "abre": 0.6,
+      "resuelve": {
+        "t": 24.19,
+        "por": "sonar"
+      },
+      "anclas": [
+        {
+          "shot": "K01"
+        },
+        {
+          "shot": "K02"
+        },
+        {
+          "shot": "K03"
+        },
+        {
+          "shot": "K06"
+        }
+      ],
+      "estados": [
+        {
+          "t": [
+            0,
+            4.9
+          ],
+          "lectura": "una pregunta lima abierta: la ¿ espera su ?",
+          "siente": "curiosidad seca",
+          "espera": "una respuesta"
+        }
+      ]
     },
     {
-      "id": "ruido", "label": "golpes sueltos: CRAC TAC PUM, ruido sin compás", "kind": "entidad", "saliencia": 0.7,
-      "anclas": [ { "shot": "K07" }, { "shot": "K08" } ],
-      "estados": [ { "t": [4.9, 9.8], "lectura": "la respuesta parece solo ruido: golpes caen donde quieren", "siente": "desorden", "espera": "que pare o que se ordene" } ]
+      "id": "ruido",
+      "label": "golpes sueltos: CRAC TAC PUM, ruido sin compás",
+      "kind": "entidad",
+      "saliencia": 0.7,
+      "anclas": [
+        {
+          "shot": "K07"
+        },
+        {
+          "shot": "K08"
+        }
+      ],
+      "estados": [
+        {
+          "t": [
+            4.9,
+            9.8
+          ],
+          "lectura": "la respuesta parece solo ruido: tubos que tartamudean y golpes que caen donde quieren",
+          "siente": "desorden",
+          "espera": "que pare o que se ordene"
+        }
+      ]
     },
     {
-      "id": "pulso", "label": "el ruido se engancha a la rejilla: cada golpe es una fila de un secuenciador", "kind": "regla", "saliencia": 0.8,
-      "anclas": [ { "shot": "K09" }, { "shot": "K10" }, { "shot": "K11" }, { "shot": "K12" } ],
-      "estados": [ { "t": [9.8, 18.3], "lectura": "lo roto empieza a caer a compás", "siente": "enganche, tensión creciente", "espera": "que algo reviente" } ]
+      "id": "pulso",
+      "label": "el ruido se engancha a la rejilla: cada golpe es una fila de un secuenciador",
+      "kind": "regla",
+      "saliencia": 0.8,
+      "anclas": [
+        {
+          "shot": "K09"
+        },
+        {
+          "shot": "K10"
+        },
+        {
+          "shot": "K11"
+        },
+        {
+          "shot": "K12"
+        }
+      ],
+      "estados": [
+        {
+          "t": [
+            9.8,
+            18.3
+          ],
+          "lectura": "el zumbido se engancha a la rejilla: los tubos dejan de tartamudear y el halo pasa de magenta a lima",
+          "siente": "enganche, tensión creciente",
+          "espera": "que algo reviente"
+        }
+      ]
     },
     {
-      "id": "rotura", "label": "TODO SE ROMPE a compás: el aire se retira y el golpe lo parte", "kind": "tensión", "saliencia": 0.85,
-      "abre": 18.3, "resuelve": { "t": 24.19, "por": "sonar" },
-      "anclas": [ { "shot": "K13" }, { "shot": "K14" }, { "shot": "K15" }, { "shot": "K17" }, { "shot": "K18" } ],
-      "estados": [ { "t": [18.3, 24.19], "lectura": "la tensión estalla y calla", "siente": "pico y respiro", "espera": "una explicación" } ]
+      "id": "rotura",
+      "label": "TODO SE ROMPE a compás: el aire se retira y el golpe lo parte",
+      "kind": "tensión",
+      "saliencia": 0.85,
+      "abre": 18.3,
+      "resuelve": {
+        "t": 24.19,
+        "por": "sonar"
+      },
+      "anclas": [
+        {
+          "shot": "K13"
+        },
+        {
+          "shot": "K14"
+        },
+        {
+          "shot": "K15"
+        },
+        {
+          "shot": "K17"
+        },
+        {
+          "shot": "K18"
+        }
+      ],
+      "estados": [
+        {
+          "t": [
+            18.3,
+            24.19
+          ],
+          "lectura": "la tensión estalla y el letrero se queda sin corriente: apagón",
+          "siente": "pico y respiro",
+          "espera": "una explicación"
+        }
+      ]
     },
     {
-      "id": "sonar", "label": "lo roto vuelve a sonar: la frase se recompone en el pulso", "kind": "revelación", "saliencia": 1,
-      "anclas": [ { "shot": "K20" }, { "shot": "K21" }, { "shot": "K22" }, { "shot": "K23" }, { "shot": "K24" } ],
-      "estados": [ { "t": [24.19, 30], "lectura": "las esquirlas encajan: LO ROTO VUELVE A SONAR", "siente": "alivio vibrante", "espera": "nada: el punto cierra" } ]
+      "id": "sonar",
+      "label": "lo roto vuelve a sonar: la frase se recompone en el pulso",
+      "kind": "revelación",
+      "saliencia": 1,
+      "anclas": [
+        {
+          "shot": "K20"
+        },
+        {
+          "shot": "K21"
+        },
+        {
+          "shot": "K22"
+        },
+        {
+          "shot": "K23"
+        },
+        {
+          "shot": "K24"
+        }
+      ],
+      "estados": [
+        {
+          "t": [
+            24.19,
+            30
+          ],
+          "lectura": "las esquirlas se reencienden una a una: LO ROTO VUELVE A SONAR",
+          "siente": "alivio vibrante",
+          "espera": "nada: el punto cierra"
+        }
+      ]
     }
   ],
   "relaciones": [
-    { "id": "el-ruido-prepara-el-pulso", "tipo": "prepara", "de": "ruido", "a": "pulso", "t": 9.8, "why": "el desorden se vuelve secuencia cuando cae en la rejilla" },
-    { "id": "el-pulso-prepara-la-rotura", "tipo": "prepara", "de": "pulso", "a": "rotura", "t": 18.3, "why": "lo que se engancha a compás también se rompe a compás" },
-    { "id": "sonar-revela-el-ruido", "tipo": "revela", "de": "sonar", "a": "ruido", "t": 24.19, "why": "aquellos golpes eran el material de la frase" }
+    {
+      "id": "el-ruido-prepara-el-pulso",
+      "tipo": "prepara",
+      "de": "ruido",
+      "a": "pulso",
+      "t": 9.8,
+      "why": "el desorden se vuelve secuencia cuando cae en la rejilla"
+    },
+    {
+      "id": "el-pulso-prepara-la-rotura",
+      "tipo": "prepara",
+      "de": "pulso",
+      "a": "rotura",
+      "t": 18.3,
+      "why": "lo que se engancha a compás también se rompe a compás"
+    },
+    {
+      "id": "sonar-revela-el-ruido",
+      "tipo": "revela",
+      "de": "sonar",
+      "a": "ruido",
+      "t": 24.19,
+      "why": "aquellos golpes eran el material de la frase"
+    }
   ],
   "reinterpretaciones": [
     {
-      "id": "golpes", "en": 24.19, "por": "sonar", "objetivo": "ruido", "tramo": [4.9, 9.8],
+      "id": "golpes",
+      "en": 24.19,
+      "por": "sonar",
+      "objetivo": "ruido",
+      "tramo": [
+        4.9,
+        9.8
+      ],
       "antes": "golpes sueltos, ruido sin sentido",
       "despues": "las sílabas de lo roto: material de una frase que aún no existía",
       "why": "romper del todo no destruye: libera las piezas con las que la frase se recompone"
     },
     {
-      "id": "cuenta", "en": 24.19, "por": "sonar", "objetivo": "pulso", "tramo": [9.8, 18.3],
+      "id": "cuenta",
+      "en": 24.19,
+      "por": "sonar",
+      "objetivo": "pulso",
+      "tramo": [
+        9.8,
+        18.3
+      ],
       "antes": "un secuenciador que cuenta golpes",
       "despues": "el compás que sostiene la recomposición: las filas eran el andamio",
       "why": "la rejilla no estaba para apretar el ruido sino para poder recomponerlo"

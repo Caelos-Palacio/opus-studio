@@ -232,6 +232,18 @@
     "ease": "outExpo"
    },
    "sakuga": "normal",
+   "sfx": [
+    {
+     "at": 0.2333,
+     "type": "tick",
+     "gain": 0.6
+    },
+    {
+     "at": 0.4297,
+     "type": "tick",
+     "gain": 0.75
+    }
+   ],
    "params": {
     "kick": {
      "$sig": "kick"

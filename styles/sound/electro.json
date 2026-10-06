@@ -9,15 +9,15 @@
   "crescendo": { "from": 0.46, "top": 0.8, "frac": 0.5, "maxSec": 14, "pow": 1.5 },
   "breath": [0.05, 0.35], "revelation": { "start": 0.40, "peak": [0.5, 0.58] }, "descent": [0.64, 0.36], "tail": [0.36, 0.14], "arcWeight": 0.2
  },
- "dynamics": { "floorDb": -15, "pow": 0.9, "revDb": -1 },
+ "dynamics": { "floorDb": -18, "pow": 0.9, "revDb": 0 },
  "harmony": {
   "build": ["i", "bVI", "bIII", "bVII"], "climax": "bVI/i", "prelude": "i", "bloom": "I",
   "descent": ["I", "vi", "IV"], "return": ["i", "I"]
  },
  "layers": {
   "drone": { "gain": 0.12 }, "pad": { "gain": [0.15, 0.2] }, "bass": { "gain": [0.2, 0.26], "from": "introEnd", "pulse": { "thr": 0.3, "gain": 0.2 } },
-  "arp": { "steps": [[0.14, 2], [0.28, 4], [0.46, 6], [0.62, 8]], "seq": [0, 1, 2, 3, 2, 1, 3, 2], "gain": [0.07, 0.12] },
-  "kick": { "thr": 0.26, "gain": [0.22, 0.6], "ghost": 0.55 }, "hat": { "thr": 0.4, "thr2": 0.56, "gain": [0.05, 0.1] }, "tom": { "thr": 0.5, "gain": [0.12, 0.26] },
+  "arp": { "steps": [[0.14, 2], [0.28, 4], [0.46, 6], [0.62, 8]], "seq": [0, 1, 2, 3, 2, 1, 3, 2], "gain": [0.08, 0.14] },
+  "kick": { "thr": 0.26, "gain": [0.22, 0.6], "ghost": 0.55 }, "hat": { "thr": 0.32, "thr2": 0.5, "gain": [0.06, 0.12] }, "tom": { "thr": 0.5, "gain": [0.12, 0.26] },
   "roll": { "frac": 0.17, "gain": [0.08, 0.34] }, "riser": { "frac": 0.4, "gain": 0.18 }
  },
  "motif": {
@@ -41,14 +41,14 @@
  "hit": { "kick": 0.8, "crash": 0.4, "brass": 0, "choir": 0, "pluck": 0.1 },
  "revel": { "choir": 0, "brass": 0 },
  "groove": {
-  "kick": { "every": 1, "gain": 0.36 }, "hat": { "gain": 0.1, "thr": 0.2, "sub": true }, "clap": { "gain": 0.14 },
-  "bass": { "every": 2, "gain": 0.26 }, "arp": { "sub": 2, "gain": 0.07, "thr": 0.3 }
+  "kick": { "every": 1, "gain": 0.36 }, "hat": { "gain": 0.14, "thr": 0.2, "sub": true }, "clap": { "gain": 0.19 },
+  "bass": { "every": 2, "gain": 0.26 }, "arp": { "sub": 2, "gain": 0.1, "thr": 0.3 }
  },
  "impact": { "vacuum": 0.5, "suck": 0.3, "tailKeep": 0.55, "tailFade": 0.6 },
  "sfx": {
   "priority": { "impact": 4, "bloom": 3, "riser": 2, "whoosh": 2, "shimmer": 2, "anom": 2, "accent": 1, "resolve": 2, "tick": 1, "pop": 1, "click": 1 },
   "duckDb": { "1": 1.2, "2": 3.5, "3": 6, "4": 10 },
-  "tickRunGap": 1.2, "tickGainDb": [-14, -3], "scale": [0, 3, 5, 7, 10], "air": false
+  "buzz": { "gain": 0.8, "signal": "chaos" }, "tickRunGap": 1.2, "tickGainDb": [-14, -3], "scale": [0, 3, 5, 7, 10], "air": false
  },
  "mix": {
   "bus": { "music": 0, "sfx": 3, "amb": -6 }, "musicPocket": { "f": 3000, "q": 0.8, "db": -2 },

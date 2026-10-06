@@ -13,9 +13,7 @@
   "ink": "#F6F3E8",
   "accent": "#D8FF3C",
   "accent2": "#FF3D7F",
-  "quant": "#D8FF3C",
-  "anom": "#F6F3E8",
-  "shade": "#3A2E5C"
+  "shade": "#2E2450"
  },
  "support": {
   "kind": "muro_mojado",
@@ -232,9 +230,9 @@
   "tube": 0.03
  },
  "composition": {
-  "edgeMargin": 0.05,
+  "edgeMargin": 0.04,
   "anchor": "free",
-  "negativeSpace": 0.5
+  "negativeSpace": 0.22
  },
  "encode": {
   "crf": 24,
