@@ -4,7 +4,7 @@
 //   y draw(t) es función pura de t (sin estado, sin reloj, sin azar): seek(t) sigue siendo puro.
 //   Valores: literal | {"$expr":"…"} (lenguaje de engine/expr.mjs + vars del DSL) | {"$shot":"text"}.
 //   Variables: t lt u dur W H k · cada param por nombre · <entidad>_<campo> · <objeto>_<salida> (morph: x y w h r th) · <let>.
-//   Funciones extra: spring(x[,curva]) · seg(x,a,b) · at(fx,fy) · param(nombre,t) · color(rol) · vec(…) · str(x) · cat(…) · has(x) · len(x) · nil() · inkA(a[,rol]) · box(x,y,w,h) · set(obj,clave,valor) · item(lista,i[,clave]) · take(lista,n) · pget(nombre) (valor del param por nombre) · las de
+//   Funciones extra: spring(x[,curva]) · seg(x,a,b) · at(fx,fy) · param(nombre,t) · color(rol) · vec(…) · str(x) · cat(…) · has(x) · len(x) · nil() · inkA(a[,rol]) · box(x,y,w,h) · set(obj,clave,valor) · item(lista,i[,clave]) · take(lista,n) · pget(nombre) (valor del param por nombre) · chr(texto,i) · las de
 //   `fns` (funciones PURAS de un módulo lib). sig() NO existe aquí: las señales llegan por params enlazados.
 //   Valores estructurados (objetos/listas con hojas {"$expr"}) en `args` y en `let.value`: se resuelven hoja a hoja.
 import { compile as compileExpr, FUNCS, ExprError } from './expr.mjs';
@@ -13,7 +13,7 @@ import { rgba } from './color.mjs';
 
 export const DSL_VERSION = 1;
 const BUILTIN_TIME = ['t', 'lt', 'u', 'dur', 't0', 't1'], BUILTIN_FRAME = ['W', 'H', 'k', 'dt', 'S_x0', 'S_x1', 'S_y0', 'S_y1', 'S_w', 'S_h', 'S_cx', 'S_cy', 'boxes'], BUILTIN = [...BUILTIN_TIME, ...BUILTIN_FRAME];
-const KIT = ['spring', 'seg', 'at', 'param', 'color', 'vec', 'str', 'cat', 'has', 'len', 'nil', 'inkA', 'box', 'set', 'item', 'take', 'pget'];
+const KIT = ['spring', 'seg', 'at', 'param', 'color', 'vec', 'str', 'cat', 'has', 'len', 'nil', 'inkA', 'box', 'set', 'item', 'take', 'pget', 'chr'];
 const ID_RE = /^[A-Za-z][A-Za-z0-9]*$/, CONST_NAMES = ['pi', 'tau', 'e', 'true', 'false'];
 const COMMON = ['id', 'type', 'when', 'cue', 'semantic', 'reads'];
 const LIBP = ['lib', 'fn', 'args', 'fields'];
@@ -262,7 +262,7 @@ export function shot(scene, libs = {}) {
     const cur = { ctx: ctx0, api: api0 }, P = api0.params, env = { t, lt: t - shotDef.t[0], u, dur: shotDef.t[1] - shotDef.t[0], t0: shotDef.t[0], t1: shotDef.t[1], W: film.width, H: film.height, k: api0.k, dt: api0.dt, ...P };
     env.boxes = [];
     for (const [kk, vv] of Object.entries({ x0: 'x0', x1: 'x1', y0: 'y0', y1: 'y1', w: 'w', h: 'h', cx: 'cx', cy: 'cy' })) env[`S_${kk}`] = api0.safe[vv];
-    env.fns = { ...libFns(cur, shotDef, film, env), spring: (x, name) => cur.api.spring(x, name), seg: (x, a, b) => seg(x, a, b), at: (fx, fy) => cur.api.at(fx, fy), param: (n, tt) => cur.api.param(n, tt), color: (c) => cur.api.color(c), vec: (...a) => a, str: (x) => String(x), cat: (...a) => a.join(''), has: (x) => x != null, len: (x) => x?.length ?? 0, nil: () => null, box: (x, y, w, h) => ({ x, y, w, h }), set: (o, k, v) => ({ ...o, [k]: v }), item: (a, i, k) => (k === undefined ? a?.[i] : a?.[i]?.[k]), take: (a, n) => a.slice(0, n), pget: (name) => cur.api.params[name],
+    env.fns = { ...libFns(cur, shotDef, film, env), spring: (x, name) => cur.api.spring(x, name), seg: (x, a, b) => seg(x, a, b), at: (fx, fy) => cur.api.at(fx, fy), param: (n, tt) => cur.api.param(n, tt), color: (c) => cur.api.color(c), vec: (...a) => a, str: (x) => String(x), cat: (...a) => a.join(''), has: (x) => x != null, len: (x) => x?.length ?? 0, nil: () => null, box: (x, y, w, h) => ({ x, y, w, h }), set: (o, k, v) => ({ ...o, [k]: v }), item: (a, i, k) => (k === undefined ? a?.[i] : a?.[i]?.[k]), take: (a, n) => a.slice(0, n), pget: (name) => cur.api.params[name], chr: (x, i) => String(x)[i],
       inkA: (a, role = 'ink') => (a >= 0.999 ? role : rgba(cur.api.color(role), clamp(a))) };
     env.sig = () => { throw new Error('sig() no existe en el DSL'); };
     for (const [n, e] of Object.entries(ents)) if (e.fields?.length) { const r = entities[n](t, film, api0); for (const f of e.fields) env[`${n}_${f}`] = r[f]; }

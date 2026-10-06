@@ -1,12 +1,222 @@
-import { PARAMS, word, focusOf, since, stack, clamp, lerp, dot } from './K_tipo.mjs';
-// K16 · pulso 38 → 39. Inspiración: ROM / PE se contrae hasta un punto lima y el color se va (poca energía: es la calma que precede al golpe).
-export default {
-  params: PARAMS,
-  draw(ctx, t, u, shot, film, api) {
-    const S = api.safe, e = api.ease('inOut', clamp(u)), boxes = [], k = 1 - e, lbl = 'ROMPE';
-    stack(api, ['ROM', 'PE'], { width: S.w * 0.78, cy: S.cy }).forEach((l) => boxes.push(word(ctx, api, l.str, l.cx, l.cy, l.size, { alpha: clamp(1 - e * e * e * 1.05), label: lbl, split: 6 })));   // solo se apaga (quieta): la contracción visible sería movimiento, y esto es la calma antes del golpe
-    dot(ctx, api, S.cx, S.cy, 14 + 4 * e, 'accent', 1);
-    if (boxes.length) focusOf(api, boxes, 'rotura'); else api.focus(S.cx - 60, S.cy - 60, 120, 120, 'punto', { weight: 1, bleed: true, hollow: 0.9 });
-    void since;
+// GENERADO desde shots/K16.scene.json por `node engine/dsl.mjs build` (spec 006). No editar a mano: edita el .scene.json y regenera.
+import { shot } from '../engine/dsl-core.mjs';
+import * as K_tipo from './K_tipo.mjs';
+export default shot({
+ "dsl": 1,
+ "id": "K16",
+ "doc": "K16 · pulso 38 → 39. Inspiración: ROM / PE se contrae hasta un punto lima y el color se va (poca energía: es la calma que precede al golpe).",
+ "libs": {
+  "K_tipo": "./K_tipo.mjs"
+ },
+ "params": {
+  "kick": {
+   "type": "number",
+   "range": [
+    0,
+    2
+   ],
+   "default": 0,
+   "semantic": "envolvente de los onsets del bombo: golpe de escala"
   },
-};
+  "snare": {
+   "type": "number",
+   "range": [
+    0,
+    2
+   ],
+   "default": 0,
+   "semantic": "envolvente de caja/palmas/toms: destello y corte de tiras"
+  },
+  "hat": {
+   "type": "number",
+   "range": [
+    0,
+    2
+   ],
+   "default": 0,
+   "semantic": "envolvente de hats: titileo"
+  },
+  "tom": {
+   "type": "number",
+   "range": [
+    0,
+    2
+   ],
+   "default": 0,
+   "semantic": "envolvente de toms: cuarta voz del secuenciador"
+  },
+  "chaos": {
+   "type": "number",
+   "range": [
+    0,
+    1
+   ],
+   "default": 0.5,
+   "semantic": "desorden: 1 = ruido (tiras y temblor), 0 = todo alineado"
+  },
+  "lock": {
+   "type": "number",
+   "range": [
+    0,
+    1
+   ],
+   "default": 0,
+   "semantic": "cuánto se pega el contenido a la rejilla visible"
+  },
+  "shock": {
+   "type": "number",
+   "range": [
+    0,
+    2
+   ],
+   "default": 0,
+   "semantic": "onda de choque tras el golpe (sacudida, canales, anillo)"
+  },
+  "tension": {
+   "type": "number",
+   "range": [
+    0,
+    1.5
+   ],
+   "default": 0,
+   "semantic": "tensión acumulada del crescendo (compresión, brillo del acento)"
+  },
+  "drift": {
+   "type": "number",
+   "range": [
+    -1,
+    1
+   ],
+   "default": 0,
+   "semantic": "deriva lenta (LFO): respiración en los respiros"
+  },
+  "text": {
+   "type": "string",
+   "semantic": "texto principal del shot (default shot.text)"
+  }
+ },
+ "objects": [
+  {
+   "id": "ea",
+   "type": "let",
+   "value": {
+    "$expr": "ease('inOut', clamp(u))"
+   }
+  },
+  {
+   "id": "lines",
+   "type": "let",
+   "lib": "K_tipo",
+   "fn": "stack",
+   "args": [
+    "api",
+    [
+     "ROM",
+     "PE"
+    ],
+    {
+     "width": {
+      "$expr": "S_w * 0.78"
+     },
+     "cy": {
+      "$expr": "S_cy"
+     }
+    }
+   ]
+  },
+  {
+   "id": "L",
+   "type": "repeat",
+   "items": {
+    "$expr": "lines"
+   },
+   "fields": [
+    "str",
+    "cx",
+    "cy",
+    "size",
+    "cap"
+   ],
+   "children": [
+    {
+     "type": "word",
+     "lib": "K_tipo",
+     "str": {
+      "$expr": "L_str"
+     },
+     "x": {
+      "$expr": "L_cx"
+     },
+     "y": {
+      "$expr": "L_cy"
+     },
+     "size": {
+      "$expr": "L_size"
+     },
+     "opts": {
+      "alpha": {
+       "$expr": "clamp(1 - ea * ea * ea * 1.05)"
+      },
+      "label": "ROMPE",
+      "split": 6
+     }
+    }
+   ]
+  },
+  {
+   "type": "dot",
+   "lib": "K_tipo",
+   "fn": "dot",
+   "args": [
+    "ctx",
+    "api",
+    {
+     "$expr": "S_cx"
+    },
+    {
+     "$expr": "S_cy"
+    },
+    {
+     "$expr": "14 + 4 * ea"
+    },
+    {
+     "$lit": "accent"
+    },
+    {
+     "$expr": "1"
+    }
+   ]
+  },
+  {
+   "type": "focusOf",
+   "lib": "K_tipo",
+   "fn": "focusOf",
+   "args": [
+    "api",
+    {
+     "$expr": "boxes"
+    },
+    {
+     "$lit": "rotura"
+    }
+   ],
+   "when": "len(boxes) > 0"
+  },
+  {
+   "type": "focus",
+   "when": "len(boxes) == 0",
+   "x": {
+    "$expr": "S_cx - 60"
+   },
+   "y": {
+    "$expr": "S_cy - 60"
+   },
+   "w": 120,
+   "h": 120,
+   "label": "punto",
+   "weight": 1,
+   "bleed": true,
+   "hollow": 0.9
+  }
+ ]
+}, { K_tipo });

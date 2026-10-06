@@ -1,11 +1,233 @@
-import { PARAMS, word, focusOf, finalStack, since, clamp } from './K_tipo.mjs';
-// K21 · pulsos 47 → 49. LO / ROTO ya encajados; VUELVE entra barriendo de izquierda a derecha en el pulso (recorte con filo lima; la caja ya está en su sitio).
-export default {
-  params: PARAMS,
-  draw(ctx, t, u, shot, film, api) {
-    const P = api.params, a0 = since(film, shot, t, 0), e = api.ease('outExpo', clamp(a0 / 0.16)), L = finalStack(api), boxes = [];
-    L.slice(0, 3).forEach((l, i) => { const nw = i === 2, b = word(ctx, api, l.str, l.cx, l.cy, l.size * (1 + 0.035 * P.kick), nw ? { reveal: [0, e], split: 18 * Math.exp(-a0 * 9), color: 'ink' } : { split: 4 + 10 * P.snare }); boxes.push(b);
-      if (nw && e < 0.999 && a0 >= 0) { ctx.save(); ctx.fillStyle = api.color('accent'); ctx.fillRect(b.x + b.w * e - 8, l.cy - l.cap * 0.62, 16, l.cap * 1.24); ctx.restore(); } });
-    focusOf(api, boxes, 'frase');
+// GENERADO desde shots/K21.scene.json por `node engine/dsl.mjs build` (spec 006). No editar a mano: edita el .scene.json y regenera.
+import { shot } from '../engine/dsl-core.mjs';
+import * as K_tipo from './K_tipo.mjs';
+export default shot({
+ "dsl": 1,
+ "id": "K21",
+ "doc": "K21 · pulsos 47 → 49. LO / ROTO ya encajados; VUELVE entra barriendo de izquierda a derecha en el pulso (recorte con filo lima; la caja ya está en su sitio).",
+ "libs": {
+  "K_tipo": "./K_tipo.mjs"
+ },
+ "fns": {
+  "since": {
+   "lib": "K_tipo",
+   "fn": "since",
+   "bind": [
+    "film",
+    "shot",
+    "t"
+   ]
+  }
+ },
+ "params": {
+  "kick": {
+   "type": "number",
+   "range": [
+    0,
+    2
+   ],
+   "default": 0,
+   "semantic": "envolvente de los onsets del bombo: golpe de escala"
   },
-};
+  "snare": {
+   "type": "number",
+   "range": [
+    0,
+    2
+   ],
+   "default": 0,
+   "semantic": "envolvente de caja/palmas/toms: destello y corte de tiras"
+  },
+  "hat": {
+   "type": "number",
+   "range": [
+    0,
+    2
+   ],
+   "default": 0,
+   "semantic": "envolvente de hats: titileo"
+  },
+  "tom": {
+   "type": "number",
+   "range": [
+    0,
+    2
+   ],
+   "default": 0,
+   "semantic": "envolvente de toms: cuarta voz del secuenciador"
+  },
+  "chaos": {
+   "type": "number",
+   "range": [
+    0,
+    1
+   ],
+   "default": 0.5,
+   "semantic": "desorden: 1 = ruido (tiras y temblor), 0 = todo alineado"
+  },
+  "lock": {
+   "type": "number",
+   "range": [
+    0,
+    1
+   ],
+   "default": 0,
+   "semantic": "cuánto se pega el contenido a la rejilla visible"
+  },
+  "shock": {
+   "type": "number",
+   "range": [
+    0,
+    2
+   ],
+   "default": 0,
+   "semantic": "onda de choque tras el golpe (sacudida, canales, anillo)"
+  },
+  "tension": {
+   "type": "number",
+   "range": [
+    0,
+    1.5
+   ],
+   "default": 0,
+   "semantic": "tensión acumulada del crescendo (compresión, brillo del acento)"
+  },
+  "drift": {
+   "type": "number",
+   "range": [
+    -1,
+    1
+   ],
+   "default": 0,
+   "semantic": "deriva lenta (LFO): respiración en los respiros"
+  },
+  "text": {
+   "type": "string",
+   "semantic": "texto principal del shot (default shot.text)"
+  }
+ },
+ "objects": [
+  {
+   "id": "a0",
+   "type": "let",
+   "value": {
+    "$expr": "since(0)"
+   }
+  },
+  {
+   "id": "ea",
+   "type": "let",
+   "value": {
+    "$expr": "ease('outExpo', clamp(a0 / 0.16))"
+   }
+  },
+  {
+   "id": "lines",
+   "type": "let",
+   "lib": "K_tipo",
+   "fn": "finalStack",
+   "args": [
+    "api"
+   ]
+  },
+  {
+   "id": "L",
+   "type": "repeat",
+   "items": {
+    "$expr": "take(lines, 3)"
+   },
+   "fields": [
+    "str",
+    "cx",
+    "cy",
+    "size",
+    "cap"
+   ],
+   "children": [
+    {
+     "type": "word",
+     "lib": "K_tipo",
+     "str": {
+      "$expr": "L_str"
+     },
+     "x": {
+      "$expr": "L_cx"
+     },
+     "y": {
+      "$expr": "L_cy"
+     },
+     "size": {
+      "$expr": "L_size * (1 + 0.035 * kick)"
+     },
+     "opts": {
+      "reveal": {
+       "$expr": "vec(0, ea)"
+      },
+      "split": {
+       "$expr": "18 * exp(-a0 * 9)"
+      },
+      "color": "ink"
+     },
+     "id": "w1",
+     "when": "i == 2"
+    },
+    {
+     "type": "word",
+     "lib": "K_tipo",
+     "str": {
+      "$expr": "L_str"
+     },
+     "x": {
+      "$expr": "L_cx"
+     },
+     "y": {
+      "$expr": "L_cy"
+     },
+     "size": {
+      "$expr": "L_size * (1 + 0.035 * kick)"
+     },
+     "opts": {
+      "split": {
+       "$expr": "4 + 10 * snare"
+      }
+     },
+     "id": "w2",
+     "when": "i != 2"
+    },
+    {
+     "type": "shape",
+     "shape": "rect",
+     "color": "accent",
+     "alpha": 1,
+     "x": {
+      "$expr": "w1_x + w1_w * ea - 8"
+     },
+     "y": {
+      "$expr": "L_cy - L_cap * 0.62"
+     },
+     "w": {
+      "$expr": "16"
+     },
+     "h": {
+      "$expr": "L_cap * 1.24"
+     },
+     "when": "i == 2 && ea < 0.999 && a0 >= 0"
+    }
+   ]
+  },
+  {
+   "type": "focusOf",
+   "lib": "K_tipo",
+   "fn": "focusOf",
+   "args": [
+    "api",
+    {
+     "$expr": "boxes"
+    },
+    {
+     "$lit": "frase"
+    }
+   ]
+  }
+ ]
+}, { K_tipo });
