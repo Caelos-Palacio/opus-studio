@@ -1,23 +1,233 @@
-import { seg } from '../engine/core.mjs';
-import { drawWorld, drawTicks, drawEq, zEntity, view, X, T } from './M_mundo.mjs';
-// Elevar es multiplicar. Dos saltos ×e sobre la recta; la ecuación muta de e^{iπ} a e² = e·e y, al final, de vuelta a e^{iπ} = e·e·… (no se puede).
-// Concepto nuevo: «estirar» (cada salto ×e estira la recta). La etiqueta nace pegada al primer arco.
-export default {
-  entities: { z: zEntity },
-  draw(ctx, t, u, shot, film, api) {
-    const V = view(film, t), S = api.k * 1.5;
-    drawWorld(ctx, api, film, t);
-    drawTicks(api, film, t);
-    drawEq(api, film, t);
-    const fade = 1 - seg(t, 20.2, 21.0);
-    // primer arco: foco «salto» + etiqueta «estirar ×e» pegada encima (señalización y contigüidad)
-    const a1 = X(V, [1, 0]), b1 = X(V, [Math.E, 0]), apex = V.oy - 4 * S - Math.min(0.22 * (b1 - a1), 86 * S * 1.5);
-    const al = seg(t, 11.2, 11.8) * fade;
-    if (al > 0.05) { api.focus(a1, apex - 4, b1 - a1, V.oy - apex + 4, 'salto', { weight: 0.6, hollow: 0.6 }); api.text('estirar ×e', (a1 + b1) / 2, apex - 30 * S, { role: 'body', alpha: al, color: 'accent2' }); }
-    const a2 = X(V, [Math.E, 0]), b2 = X(V, [Math.E * Math.E, 0]), apex2 = V.oy - 4 * S - Math.min(0.22 * (b2 - a2), 86 * S * 1.5), al2 = seg(t, 15.0, 15.6) * fade;
-    if (al2 > 0.05) api.text('×e', (a2 + b2) / 2, apex2 - 28 * S, { role: 'body', alpha: al2, color: 'accent2' });
-    // el cuadro se rompe: coral
-    api.text(shot.text, film.width / 2, film.height * 0.865, { role: 'h2', alpha: seg(t, 10.0, 11.2) * (1 - seg(t, 16.4, 17.2)) });
-    api.text('¿Y multiplicar iπ veces?', film.width / 2, film.height * 0.865, { role: 'h2', color: 'anom', alpha: seg(t, 17.8, 19.2) * fade });
+// GENERADO desde shots/M02.scene.json por `node engine/dsl.mjs build` (spec 006). No editar a mano: edita el .scene.json y regenera.
+import { shot } from '../engine/dsl-core.mjs';
+import * as M_mundo from './M_mundo.mjs';
+export default shot({
+ "dsl": 1,
+ "id": "M02",
+ "doc": "Elevar es multiplicar. Dos saltos ×e sobre la recta; la ecuación muta de e^{iπ} a e² = e·e y, al final, de vuelta a e^{iπ} = e·e·… (no se puede).",
+ "libs": {
+  "M_mundo": "./M_mundo.mjs"
+ },
+ "fns": {
+  "X": {
+   "lib": "M_mundo",
+   "fn": "X"
+  }
+ },
+ "entities": {
+  "z": {
+   "lib": "M_mundo",
+   "fn": "zEntity"
+  }
+ },
+ "objects": [
+  {
+   "id": "V",
+   "type": "let",
+   "lib": "M_mundo",
+   "fn": "view",
+   "args": [
+    "film",
+    "t"
+   ],
+   "fields": [
+    "oy"
+   ]
   },
-};
+  {
+   "id": "S",
+   "type": "let",
+   "value": {
+    "$expr": "k * 1.5"
+   }
+  },
+  {
+   "id": "mundo",
+   "type": "plot",
+   "lib": "M_mundo",
+   "fn": "drawWorld",
+   "args": [
+    "ctx",
+    "api",
+    "film",
+    "t"
+   ],
+   "semantic": "plano complejo: eje real, imaginario, arco y punto z"
+  },
+  {
+   "id": "marcas",
+   "type": "axis",
+   "lib": "M_mundo",
+   "fn": "drawTicks",
+   "args": [
+    "api",
+    "film",
+    "t"
+   ],
+   "semantic": "etiquetas numéricas de la recta/plano"
+  },
+  {
+   "id": "ecuacion",
+   "type": "equation",
+   "steps": {
+    "lib": "M_mundo",
+    "export": "EQ"
+   },
+   "semantic": "la ecuación única que muta"
+  },
+  {
+   "id": "fade",
+   "type": "let",
+   "value": {
+    "$expr": "1 - seg(t, 20.2, 21.0)"
+   }
+  },
+  {
+   "id": "a1",
+   "type": "let",
+   "value": {
+    "$expr": "X(V, vec(1, 0))"
+   }
+  },
+  {
+   "id": "b1",
+   "type": "let",
+   "value": {
+    "$expr": "X(V, vec(e, 0))"
+   }
+  },
+  {
+   "id": "apex",
+   "type": "let",
+   "value": {
+    "$expr": "V_oy - 4 * S - min(0.22 * (b1 - a1), 86 * S * 1.5)"
+   }
+  },
+  {
+   "id": "al",
+   "type": "let",
+   "value": {
+    "$expr": "seg(t, 11.2, 11.8) * fade"
+   }
+  },
+  {
+   "id": "salto",
+   "type": "group",
+   "when": "al > 0.05",
+   "semantic": "foco «salto» + etiqueta «estirar ×e» pegada al primer arco",
+   "children": [
+    {
+     "type": "focus",
+     "x": {
+      "$expr": "a1"
+     },
+     "y": {
+      "$expr": "apex - 4"
+     },
+     "w": {
+      "$expr": "b1 - a1"
+     },
+     "h": {
+      "$expr": "V_oy - apex + 4"
+     },
+     "label": "salto",
+     "weight": 0.6,
+     "hollow": 0.6
+    },
+    {
+     "type": "text",
+     "text": "estirar ×e",
+     "x": {
+      "$expr": "(a1 + b1) / 2"
+     },
+     "y": {
+      "$expr": "apex - 30 * S"
+     },
+     "role": "body",
+     "alpha": {
+      "$expr": "al"
+     },
+     "color": "accent2"
+    }
+   ]
+  },
+  {
+   "id": "a2",
+   "type": "let",
+   "value": {
+    "$expr": "X(V, vec(e, 0))"
+   }
+  },
+  {
+   "id": "b2",
+   "type": "let",
+   "value": {
+    "$expr": "X(V, vec(e * e, 0))"
+   }
+  },
+  {
+   "id": "apex2",
+   "type": "let",
+   "value": {
+    "$expr": "V_oy - 4 * S - min(0.22 * (b2 - a2), 86 * S * 1.5)"
+   }
+  },
+  {
+   "id": "al2",
+   "type": "let",
+   "value": {
+    "$expr": "seg(t, 15.0, 15.6) * fade"
+   }
+  },
+  {
+   "id": "e2",
+   "type": "text",
+   "when": "al2 > 0.05",
+   "text": "×e",
+   "x": {
+    "$expr": "(a2 + b2) / 2"
+   },
+   "y": {
+    "$expr": "apex2 - 28 * S"
+   },
+   "role": "body",
+   "alpha": {
+    "$expr": "al2"
+   },
+   "color": "accent2"
+  },
+  {
+   "id": "rompe",
+   "type": "text",
+   "text": {
+    "$shot": "text"
+   },
+   "x": {
+    "$expr": "W / 2"
+   },
+   "y": {
+    "$expr": "H * 0.865"
+   },
+   "role": "h2",
+   "alpha": {
+    "$expr": "seg(t, 10.0, 11.2) * (1 - seg(t, 16.4, 17.2))"
+   }
+  },
+  {
+   "id": "multiplicar",
+   "type": "text",
+   "text": "¿Y multiplicar iπ veces?",
+   "x": {
+    "$expr": "W / 2"
+   },
+   "y": {
+    "$expr": "H * 0.865"
+   },
+   "role": "h2",
+   "alpha": {
+    "$expr": "seg(t, 17.8, 19.2) * fade"
+   },
+   "color": "anom"
+  }
+ ]
+}, { M_mundo });

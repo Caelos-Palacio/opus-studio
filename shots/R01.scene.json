@@ -1,0 +1,74 @@
+{
+  "dsl": 1,
+  "id": "R01",
+  "doc": "la criatura quieta bajo la rueda (WS) y la pregunta del gancho (3,0 s). Un hilo rojo en el borde izquierdo. enfasis lo dirige la memoria (peso de «regla» a mitad del plano): cuánto se ve el decorado en la penumbra.",
+  "libs": {
+    "R_mundo": "./R_mundo.mjs"
+  },
+  "params": {
+    "enfasis": {
+      "type": "number",
+      "range": [
+        0,
+        1
+      ],
+      "unit": "×",
+      "default": 0.5,
+      "semantic": "peso de memoria de la criatura: visibilidad del decorado"
+    }
+  },
+  "entities": {
+    "rueda": {
+      "lib": "R_mundo",
+      "fn": "wheelEntity",
+      "make": [
+        {
+          "x": 0,
+          "y": 0,
+          "z": 1
+        }
+      ]
+    }
+  },
+  "objects": [
+    {
+      "id": "mundo",
+      "type": "world",
+      "lib": "R_mundo",
+      "fn": "renderShot",
+      "args": [
+        "ctx",
+        "api",
+        "film",
+        "shot",
+        "t",
+        {
+          "view": {
+            "x": 0,
+            "y": 0,
+            "z": 1
+          },
+          "mood": {
+            "$expr": "0.5 + 0.9 * enfasis"
+          },
+          "thread": {
+            "x": -0.75,
+            "k": 0.8,
+            "a": {
+              "$expr": "spring(t - 1.2)"
+            }
+          },
+          "caps": [
+            {
+              "str": "¿POR QUÉ GIRA LA RUEDA?",
+              "t0": 3.0,
+              "t1": 5.6,
+              "color": "ink"
+            }
+          ]
+        }
+      ],
+      "semantic": "la criatura, la rueda y el decorado 2.5D del plano (lee la fuerza de los golpes de OTROS planos: opaco a propósito)"
+    }
+  ]
+}

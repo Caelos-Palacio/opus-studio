@@ -38,3 +38,14 @@ if (argv[0] === '--gen') {
   fs.writeFileSync(HASHES, JSON.stringify(Object.fromEntries(Object.entries(H).sort(([a], [b]) => a.localeCompare(b))), null, 1) + '\n');
   process.exit(0);
 }
+export const refHashes = () => JSON.parse(fs.readFileSync(HASHES, 'utf8'));
+export const dslShots = () => fs.readdirSync(path.join(ROOT, 'shots')).filter((f) => f.endsWith('.scene.json')).map((f) => f.replace('.scene.json', '')).sort();
+if (argv[0] === '--check') {   // node test/dsl-cov.mjs --check [film|all] [id,id]  → compara los shots DSL con los hashes del JS legado
+  const films = !argv[1] || argv[1] === 'all' ? Object.keys(FILMS) : [argv[1]], mine = dslShots(), H = refHashes(); let bad = 0, n = 0;
+  for (const film of films) {
+    const ids = (argv[2] ? argv[2].split(',') : mine), tl = JSON.parse(fs.readFileSync(path.join(ROOT, FILMS[film]), 'utf8')).shots.map((s) => s.id), want = ids.filter((i) => mine.includes(i) && tl.includes(i)); if (!want.length) continue;
+    const got = await renderFilm(film, { ids: want });
+    for (const id of want) { n++; const ok = JSON.stringify(got[id]) === JSON.stringify(H[id]); if (!ok) { bad++; console.log(`✗ ${id}: ${FRACS.filter((f) => got[id]?.[f] !== H[id]?.[f]).join(' ')}`); } else console.log(`✓ ${id}`); }
+  }
+  console.log(`${n} shots DSL, ${bad} difieren`); process.exit(bad ? 1 : 0);
+}
