@@ -6,7 +6,7 @@ export const VERT = /* glsl */ `
 precision highp float;
 varying vec3 vN; varying vec3 vC; varying float vDepth;
 #ifdef WORLD
-varying vec3 vW; varying vec3 vNW; varying vec3 vVP; varying float vAOH;
+varying vec3 vW; varying vec3 vNW; varying vec3 vVP; varying float vAOH; varying vec3 vLoc; varying vec3 vSc;
 #endif
 uniform vec2 uRes; uniform float uHullPx;
 void main() {
@@ -26,7 +26,7 @@ void main() {
   vN = normalize(normalMatrix * n);
   vDepth = -mv.z;
   #ifdef WORLD
-    vW = p; vNW = normalize(n); vVP = mv.xyz;
+    vW = p; vNW = normalize(n); vVP = mv.xyz; vLoc = position; vSc = sqrt(s2);
     #ifdef USE_INSTANCING
       vAOH = max(1e-4, 0.2 * sqrt(s2.y));
     #else
@@ -47,7 +47,7 @@ export const FRAG = /* glsl */ `
 precision highp float;
 varying vec3 vN; varying vec3 vC; varying float vDepth;
 #ifdef WORLD
-varying vec3 vW; varying vec3 vNW; varying vec3 vVP; varying float vAOH;
+varying vec3 vW; varying vec3 vNW; varying vec3 vVP; varying float vAOH; varying vec3 vLoc; varying vec3 vSc;
 #endif
 uniform vec3 uL; uniform vec3 uInk; uniform vec3 uLine; uniform vec3 uBg; uniform vec3 uFogC;
 uniform float uFogD; uniform float uBands; uniform float uSnap; uniform float uHatch; uniform float uShadowMix; uniform float uMask;
@@ -77,7 +77,7 @@ uniform vec3 uBright; uniform vec3 uDark; uniform float uGroundLit; uniform vec3
 uniform float uAO; uniform float uGY;
 #endif
 #ifdef RIM
-uniform vec3 uRimC; uniform float uRimS;
+uniform vec3 uRimC; uniform float uRimS; uniform float uRimPx; uniform float uPxU;
 #endif
 // color del fondo a la altura del fragmento: plano, o muestreo del degradado vertical (niebla = lo que hay detrás, no un color fijo)
 vec3 fogCol() {
@@ -165,14 +165,25 @@ void main() {
       col = mix(col, shade, step(0.85, dk) * 0.5);
     #endif
     #if defined(RIM) && MODE > 0
-      // luz de borde: el color de acento en el contorno del lado que da la espalda a la luz clave (separa el volumen del fondo)
-      float fr = 1.0 - clamp(dot(n, normalize(-vVP)), 0.0, 1.0);
-      #if MODE == 1
-        float rm = step(0.62, fr);
+      // luz de borde (color de acento) en el lado que da la espalda a la luz clave: separa el volumen del fondo.
+      // RIMK 2 (cajas): banda de uRimPx píxeles en las aristas de la cara; RIMK 1/3 (curvos): fresnel (3: solo la pared, no las tapas).
+      float rm = 0.0;
+      #if RIMK == 2
+        vec3 dd = (0.5 - abs(vLoc)) * vSc;
+        float d2 = dd.x + dd.y + dd.z - min(dd.x, min(dd.y, dd.z)) - max(dd.x, max(dd.y, dd.z));
+        rm = 1.0 - smoothstep(uRimPx * 0.7, uRimPx, d2 * uPxU / max(vDepth, 1e-3));
       #else
-        float rm = smoothstep(0.5, 0.95, fr);
+        float fr = 1.0 - clamp(dot(n, normalize(-vVP)), 0.0, 1.0);
+        #if MODE == 1
+          rm = step(0.62, fr);
+        #else
+          rm = smoothstep(0.5, 0.95, fr);
+        #endif
+        #if RIMK == 3
+          rm *= 1.0 - step(0.7, abs(normalize(vNW).y));
+        #endif
       #endif
-      col = mix(col, uRimC, rm * smoothstep(0.25, -0.35, ndl) * uRimS);
+      col = mix(col, uRimC, rm * smoothstep(0.35, -0.2, ndl) * uRimS);
     #endif
     #ifdef GRAD
       col = snapPal(col); col = mix(col, fogCol(), fogK);

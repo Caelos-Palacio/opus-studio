@@ -73,7 +73,7 @@ export function createWorld3d() {
           buildKey: JSON.stringify([S.palette, W3.shading, line !== false]), bands: W3.bands, snap: W3.snap ?? { toon: 0.8, soft: 0.25, ink: 0.7 }[W3.shading] ?? 0.7, hatchPx: W3.hatch * k * 2, shadowMix: W3.shadowMix, contactAlpha: W3.contact,
           lightDir: new THREE.Vector3(lightDir.x, lightDir.y, lightDir.z).normalize(), fogDensity: fogD, cam, overrides: ev(o.overrides, tt),
           fx: { ...fxOn, grad: !!bgStops, hard: W3.shading === 'toon', catcher }, bgStops, pass: o.pass, unitH: o.unitH, refCam: { az: refCam.az, el: refCam.el, roll: 0, target: refCam.target },
-          ao: W3.ao ?? 0, rim: W3.rim || null, shadowMap: W3.shadowMap, shadowStrength: W3.shadowStrength, groundLit: W3.groundLit, hardShadow: W3.shading === 'toon',
+          ao: W3.ao ?? 0, rim: W3.rim || null, rimPx: (W3.rim?.width ?? 3) * k, shadowMap: W3.shadowMap, shadowStrength: W3.shadowStrength, groundLit: W3.groundLit, hardShadow: W3.shading === 'toon',
         });
       };
       let out;

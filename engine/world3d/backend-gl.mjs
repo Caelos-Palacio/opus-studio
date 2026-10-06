@@ -52,18 +52,19 @@ export function loadBackend() {
     // v2 (spec 009)
     uMask: { value: 0 }, uShT: { value: null }, uShM: { value: new THREE.Matrix4() }, uShP: { value: new THREE.Vector4(1, 0.002, 0, 1) }, uShStr: { value: 1 }, uShA: { value: 0.8 },
     uBgG: { value: Array.from({ length: 8 }, () => new THREE.Vector3()) }, uBgN: { value: 1 }, uBright: { value: new THREE.Vector3() }, uDark: { value: new THREE.Vector3() },
-    uGroundLit: { value: 0 }, uPool: { value: new THREE.Vector3(0, 0, 1e9) }, uAO: { value: 0 }, uGY: { value: 0 }, uRimC: { value: new THREE.Vector3() }, uRimS: { value: 0 },
+    uGroundLit: { value: 0 }, uPool: { value: new THREE.Vector3(0, 0, 1e9) }, uAO: { value: 0 }, uGY: { value: 0 }, uRimC: { value: new THREE.Vector3() }, uRimS: { value: 0 }, uRimPx: { value: 3 }, uPxU: { value: 1 },
   };
   const mats = new Map();
   // role: obj | ground | decal. fx = { shadow, ao, rim, grad, hard, catcher } (v2): cada combinación compila su variante; todo apagado = el sombreador de v1.
-  const material = (kind, hull, role = 'obj', fx = {}) => {
-    const key = `${kind}|${hull}|${role}|${role === 'decal' ? '' : [fx.shadow, fx.ao, fx.rim, fx.grad, fx.hard, fx.catcher].map((b) => (b ? 1 : 0)).join('')}`; let m = mats.get(key); if (m) return m;
+  const material = (kind, hull, role = 'obj', fx = {}, shape = 'sphere') => {
+    const rk = shape === 'box' ? 2 : shape === 'cylinder' || shape === 'cone' ? 3 : 1;
+    const key = `${kind}|${hull}|${role}|${rk}|${role === 'decal' ? '' : [fx.shadow, fx.ao, fx.rim, fx.grad, fx.hard, fx.catcher].map((b) => (b ? 1 : 0)).join('')}`; let m = mats.get(key); if (m) return m;
     if (role === 'decal') m = new THREE.ShaderMaterial({ uniforms: U, vertexShader: DECAL_VERT, fragmentShader: DECAL_FRAG, transparent: true, depthWrite: false, depthTest: true, side: THREE.DoubleSide, polygonOffset: true, polygonOffsetFactor: -2, polygonOffsetUnits: -2 });
     else {
       const md = mode[kind] ?? 1, d = { MODE: md };
       if (hull) d.HULL = 1; if (kind === 'emissive') d.EMIS = 1; if (fx.grad) d.GRAD = 1;
       if (role === 'ground') { if (fx.shadow) { d.GROUND = 1; d.WORLD = 1; d.SHADOW = 1; if (fx.hard) d.HARD = 1; if (fx.catcher) d.CATCH = 1; } }
-      else if (!hull && md > 0) { if (fx.shadow || fx.ao || fx.rim) d.WORLD = 1; if (fx.shadow) { d.SHADOW = 1; if (fx.hard) d.HARD = 1; } if (fx.ao) d.AO = 1; if (fx.rim) d.RIM = 1; }
+      else if (!hull && md > 0) { if (fx.shadow || fx.ao || fx.rim) d.WORLD = 1; if (fx.shadow) { d.SHADOW = 1; if (fx.hard) d.HARD = 1; } if (fx.ao) d.AO = 1; if (fx.rim) { d.RIM = 1; d.RIMK = rk; } }
       const catcher = role === 'ground' && fx.shadow && fx.catcher;
       m = new THREE.ShaderMaterial({ uniforms: U, vertexShader: VERT, fragmentShader: FRAG, defines: d, side: hull ? THREE.BackSide : THREE.FrontSide, ...(catcher ? { transparent: true, depthWrite: true } : {}) });
     }
@@ -94,7 +95,7 @@ export function loadBackend() {
     const grow = (x, y, z, r) => { bnd.min[0] = Math.min(bnd.min[0], x - r); bnd.min[1] = Math.min(bnd.min[1], y - r); bnd.min[2] = Math.min(bnd.min[2], z - r); bnd.max[0] = Math.max(bnd.max[0], x + r); bnd.max[1] = Math.max(bnd.max[1], y + r); bnd.max[2] = Math.max(bnd.max[2], z + r); };
     const col = (c) => hex(palette[c] ?? c ?? '#ffffff');
     const ground = spec.ground, gy = ground?.y ?? 0, tmp = new THREE.Color();
-    const addMesh = (shape, kind, count, outline, order, role = 'obj') => { const mesh = new THREE.InstancedMesh(geom(shape), material(kind, false, role, fx), count); mesh.frustumCulled = false; mesh.renderOrder = order; root.add(mesh);
+    const addMesh = (shape, kind, count, outline, order, role = 'obj') => { const mesh = new THREE.InstancedMesh(geom(shape), material(kind, false, role, fx, shape), count); mesh.frustumCulled = false; mesh.renderOrder = order; root.add(mesh);
       if (outline) { const h = new THREE.InstancedMesh(geom(shape), material(kind, true, 'obj', fx), count); h.frustumCulled = false; h.renderOrder = order; root.add(h); hullMeshes.push(h); mesh.userData.hull = h; } return mesh; };
     if (ground) {
       const g = addMesh('plane', ground.mat ?? 'flat', 1, false, 0, 'ground'); setMat(g, 0, [0, gy, 0], [-90, 0, 0], [ground.size ?? 4000, ground.size ?? 4000, 1]);
@@ -171,11 +172,11 @@ export function loadBackend() {
       const lum = (c) => 0.2126 * c[0] + 0.7152 * c[1] + 0.0722 * c[2], cols = Object.values(p.palette).map(hex), br = cols.reduce((a, b) => (lum(b) > lum(a) ? b : a)), dk = cols.reduce((a, b) => (lum(b) < lum(a) ? b : a));
       v(U.uBright, br); U.uDark.value.set(dk[0] * 0.45, dk[1] * 0.45, dk[2] * 0.45); U.uGroundLit.value = p.groundLit ?? 0.12; U.uShA.value = p.shadowStrength ?? 0.8; U.uShStr.value = p.shadowStrength ?? 0.8;
     }
-    U.uAO.value = p.ao ?? 0; U.uGY.value = built.gy ?? 0; { const rc = hex(p.palette[p.rim?.color ?? 'accent'] ?? p.rim?.color ?? p.palette.accent ?? '#ffffff'); v(U.uRimC, rc); U.uRimS.value = p.rim?.strength ?? 0.85; }
+    U.uAO.value = p.ao ?? 0; U.uGY.value = built.gy ?? 0; { const rc = hex(p.palette[p.rim?.color ?? 'accent'] ?? p.rim?.color ?? p.palette.accent ?? '#ffffff'); v(U.uRimC, rc); U.uRimS.value = p.rim?.strength ?? 0.85; U.uRimPx.value = (p.rimPx ?? 3) * ss; }
     // cámara (fov, lens shift del shot, truck/dolly por parallax)
     const c = { ...p.cam, target: [...p.cam.target] }, T = c.target, dist = c.dist / (c.zoom || 1); cam.fov = c.fov; cam.aspect = W / H; cam.near = c.near; cam.far = c.far; cam.updateProjectionMatrix();
     if (c.shiftY) { cam.projectionMatrix.elements[9] = -c.shiftY; cam.projectionMatrixInverse.copy(cam.projectionMatrix).invert(); }
-    poseCam(c, cam, dist);
+    poseCam(c, cam, dist); U.uPxU.value = SH / (2 * Math.tan(c.fov * Math.PI / 360));
     if (c.pan && (c.pan[0] || c.pan[1])) {                                  // parallax: truck en el plano del foco (px del shot → mundo); lo lejano se mueve menos, lo cercano más
       const wpp = (2 * dist * Math.tan(c.fov * Math.PI / 360)) / (p.unitH || H), e = cam.matrixWorld.elements;
       v3a.set(e[0], e[1], e[2]).multiplyScalar(-c.pan[0] * wpp); v3b.set(e[4], e[5], e[6]).multiplyScalar(c.pan[1] * wpp); v3a.add(v3b);
