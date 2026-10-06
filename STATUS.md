@@ -19,9 +19,9 @@ Definición (gates.json); el estado de cierre está en la parte viva.
 | spec | título | última nota humana |
 |---|---|---|
 | [001-epico-vibrante.md](docs/specs/001-epico-vibrante.md) | 001 — Del "correcto" al "épico y vibrante" | potencias + música PoC · 6–7 · la música mejora; quizá más el beat de tensión; falta refinar y sistematizar; mejorar TODO el soundtrack, no solo la música → spe |
-| [002-soundtrack.md](docs/specs/002-soundtrack.md) | 002 — Soundtrack como sistema (no solo música) | potencias v2 · pendiente de calificación · soundtrack completo (música + diseño sonoro + mezcla); medibles en verde, falta el oído del usuario |
+| [002-soundtrack.md](docs/specs/002-soundtrack.md) | 002 — Soundtrack como sistema (no solo música) | potencias v2 · **8** (2026-10-05) · "algo mejor, sí": objetivo ≥ 8 alcanzado en soundtrack; música + diseño sonoro + mezcla sistematizados |
 | [003-mundo-visual.md](docs/specs/003-mundo-visual.md) | 003 — Mundo visual: personalidad y gusto (no fondo negro) | regla / reel / mate v1 · "bien, no wow" · fondo negro monótono; falta personalidad y gusto |
-| [004-world3d.md](docs/specs/004-world3d.md) | 004 — world3d: 3D real integrado sin costuras | world3d v1 (datacenter D01 + variante w3d de Potencias P03) · — · implementado (docs/handoff/world3d.md); pendiente de juicio de gusto |
+| [004-world3d.md](docs/specs/004-world3d.md) | 004 — world3d: 3D real integrado sin costuras | world3d v1 (datacenter D01 + variante w3d de Potencias P03) · **8** (2026-10-05) · bien para demo, fluido, estilo acorde; PERO plano, falla la integración con e |
 | [005-metricas.md](docs/specs/005-metricas.md) | 005 — Métricas con sentido: unidades reales y estandarizables | sin nota |
 | [006-semantica.md](docs/specs/006-semantica.md) | 006 — Semántica al límite: el vídeo como datos con significado | sin nota |
 | [007-orquestacion.md](docs/specs/007-orquestacion.md) | 007 · Orquestación al límite (paso 4 del roadmap) | sin nota |
@@ -39,7 +39,7 @@ Archivos (test/*.mjs): `arc.mjs` `bench-skia.mjs` `critic.mjs` `cut-render.mjs` 
 <!-- estatico:fin -->
 
 ---
-## Estado vivo (2026-10-05T21:19Z, no verificado)
+## Estado vivo (2026-10-06T04:22Z, no verificado)
 
 ## Veredictos
 
@@ -55,11 +55,33 @@ Film activo: `main` · engineHash `1492bbf608d76925ca9ddca6fd8bfae04b0cdf40b8cf5
 
 ## Ramas sin integrar
 
-- ninguna
+- `backup/pre-limpieza` (+136 commits)
+- `gobernanza` (+96 commits)
+- `harness` (+101 commits)
+- `medios` (+57 commits)
+- `metricas` (+76 commits)
+- `orquestacion` (+101 commits)
+- `perf` (+53 commits)
+- `semantica` (+101 commits)
+- `video-mate` (+33 commits)
+- `video-reel` (+34 commits)
+- `video-regla` (+34 commits)
+- `webgl` (+54 commits)
+- `worktree-agent-a049889bf20ebb2cd` (+13 commits)
+- `worktree-agent-a1f3f4cce9534ba97` (+13 commits)
+- `worktree-agent-a351ba6d1439c5e43` (+1 commits)
+- `worktree-agent-a45af98f7a4cfb3f6` (+2 commits)
+- `worktree-agent-a55c05dc1fd0f272f` (+60 commits)
+- `worktree-agent-a616aaafdca8853f3` (+16 commits)
+- `worktree-agent-ab093d854c5aaefeb` (+13 commits)
+- `worktree-agent-abde1344f4aeba643` (+1 commits)
+- `worktree-agent-aeb50bfa4294a3a73` (+1 commits)
+- `worktree-agent-aeecba00c45e50119` (+2 commits)
+- `world3d` (+75 commits)
 
 ## Último run de tests
 
-- 2026-10-05T21:19:24.996Z: 1 fallos
+- 2026-10-05T21:38:42.545Z: todo verde
 
 ## Ledger
 

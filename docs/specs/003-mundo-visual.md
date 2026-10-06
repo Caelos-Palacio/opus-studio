@@ -66,4 +66,4 @@ Todos los escenarios miden fotogramas reales (640×360) en los instantes 6, 30, 
 | versión | nota | comentario |
 |---|---|---|
 | mate v1 (nocturno) | "bien, no wow" (hereda la crítica de 003) | fondo negro plano |
-| mate_papel (medio papel crema + tinta cobalto/violeta) | pendiente de calificación | A/B en out/ab/mate.jpg; falta el ojo del usuario |
+| mate_papel (medio papel crema + tinta cobalto/violeta) | **9,5** (2026-10-05) | "muy god"; único reparo: tal vez el efecto del morado (acento violeta) |

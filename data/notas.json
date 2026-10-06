@@ -1,13 +1,104 @@
 {
   "descripcion": "Notas del usuario por versión (specs 001–003). medible=true solo si la versión calificada coincide con el film medido hoy; si no, la nota se conserva pero no entra en la calibración.",
   "notas": [
-    { "film": "stress/potencias", "version": "potencias v1", "dim": "general", "nota": 5, "texto": "monótona, apresurada, audio pobre, no épica", "fuente": "001", "medible": false },
-    { "film": "stress/potencias", "version": "potencias + música PoC", "dim": "audio", "nota": 6.5, "texto": "6–7", "fuente": "001/002", "medible": false },
-    { "film": "stress/potencias", "version": "sfx originales", "dim": "audio", "nota": 5, "texto": "planos, monótonos", "fuente": "002", "medible": false },
-    { "film": "regla", "version": "regla v1", "dim": "general", "nota": null, "texto": "bien, no wow", "fuente": "003", "medible": false },
-    { "film": "reel", "version": "reel v1", "dim": "general", "nota": null, "texto": "bien, no wow", "fuente": "003", "medible": false },
-    { "film": "mate", "version": "mate v1 (nocturno)", "dim": "general", "nota": null, "texto": "bien, no wow", "fuente": "003", "medible": false },
-    { "film": "mate_papel", "version": "mate_papel", "dim": "general", "nota": null, "texto": "pendiente de calificación", "fuente": "003", "medible": true },
-    { "film": "stress/potencias", "version": "potencias v2", "dim": "audio", "nota": null, "texto": "pendiente de calificación", "fuente": "002", "medible": true }
+    {
+      "film": "stress/potencias",
+      "version": "potencias v1",
+      "dim": "general",
+      "nota": 5,
+      "texto": "monótona, apresurada, audio pobre, no épica",
+      "fuente": "001",
+      "medible": false
+    },
+    {
+      "film": "stress/potencias",
+      "version": "potencias + música PoC",
+      "dim": "audio",
+      "nota": 6.5,
+      "texto": "6–7",
+      "fuente": "001/002",
+      "medible": false
+    },
+    {
+      "film": "stress/potencias",
+      "version": "sfx originales",
+      "dim": "audio",
+      "nota": 5,
+      "texto": "planos, monótonos",
+      "fuente": "002",
+      "medible": false
+    },
+    {
+      "film": "regla",
+      "version": "regla v1",
+      "dim": "general",
+      "nota": null,
+      "texto": "bien, no wow",
+      "fuente": "003",
+      "medible": false
+    },
+    {
+      "film": "reel",
+      "version": "reel v1",
+      "dim": "general",
+      "nota": null,
+      "texto": "bien, no wow",
+      "fuente": "003",
+      "medible": false
+    },
+    {
+      "film": "mate",
+      "version": "mate v1 (nocturno)",
+      "dim": "general",
+      "nota": null,
+      "texto": "bien, no wow",
+      "fuente": "003",
+      "medible": false
+    },
+    {
+      "film": "mate_papel",
+      "version": "mate_papel",
+      "dim": "general",
+      "nota": null,
+      "texto": "pendiente de calificación",
+      "fuente": "003",
+      "medible": true
+    },
+    {
+      "film": "stress/potencias",
+      "version": "potencias v2",
+      "dim": "audio",
+      "nota": null,
+      "texto": "pendiente de calificación",
+      "fuente": "002",
+      "medible": true
+    },
+    {
+      "film": "stress/potencias",
+      "version": "potencias v2",
+      "dim": "audio",
+      "nota": 8,
+      "texto": "algo mejor, sí",
+      "fuente": "002",
+      "medible": true
+    },
+    {
+      "film": "mate_papel",
+      "version": "mate_papel",
+      "dim": "visual",
+      "nota": 9.5,
+      "texto": "muy god; tal vez el efecto del morado",
+      "fuente": "003",
+      "medible": true
+    },
+    {
+      "film": "world3d",
+      "version": "world3d v1",
+      "dim": "visual",
+      "nota": 8,
+      "texto": "fluido y estilo acorde; plano; falla integración con escenario y ángulo",
+      "fuente": "004",
+      "medible": true
+    }
   ]
 }
