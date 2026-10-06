@@ -5,7 +5,7 @@ Escribes: out/**, docs/handoff/**, .trash/**, shots/{ids}.mjs  (roles.json, modo
 
 Lee (puntero ruta@digest):
 - CLAUDE.md@fdb70ee2
-- docs/HANDOFF.md@0bfb99d6
+- docs/HANDOFF.md@13d13053
 - CRAFT.md@294b906c
 - docs/API.md@0dccb895
 - AGENTES.md@3dc8b85e

@@ -30,7 +30,14 @@ export function globRe(g) {
   return new RegExp('^' + re + '$');
 }
 export const loadRoles = () => { try { return JSON.parse(fs.readFileSync(ROLES_FILE, 'utf8')); } catch { return { mode: 'observer', roles: { director: ['**'] } }; } };   // roles.json ilegible: fail-open (observer), no bloquear a todos
-export const rel = (p) => { const a = path.resolve(ROOT, p), r = path.relative(ROOT, a); return r.startsWith('..') || path.isAbsolute(r) ? null : r.split(path.sep).join('/'); };
+// realpath del ancestro existente más profundo + el resto: en macOS /var → /private/var (tmp por symlink) y ROOT (import.meta.url) es real.
+const realish = (a) => { const tail = []; let d = a; for (;;) { try { return path.join(fs.realpathSync(d), ...tail.reverse()); } catch { const up = path.dirname(d); if (up === d) return a; tail.push(path.basename(d)); d = up; } } };
+const REAL_ROOT = realish(ROOT);
+export const rel = (p) => {
+  const a = path.resolve(ROOT, p); let r = path.relative(ROOT, a);
+  if (r.startsWith('..') || path.isAbsolute(r)) r = path.relative(REAL_ROOT, realish(a));     // ruta dada por otro camino (symlink) hacia el mismo árbol
+  return r.startsWith('..') || path.isAbsolute(r) ? null : r.split(path.sep).join('/');
+};
 
 export function canWrite(role = who().role, p, R = loadRoles()) {
   const r = rel(p); if (r === null) return { allow: true, rule: null, reason: 'fuera del proyecto' };

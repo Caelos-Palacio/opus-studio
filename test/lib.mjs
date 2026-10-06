@@ -13,7 +13,7 @@ const NEEDED = ['engine', 'shots', 'styles', 'data', 'assets', 'storyboard', 'pa
 
 // Copia temporal aislada (node_modules enlazado). fixture = dir con shots/ + timeline.json → shots/ y data/<name>.json
 export function copyRepo({ fixture, name = 'fixture' } = {}) {
-  const d = fs.mkdtempSync(path.join(os.tmpdir(), 'opus-test-'));
+  const d = fs.realpathSync(fs.mkdtempSync(path.join(os.tmpdir(), 'opus-test-')));   // realpath: en macOS tmpdir() = /var/… (symlink a /private/var) y el motor ve rutas reales
   for (const e of NEEDED) { const s = path.join(ROOT, e); if (fs.existsSync(s)) fs.cpSync(s, path.join(d, e), { recursive: true }); }
   fs.rmSync(path.join(d, 'data/autocam'), { recursive: true, force: true });        // cámaras horneadas locales: se regeneran
   fs.symlinkSync(path.join(ROOT, 'node_modules'), path.join(d, 'node_modules'));

@@ -5,7 +5,7 @@ Escribes: out/**, docs/handoff/**, .trash/**, engine/**, test/**, docs/**, MOTOR
 
 Lee (puntero ruta@digest):
 - CLAUDE.md@fdb70ee2
-- docs/HANDOFF.md@0bfb99d6
+- docs/HANDOFF.md@13d13053
 - MOTOR.md@b7bc5a44
 - docs/API.md@0dccb895
 - docs/EFICIENCIA.md@af889db4

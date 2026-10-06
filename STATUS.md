@@ -39,15 +39,15 @@ Archivos (test/*.mjs): `arc.mjs` `bench-skia.mjs` `critic.mjs` `cut-render.mjs` 
 <!-- estatico:fin -->
 
 ---
-## Estado vivo (2026-10-06T04:22Z, no verificado)
+## Estado vivo (2026-10-06T04:34Z, no verificado)
 
 ## Veredictos
 
-Film activo: `main` · engineHash `1492bbf608d76925ca9ddca6fd8bfae04b0cdf40b8cf53fc82400e0652e0bfbe` · filmHash `2ba9a9d721cb4a06`
+Film activo: `main` · engineHash `4115f575c7ed7695c38114cda530afb885601a4109b206eadd28b53483602469` · filmHash `2ba9a9d721cb4a06`
 
-- out/lint.json: SHIP · CADUCADO
+- out/lint.json: no existe
 - out/critic.json: no existe
-- veredictos por shot: 0 vigentes, 3 caducados
+- veredictos por shot: 0 vigentes, 0 caducados
 
 ### Estado de gates (out/gates.json)
 
@@ -56,9 +56,11 @@ Film activo: `main` · engineHash `1492bbf608d76925ca9ddca6fd8bfae04b0cdf40b8cf5
 ## Ramas sin integrar
 
 - `backup/pre-limpieza` (+136 commits)
+- `deuda` (+4 commits)
 - `gobernanza` (+96 commits)
 - `harness` (+101 commits)
 - `medios` (+57 commits)
+- `medios2` (+1 commits)
 - `metricas` (+76 commits)
 - `orquestacion` (+101 commits)
 - `perf` (+53 commits)
@@ -81,11 +83,11 @@ Film activo: `main` · engineHash `1492bbf608d76925ca9ddca6fd8bfae04b0cdf40b8cf5
 
 ## Último run de tests
 
-- 2026-10-05T21:38:42.545Z: todo verde
+- 2026-10-06T04:27:35.865Z: todo verde (--fast)
 
 ## Ledger
 
-- cadena: íntegra · 11 entradas (0 encadenadas, 11 heredadas, 0 firmadas) · códigos 100 %
+- cadena: íntegra · 0 entradas (0 encadenadas, 0 heredadas, 0 firmadas) · códigos 0 %
 
 ## Presupuestos
 

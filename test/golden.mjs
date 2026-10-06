@@ -6,8 +6,10 @@
 // Digest por fotograma: sha256 de los píxeles a tamaño completo (exacto) + miniatura RGB 160×90 por media de bloques 8×8.
 //   · Misma plataforma (huella = versiones de canvas/cairo/pango/freetype + métrica de fuentes): el motor es determinista,
 //     así que se exige igualdad BIT A BIT (un píxel distinto = fallo). La miniatura solo sirve para localizar el cambio.
-//   · Plataforma distinta: comparación perceptual con tolerancia (Δmax por celda y Δ medio; OPUS_GOLDEN_TOL="max,media").
-//     En este modo un píxel aislado (Δ≈3 en la miniatura) NO se detecta; un desplazamiento de 1 px de un borde sí.
+//   · Plataforma distinta (otras fuentes/cairo): comparación de COMPOSICIÓN: la miniatura se promedia en bloques de 8×8 celdas
+//     (64×64 px de fotograma) y se exige Δmax y Δ medio por bloque (OPUS_GOLDEN_TOL="max,media", por defecto 90,2).
+//     Calibrado simulando otra tipografía en Linux (fuente serif en lugar de sans, y Carlito): Δmax ≤ 41, Δ medio ≤ 0,6; un
+//     elemento movido, desaparecido o de otro color supera con holgura el umbral. NO detecta glifos ni píxeles sueltos.
 // Fuentes herméticas: el render corre con FONTCONFIG_FILE=test/golden/fonts.conf (solo DejaVu), así el texto no depende
 // de qué "Helvetica" tenga cada máquina.
 import { isMain } from '../engine/paths.mjs';
@@ -18,13 +20,13 @@ import { pathToFileURL } from 'node:url';
 import { ROOT, FONTS_CONF, copyRepo, rmrf, run } from './lib.mjs';
 
 const argv = process.argv.slice(2), has = (k) => argv.includes(k), arg = (k) => (has(k) ? argv[argv.indexOf(k) + 1] : null);
-const GDIR = path.join(ROOT, 'test/golden'), GW = 160;
-const [TOL_MAX, TOL_MEAN] = (process.env.OPUS_GOLDEN_TOL ?? '3,0.2').split(',').map(Number);
+const GDIR = path.join(ROOT, 'test/golden'), GW = 160, BLK = 8;
+const [TOL_MAX, TOL_MEAN] = (process.env.OPUS_GOLDEN_TOL ?? '90,2').split(',').map(Number);
 export const FILMS = [
   { name: 'demo', timeline: 'data/timeline.json' },
   { name: 'fixture', timeline: 'data/fixture.json', fixture: path.join(ROOT, 'test/fixtures/showcase') },
 ];
-const ENV = { FONTCONFIG_FILE: FONTS_CONF, OPUS_LAYERS: 'none' };   // golden = película base: las capas de contenido (data/layers/*, p.ej. memoria) no deben mover el golden del motor
+const ENV = { FONTCONFIG_FILE: process.env.OPUS_GOLDEN_FONTCONF ?? FONTS_CONF, OPUS_LAYERS: 'none' };   // golden = película base: las capas de contenido (data/layers/*, p.ej. memoria) no deben mover el golden del motor
 
 // ── worker: corre DENTRO de la copia (root) y escribe el digest JSON en stdout ─────────────────────────────────────
 async function worker(root) {
@@ -52,11 +54,11 @@ async function worker(root) {
 }
 
 // ── digest de un film (en ROOT para el demo; en copia temporal para fixture/mutaciones) ────────────────────────────
-export async function digest(F, { root = null, mutate = null } = {}) {
+export async function digest(F, { root = null, mutate = null, fonts = null } = {}) {
   const own = !root && (F.fixture || mutate), dir = root ?? (own ? copyRepo({ fixture: F.fixture, name: path.basename(F.timeline, '.json') }) : ROOT);
   try {
     if (mutate) for (const [file, edit] of Object.entries(mutate)) { const p = path.join(dir, file), a = fs.readFileSync(p, 'utf8'), b = edit(a); if (a === b) throw new Error(`mutación no aplicada en ${file}`); fs.writeFileSync(p, b); }
-    const env = { ...ENV, OPUS_TIMELINE: F.timeline };
+    const env = { ...ENV, ...(fonts ? { FONTCONFIG_FILE: fonts } : {}), OPUS_TIMELINE: F.timeline };
     if (F.fixture) { const a = await run(['engine/autocam.mjs'], { cwd: dir, env }); if (a.status) throw new Error('autocam falló: ' + a.stderr.slice(-400)); }
     const r = await run([path.join(ROOT, 'test/golden.mjs'), '--worker', dir], { cwd: dir, env });
     if (r.status) throw new Error(`render falló (${F.name}): ${r.stderr.slice(-600)}`);
@@ -101,9 +103,13 @@ export function compare(G, D, { strict = sameFp(G.fingerprint, D.fingerprint) } 
     if (!g) { bad.push({ key: key(f), why: 'fotograma nuevo (no hay golden)' }); continue; }
     if (Math.abs(g.t - f.t) > 1e-6) { bad.push({ key: key(f), why: `t ${g.t} → ${f.t}` }); continue; }
     if (g.sha === f.sha) { identical++; continue; }
-    const A = Buffer.from(g.thumb, 'base64'), B = Buffer.from(f.thumb, 'base64'); let mx = 0, at = 0, sum = 0;
-    for (let i = 0; i < A.length; i++) { const d = Math.abs(A[i] - B[i]); sum += d; if (d > mx) { mx = d; at = i; } }
-    const mean = sum / A.length, cell = Math.floor(at / 3), where = `x≈${Math.round(((cell % gw) + 0.5) * sx)} y≈${Math.round((Math.floor(cell / gw) + 0.5) * sx)}`;
+    const A = Buffer.from(g.thumb, 'base64'), B = Buffer.from(f.thumb, 'base64'), [, gh] = D.grid; let mx = 0, at = 0, sum = 0, nb = 0;
+    const bk = strict ? 1 : BLK;                                     // estricto: celda a celda (localiza); tolerante: bloques (composición)
+    for (let j = 0; j + bk <= gh; j += bk) for (let i = 0; i + bk <= gw; i += bk) for (let c = 0; c < 3; c++) {
+      let a = 0, b = 0; for (let y = 0; y < bk; y++) for (let x = 0; x < bk; x++) { const q = ((j + y) * gw + i + x) * 3 + c; a += A[q]; b += B[q]; }
+      const d = Math.abs(a - b) / (bk * bk); sum += d; nb++; if (d > mx) { mx = d; at = ((j + (bk >> 1)) * gw + i + (bk >> 1)) * 3; }
+    }
+    mx = Math.round(mx * 10) / 10; const mean = sum / nb, cell = Math.floor(at / 3), where = `x≈${Math.round(((cell % gw) + 0.5) * sx)} y≈${Math.round((Math.floor(cell / gw) + 0.5) * sx)}`;
     const fail = strict || mx > TOL_MAX || mean > TOL_MEAN;
     if (fail) bad.push({ key: key(f), why: `Δmax ${mx} Δmedia ${mean.toFixed(3)} (${where})${strict ? ' · bits distintos' : ''}` });
   }
@@ -113,6 +119,10 @@ export function compare(G, D, { strict = sameFp(G.fingerprint, D.fingerprint) } 
 
 // Mutaciones de 1 px para demostrar que el golden las detecta (y SOLO en el shot tocado).
 const inject = (code) => (s) => s.replace(/api\.text\(shot\.text,/, `${code} api.text(shot.text,`);
+// Otra tipografía (serif en lugar de sans) = simulación de plataforma con fuentes distintas (macOS): el modo tolerante debe aceptarla
+// y seguir detectando un cambio de composición (un cuadrado grande).
+export const ALT_FONTS = path.join(GDIR, 'fonts-alt.conf');
+export const BIG_MUTATION = { 'shots/A2.mjs': inject("ctx.save(); ctx['set'+'Transform'](1,0,0,1,0,0); ctx.fillStyle=api.color('ink'); ctx.fillRect(300,300,200,200); ctx.restore();") };
 export const PIXEL_MUTATIONS = [
   { name: 'golden-1px', files: { 'shots/A2.mjs': inject("ctx.save(); ctx['set'+'Transform'](1,0,0,1,0,0); ctx.fillStyle=api.color('ink'); ctx.fillRect(300,300,1,1); ctx.restore();") }, expect: /^A2@(in|mid|out)$/, n: 3 },
   // A3 es DSL (spec 006): su texto vive en el objeto "frase" de shots/A3.scene.json (generado en shots/A3.mjs)
@@ -130,6 +140,7 @@ async function main() {
   // mutaciones y repetición en paralelo: se comparan contra el digest actual del demo (misma máquina ⇒ siempre estricto)
   const extra = demoI >= 0 && !has('--no-selftest') ? [digest(films[demoI], {}), ...PIXEL_MUTATIONS.map((m) => digest(films[demoI], { mutate: m.files }))] : [];
   const X = await Promise.all(extra.map((p) => p.catch((e) => e)));
+  const alt = demoI >= 0 && !has('--no-selftest') ? await Promise.all([digest(films[demoI], { fonts: ALT_FONTS }), digest(films[demoI], { fonts: ALT_FONTS, mutate: BIG_MUTATION })].map((p) => p.catch((e) => e))) : [];
   for (const [i, F] of films.entries()) {
     const cur = D[i], G = cur instanceof Error ? null : await load(F.name);
     if (cur instanceof Error) { console.log(`✗ golden-${F.name.padEnd(9)} ${cur.message}`); fail++; continue; }
@@ -146,6 +157,15 @@ async function main() {
       const M = muts[i]; if (M instanceof Error || base instanceof Error) { console.log(`✗ ${m.name.padEnd(16)} ${(M instanceof Error ? M : base).message}`); fail++; continue; }
       const c = compare(base, M, { strict: true }), keys = c.bad.map((b) => b.key), ok = keys.length === m.n && keys.every((k) => m.expect.test(k));
       console.log(`${ok ? '✓' : '✗'} ${m.name.padEnd(16)} detecta ${keys.join(', ') || 'nada'}${ok ? '' : ` (esperado ${m.n} que casen ${m.expect})`}  ${c.bad[0]?.why ?? ''}`); if (!ok) fail++;
+    }
+  }
+  if (alt.length) {                                                       // modo tolerante calibrado: otra tipografía pasa, un cambio de composición no
+    const G = await load('demo');
+    if (alt.some((a) => a instanceof Error)) { console.log(`✗ golden-otra-fuente ${(alt.find((a) => a instanceof Error)).message}`); fail++; }
+    else {
+      const a = compare(G, alt[0], { strict: false }), b = compare(G, alt[1], { strict: false }), okA = !a.bad.length, okB = b.bad.some((x) => /^A2@/.test(x.key)) && !b.bad.some((x) => !/^A2@/.test(x.key));
+      console.log(`${okA ? '✓' : '✗'} golden-otra-fuente demo con tipografía distinta: ${okA ? 'tolerante OK' : a.bad.map((x) => x.key + ' ' + x.why).join(' | ')}`); if (!okA) fail++;
+      console.log(`${okB ? '✓' : '✗'} golden-tolerante-detecta un cuadrado de 200 px en A2 (${b.bad.map((x) => x.key).join(', ') || 'nada'})`); if (!okB) fail++;
     }
   }
   process.exitCode = fail ? 1 : 0;

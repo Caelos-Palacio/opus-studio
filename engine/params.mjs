@@ -6,7 +6,7 @@
 //   node engine/params.mjs diff [capa]                     rutas que cambia cada capa (o una) respecto a lo anterior
 //   node engine/params.mjs check                           valida capas + parámetros (exit 1 si hay errores)
 //   [--timeline data/x.json] [--variant 9x16,en] [--layers dir|none]   (o OPUS_TIMELINE / OPUS_VARIANT / OPUS_LAYERS)
-// Capas: data/layers/*.json (film main) o data/layers/<film>/*.json. Contrato: docs/PARAMS.md.
+// Capas: data/layers/*.json (film main), <carpeta del film>/layers/*.json (films con carpeta) o data/layers/<film>/*.json. Contrato: docs/PARAMS.md.
 import './help.mjs';
 import { isMain, rootFrom } from './paths.mjs';
 import { announceFilm } from './filmid.mjs';
@@ -15,7 +15,7 @@ import path from 'node:path';
 import { resolve, explain, getPointer, toDoc, LayerError } from './resolve.mjs';
 import { FIELD_PARAMS, PARAM_TYPES, isBinding, bindingDeps } from './signal.mjs';
 import { validateLayer, assertTimeline, suggest } from './schema.mjs';
-import { filmId, activeTimeline } from './filmid.mjs';
+import { filmId, activeTimeline, filmFolder, filmDir } from './filmid.mjs';
 
 for (const k of ['timeline', 'variant', 'layers']) { const i = process.argv.indexOf('--' + k); if (i >= 0 && process.argv[i + 1]) process.env['OPUS_' + k.toUpperCase()] = process.argv[i + 1]; }
 export const ROOT = rootFrom(import.meta.url);
@@ -23,7 +23,12 @@ export const ROOT = rootFrom(import.meta.url);
 export const layersDir = (timeline = activeTimeline()) => {
   const e = process.env.OPUS_LAYERS; if (e === 'none') return null;
   if (e) return path.resolve(ROOT, e);
-  const f = filmId(timeline); return path.join(ROOT, 'data/layers', f === 'main' ? '' : f);
+  // Convención: las capas viven en la carpeta del film (<carpeta>/layers) si el film tiene carpeta propia (data/<film>/timeline.json
+  // o data/<film>/<film>.json) y esa carpeta existe; si no, data/layers/<film> (demo: data/layers). Un film suelto en una carpeta
+  // compartida (data/stress/*.json) no la usa: heredaría capas ajenas.
+  const f = filmId(timeline), d = filmFolder(timeline);
+  if (f !== 'main' && d && (filmDir(timeline) || path.basename(d) === f) && fs.existsSync(path.join(ROOT, d, 'layers'))) return path.join(ROOT, d, 'layers');
+  return path.join(ROOT, 'data/layers', f === 'main' ? '' : f);
 };
 export const selectedVariants = () => (process.env.OPUS_VARIANT ?? '').split(',').map((s) => s.trim()).filter(Boolean);
 // Capas en disco, validadas ($defs.layer). name por defecto = nombre del archivo.

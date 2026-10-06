@@ -6,6 +6,7 @@
 //   node engine/dsl.mjs diff <a> <b> [--json]        diff SEMÁNTICO (objetos/params/cues añadidos, quitados, cambiados)
 //   node engine/dsl.mjs deps <escena> [--json] [param]   dependencias exactas por objeto (o: qué objetos leen ese param)
 // <escena> = archivo .scene.json, o un shots/X.mjs generado/DSL (se importa y se lee su .dsl).
+import { isMain } from './paths.mjs';
 import './help.mjs';
 import fs from 'node:fs';
 import path from 'node:path';
@@ -28,7 +29,7 @@ export function build(rel, { root = ROOT, check = false } = {}) {
   const changed = cur !== code; if (changed && !check) fs.writeFileSync(path.join(root, out), code);
   return { file: out, changed };
 }
-if (process.argv[1] && path.resolve(process.argv[1]) === path.resolve(new URL(import.meta.url).pathname)) {
+if (isMain(import.meta.url)) {
   const argv = process.argv.slice(2), [cmd, a, b] = argv, json = argv.includes('--json'), check = argv.includes('--check');
   try {
     if (cmd === 'validate') { const f = validateScene(await loadScene(a)); for (const x of f) console.log(`FIX ${x.path}: ${x.message}${x.remedy ? ' → ' + x.remedy : ''}`); console.log(f.length ? `${f.length} FIX` : 'escena válida'); process.exit(f.length ? 1 : 0); }
