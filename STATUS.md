@@ -41,11 +41,11 @@ Archivos (test/*.mjs): `arc.mjs` `bench-skia.mjs` `critic.mjs` `cut-render.mjs` 
 <!-- estatico:fin -->
 
 ---
-## Estado vivo (2026-10-06T04:38Z, no verificado)
+## Estado vivo (2026-10-06T04:55Z, no verificado)
 
 ## Veredictos
 
-Film activo: `main` · engineHash `4115f575c7ed7695c38114cda530afb885601a4109b206eadd28b53483602469` · filmHash `2ba9a9d721cb4a06`
+Film activo: `main` · engineHash `bf50de6f6b773acff160240898303db6bd54b63b0e3a2a902c5d7f96b4500505` · filmHash `2ba9a9d721cb4a06`
 
 - out/lint.json: SHIP · CADUCADO
 - out/critic.json: no existe
@@ -61,9 +61,8 @@ Film activo: `main` · engineHash `4115f575c7ed7695c38114cda530afb885601a4109b20
 - `gobernanza` (+96 commits)
 - `harness` (+101 commits)
 - `medios` (+57 commits)
-- `medios2` (+3 commits)
 - `metricas` (+76 commits)
-- `motor` (+3 commits)
+- `motor` (+5 commits)
 - `orquestacion` (+101 commits)
 - `perf` (+53 commits)
 - `semantica` (+101 commits)
@@ -82,10 +81,11 @@ Film activo: `main` · engineHash `4115f575c7ed7695c38114cda530afb885601a4109b20
 - `worktree-agent-aeb50bfa4294a3a73` (+1 commits)
 - `worktree-agent-aeecba00c45e50119` (+2 commits)
 - `world3d` (+75 commits)
+- `world3d2` (+2 commits)
 
 ## Último run de tests
 
-- 2026-10-05T21:38:42.545Z: todo verde
+- 2026-10-06T04:55:25.552Z: todo verde (--fast)
 
 ## Ledger
 
