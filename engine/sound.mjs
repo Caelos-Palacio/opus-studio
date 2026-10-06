@@ -82,10 +82,11 @@ export function build(tl, { memoria, tag = filmId(timelinePath()) } = {}) {
   const T = {}, tm = (k, f) => { const t0 = Date.now(); const r = f(); T[k] = Date.now() - t0; return r; };
   const sd = tl.sound ?? { style: 'epico' }, style = loadSoundStyle(sd.style ?? 'epico', sd.overrides ?? {}), mem = memoria ?? memoriaOf(tl);
   const plan = tm('plan', () => analyzeFilm(tl, mem, style)), part = tm('compose', () => composeScore(plan, style)), N = Math.ceil((tl.duration + 1.5) * SR);
-  const sj = JSON.stringify(style), pfp = fingerprint(plan, { skip: ['mem', 'ctx'], fn: plan.intensity, dur: plan.dur + 2 });
-  const M = tm('music', () => memo(tag, 'music', sha('music', codeSig('engine/score.mjs'), sj, N, pfp, JSON.stringify(part.notes)), () => { const m = renderScore(part, plan, style, { N }); return { arrays: [m.L, m.R] }; }));
+  // Claves = SOLO lo que cada etapa lee: renderScore lee la partitura + {impacts, vac, rev0, ret, dur} + I(t); renderEvents, los eventos + I(t). (El plan lleva shots y sfx enteros: no sirven de clave.)
+  const sj = JSON.stringify(style), pI = fingerprint(null, { fn: plan.intensity, dur: plan.dur + 2 }), pM = fingerprint({ impacts: plan.impacts, vac: plan.vac, rev0: plan.rev0, ret: plan.ret, dur: plan.dur });
+  const M = tm('music', () => memo(tag, 'music', sha('music', codeSig('engine/score.mjs'), sj, N, pI, pM, JSON.stringify(part.notes)), () => { const m = renderScore(part, plan, style, { N }); return { arrays: [m.L, m.R] }; }));
   const music = { L: M.arrays[0], R: M.arrays[1] }, events = tm('design', () => designEvents(tl, plan, style));
-  const E = tm('events', () => memo(tag, 'events', sha('events', codeSig('engine/sounddesign.mjs'), sj, N, pfp, JSON.stringify(events)), () => {
+  const E = tm('events', () => memo(tag, 'events', sha('events', codeSig('engine/sounddesign.mjs'), sj, N, pI, JSON.stringify(events)), () => {
     const { buses: b } = renderEvents(events, plan, style, N);
     return { arrays: [b.sfx.L, b.sfx.R, b.hit.L, b.hit.R, b.amb.L, b.amb.R], meta: { leads: events.map((e) => e.lead) } };
   }));
