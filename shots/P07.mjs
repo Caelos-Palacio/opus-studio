@@ -1,25 +1,331 @@
-import { seg } from '../engine/core.mjs';
-import { ride, hud, caption, winRide, geo, proj, Lof, LY, PROXIMA } from './P_mundo.mjs';
-// 10^15–10^18 m: un año luz (barra de escala) y Próxima Centauri; las estrellas vecinas entran con estela (motion blur).
-export default {
-  entities: { win: winRide },
-  draw(ctx, t, u, shot, film, api) {
-    ride(ctx, api, film, t);
-    const G = geo(film), L = Lof(t), { ppm, P } = proj(G, L), a2 = api.color('accent2');
-    const b = seg(t, 33.2, 33.6) * (1 - seg(t, 34.7, 35.1)), w = LY * ppm, y = G.cy + G.S0 * 0.62;   // 1 año luz
-    if (b > 0 && w < G.W) {
-      ctx.save(); ctx.strokeStyle = a2; ctx.globalAlpha = b; ctx.lineWidth = 2; ctx.beginPath();
-      ctx.moveTo(G.cx - w / 2, y); ctx.lineTo(G.cx + w / 2, y); ctx.moveTo(G.cx - w / 2, y - 6); ctx.lineTo(G.cx - w / 2, y + 6); ctx.moveTo(G.cx + w / 2, y - 6); ctx.lineTo(G.cx + w / 2, y + 6);
-      ctx.stroke(); ctx.restore();
-    }
-    const [px, py] = P(...PROXIMA), pa = seg(L, 16.0, 16.4);                                        // Próxima: estrella + anillo cian
-    if (pa > 0 && px > -20 && px < G.W + 20 && py > -20 && py < G.H + 20) {
-      ctx.save(); ctx.fillStyle = api.color('ink'); ctx.globalAlpha = pa; ctx.beginPath(); ctx.arc(px, py, 2.6, 0, 6.2832); ctx.fill();
-      ctx.strokeStyle = a2; ctx.lineWidth = 1.5; ctx.globalAlpha = pa * (1 - seg(t, 37.0, 37.5)); ctx.beginPath(); ctx.arc(px, py, 11, 0, 6.2832); ctx.stroke(); ctx.restore();
-      api.focus(px - 12, py - 12, 24, 24, 'Próxima Centauri', { weight: 1 });
-    } else api.focus(G.cx - 8, G.cy - 8, 16, 16, 'el Sol', { weight: 1 });
-    hud(api, film, t);
-    caption(api, film, t, 33.3, 35.0, 'UN AÑO LUZ', String.raw`9{,}5\times10^{15}\,\mathrm{m}`);
-    caption(api, film, t, 35.1, 36.95, 'PRÓXIMA CENTAURI', String.raw`4\times10^{16}\,\mathrm{m}`);
+// GENERADO desde shots/P07.scene.json por `node engine/dsl.mjs build` (spec 006). No editar a mano: edita el .scene.json y regenera.
+import { shot } from '../engine/dsl-core.mjs';
+import * as P_mundo from './P_mundo.mjs';
+import * as P_dsl from './P_dsl.mjs';
+export default shot({
+ "dsl": 1,
+ "id": "P07",
+ "doc": "10^15–10^18 m: un año luz (barra de escala) y Próxima Centauri; las estrellas vecinas entran con estela (motion blur).",
+ "libs": {
+  "P_mundo": "./P_mundo.mjs",
+  "P_dsl": "./P_dsl.mjs"
+ },
+ "fns": {
+  "Lof": {
+   "lib": "P_mundo",
+   "fn": "Lof"
   },
-};
+  "ppmOf": {
+   "lib": "P_dsl",
+   "fn": "ppmOf"
+  },
+  "projPt": {
+   "lib": "P_dsl",
+   "fn": "projPt"
+  }
+ },
+ "entities": {
+  "win": {
+   "lib": "P_mundo",
+   "fn": "winRide",
+   "fields": [],
+   "reads": []
+  }
+ },
+ "objects": [
+  {
+   "id": "viaje",
+   "type": "world",
+   "lib": "P_mundo",
+   "fn": "ride",
+   "args": [
+    "ctx",
+    "api",
+    "film",
+    "t"
+   ],
+   "semantic": "el viaje de escala: cielo, estrellas, suelo, sistema solar, ventana (continuidad exacta en cada corte)"
+  },
+  {
+   "id": "G",
+   "type": "let",
+   "lib": "P_mundo",
+   "fn": "geo",
+   "args": [
+    "film"
+   ],
+   "fields": [
+    "S0",
+    "cx",
+    "cy",
+    "k",
+    "W",
+    "H",
+    "sy0",
+    "sh",
+    "dot",
+    "ry"
+   ],
+   "semantic": "geometría de pantalla de la escala"
+  },
+  {
+   "id": "L",
+   "type": "let",
+   "value": {
+    "$expr": "Lof(t)"
+   }
+  },
+  {
+   "id": "ppm",
+   "type": "let",
+   "value": {
+    "$expr": "ppmOf(G, L)"
+   }
+  },
+  {
+   "id": "LY",
+   "type": "let",
+   "lib": "P_dsl",
+   "fn": "ly",
+   "args": []
+  },
+  {
+   "id": "b",
+   "type": "let",
+   "value": {
+    "$expr": "seg(t, 33.2, 33.6) * (1 - seg(t, 34.7, 35.1))"
+   }
+  },
+  {
+   "id": "w",
+   "type": "let",
+   "semantic": "1 año luz",
+   "value": {
+    "$expr": "LY * ppm"
+   }
+  },
+  {
+   "id": "y",
+   "type": "let",
+   "value": {
+    "$expr": "G_cy + G_S0 * 0.62"
+   }
+  },
+  {
+   "id": "barra",
+   "type": "lines",
+   "when": "b > 0 && w < G_W",
+   "color": "accent2",
+   "alpha": {
+    "$expr": "b"
+   },
+   "lineWidth": 2,
+   "segs": [
+    [
+     {
+      "$expr": "G_cx - w / 2"
+     },
+     {
+      "$expr": "y"
+     },
+     {
+      "$expr": "G_cx + w / 2"
+     },
+     {
+      "$expr": "y"
+     }
+    ],
+    [
+     {
+      "$expr": "G_cx - w / 2"
+     },
+     {
+      "$expr": "y - 6"
+     },
+     {
+      "$expr": "G_cx - w / 2"
+     },
+     {
+      "$expr": "y + 6"
+     }
+    ],
+    [
+     {
+      "$expr": "G_cx + w / 2"
+     },
+     {
+      "$expr": "y - 6"
+     },
+     {
+      "$expr": "G_cx + w / 2"
+     },
+     {
+      "$expr": "y + 6"
+     }
+    ]
+   ]
+  },
+  {
+   "id": "prox",
+   "type": "let",
+   "semantic": "Próxima: estrella + anillo cian",
+   "lib": "P_dsl",
+   "fn": "projPt",
+   "args": [
+    {
+     "$expr": "G"
+    },
+    {
+     "$expr": "L"
+    },
+    {
+     "$lit": "PROXIMA"
+    }
+   ],
+   "fields": [
+    "0",
+    "1"
+   ]
+  },
+  {
+   "id": "pa",
+   "type": "let",
+   "value": {
+    "$expr": "seg(L, 16.0, 16.4)"
+   }
+  },
+  {
+   "id": "vis",
+   "type": "let",
+   "value": {
+    "$expr": "pa > 0 && prox_0 > -20 && prox_0 < G_W + 20 && prox_1 > -20 && prox_1 < G_H + 20"
+   }
+  },
+  {
+   "id": "estrella",
+   "type": "shape",
+   "when": "vis",
+   "shape": "circle",
+   "color": "ink",
+   "alpha": {
+    "$expr": "pa"
+   },
+   "x": {
+    "$expr": "prox_0"
+   },
+   "y": {
+    "$expr": "prox_1"
+   },
+   "r": 2.6,
+   "sweep": 6.2832
+  },
+  {
+   "id": "anillo",
+   "type": "shape",
+   "when": "vis",
+   "shape": "circle",
+   "stroke": true,
+   "color": "accent2",
+   "lineWidth": 1.5,
+   "alpha": {
+    "$expr": "pa * (1 - seg(t, 37.0, 37.5))"
+   },
+   "x": {
+    "$expr": "prox_0"
+   },
+   "y": {
+    "$expr": "prox_1"
+   },
+   "r": 11,
+   "sweep": 6.2832
+  },
+  {
+   "type": "focus",
+   "x": {
+    "$expr": "prox_0 - 12"
+   },
+   "y": {
+    "$expr": "prox_1 - 12"
+   },
+   "w": {
+    "$expr": "24"
+   },
+   "h": {
+    "$expr": "24"
+   },
+   "label": "Próxima Centauri",
+   "weight": 1,
+   "when": "vis"
+  },
+  {
+   "type": "focus",
+   "x": {
+    "$expr": "G_cx - 8"
+   },
+   "y": {
+    "$expr": "G_cy - 8"
+   },
+   "w": {
+    "$expr": "16"
+   },
+   "h": {
+    "$expr": "16"
+   },
+   "label": "el Sol",
+   "weight": 1,
+   "when": "!vis"
+  },
+  {
+   "id": "contador",
+   "type": "hud",
+   "lib": "P_mundo",
+   "fn": "hud",
+   "args": [
+    "api",
+    "film",
+    "t"
+   ],
+   "semantic": "contador 10^n m con morph glifo a glifo"
+  },
+  {
+   "id": "c1",
+   "type": "caption",
+   "lib": "P_mundo",
+   "fn": "caption",
+   "args": [
+    "api",
+    "film",
+    "t",
+    33.3,
+    35,
+    {
+     "$lit": "UN AÑO LUZ"
+    },
+    {
+     "$lit": "9{,}5\\times10^{15}\\,\\mathrm{m}"
+    }
+   ],
+   "semantic": "rótulo de hito"
+  },
+  {
+   "id": "c2",
+   "type": "caption",
+   "lib": "P_mundo",
+   "fn": "caption",
+   "args": [
+    "api",
+    "film",
+    "t",
+    35.1,
+    36.95,
+    {
+     "$lit": "PRÓXIMA CENTAURI"
+    },
+    {
+     "$lit": "4\\times10^{16}\\,\\mathrm{m}"
+    }
+   ],
+   "semantic": "rótulo de hito"
+  }
+ ]
+}, { P_mundo, P_dsl });

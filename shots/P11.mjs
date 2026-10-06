@@ -1,31 +1,330 @@
-import { clamp, lerp, seg, springS } from '../engine/core.mjs';
-import { geo, hud, ruler, sqdot, TEX_EDGE, TEX_LOG, LMAX, CUR, inkA } from './P_mundo.mjs';
-// La revelación. Las 27 ventanas (anidadas, casi todas ya sub-píxel) salen del centro y se alinean como puntos
-// equidistantes: pasos iguales. La ventana del borde se vuelve el cursor; el contador pasa de 8,8×10^26 a 10^26,9.
-const T0 = 55.5;
-const ek = (t, film, k) => springS(t - T0 - 0.4 - (LMAX - k) * 0.04, film, 'soft');   // el borde sale primero; la ventana de 1 m, la última
-const win = (t, film) => { const G = geo(film), e = ek(t, film, LMAX); return { x: lerp(G.cx, G.rx(LMAX), e), y: lerp(G.cy, G.ry, e), s: lerp(G.S0, CUR * G.dot, e), L: LMAX }; };
-export default {
-  entities: { win },
-  draw(ctx, t, u, shot, film, api) {
-    const lt = t - T0, G = geo(film), K = G.k * 1.5, acc = api.color('accent'), a2 = api.color('accent2');
-    // el mar de galaxias y el borde se retiran; el anillo vuela a su sitio en la regla (icono «borde»)
-    const eE = ek(t, film, LMAX), sea = 1 - seg(lt, 0, 1.0);
-    if (sea > 0) { ctx.save(); ctx.fillStyle = a2; ctx.globalAlpha = 0.05 * sea; ctx.beginPath(); ctx.arc(G.cx, G.cy, G.S0 / 2, 0, 6.2832); ctx.fill(); ctx.restore(); }
-    const rx = lerp(G.cx, G.rx(LMAX), eE), ry = lerp(G.cy, G.ry - 26 * K, eE), rr = lerp(G.S0 / 2, 8 * K, eE);
-    ctx.save(); ctx.strokeStyle = a2; ctx.globalAlpha = 0.9; ctx.lineWidth = lerp(2 * K, 2, eE); ctx.beginPath(); ctx.arc(rx, ry, rr, 0, 6.2832); ctx.stroke(); ctx.restore();
-    ruler(ctx, api, G, { line: seg(lt, 1.0, 2.4), ticks: seg(lt, 1.2, 2.6), icons: seg(lt, 3.0, 4.6), labels: seg(lt, 3.4, 4.2), noEdge: true });
-    // las ventanas 0..26: de cuadrado (en el centro, con su tamaño real) a punto (en x = rx(k)), con un arco
-    for (let k = 0; k <= 26; k++) {
-      const e = ek(t, film, k), w0 = G.S0 * 10 ** (k - LMAX); if (e <= 0.001 && w0 < 0.4) continue;
-      const x = lerp(G.cx, G.rx(k), e), y = lerp(G.cy, G.ry, e) - Math.sin(Math.PI * e) * 0.07 * G.sh, w = lerp(w0, G.dot, e);
-      sqdot(ctx, x, y, Math.max(w, 1.2 * e), e, acc, clamp(e * 3 + (w0 > 2 ? 1 : 0)));
-    }
-    const c = win(t, film);                                                     // la ventana del borde → cursor (sigue siendo un cuadrado hueco)
-    sqdot(ctx, c.x, c.y, c.s, 0, acc, 1, lerp(2.2 * K, 1.8, eE));
-    const [hx, hy] = [G.cx, G.sy0 + 0.3 * G.sh];
-    api.text(shot.text, hx, hy, { role: 'h1', alpha: api.spring(lt - 2.8) * (1 - seg(lt, 6.8, 7.4)) });
-    hud(api, film, t, { tex: { from: TEX_EDGE, to: TEX_LOG, u: api.ease('inOut', clamp((lt - 3.4) / 1.2)) } });
-    void inkA;
+// GENERADO desde shots/P11.scene.json por `node engine/dsl.mjs build` (spec 006). No editar a mano: edita el .scene.json y regenera.
+import { shot } from '../engine/dsl-core.mjs';
+import * as P_mundo from './P_mundo.mjs';
+import * as P_dsl from './P_dsl.mjs';
+export default shot({
+ "dsl": 1,
+ "id": "P11",
+ "doc": "La revelación. Las 27 ventanas (anidadas, casi todas ya sub-píxel) salen del centro y se alinean como puntos equidistantes: pasos iguales. La ventana del borde se vuelve el cursor; el contador pasa de 8,8×10^26 a 10^26,9.",
+ "libs": {
+  "P_mundo": "./P_mundo.mjs",
+  "P_dsl": "./P_dsl.mjs"
+ },
+ "fns": {
+  "rx": {
+   "lib": "P_dsl",
+   "fn": "rx"
+  }
+ },
+ "entities": {
+  "win": {
+   "lib": "P_dsl",
+   "fn": "win11",
+   "fields": [
+    "x",
+    "y",
+    "s"
+   ],
+   "reads": []
+  }
+ },
+ "objects": [
+  {
+   "id": "G",
+   "type": "let",
+   "lib": "P_mundo",
+   "fn": "geo",
+   "args": [
+    "film"
+   ],
+   "fields": [
+    "S0",
+    "cx",
+    "cy",
+    "k",
+    "sy0",
+    "sh",
+    "dot",
+    "ry"
+   ],
+   "semantic": "geometría de pantalla de la escala"
   },
-};
+  {
+   "id": "LM",
+   "type": "let",
+   "lib": "P_dsl",
+   "fn": "lmax",
+   "args": []
+  },
+  {
+   "id": "T0",
+   "type": "let",
+   "semantic": "inicio de la escena en el film",
+   "value": 55.5
+  },
+  {
+   "id": "l",
+   "type": "let",
+   "value": {
+    "$expr": "t - T0"
+   }
+  },
+  {
+   "id": "K",
+   "type": "let",
+   "value": {
+    "$expr": "G_k * 1.5"
+   }
+  },
+  {
+   "id": "eE",
+   "type": "let",
+   "value": {
+    "$expr": "spring(t - T0 - 0.4 - (LM - LM) * 0.04, 'soft')"
+   }
+  },
+  {
+   "id": "sea",
+   "type": "let",
+   "semantic": "el mar de galaxias se retira",
+   "value": {
+    "$expr": "1 - seg(l, 0, 1.0)"
+   }
+  },
+  {
+   "id": "mar",
+   "type": "shape",
+   "when": "sea > 0",
+   "shape": "circle",
+   "color": "accent2",
+   "alpha": {
+    "$expr": "0.05 * sea"
+   },
+   "x": {
+    "$expr": "G_cx"
+   },
+   "y": {
+    "$expr": "G_cy"
+   },
+   "r": {
+    "$expr": "G_S0 / 2"
+   },
+   "sweep": 6.2832
+  },
+  {
+   "id": "rx0",
+   "type": "let",
+   "value": {
+    "$expr": "lerp(G_cx, rx(G, LM), eE)"
+   }
+  },
+  {
+   "id": "ry0",
+   "type": "let",
+   "value": {
+    "$expr": "lerp(G_cy, G_ry - 26 * K, eE)"
+   }
+  },
+  {
+   "id": "rr0",
+   "type": "let",
+   "value": {
+    "$expr": "lerp(G_S0 / 2, 8 * K, eE)"
+   }
+  },
+  {
+   "id": "borde",
+   "type": "shape",
+   "semantic": "el anillo vuela a su sitio en la regla (icono «borde»)",
+   "shape": "circle",
+   "stroke": true,
+   "color": "accent2",
+   "alpha": 0.9,
+   "lineWidth": {
+    "$expr": "lerp(2 * K, 2, eE)"
+   },
+   "x": {
+    "$expr": "rx0"
+   },
+   "y": {
+    "$expr": "ry0"
+   },
+   "r": {
+    "$expr": "rr0"
+   },
+   "sweep": 6.2832
+  },
+  {
+   "id": "regla",
+   "type": "axis",
+   "lib": "P_mundo",
+   "fn": "ruler",
+   "args": [
+    "ctx",
+    "api",
+    {
+     "$expr": "G"
+    },
+    {
+     "line": {
+      "$expr": "seg(l, 1.0, 2.4)"
+     },
+     "ticks": {
+      "$expr": "seg(l, 1.2, 2.6)"
+     },
+     "icons": {
+      "$expr": "seg(l, 3.0, 4.6)"
+     },
+     "labels": {
+      "$expr": "seg(l, 3.4, 4.2)"
+     },
+     "noEdge": true
+    }
+   ],
+   "semantic": "regla de exponentes: línea, marcas, iconos de hitos y etiquetas"
+  },
+  {
+   "id": "ventanas",
+   "type": "repeat",
+   "n": 27,
+   "semantic": "las ventanas 0..26: de cuadrado (en el centro, con su tamaño real) a punto (en x = rx(k)), con un arco",
+   "children": [
+    {
+     "id": "ev",
+     "type": "let",
+     "value": {
+      "$expr": "spring(t - T0 - 0.4 - (LM - i) * 0.04, 'soft')"
+     }
+    },
+    {
+     "id": "w0",
+     "type": "let",
+     "value": {
+      "$expr": "G_S0 * 10 ^ (i - LM)"
+     }
+    },
+    {
+     "id": "vx",
+     "type": "let",
+     "when": "!(ev <= 0.001 && w0 < 0.4)",
+     "value": {
+      "$expr": "lerp(G_cx, rx(G, i), ev)"
+     }
+    },
+    {
+     "id": "vy",
+     "type": "let",
+     "when": "!(ev <= 0.001 && w0 < 0.4)",
+     "value": {
+      "$expr": "lerp(G_cy, G_ry, ev) - sin(pi * ev) * 0.07 * G_sh"
+     }
+    },
+    {
+     "id": "vw",
+     "type": "let",
+     "when": "!(ev <= 0.001 && w0 < 0.4)",
+     "value": {
+      "$expr": "lerp(w0, G_dot, ev)"
+     }
+    },
+    {
+     "type": "plot",
+     "lib": "P_mundo",
+     "fn": "sqdot",
+     "args": [
+      "ctx",
+      {
+       "$expr": "vx"
+      },
+      {
+       "$expr": "vy"
+      },
+      {
+       "$expr": "max(vw, 1.2 * ev)"
+      },
+      {
+       "$expr": "ev"
+      },
+      {
+       "$expr": "color('accent')"
+      },
+      {
+       "$expr": "clamp(ev * 3 + (w0 > 2 ? 1 : 0))"
+      }
+     ],
+     "semantic": "cuadrado→punto de la regla",
+     "when": "!(ev <= 0.001 && w0 < 0.4)"
+    }
+   ]
+  },
+  {
+   "type": "plot",
+   "lib": "P_mundo",
+   "fn": "sqdot",
+   "args": [
+    "ctx",
+    {
+     "$expr": "win_x"
+    },
+    {
+     "$expr": "win_y"
+    },
+    {
+     "$expr": "win_s"
+    },
+    {
+     "$expr": "0"
+    },
+    {
+     "$expr": "color('accent')"
+    },
+    {
+     "$expr": "1"
+    },
+    {
+     "$expr": "lerp(2.2 * K, 1.8, eE)"
+    }
+   ],
+   "semantic": "cuadrado→punto de la regla",
+   "id": "cursor"
+  },
+  {
+   "id": "titulo",
+   "type": "text",
+   "text": {
+    "$shot": "text"
+   },
+   "x": {
+    "$expr": "G_cx"
+   },
+   "y": {
+    "$expr": "G_sy0 + 0.3 * G_sh"
+   },
+   "role": "h1",
+   "alpha": {
+    "$expr": "spring(l - 2.8) * (1 - seg(l, 6.8, 7.4))"
+   }
+  },
+  {
+   "id": "contador",
+   "type": "hud",
+   "lib": "P_mundo",
+   "fn": "hud",
+   "args": [
+    "api",
+    "film",
+    "t",
+    {
+     "tex": {
+      "from": "8{,}8\\times10^{26}\\,\\mathrm{m}",
+      "to": "10^{26{,}9}\\,\\mathrm{m}",
+      "u": {
+       "$expr": "ease('inOut', clamp((l - 3.4) / 1.2))"
+      }
+     }
+    }
+   ],
+   "semantic": "contador 10^n m con morph glifo a glifo"
+  }
+ ]
+}, { P_mundo, P_dsl });

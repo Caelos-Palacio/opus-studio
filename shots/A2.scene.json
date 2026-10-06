@@ -1,0 +1,208 @@
+{
+  "dsl": 1,
+  "id": "A2",
+  "doc": "Hereda el estado exacto del punto en t=2.0 (handoff) y lo transforma: dot → ring (el hueco se abre). A2 usa A1 (A2lib.dot parte de A1.entities.dot): A1 se importa para declarar la dependencia.",
+  "libs": {
+    "A2lib": "./A2_lib.mjs",
+    "A1": "./A1.mjs"
+  },
+  "params": {
+    "text": {
+      "type": "string",
+      "semantic": "rótulo del plan (default: shot.text del timeline)"
+    },
+    "size": {
+      "type": "number",
+      "range": [
+        0.05,
+        0.5
+      ],
+      "unit": "vh",
+      "default": 0.3,
+      "semantic": "tamaño final del anillo"
+    },
+    "x": {
+      "type": "number",
+      "range": [
+        0.1,
+        0.9
+      ],
+      "unit": "w",
+      "default": 0.35,
+      "semantic": "destino horizontal del anillo"
+    },
+    "openIn": {
+      "type": "number",
+      "range": [
+        0,
+        2
+      ],
+      "unit": "s",
+      "default": 0.3,
+      "semantic": "cuándo empieza a abrirse el hueco"
+    },
+    "glow": {
+      "type": "color",
+      "default": "accent",
+      "semantic": "color del halo"
+    },
+    "glowAlpha": {
+      "type": "number",
+      "range": [
+        0,
+        1
+      ],
+      "default": 0.25,
+      "semantic": "intensidad del halo"
+    },
+    "textX": {
+      "type": "number",
+      "range": [
+        0.5,
+        0.9
+      ],
+      "unit": "w",
+      "default": 0.68,
+      "semantic": "posición horizontal del rótulo"
+    },
+    "textIn": {
+      "type": "number",
+      "range": [
+        0,
+        2
+      ],
+      "unit": "s",
+      "default": 0.3,
+      "semantic": "entrada del rótulo"
+    }
+  },
+  "entities": {
+    "dot": {
+      "lib": "A2lib",
+      "fn": "dot",
+      "fields": [
+        "x",
+        "y",
+        "s",
+        "u"
+      ],
+      "reads": [
+        "size",
+        "x",
+        "openIn"
+      ]
+    }
+  },
+  "objects": [
+    {
+      "id": "rejilla",
+      "type": "group",
+      "depth": 0.25,
+      "children": [
+        {
+          "id": "cruces",
+          "type": "marks",
+          "cols": 9,
+          "rows": 4,
+          "x0": 0.1,
+          "dx": 0.1,
+          "y0": 0.15,
+          "dy": 0.25,
+          "half": 7,
+          "color": "shade",
+          "lineWidth": 2
+        }
+      ]
+    },
+    {
+      "id": "prev",
+      "type": "let",
+      "semantic": "el punto un paso de animación antes (para la velocidad de la estela)",
+      "lib": "A2lib",
+      "fn": "dot",
+      "args": [{"$expr": "t - dt"}, "film"],
+      "reads": [
+        "size",
+        "x",
+        "openIn"
+      ],
+      "fields": [
+        "x",
+        "y"
+      ]
+    },
+    {
+      "id": "halo",
+      "type": "glow",
+      "x": {
+        "$expr": "dot_x"
+      },
+      "y": {
+        "$expr": "dot_y"
+      },
+      "r": {
+        "$expr": "dot_s * 1.6"
+      },
+      "color": {
+        "$expr": "glow"
+      },
+      "alpha": {
+        "$expr": "glowAlpha"
+      }
+    },
+    {
+      "id": "anillo",
+      "type": "smear",
+      "x": {
+        "$expr": "dot_x"
+      },
+      "y": {
+        "$expr": "dot_y"
+      },
+      "vx": {
+        "$expr": "(dot_x - prev_x) / dt"
+      },
+      "vy": {
+        "$expr": "(dot_y - prev_y) / dt"
+      },
+      "children": [
+        {
+          "id": "abrir",
+          "type": "morph",
+          "from": "dot",
+          "to": "ring",
+          "u": {
+            "$expr": "dot_u"
+          },
+          "x": {
+            "$expr": "dot_x"
+          },
+          "y": {
+            "$expr": "dot_y"
+          },
+          "size": {
+            "$expr": "dot_s"
+          },
+          "label": "anillo"
+        }
+      ]
+    },
+    {
+      "id": "rotulo",
+      "type": "text",
+      "text": {
+        "$shot": "text"
+      },
+      "x": {
+        "$expr": "W * textX"
+      },
+      "y": {
+        "$expr": "dot_y"
+      },
+      "role": "h2",
+      "alpha": {
+        "$expr": "spring(t - t0 - textIn)"
+      }
+    }
+  ]
+}

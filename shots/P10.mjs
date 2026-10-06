@@ -1,13 +1,115 @@
-import { ride, hud, caption, winRide, geo } from './P_mundo.mjs';
-// 10^24–10^26,9 m: la red cósmica; el alejamiento choca con el borde (CMB se enciende) y el contador no llega a 10^27.
-// Después: hold y silencio (hold_ok en el timeline; el audio no tiene eventos entre 51,8 y 55,8 s).
-export default {
-  entities: { win: winRide },
-  draw(ctx, t, u, shot, film, api) {
-    const r = ride(ctx, api, film, t), G = geo(film);
-    if (!r.ed) api.focus(G.cx - 10, G.cy - 10, 20, 20, 'Grupo Local', { weight: 1 });
-    hud(api, film, t);
-    caption(api, film, t, 46.8, 49.2, 'LA RED CÓSMICA');
-    caption(api, film, t, 51.6, 55.3, 'EL BORDE DE LO OBSERVABLE');
+// GENERADO desde shots/P10.scene.json por `node engine/dsl.mjs build` (spec 006). No editar a mano: edita el .scene.json y regenera.
+import { shot } from '../engine/dsl-core.mjs';
+import * as P_mundo from './P_mundo.mjs';
+export default shot({
+ "dsl": 1,
+ "id": "P10",
+ "doc": "10^24–10^26,9 m: la red cósmica; el alejamiento choca con el borde (CMB se enciende) y el contador no llega a 10^27. Después: hold y silencio (hold_ok en el timeline; el audio no tiene eventos entre 51,8 y 55,8 s).",
+ "libs": {
+  "P_mundo": "./P_mundo.mjs"
+ },
+ "entities": {
+  "win": {
+   "lib": "P_mundo",
+   "fn": "winRide",
+   "fields": [],
+   "reads": []
+  }
+ },
+ "objects": [
+  {
+   "id": "viaje",
+   "type": "world",
+   "lib": "P_mundo",
+   "fn": "ride",
+   "args": [
+    "ctx",
+    "api",
+    "film",
+    "t"
+   ],
+   "semantic": "el viaje de escala: cielo, estrellas, suelo, sistema solar, ventana (continuidad exacta en cada corte)",
+   "fields": [
+    "ed"
+   ]
   },
-};
+  {
+   "id": "G",
+   "type": "let",
+   "lib": "P_mundo",
+   "fn": "geo",
+   "args": [
+    "film"
+   ],
+   "fields": [
+    "cx",
+    "cy"
+   ],
+   "semantic": "geometría de pantalla de la escala"
+  },
+  {
+   "type": "focus",
+   "x": {
+    "$expr": "G_cx - 10"
+   },
+   "y": {
+    "$expr": "G_cy - 10"
+   },
+   "w": {
+    "$expr": "20"
+   },
+   "h": {
+    "$expr": "20"
+   },
+   "label": "Grupo Local",
+   "weight": 1,
+   "when": "!has(viaje_ed) || !viaje_ed"
+  },
+  {
+   "id": "contador",
+   "type": "hud",
+   "lib": "P_mundo",
+   "fn": "hud",
+   "args": [
+    "api",
+    "film",
+    "t"
+   ],
+   "semantic": "contador 10^n m con morph glifo a glifo"
+  },
+  {
+   "id": "c1",
+   "type": "caption",
+   "lib": "P_mundo",
+   "fn": "caption",
+   "args": [
+    "api",
+    "film",
+    "t",
+    46.8,
+    49.2,
+    {
+     "$lit": "LA RED CÓSMICA"
+    }
+   ],
+   "semantic": "rótulo de hito"
+  },
+  {
+   "id": "c2",
+   "type": "caption",
+   "lib": "P_mundo",
+   "fn": "caption",
+   "args": [
+    "api",
+    "film",
+    "t",
+    51.6,
+    55.3,
+    {
+     "$lit": "EL BORDE DE LO OBSERVABLE"
+    }
+   ],
+   "semantic": "rótulo de hito"
+  }
+ ]
+}, { P_mundo });

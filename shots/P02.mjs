@@ -1,15 +1,126 @@
-import { seg, clamp } from '../engine/core.mjs';
-import { ride, hud, winRide, geo, inkA } from './P_mundo.mjs';
-// La regla (×10) y la pregunta (brecha de información). En t = 10 s empieza el alejamiento: la ventana de 10 m entra.
-export default {
-  entities: { win: winRide },
-  draw(ctx, t, u, shot, film, api) {
-    const lt = t - shot.t[0], G = geo(film);
-    ride(ctx, api, film, t);
-    const r = seg(lt, 0.5, 1.4) * (1 - seg(lt, 2.9, 3.5));                     // «×10» junto a la ventana (se va antes del primer paso)
-    if (r > 0) api.tex(String.raw`\times 10`, G.cx + G.S0 / 2 + 18 * G.k * 1.5, G.cy - G.S0 / 2, { size: 34 * G.k * 1.5, align: 'left', color: inkA(api, r, 'accent'), write: clamp((lt - 0.5) / 0.8) });
-    const [qx, qy] = api.at(0.5, 0.93);
-    api.text(shot.text, qx, qy, { role: 'body', alpha: api.spring(lt - 1.1) * (1 - seg(lt, 5.4, 6)) });
-    hud(api, film, t);
+// GENERADO desde shots/P02.scene.json por `node engine/dsl.mjs build` (spec 006). No editar a mano: edita el .scene.json y regenera.
+import { shot } from '../engine/dsl-core.mjs';
+import * as P_mundo from './P_mundo.mjs';
+export default shot({
+ "dsl": 1,
+ "id": "P02",
+ "doc": "La regla (×10) y la pregunta (brecha de información). En t = 10 s empieza el alejamiento: la ventana de 10 m entra.",
+ "libs": {
+  "P_mundo": "./P_mundo.mjs"
+ },
+ "entities": {
+  "win": {
+   "lib": "P_mundo",
+   "fn": "winRide",
+   "fields": [],
+   "reads": []
+  }
+ },
+ "objects": [
+  {
+   "id": "G",
+   "type": "let",
+   "lib": "P_mundo",
+   "fn": "geo",
+   "args": [
+    "film"
+   ],
+   "fields": [
+    "S0",
+    "cx",
+    "cy",
+    "k",
+    "W",
+    "H",
+    "sy0",
+    "sh",
+    "dot",
+    "ry"
+   ],
+   "semantic": "geometría de pantalla de la escala"
   },
-};
+  {
+   "id": "viaje",
+   "type": "world",
+   "lib": "P_mundo",
+   "fn": "ride",
+   "args": [
+    "ctx",
+    "api",
+    "film",
+    "t"
+   ],
+   "semantic": "el viaje de escala: cielo, estrellas, suelo, sistema solar, ventana (continuidad exacta en cada corte)"
+  },
+  {
+   "id": "r",
+   "type": "let",
+   "semantic": "«×10» junto a la ventana (se va antes del primer paso)",
+   "value": {
+    "$expr": "seg(lt, 0.5, 1.4) * (1 - seg(lt, 2.9, 3.5))"
+   }
+  },
+  {
+   "id": "por10",
+   "type": "formula",
+   "when": "r > 0",
+   "tex": "\\times 10",
+   "x": {
+    "$expr": "G_cx + G_S0 / 2 + 18 * G_k * 1.5"
+   },
+   "y": {
+    "$expr": "G_cy - G_S0 / 2"
+   },
+   "size": {
+    "$expr": "34 * G_k * 1.5"
+   },
+   "align": "left",
+   "color": {
+    "$expr": "inkA(r, 'accent')"
+   },
+   "write": {
+    "$expr": "clamp((lt - 0.5) / 0.8)"
+   }
+  },
+  {
+   "id": "qpos",
+   "type": "let",
+   "value": {
+    "$expr": "at(0.5, 0.93)"
+   },
+   "fields": [
+    "0",
+    "1"
+   ]
+  },
+  {
+   "id": "pregunta",
+   "type": "text",
+   "text": {
+    "$shot": "text"
+   },
+   "x": {
+    "$expr": "qpos_0"
+   },
+   "y": {
+    "$expr": "qpos_1"
+   },
+   "role": "body",
+   "alpha": {
+    "$expr": "spring(lt - 1.1) * (1 - seg(lt, 5.4, 6))"
+   }
+  },
+  {
+   "id": "contador",
+   "type": "hud",
+   "lib": "P_mundo",
+   "fn": "hud",
+   "args": [
+    "api",
+    "film",
+    "t"
+   ],
+   "semantic": "contador 10^n m con morph glifo a glifo"
+  }
+ ]
+}, { P_mundo });

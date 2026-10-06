@@ -4,15 +4,16 @@
 //   y draw(t) es función pura de t (sin estado, sin reloj, sin azar): seek(t) sigue siendo puro.
 //   Valores: literal | {"$expr":"…"} (lenguaje de engine/expr.mjs + vars del DSL) | {"$shot":"text"}.
 //   Variables: t lt u dur W H k · cada param por nombre · <entidad>_<campo> · <objeto>_<salida> (morph: x y w h r th) · <let>.
-//   Funciones extra: spring(x[,curva]) · seg(x,a,b) · at(fx,fy) · param(nombre,t) · color(rol) · vec(…) · str(x) · cat(…) · has(x) · len(x) · las de
+//   Funciones extra: spring(x[,curva]) · seg(x,a,b) · at(fx,fy) · param(nombre,t) · color(rol) · vec(…) · str(x) · cat(…) · has(x) · len(x) · nil() · inkA(a[,rol]) · las de
 //   `fns` (funciones PURAS de un módulo lib). sig() NO existe aquí: las señales llegan por params enlazados.
 //   Valores estructurados (objetos/listas con hojas {"$expr"}) en `args` y en `let.value`: se resuelven hoja a hoja.
 import { compile as compileExpr, FUNCS, ExprError } from './expr.mjs';
-import { seg, ease, lerp } from './core.mjs';
+import { seg, ease, lerp, clamp } from './core.mjs';
+import { rgba } from './color.mjs';
 
 export const DSL_VERSION = 1;
-const BUILTIN_TIME = ['t', 'lt', 'u', 'dur', 't0', 't1'], BUILTIN_FRAME = ['W', 'H', 'k'], BUILTIN = [...BUILTIN_TIME, ...BUILTIN_FRAME];
-const KIT = ['spring', 'seg', 'at', 'param', 'color', 'vec', 'str', 'cat', 'has', 'len'];
+const BUILTIN_TIME = ['t', 'lt', 'u', 'dur', 't0', 't1'], BUILTIN_FRAME = ['W', 'H', 'k', 'dt'], BUILTIN = [...BUILTIN_TIME, ...BUILTIN_FRAME];
+const KIT = ['spring', 'seg', 'at', 'param', 'color', 'vec', 'str', 'cat', 'has', 'len', 'nil', 'inkA'];
 const ID_RE = /^[A-Za-z][A-Za-z0-9]*$/, CONST_NAMES = ['pi', 'tau', 'e', 'true', 'false'];
 const COMMON = ['id', 'type', 'when', 'cue', 'semantic', 'reads'];
 const LIBP = ['lib', 'fn', 'args', 'fields'];
@@ -29,6 +30,9 @@ export const TYPES = {
   equation: { props: ['steps', 'color', 'stagger'], req: ['steps'] },
   group: { props: ['depth', 'children'], req: ['children'] },
   let: { props: ['value', ...LIBP], req: [], value: true },
+  formula: { props: ['tex', 'x', 'y', 'size', 'align', 'color', 'write', 'morphTo', 'u', 'stagger'], req: ['tex', 'x', 'y'] },
+  layer: { props: ['opts', 'children'], req: ['children'] },
+  smear: { props: ['x', 'y', 'vx', 'vy', 'children'], req: ['x', 'y', 'vx', 'vy', 'children'] },
   curve: { props: ['n', 'x', 'y', 'color', 'lineWidth', 'alpha', 'cap'], req: ['n', 'x', 'y'] },
   lines: { props: ['segs', 'color', 'lineWidth', 'alpha'], req: ['segs'] },
   repeat: { props: ['n', 'items', 'fields', 'children'], req: ['children'] },
@@ -43,6 +47,7 @@ const PARAM_TYPES = ['number', 'integer', 'string', 'color', 'boolean', 'enum', 
 
 // ── utilidades ────────────────────────────────────────────────────────────────────────────────────────────────────
 const isExprV = (v) => !!v && typeof v === 'object' && !Array.isArray(v) && '$expr' in v;
+const isLitV = (v) => !!v && typeof v === 'object' && !Array.isArray(v) && '$lit' in v;
 const isShotV = (v) => !!v && typeof v === 'object' && !Array.isArray(v) && '$shot' in v;
 const lev = (a, b) => { const d = Array.from({ length: a.length + 1 }, (_, i) => [i, ...Array(b.length).fill(0)]); for (let j = 0; j <= b.length; j++) d[0][j] = j;
   for (let i = 1; i <= a.length; i++) for (let j = 1; j <= b.length; j++) d[i][j] = Math.min(d[i - 1][j] + 1, d[i][j - 1] + 1, d[i - 1][j - 1] + (a[i - 1] === b[j - 1] ? 0 : 1)); return d[a.length][b.length]; };
@@ -60,7 +65,7 @@ function eachValue(o, f, p = '') {
 function exprSources(v, out = []) {
   if (isExprV(v)) out.push(String(v.$expr));
   else if (Array.isArray(v)) v.forEach((x) => exprSources(x, out));
-  else if (v && typeof v === 'object' && !isShotV(v)) Object.values(v).forEach((x) => exprSources(x, out));
+  else if (v && typeof v === 'object' && !isShotV(v) && !isLitV(v)) Object.values(v).forEach((x) => exprSources(x, out));
   return out;
 }
 function* walkObjects(list, p = '/objects') { for (let i = 0; i < (list ?? []).length; i++) { const o = list[i]; yield [o, `${p}/${i}`]; if (o?.children) yield* walkObjects(o.children, `${p}/${i}/children`); } }
@@ -129,11 +134,11 @@ export function validateScene(sc) {
         else if (k === 'lib') { if (!(v in libs)) E(`${p}/lib`, `lib "${v}" no declarada en libs`, hint(v, Object.keys(libs))); }
         else if (k === 'fn' || k === 'fields') { /* literal */ }
         else if (k === 'args') { for (const [j, a] of (v ?? []).entries()) if (typeof a === 'string' && !ARG_TOKENS.includes(a)) E(`${p}/args/${j}`, `argumento "${a}" no válido`, `uno de: ${ARG_TOKENS.join(' ')} o {"$expr":…}`); else if (typeof a !== 'string') structCheck(a, `${p}/args/${j}`, scope, E, funcs); }
-        else if (k === 'value' || k === 'segs') structCheck(v, `${p}/${k}`, scope, E, funcs);
+        else if (k === 'value' || k === 'segs' || k === 'opts') structCheck(v, `${p}/${k}`, scope, E, funcs);
         else if (k === 'items') { if (isExprV(v)) exprCheck(v, `${p}/items`, scope, E, false, undefined, funcs); }
         else if (k === 'stops') { if (!Array.isArray(v) || v.length < 2) E(`${p}/stops`, 'stops: lista de ≥2 colores'); else v.forEach((s, j) => exprCheck(s, `${p}/stops/${j}`, scope, E, false, undefined, funcs)); }
         else if (k === 'shape') { if (!['circle', 'rect'].includes(v)) E(`${p}/shape`, `forma "${v}" no válida`, 'circle | rect'); }
-        else if (['from', 'to', 'role', 'label', 'fallback', 'align', 'cap'].includes(k) && typeof v === 'string') { /* literal */ }
+        else if (['from', 'to', 'role', 'label', 'fallback', 'align', 'cap', 'morphTo'].includes(k) && typeof v === 'string') { /* literal */ }
         else exprCheck(v, `${p}/${k}`, o.type === 'curve' && (k === 'x' || k === 'y') ? new Set([...scope, 'i', 'n']) : scope, E, false, undefined, funcs);
       }
       if (LIBBACKED.includes(o.type) && !o.reads) { /* opaco: se declara en deps */ }
@@ -145,12 +150,14 @@ export function validateScene(sc) {
 }
 function structCheck(v, path, names, E, funcs) {
   if (Array.isArray(v)) v.forEach((x, j) => structCheck(x, `${path}/${j}`, names, E, funcs));
+  else if (isLitV(v)) { /* literal verbatim */ }
   else if (v && typeof v === 'object' && !isExprV(v) && !isShotV(v)) for (const [k, x] of Object.entries(v)) structCheck(x, `${path}/${k}`, names, E, funcs);
   else exprCheck(v, path, names, E, false, undefined, funcs);
 }
 function exprCheck(v, path, names, E, requireExpr, key, funcs = KIT) {
   if (v === undefined) { if (requireExpr) E(path, `falta "${key}"`); return; }
   if (isShotV(v)) { if (typeof v.$shot !== 'string') E(path, '$shot debe ser texto'); return; }
+  if (isLitV(v)) return;
   if (!isExprV(v)) { if (v && typeof v === 'object') E(path, 'valor no válido (literal, {"$expr"} o {"$shot"})'); else if (requireExpr && typeof v !== 'number') E(path, 'se esperaba número o {"$expr"}'); return; }
   const src = String(v.$expr);
   if (/\bsig\s*\(/.test(src)) { E(path, 'sig() no existe en el DSL de escenas', 'enlaza la señal a un param ({"$sig":…} en el timeline) y léelo por su nombre'); return; }
@@ -241,15 +248,16 @@ export function shot(scene, libs = {}) {
   const ents = scene.entities ?? {}, getFn = (lib, fn) => { const f = pathGet(libs[lib], fn); if (typeof f !== 'function') throw new Error(`dsl: ${lib}.${fn} no es una función (¿lib sin pasar a shot()?)`); return f; };
   const entities = Object.fromEntries(Object.entries(ents).map(([n, e]) => { let made = null; return [n, e.make ? (...a) => (made ??= getFn(e.lib, e.fn)(...e.make))(...a) : (...a) => getFn(e.lib, e.fn)(...a)]; }));
   const libFns = Object.fromEntries(Object.entries(fnDefs).map(([n, f]) => [n, (...a) => getFn(f.lib, f.fn)(...a)]));
-  function draw(ctx, t, u, shotDef, film, api) {
-    const P = api.params, env = { t, lt: t - shotDef.t[0], u, dur: shotDef.t[1] - shotDef.t[0], t0: shotDef.t[0], t1: shotDef.t[1], W: film.width, H: film.height, k: api.k, ...P };
-    env.fns = { ...libFns, spring: (x, name) => api.spring(x, name), seg: (x, a, b) => seg(x, a, b), at: (fx, fy) => api.at(fx, fy), param: (n, tt) => api.param(n, tt), color: (c) => api.color(c), vec: (...a) => a, str: (x) => String(x), cat: (...a) => a.join(''), has: (x) => x != null, len: (x) => x?.length ?? 0 };
+  function draw(ctx0, t, u, shotDef, film, api0) {
+    const cur = { ctx: ctx0, api: api0 }, P = api0.params, env = { t, lt: t - shotDef.t[0], u, dur: shotDef.t[1] - shotDef.t[0], t0: shotDef.t[0], t1: shotDef.t[1], W: film.width, H: film.height, k: api0.k, dt: api0.dt, ...P };
+    env.fns = { ...libFns, spring: (x, name) => cur.api.spring(x, name), seg: (x, a, b) => seg(x, a, b), at: (fx, fy) => cur.api.at(fx, fy), param: (n, tt) => cur.api.param(n, tt), color: (c) => cur.api.color(c), vec: (...a) => a, str: (x) => String(x), cat: (...a) => a.join(''), has: (x) => x != null, len: (x) => x?.length ?? 0, nil: () => null,
+      inkA: (a, role = 'ink') => (a >= 0.999 ? role : rgba(cur.api.color(role), clamp(a))) };
     env.sig = () => { throw new Error('sig() no existe en el DSL'); };
-    for (const [n, e] of Object.entries(ents)) if (e.fields?.length) { const r = entities[n](t, film, api); for (const f of e.fields) env[`${n}_${f}`] = r[f]; }
+    for (const [n, e] of Object.entries(ents)) if (e.fields?.length) { const r = entities[n](t, film, api0); for (const f of e.fields) env[`${n}_${f}`] = r[f]; }
     const cueOn = (id) => { const c = (scene.cues ?? []).find((x) => x.id === id), at = val(c.at), du = val(c.dur); return env.lt >= at && env.lt < at + du; };
-    const val = (v) => (isExprV(v) ? ce(String(v.$expr)).fn(env) : isShotV(v) ? shotDef[v.$shot] : Array.isArray(v) ? v.map(val) : v && typeof v === 'object' ? Object.fromEntries(Object.entries(v).map(([k, x]) => [k, val(x)])) : v);
+    const val = (v) => (isExprV(v) ? ce(String(v.$expr)).fn(env) : isShotV(v) ? shotDef[v.$shot] : isLitV(v) ? v.$lit : Array.isArray(v) ? v.map(val) : v && typeof v === 'object' ? Object.fromEntries(Object.entries(v).map(([k, x]) => [k, val(x)])) : v);
     const publish = (o, r) => { if (o.id) { if (TYPES[o.type].value || o.fields) env[o.id] = r; for (const f of o.fields ?? []) env[`${o.id}_${fieldVar(f)}`] = pathGet(r, f); } };
-    const run = (list) => { for (const o of list) {
+    const run = (list) => { const ctx = cur.ctx, api = cur.api; for (const o of list) {
       if (o.when != null && !ce(String(o.when)).fn(env)) continue; if (o.cue != null && !cueOn(o.cue)) continue;
       switch (o.type) {
         case 'ground': api.ground(val(o.fy), ...(o.alpha != null ? [val(o.alpha)] : [])); break;
@@ -269,13 +277,16 @@ export function shot(scene, libs = {}) {
         case 'text': api.text(val(o.text), val(o.x), val(o.y), pick(o, ['role', 'alpha', 'color', 'align'], val)); break;
         case 'equation': { const EQ = Array.isArray(o.steps) ? o.steps : pathGet(libs[o.steps.lib], o.steps.export), q = eqAt(EQ, t); if (q) api.tex(q.tex, q.x * film.width, q.y * film.height, { size: q.s * film.height, align: 'center', color: o.color ?? 'ink', write: q.write, morphTo: q.morphTo, u: q.u, stagger: o.stagger ?? 0.55 }); break; }
         case 'group': if (o.depth != null) api.depth(val(o.depth), () => run(o.children)); else run(o.children); break;
-        case 'let': if (o.lib) { const A = { ctx, api, film, t, u, shot: shotDef }; publish(o, getFn(o.lib, o.fn)(...(o.args ?? []).map((a) => (typeof a === 'string' ? A[a] : val(a))))); } else env[o.id] = val(o.value); break;
+        case 'let': if (o.lib) { const A = { ctx, api, film, t: env.t, u, shot: shotDef }; publish(o, getFn(o.lib, o.fn)(...(o.args ?? []).map((a) => (typeof a === 'string' ? A[a] : val(a))))); } else publish(o, val(o.value)); break;
+        case 'formula': api.tex(val(o.tex), val(o.x), val(o.y), pick(o, ['size', 'align', 'color', 'write', 'morphTo', 'u', 'stagger'], val)); break;
+        case 'layer': api.layer(val(o.opts ?? {}), (c, tt, A) => { const sv = [cur.ctx, cur.api, env.t, env.lt]; cur.ctx = c; cur.api = A; env.t = tt; env.lt = tt - shotDef.t[0]; try { run(o.children); } finally { [cur.ctx, cur.api, env.t, env.lt] = sv; } }); break;
+        case 'smear': api.smear(val(o.x), val(o.y), val(o.vx), val(o.vy), () => run(o.children)); break;
         case 'curve': { const n = val(o.n), sI = env.i, sN = env.n; ctx.save(); ctx.strokeStyle = api.color(val(o.color ?? 'ink')); ctx.lineWidth = val(o.lineWidth ?? 2); ctx.globalAlpha = val(o.alpha ?? 1); if (o.cap) ctx.lineCap = o.cap; ctx.beginPath(); env.n = n;
           for (let i = 0; i <= n; i++) { env.i = i; const x = val(o.x), y = val(o.y); if (i) ctx.lineTo(x, y); else ctx.moveTo(x, y); } env.i = sI; env.n = sN; ctx.stroke(); ctx.restore(); break; }
         case 'lines': { ctx.save(); ctx.strokeStyle = api.color(val(o.color ?? 'ink')); ctx.globalAlpha = val(o.alpha ?? 1); ctx.lineWidth = val(o.lineWidth ?? 1); ctx.beginPath(); for (const sg of o.segs) { const [x0, y0, x1, y1] = val(sg); ctx.moveTo(x0, y0); ctx.lineTo(x1, y1); } ctx.stroke(); ctx.restore(); break; }
         case 'repeat': { const sI = env.i, sN = env.n, rows = isExprV(o.items) ? val(o.items) : o.items ?? null, n = rows ? rows.length : val(o.n); env.n = n;
           for (let i = 0; i < n; i++) { env.i = i; if (rows) (o.fields ?? []).forEach((f, j) => { env[`${o.id}_${f}`] = rows[i][j]; }); run(o.children); } env.i = sI; env.n = sN; break; }
-        default: { const f = getFn(o.lib, o.fn), A = { ctx, api, film, t, u, shot: shotDef }, r = f(...(o.args ?? ['ctx', 'api', 'film', 't']).map((a) => (typeof a === 'string' ? A[a] : val(a)))); if (o.fields) publish(o, r); }
+        default: { const f = getFn(o.lib, o.fn), A = { ctx, api, film, t: env.t, u, shot: shotDef }, r = f(...(o.args ?? ['ctx', 'api', 'film', 't']).map((a) => (typeof a === 'string' ? A[a] : val(a)))); if (o.fields) publish(o, r); }
       } } };
     run(scene.objects ?? []);
   }
