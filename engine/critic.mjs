@@ -13,7 +13,8 @@ import './help.mjs';
 import { isMain, rootFrom } from './paths.mjs';
 import { announceFilm } from './filmid.mjs';
 import { activeTimeline } from './filmid.mjs';
-import { lintState } from './verdict.mjs';
+import { lintState, currentHashes, stamp } from './verdict.mjs';
+import { writeAtomic } from './lock.mjs';
 import fs from 'node:fs';
 import path from 'node:path';
 import crypto from 'node:crypto';
@@ -106,6 +107,14 @@ export function checkVerdict(V, { plan, shots }) {
   return { ok: !errs.length, errors: errs };
 }
 export const verdictOf = (V) => (V.shots.some((s) => (s.verdict ?? sampleVerdict(s)) === 'FIX') || (V.coherence && (V.coherence.verdict ?? sampleVerdict(V.coherence)) === 'FIX') ? 'FIX' : 'SHIP');
+// Contrato único con el gate (engine/gate.mjs criticState): un veredicto COMPLETO del crítico se sella como out/critic.json con
+// verdict.mjs stamp (vigencia por hash de contenido); la caché por shot lleva `hash` (= hash del plan del shot) además de `key`.
+// Un juicio parcial (--shot) no sella: solo deja su caché.
+export function sealCritic(V, partial = false) {
+  if (partial) return null;
+  const o = { verdict: verdictOf(V), source: V.source ?? 'manual', plan: V.plan, ts: V.ts ?? new Date().toISOString(), ...stamp(currentHashes()) };
+  writeAtomic(path.join(ROOT, 'out/critic.json'), JSON.stringify(o, null, 1)); return o;
+}
 function report(V) {
   const all = [...V.shots.flatMap((s) => s.issues.map((i) => ({ ...i, shot: i.shot ?? s.shot }))), ...(V.coherence?.issues ?? [])];
   for (const i of all) console.log(`${i.severity.padEnd(4)}  ${String(i.shot).padEnd(6)} ${(+i.t || 0).toFixed(2).padStart(6)}s  ${i.problem}  →  ${i.fix}`);
@@ -166,7 +175,7 @@ async function main() {
     const V = readJson(path.resolve(arg('--verdict')), null), c = V ? checkVerdict(V, { plan: planH, shots: ids }) : { ok: false, errors: ['no es JSON legible'] };
     if (!c.ok) { for (const e of c.errors) console.log(`FIX   crítico  veredicto inválido ${e}`); console.log(`\nCRITIC FIX (veredicto inválido: no cuenta como SHIP)`); return 1; }
     const out = { ...V, source: V.source ?? 'manual', verdict: verdictOf(V), ts: V.ts ?? new Date().toISOString() };
-    fs.writeFileSync(verdictF, JSON.stringify(out, null, 1)); return report(out) === 'FIX' ? 1 : 0;
+    fs.writeFileSync(verdictF, JSON.stringify(out, null, 1)); sealCritic(out, !!arg('--shot')); return report(out) === 'FIX' ? 1 : 0;
   }
   const cacheF = path.join(dir, 'critic.json'), cache = readJson(cacheF, {});
   const idx = readJson(path.join(R0, 'out/index', name, 'film.json'), null), model = arg('--model', process.env.OPUS_CRITIC_MODEL ?? 'claude-sonnet-4-6');
@@ -181,7 +190,7 @@ async function main() {
     const prompt = shotPrompt(s.id, facts), key = cacheKey({ model, prompt, plan: hashOf(s.id), n });
     if (!has('--force') && cache[s.id]?.key === key) { shotRes.push(cache[s.id].result); console.log(`  = ${s.id} (caché)`); continue; }
     const J = await judge(await getClient(), { model, prompt, images: [png], n, retries, label: s.id }), res = { shot: s.id, scores: J.scores, issues: J.issues, verdict: J.verdict, agreement: J.agreement, invalid: J.invalid };
-    if (!J.invalid) cache[s.id] = { key, model, n, result: res }; else delete cache[s.id];   // lo inválido no se cachea: se reintenta
+    if (!J.invalid) cache[s.id] = { hash: hashOf(s.id), key, model, n, result: res }; else delete cache[s.id];   // lo inválido no se cachea: se reintenta
     shotRes.push(res); console.log(`  ${J.verdict === 'SHIP' ? '✓' : '✗'} ${s.id}  ${J.verdict} (acuerdo ${(J.agreement * 100).toFixed(0)}%${J.invalid ? `, ${J.invalid} inválidas` : ''})`);
   }
   fs.writeFileSync(path.join(dir, 'packet.md'), md);
@@ -196,19 +205,19 @@ async function main() {
   if (shots.length > 1) {                                                       // coherencia: tira de medios; falla = FIX (no se traga)
     const { createCanvas } = (await import('canvas')).default, tw = 320, th = Math.round((tw * R.H) / R.W), strip = createCanvas(tw * shots.length, th), sx = strip.getContext('2d');
     shots.forEach((s, i) => { R.frame((s.t[0] + s.t[1]) / 2); sx.drawImage(R.cv, i * tw, 0, tw, th); });
-    const prompt = coherencePrompt(ids), key = cacheKey({ model, prompt, plan: planH, n, schema: COHERENCE_SCHEMA });
+    const filmH = film.shots.map((x) => hashOf(x.id)).join('|'), prompt = coherencePrompt(ids), key = cacheKey({ model, prompt, plan: planH, n, schema: COHERENCE_SCHEMA });
     if (!has('--force') && cache._film?.key === key) coherence = cache._film.result;
     else {
       const J = await judge(await getClient(), { model, prompt, images: [strip.toBuffer('image/png')], n, retries, schema: COHERENCE_SCHEMA, label: 'coherencia' });
       coherence = { issues: J.issues.map((i) => ({ shot: i.shot ?? '-', ...i })), verdict: J.verdict, agreement: J.agreement, invalid: J.invalid };
-      if (!J.invalid) cache._film = { key, result: coherence }; else delete cache._film;
+      if (!J.invalid) cache._film = { hash: filmH, key, result: coherence }; else delete cache._film;
     }
   }
   fs.writeFileSync(cacheF, JSON.stringify(cache, null, 1));
   const V = { plan: planH, source: 'api', model, n, shots: shotRes, coherence, ts: new Date().toISOString() }; V.verdict = verdictOf(V);
   const c = checkVerdict(V, { plan: planH, shots: ids });                          // el propio resultado pasa por el mismo esquema
   if (!c.ok) { console.log(`FIX   crítico  veredicto generado inválido: ${c.errors[0]}\n\nCRITIC FIX`); return 1; }
-  fs.writeFileSync(verdictF, JSON.stringify(V, null, 1));
+  fs.writeFileSync(verdictF, JSON.stringify(V, null, 1)); sealCritic(V, !!arg('--shot'));
   return report(V) === 'FIX' ? 1 : 0;
 }
 
