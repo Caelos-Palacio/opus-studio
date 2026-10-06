@@ -1,6 +1,7 @@
 // Carga (Node): timeline, perfiles, estilos, audio.json, shots/*.mjs y ASSETS (TeX, imágenes, footage); delega en seek.mjs.
 //   Overrides sin tocar archivos:  --style noir --profile cinematic --timeline data/showcase.json --edit data/edit.json
 //   (o env OPUS_STYLE / OPUS_PROFILE / OPUS_TIMELINE / OPUS_EDIT)
+//   --medium kraft / OPUS_MEDIUM: aplica un medio (styles/medios/) a cualquier film sin tocar su timeline (spec 003).
 //   F4: capas de overrides data/layers/*.json + variantes (--variant 9x16 / OPUS_VARIANT; --layers dir|none / OPUS_LAYERS):
 //   resolve(timeline, capas) UNA vez aquí; seek(t) trabaja sobre lo resuelto (docs/PARAMS.md).
 import fs from 'node:fs';
@@ -10,7 +11,7 @@ import canvasPkg from 'canvas';
 import { compile } from './seek.mjs';
 import { makeSandbox } from './sandbox.mjs';
 import { makeTexStore, texReady } from './tex.mjs';
-import { assertTimeline } from './schema.mjs';
+import { assertTimeline, suggest as suggestName } from './schema.mjs';
 import { assertEdit, assertAudio, assertMedio } from './inputs.mjs';
 import { resolveTimeline, assertParams } from './params.mjs';
 import { bindParams } from './signal.mjs';
@@ -20,7 +21,7 @@ import { filmId, sibling, activeTimeline, announceFilm, filmFile, resolveFilm } 
 export { seek, activeShots, shotBeats } from './seek.mjs';
 const { createCanvas, Image } = canvasPkg;
 
-for (const k of ['style', 'profile', 'timeline', 'edit', 'variant', 'layers']) { const i = process.argv.indexOf('--' + k); if (i >= 0 && process.argv[i + 1]) process.env['OPUS_' + k.toUpperCase()] = process.argv[i + 1]; }
+for (const k of ['style', 'profile', 'timeline', 'edit', 'variant', 'layers', 'medium']) { const i = process.argv.indexOf('--' + k); if (i >= 0 && process.argv[i + 1]) process.env['OPUS_' + k.toUpperCase()] = process.argv[i + 1]; }
 
 export const ROOT = rootFrom(import.meta.url);
 const rd = (p) => JSON.parse(fs.readFileSync(path.join(ROOT, p), 'utf8'));
@@ -66,6 +67,11 @@ export async function loadFilm({ timeline = timelinePath(), animatic = false, st
   const aj = path.join(ROOT, sibling('audio.json', 'data/audio.json', timeline)), R = resolveTimeline(assertTimeline(rd(timeline), timeline), timeline), tl = R.timeline;   // E8 + F4: capas resueltas
   tl.style = style ?? process.env.OPUS_STYLE ?? tl.style ?? 'editorial';
   if (profile ?? process.env.OPUS_PROFILE) tl.profile = profile ?? process.env.OPUS_PROFILE;
+  if (process.env.OPUS_MEDIUM) {                                                         // override: cualquier film con cualquier medio (hojas A/B, pruebas); sin env, el timeline manda
+    const ms = fs.readdirSync(path.join(ROOT, 'styles/medios')).filter((f) => f.endsWith('.json') && !f.startsWith('_')).map((f) => f.slice(0, -5));
+    if (!ms.includes(process.env.OPUS_MEDIUM)) { const g = suggestName(process.env.OPUS_MEDIUM, ms); throw new Error(`OPUS_MEDIUM: medio "${process.env.OPUS_MEDIUM}" no existe en styles/medios/ — ${g ? `¿quisiste decir "${g}"?` : 'disponibles: ' + ms.join(' ')}`); }
+    tl.medium = process.env.OPUS_MEDIUM;
+  }
   if (tl.medium) tl.mediumDef = assertMedio(rd(`styles/medios/${tl.medium}.json`), `styles/medios/${tl.medium}.json`);                  // spec 003: el medio como datos (compile lo aplica)
   const film = compile(tl, rd('engine/profiles.json'), loadStyles(), fs.existsSync(aj) ? assertAudio(JSON.parse(fs.readFileSync(aj, 'utf8')), path.relative(ROOT, aj)) : null);
   film.timelinePath = timeline;

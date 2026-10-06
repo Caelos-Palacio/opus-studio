@@ -677,7 +677,13 @@
           "id": "papel_crema",
           "def": "tinta sobre papel crema",
           "forbid": []
-        }
+        },
+        { "id": "papel_crema_ciruela", "def": "papel crema con acento violeta profundo (variante A)", "forbid": [] },
+        { "id": "papel_crema_terracota", "def": "papel crema con acento terracota (variante B)", "forbid": [] },
+        { "id": "kraft", "def": "tinta negra de estampa sobre cartón de estraza", "forbid": [] },
+        { "id": "pizarra", "def": "tiza sobre pizarra con borrado parcial", "forbid": [] },
+        { "id": "tecnico", "def": "plano técnico azul con cuadrícula, cotas y HUD", "forbid": [] },
+        { "id": "neon", "def": "tubos de luz sobre muro mojado con parpadeo y reflejo", "forbid": [] }
       ]
     },
     "prose": {

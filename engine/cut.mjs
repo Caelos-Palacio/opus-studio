@@ -105,7 +105,7 @@ async function main() {
   const threads = arg('--threads', process.env.OPUS_THREADS ?? '0'), workers = +arg('--workers', Math.max(1, os.cpus().length)), q = [...todo], render = path.join(ROOT, 'engine/render.mjs');
   const run = (j) => new Promise((res, rej) => {
     const stage = path.join(dir, `.${j.id}_${j.hash}.stage-${process.pid}-${Math.random().toString(36).slice(2, 8)}.tmp.mp4`);
-    const p = spawn(process.execPath, [render, '--range', `${j.a}:${j.b}`, '--fps', String(fps), '--size', size, '--out', stage, '--crf', review ? '23' : '16', '--preset', preset, '--threads', String(threads === 'auto' ? workerThreads(Math.min(workers, todo.length)) : +threads || 0)], { stdio: 'inherit', env: process.env });
+    const p = spawn(process.execPath, [render, '--range', `${j.a}:${j.b}`, '--fps', String(fps), '--size', size, '--out', stage, '--crf', review ? '23' : String(film.medium?.encode?.crf ?? 16), '--preset', preset, '--threads', String(threads === 'auto' ? workerThreads(Math.min(workers, todo.length)) : +threads || 0)], { stdio: 'inherit', env: process.env });
     p.on('close', async (c) => { if (c !== 0) { fs.rmSync(stage, { force: true }); fs.rmSync(stage + '.part.mp4', { force: true }); return rej(new Error('fragmento falló ' + j.id)); }
       try { if (await commitFragment(stage, file(j), j, opts)) console.log('  ✓', j.id, `[${j.a},${j.b})`); else console.log('  ✗', j.id, 'cambió durante el render: descartado (relanza)'); res(); } catch (e) { rej(e); } });
   });
