@@ -29,7 +29,7 @@
   parametrizaciones (estilo `rev` o `revel`, capas opcionales kick/hat/tom/bass.pulse/kick.ghost, golpe con piano).
 - Eficiencia P1/P2/P5/P8 hechas (docs/EFICIENCIA.md): **`npm run use -- <film>`**, línea `film:` en toda CLI, `--help` real, `npm run peek -- [film]`,
   `npm audit` limpio. Los tests de memoria/critic ya no dependen de out/.film (pasan con cualquier film activo).
-- Trampa conocida: `data/regla/layers/` no se carga (layersDir busca data/layers/<film>); arreglarlo cambiaría el cookKey de regla.
+- (RESUELTO en rama deuda) las capas de un film con carpeta se cargan de `<carpeta>/layers/`; el cookKey de regla cambia (ver docs/handoff/deuda.md).
 - Los masters de mate/reel/regla NO se re-renderizaron: tras tocar el motor sus veredictos caducan (relanzar lint antes de `npm run master`).
 
 ## WIP (agente detenido), ver docs/handoff/ en cada rama
