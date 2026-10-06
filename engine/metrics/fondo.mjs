@@ -5,13 +5,14 @@
 //
 //   Y'(x) = 100·(0,2126 R + 0,7152 G + 0,0722 B)/255            luma sRGB codificada, % de escala completa
 //   fondo = píxeles fuera de las cajas {kind: focus|text} ensanchadas un margen (4 % del lado menor)
-//   σ_esp  = RMS del residuo de Y' respecto a la media de su bloque de 32 px (Σ de las bandas de 1–16 px: estrellas, grano, niebla fina)
-//   σ_grad = desviación típica de las medias de bloque de 32 px respecto a la media global del fondo (viñeta, degradado, luz)
+//   σ_esp  = RMS del residuo de Y' respecto a la media de su bloque (ancho/6 px): estrellas, grano, niebla fina
+//   σ_grad = desviación típica de las medias de bloque (rejilla 6×3) respecto a la media global del fondo (viñeta, degradado, luz)
 //   τ      = media de |Y'(t) − Y'(t−Δ)| sobre el fondo común de dos fotogramas consecutivos (parallax, parpadeo, deriva)
 //   P      = σ_esp + σ_grad + τ     [% de escala completa; 0 = fondo plano y quieto]
 // Ventana: mediana de σ_esp, σ_grad, τ y luminancia sobre los fotogramas de la ventana (robusta a un destello o corte aislado).
 export const FONDO = {
-  block: 32,              // px a 192 px de ancho (el lint mide a 192); la banda gruesa a esa escala = 6×3 bloques
+  tgrid: 48,              // τ se mide en bloques de ancho/48 (promedia el grano de píxel)
+  grid: 6,                // bloques por ancho: la banda gruesa (viñeta/degradado) = rejilla de 6×(≈3) bloques, sea cual sea la resolución
   margin: 0.04,           // ensanche de las cajas (fracción del lado menor)
   minBg: 0.08,            // fracción mínima de fondo visible para medir; por debajo la ventana es 'sin dato' (cuenta como con profundidad)
   windowS: 2,             // s por ventana
@@ -35,13 +36,12 @@ export function bgMask(W, H, boxes = [], margin = FONDO.margin) {
 }
 const median = (a) => { if (!a.length) return NaN; const s = [...a].sort((p, q) => p - q), k = s.length >> 1; return s.length % 2 ? s[k] : (s[k - 1] + s[k]) / 2; };
 
-// Estadística espacial de UN fotograma → { bgFrac, lum, esp, grad, y, mask }
-export function spatial(f, { block = FONDO.block } = {}) {
-  const { W, H } = f, y = toLuma(f), mask = f.mask ?? bgMask(W, H, f.boxes);
+// Estructura espacial de una imagen de luma y + máscara de fondo → { bgFrac, lum, esp, grad }
+export function structure(y, mask, W, H, { block } = {}) {
+  block ??= Math.max(8, Math.round(W / FONDO.grid));
   let n = 0, s = 0; for (let i = 0; i < W * H; i++) if (mask[i]) { n++; s += y[i]; }
   const bgFrac = n / (W * H);
-  if (bgFrac < FONDO.minBg) return { bgFrac, lum: NaN, esp: NaN, grad: NaN, y, mask };
-  const lum = s / n;
+  if (bgFrac < FONDO.minBg) return { bgFrac, lum: NaN, esp: NaN, grad: NaN };
   let ss = 0, cnt = 0; const means = [], wts = [];
   for (let by = 0; by < H; by += block) for (let bx = 0; bx < W; bx += block) {
     let bs = 0, bn = 0; const x1 = Math.min(W, bx + block), y1 = Math.min(H, by + block);
@@ -51,23 +51,31 @@ export function spatial(f, { block = FONDO.block } = {}) {
     for (let yy = by; yy < y1; yy++) for (let xx = bx; xx < x1; xx++) { const i = yy * W + xx; if (mask[i]) { ss += (y[i] - mu) ** 2; cnt++; } }
   }
   const wsum = wts.reduce((a, b) => a + b, 0), mm = means.reduce((a, v, i) => a + v * wts[i], 0) / wsum;
-  const grad = Math.sqrt(means.reduce((a, v, i) => a + wts[i] * (v - mm) ** 2, 0) / wsum);
-  return { bgFrac, lum, esp: Math.sqrt(ss / Math.max(1, cnt)), grad, y, mask };
+  return { bgFrac, lum: s / n, esp: Math.sqrt(ss / Math.max(1, cnt)), grad: Math.sqrt(means.reduce((a, v, i) => a + wts[i] * (v - mm) ** 2, 0) / wsum) };
 }
-// τ entre dos fotogramas (ya pasados por spatial): media de |ΔY'| en el fondo común
-export function temporal(a, b) {
-  let s = 0, n = 0; const N = a.y.length;
-  for (let i = 0; i < N; i++) if (a.mask[i] && b.mask[i]) { s += Math.abs(a.y[i] - b.y[i]); n++; }
-  return n >= FONDO.minBg * N ? s / n : NaN;
+const prep = (f) => ({ W: f.W, H: f.H, y: toLuma(f), mask: f.mask ?? bgMask(f.W, f.H, f.boxes) });
+// Cambio temporal entre dos fotogramas a escala de bloque (ancho/48 ≈ 8 px a 384): el grano (independiente por píxel) se promedia y
+// no cuenta; sí cuentan parpadeo, deriva y parallax de masas. Media de |Δ media de bloque| sobre bloques de fondo común.
+export function temporal(a, b, { block } = {}) {
+  const { W, H } = a; block ??= Math.max(4, Math.round(W / FONDO.tgrid)); let s = 0, n = 0;
+  for (let by = 0; by + block <= H; by += block) for (let bx = 0; bx + block <= W; bx += block) {
+    let sa = 0, sb = 0, c = 0;
+    for (let yy = by; yy < by + block; yy++) for (let xx = bx; xx < bx + block; xx++) { const i = yy * W + xx; if (a.mask[i] && b.mask[i]) { sa += a.y[i]; sb += b.y[i]; c++; } }
+    if (c >= block * block * 0.75) { s += Math.abs(sa - sb) / c; n++; }
+  }
+  return n >= 4 ? s / n : NaN;
 }
 // Una ventana de fotogramas consecutivos (≥ 1) → { lum, esp, grad, tau, P, dark, empty }
+// esp y grad se miden sobre la IMAGEN INTEGRADA de la ventana (media por píxel de los fotogramas, fondo = común a todos): el grano de la
+// gradación cambia en cada fotograma y se atenúa ×1/√n; las estrellas, texturas y nieblas persisten.
 export function windowStats(frames) {
-  const S = frames.map((f) => spatial(f)), ok = S.filter((s) => Number.isFinite(s.lum));
-  if (!ok.length) return { lum: NaN, esp: NaN, grad: NaN, tau: NaN, P: NaN, dark: false, empty: false, nodata: true };
-  const taus = []; for (let i = 1; i < S.length; i++) if (Number.isFinite(S[i].lum) && Number.isFinite(S[i - 1].lum)) { const t = temporal(S[i - 1], S[i]); if (Number.isFinite(t)) taus.push(t); }
-  const lum = median(ok.map((s) => s.lum)), esp = median(ok.map((s) => s.esp)), grad = median(ok.map((s) => s.grad)), tau = taus.length ? median(taus) : 0;
-  const P = esp + grad + tau, dark = lum <= FONDO.dark;
-  return { lum, esp, grad, tau, P, dark, empty: dark && P < FONDO.empty, nodata: false };
+  const F = frames.map(prep), { W, H } = F[0], N = W * H, mean = new Float32Array(N), mask = new Uint8Array(N).fill(1);
+  for (const f of F) for (let i = 0; i < N; i++) { mean[i] += f.y[i] / F.length; if (!f.mask[i]) mask[i] = 0; }
+  const st = structure(mean, mask, W, H);
+  if (!Number.isFinite(st.lum)) return { lum: NaN, esp: NaN, grad: NaN, tau: NaN, P: NaN, dark: false, empty: false, nodata: true };
+  const taus = []; for (let i = 1; i < F.length; i++) { const t = temporal(F[i - 1], F[i]); if (Number.isFinite(t)) taus.push(t); }
+  const tau = taus.length ? median(taus) : 0, P = st.esp + st.grad + tau, dark = st.lum <= FONDO.dark;
+  return { lum: st.lum, esp: st.esp, grad: st.grad, tau, P, dark, empty: dark && P < FONDO.empty, nodata: false };
 }
 // Serie completa: frames = [{t, W, H, data|luma|y, boxes}] ordenados, a ritmo regular. → ventanas + resumen del film
 export function fondoSeries(frames, { fps, windowS = FONDO.windowS } = {}) {
