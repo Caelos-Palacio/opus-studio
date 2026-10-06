@@ -29,7 +29,8 @@ export function lintFrames(film, { lfps = 12, scope = null } = {}) {
   void n; return { layout, small };
 }
 
-const MIN_FRAMES = +(process.env.OPUS_WARM_MIN ?? 160);                       // por debajo, arrancar procesos cuesta más que renderizar
+// OPUS_WARM=0 lo apaga (la suite de tests ya paraleliza por su cuenta); OPUS_WARM=1 lo fuerza aunque haya pocos fotogramas; por debajo de OPUS_WARM_MIN, arrancar procesos cuesta más que renderizar.
+const MIN_FRAMES = +(process.env.OPUS_WARM_MIN ?? (process.env.OPUS_WARM === '1' ? 20 : 400));
 export async function prewarm({ film, FCL, FCS_, lfps, scope, needLayout = true, needSmall = true }) {
   if (process.env.OPUS_NOCACHE === '1' || process.env.OPUS_WARM === '0') return 0;
   const cpus = os.availableParallelism?.() ?? os.cpus().length; if (cpus < 4) return 0;
