@@ -100,7 +100,7 @@ async function rangeWorker() {
   const [a, b] = arg('--range').split(':').map(Number), fps = +arg('--fps'), out = arg('--out');
   const R = await makeRenderer({ size: arg('--size') });
   const ff = spawn('ffmpeg', ['-y', '-loglevel', 'error', '-f', 'rawvideo', '-pix_fmt', 'bgra', '-s', `${R.W}x${R.H}`, '-r', String(fps), '-i', 'pipe:0',
-    ...x264Args({ crf: arg('--crf', '16'), preset: arg('--preset', process.env.OPUS_PRESET ?? 'medium'), threads: +arg('--threads', 0) }), out + '.part.mp4'], { stdio: ['pipe', 'inherit', 'inherit'] });
+    ...x264Args({ tune: R.film.medium?.encode?.tune, crf: arg('--crf', '16'), preset: arg('--preset', process.env.OPUS_PRESET ?? 'medium'), threads: +arg('--threads', 0) }), out + '.part.mp4'], { stdio: ['pipe', 'inherit', 'inherit'] });
   let i = a;
   await new Promise((res) => {
     const pump = () => {

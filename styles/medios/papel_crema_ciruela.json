@@ -1,0 +1,182 @@
+{
+ "name": "papel_crema_ciruela",
+ "description": "Variante A del acento: violeta más profundo y menos saturado (ciruela), mismo papel, tinta y capas. Para elegir en hoja A/B; el film por defecto sigue con papel_crema.",
+ "seed": 4117,
+ "accents": [
+  "#1B3FCF",
+  "#4A2F7A"
+ ],
+ "palette": {
+  "paper": "#EBE1CB",
+  "ink": "#2B2119",
+  "accent": "#4A2F7A",
+  "accent2": "#1B3FCF",
+  "quant": "#4A2F7A",
+  "anom": "#2B2119",
+  "shade": "#B8AA8C"
+ },
+ "support": {
+  "kind": "papel",
+  "base": "#EBE1CB",
+  "mottle": {
+   "amount": 0.045,
+   "cell": 150,
+   "warm": "#F3E9D2",
+   "cool": "#D9CDB1"
+  },
+  "tooth": 0.045,
+  "fibers": {
+   "n": 900,
+   "len": [
+    6,
+    26
+   ],
+   "alpha": [
+    0.05,
+    0.16
+   ],
+   "color": "#8A6F45",
+   "light": "#FFF8E6"
+  }
+ },
+ "layers": [
+  {
+   "name": "manchas",
+   "depth": 0.12,
+   "stains": {
+    "n": 6,
+    "color": "#B08A4A",
+    "alpha": 0.045,
+    "r": [
+     60,
+     200
+    ],
+    "ring": 0.5
+   },
+   "hatch": {
+    "patches": 3,
+    "color": "#5A432A",
+    "alpha": 0.12,
+    "gap": 5,
+    "size": [
+     120,
+     260
+    ]
+   }
+  },
+  {
+   "name": "fibras",
+   "depth": 0.38,
+   "fibers": {
+    "n": 260,
+    "len": [
+     14,
+     60
+    ],
+    "alpha": [
+     0.07,
+     0.2
+    ],
+    "color": "#7B6038",
+    "width": 1.1
+   }
+  },
+  {
+   "name": "motas",
+   "depth": 0.75,
+   "specks": {
+    "n": 380,
+    "r": [
+     0.6,
+     1.8
+    ],
+    "alpha": [
+     0.15,
+     0.5
+    ],
+    "color": "#4A3A22"
+   }
+  },
+  {
+   "name": "polvo",
+   "depth": 1.45,
+   "over": true,
+   "fibers": {
+    "n": 9,
+    "len": [
+     40,
+     120
+    ],
+    "alpha": [
+     0.05,
+     0.11
+    ],
+    "color": "#5A4630",
+    "width": 1.6
+   },
+   "specks": {
+    "n": 40,
+    "r": [
+     1.2,
+     3.2
+    ],
+    "alpha": [
+     0.05,
+     0.14
+    ],
+    "color": "#4A3A22"
+   }
+  }
+ ],
+ "ink": {
+  "alpha": 1,
+  "erosion": {
+   "amount": 0.38,
+   "cell": 7,
+   "fps": 12
+  },
+  "misregister": {
+   "dx": 1.3,
+   "dy": 0.9,
+   "alpha": 0.26
+  },
+  "jitter": {
+   "amp": 0.7,
+   "band": 3,
+   "fps": 8
+  }
+ },
+ "grain": {
+  "amount": 0.04,
+  "fps": 15,
+  "tiles": 5
+ },
+ "vignette": {
+  "amount": 0.2,
+  "color": "#6A5030",
+  "inner": 0.5
+ },
+ "grade": {
+  "vignette": 0,
+  "grain": 0,
+  "post": {
+   "bloom": null,
+   "color": null,
+   "chroma": 0
+  }
+ },
+ "rules": {
+  "glow": true,
+  "gradients": false,
+  "glowScale": 1.5
+ },
+ "composition": {
+  "edgeMargin": 0.05,
+  "anchor": "free",
+  "negativeSpace": 0.5
+ },
+ "encode": {
+  "crf": 24,
+  "tune": "grain"
+ }
+}

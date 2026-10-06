@@ -124,7 +124,7 @@ ok(names.length === 4 && minD >= 40, 'X1 los 5 medios son visualmente distintos 
     ok(sd >= 0.004 && Math.min(...fl) >= 0.85 && Math.max(...fl) <= 1.0001, 'N2 parpadeo sutil (σ ≥ 0,4 %, caída ≤ 15 %)', `σ ${(sd * 100).toFixed(2)} %  mín ${Math.min(...fl).toFixed(3)}`);
     const dipT = 30 + fl.indexOf(Math.min(...fl)) / 30, a = grab(R, dipT), I = R.film.medium.ink, saved = I.flicker; I.flicker = null; const b = grab(R, dipT); I.flicker = saved;
     ok(meanLum(b) - meanLum(a) >= 0.05, 'N2b el parpadeo oscurece de verdad el fotograma', `Δ ${(meanLum(b) - meanLum(a)).toFixed(2)}`);
-    const hz = Math.round(R.H * (R.film.medium.ink.reflection?.y ?? 0.8)), on = grab(R, 55), ref = I.reflection; I.reflection = null; const off = grab(R, 55); I.reflection = ref;
+    const hz = Math.round(R.H * (R.film.medium.ink.reflection?.y ?? 0.8)), on = grab(R, 30), ref = I.reflection; I.reflection = null; const off = grab(R, 30); I.reflection = ref;
     ok(meanLum(on, hz) - meanLum(off, hz) >= 0.3 && Math.abs(meanLum(on, 0, hz) - meanLum(off, 0, hz)) < 0.02, 'N3 reflejo en superficie húmeda: más luz bajo el horizonte, nada encima', `Δ abajo ${(meanLum(on, hz) - meanLum(off, hz)).toFixed(2)}`);
   }
 }
@@ -150,6 +150,18 @@ ok(names.length === 4 && minD >= 40, 'X1 los 5 medios son visualmente distintos 
 {
   const encOk = ALL.every((nm) => { const e = JSON.parse(fs.readFileSync(path.join(ROOT, 'styles/medios', nm + '.json'), 'utf8')).encode; return e && e.crf >= 16 && e.crf <= 30 && ['grain', 'film', 'none', undefined].includes(e.tune); });
   ok(encOk, 'C1 todos los medios declaran encode {crf, tune} razonable', ALL.map((nm) => { const e = JSON.parse(fs.readFileSync(path.join(ROOT, 'styles/medios', nm + '.json'), 'utf8')).encode; return `${nm}:${e ? e.crf + (e.tune ? '/' + e.tune : '') : '—'}`; }).join(' '));
+}
+{ // C2: medido — mate_papel, 45 fotogramas a 640×360: encode del medio vs crf 16 por defecto
+  const { x264Args } = await import('../engine/encode.mjs'), { spawnSync } = await import('node:child_process'), os = await import('node:os');
+  const tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'opus-enc-')), raw = path.join(tmp, 'f.raw'), fd = fs.openSync(raw, 'w'), W = RB.cv.width, Hh = RB.cv.height, N = 45;
+  for (let i = 0; i < N; i++) { RB.frame(30 + i / 30); fs.writeSync(fd, RB.cv.toBuffer('raw')); } fs.closeSync(fd);
+  const enc = (name, o) => { const f = path.join(tmp, name + '.mp4'); spawnSync('ffmpeg', ['-y', '-loglevel', 'error', '-f', 'rawvideo', '-pix_fmt', 'bgra', '-s', `${W}x${Hh}`, '-r', '30', '-i', raw, ...x264Args(o), f]); return f; };
+  const gray = (args) => spawnSync('ffmpeg', ['-loglevel', 'error', ...args, '-pix_fmt', 'gray', '-f', 'rawvideo', '-'], { maxBuffer: 1 << 29 }).stdout;
+  const hpStd = (g) => { let s = 0, s2 = 0, c = 0; for (let f = 0; f < N; f++) for (let y = 6; y < 46; y++) for (let x = W - 66; x < W - 6; x++) { const i = f * W * Hh + y * W + x, v = g[i] - (g[i - 1] + g[i + 1] + g[i - W] + g[i + W]) / 4; s += v; s2 += v * v; c++; } return Math.sqrt(s2 / c - (s / c) ** 2); };
+  const E = RB.film.medium.encode ?? {}, a = enc('base', { crf: 16 }), b = enc('medio', { crf: E.crf ?? 16, tune: E.tune }), sz = (f) => fs.statSync(f).size;
+  const ref = hpStd(gray(['-f', 'rawvideo', '-pix_fmt', 'bgra', '-s', `${W}x${Hh}`, '-r', '30', '-i', raw])), keep = hpStd(gray(['-i', b])) / ref;
+  ok(sz(b) <= 0.4 * sz(a) && keep >= 0.7, 'C2 mate_papel: encode del medio ≤ 40 % del tamaño de crf 16 conservando ≥ 70 % del grano visible', `${(sz(b) / 1024).toFixed(0)} kB vs ${(sz(a) / 1024).toFixed(0)} kB (${((100 * sz(b)) / sz(a)).toFixed(0)} %), grano ${(keep * 100).toFixed(0)} %`);
+  fs.rmSync(tmp, { recursive: true, force: true });
 }
 // Variantes del acento morado de mate_papel (para elegir; el film por defecto no cambia).
 {
