@@ -698,6 +698,7 @@
         { "id": "kraft", "def": "tinta negra de estampa sobre cartón de estraza", "forbid": [] },
         { "id": "pizarra", "def": "tiza sobre pizarra con borrado parcial", "forbid": [] },
         { "id": "tecnico", "def": "plano técnico azul con cuadrícula, cotas y HUD", "forbid": [] },
+        { "id": "tecnico_bermellon", "def": "plano técnico azul con acento bermellón (redline de ingeniero) en vez del ámbar", "forbid": [] },
         { "id": "neon", "def": "tubos de luz sobre muro mojado con parpadeo y reflejo", "forbid": [] }
       ]
     },

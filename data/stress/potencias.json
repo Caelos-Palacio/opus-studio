@@ -1,6 +1,7 @@
 {
  "title": "Potencias — de ti al borde de lo observable en 27 pasos",
- "style": "cosmos",
+ "style": "cosmos_plano",
+ "medium": "tecnico_bermellon",
  "profile": "explainer",
  "styleOverrides": {
   "typeface": {

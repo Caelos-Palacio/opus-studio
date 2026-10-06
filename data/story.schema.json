@@ -39,6 +39,7 @@
     },
     "impacts": { "type": "array", "description": "impactos declarados además de los registrados por api.impact", "items": { "type": "object", "required": ["t"], "properties": { "t": { "type": "number" }, "shot": { "type": "string" } } } },
     "sakuga": { "type": "object", "description": "id de shot → hero|normal|simple (alternativa a shot.sakuga en el timeline)", "additionalProperties": { "enum": ["hero", "normal", "simple"] } },
+    "medium": { "type": "object", "description": "spec 012: el medio que el guion elige para este film y por qué (el timeline lo aplica con `medium`)", "required": ["id", "porque"], "properties": { "id": { "type": "string", "minLength": 2 }, "porque": { "type": "string", "minLength": 8 } } },
     "accent": { "type": "object", "properties": { "means": { "type": "string", "description": "qué significa el acento (color con función)" } } },
     "narration": { "type": "array", "description": "frases del guion/voz con tiempo (pedagogía: coherencia, redundancia)", "items": { "type": "object", "required": ["t", "text"], "properties": { "t": { "type": "number" }, "end": { "type": "number" }, "text": { "type": "string" } } } },
     "concepts": { "type": "array", "description": "términos nuevos y cuándo se nombran (señalización, contigüidad, carga)", "items": { "type": "object", "required": ["term", "t"], "properties": { "term": { "type": "string" }, "t": { "type": "number" }, "focus": { "type": "string", "description": "label del api.focus/primitiva que representa el concepto" } } } },
