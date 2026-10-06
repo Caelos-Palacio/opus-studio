@@ -424,6 +424,11 @@
           "forbid": []
         },
         {
+          "id": "w3d-sin-guion",
+          "def": "comprobación del arco: un shot con world3d no cae en ningún beat 3D declarado (beat.w3d) de story.json; emite el aviso w3d.sin-guion (spec 009, S10)",
+          "forbid": []
+        },
+        {
           "id": "schema",
           "def": "comprobación del arco: schema",
           "forbid": []

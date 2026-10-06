@@ -16,3 +16,9 @@ const T12 = 63, vOf12 = (t) => LMAX * (1 - ease.inOut(clamp((t - T12 - 1.5) / 5)
 export const win12 = (t, film) => { const G = geo(film), v = vOf12(t); return { x: G.rx(v), y: G.ry, s: CUR * G.dot, L: v }; };
 const T13 = 71, e13 = (t, film) => springS(t - T13 - 0.3, film, 'soft');
 export const win13 = (t, film) => { const G = geo(film), e = e13(t, film); return { x: lerp(G.rx(0), G.cx, e), y: lerp(G.ry, G.cy, e), s: lerp(CUR * G.dot, G.S0, e), L: 0 }; };
+
+// ── beats 3D de Potencias (P03 ciudad, P04 globo): cámaras como función pura del tiempo de FILM (el reloj de escala Lof) ──
+import { Lof, windows, H0 } from './P_mundo.mjs';
+export const cityCam = (film, tt) => { const G = geo(film), Lt = Lof(tt), ppm = proj(G, Lt).ppm, k = clamp((Lt - 0.67) / 2.2); return { ppm, horizon: (G.cy + H0 * ppm) / G.H, az: -12 - 24 * k, el: 8.5 + 5.5 * k }; };
+export const earthCam = (film, tt) => ({ dist: film.height / (proj(geo(film), Lof(tt)).ppm * 1000) / (2 * Math.tan(7 * Math.PI / 180)), az: 0, el: 0 });   // escena en km, fov 14°
+export const windowsOn = (ctx, api, film, t) => windows(ctx, api, geo(film), Lof(t), {});

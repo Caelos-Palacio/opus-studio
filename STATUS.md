@@ -26,9 +26,10 @@ Definición (gates.json); el estado de cierre está en la parte viva.
 | [006-semantica.md](docs/specs/006-semantica.md) | 006 — Semántica al límite: el vídeo como datos con significado | sin nota |
 | [007-orquestacion.md](docs/specs/007-orquestacion.md) | 007 · Orquestación al límite (paso 4 del roadmap) | sin nota |
 | [008-gobernanza.md](docs/specs/008-gobernanza.md) | 008 — Gobernanza al límite (roadmap paso 5) | sin nota |
-| [009-world3d-v2.md](docs/specs/009-world3d-v2.md) | 009 — world3d v2: profundidad, escenario y ángulo | (pendiente v2) · — · — |
+| [009-world3d-v2.md](docs/specs/009-world3d-v2.md) | 009 — world3d v2: profundidad, escenario y ángulo | S10 Dado un film que usa world3d, Entonces su story.json declara desde el guion qué beats son 3D y por qué (concepto de la memoria que el 3D encarna); el lint d |
 | [010-dsl-80.md](docs/specs/010-dsl-80.md) | 010 — DSL de escenas al ~80 % de los shots | sin nota |
 | [011-motor.md](docs/specs/011-motor.md) | 011 — Motor: renderizar una vez, analizar muchas, recalcular solo lo afectado | sin nota |
+| [012-produccion-v2.md](docs/specs/012-produccion-v2.md) | 012 — Producción v2: Regla, Reel y Potencias | mate_papel · terracota · — · (re-render con el acento elegido) |
 
 ## Motor
 
@@ -38,10 +39,10 @@ Definición (gates.json); el estado de cierre está en la parte viva.
 
 ## DSL de escenas (spec 010)
 
-- cobertura: **92.1 %** (58/63 shots en DSL; honesta: los 3 pendientes de otra rama cuentan en contra; sin ellos 96.7 %) · umbral ratchet 92 %
-- clases: dsl 58 · escape 2 · pendiente:world3d2 3 · shots 100 % nativos 1 · el resto usa objetos respaldados por una función de módulo (plot/axis/world/hud/word…) con semántica y deps declaradas
+- cobertura: **95.2 %** (60/63 shots en DSL; honesta: los 1 pendientes de otra rama cuentan en contra; sin ellos 96.8 %) · umbral ratchet 95 %
+- clases: dsl 60 · escape 2 · pendiente:world3d2 1 · shots 100 % nativos 1 · el resto usa objetos respaldados por una función de módulo (plot/axis/world/hud/word…) con semántica y deps declaradas
 - escapes: A1 (objetivo de las mutaciones de test/run.mjs, golden.mjs, gov.mjs y orch: esos tests editan su JS por texto); A2 (objetivo de las mutaciones de test/run.mjs, golden.mjs, gov.mjs y orch: esos tests editan su JS por texto)
-- pendientes: D01 (world3d2), P03 (world3d2), P04 (world3d2)
+- pendientes: D01 (world3d2)
 
 ## Tests
 
@@ -49,15 +50,15 @@ Archivos (test/*.mjs): `arc.mjs` `bench-skia.mjs` `critic.mjs` `cut-render.mjs` 
 <!-- estatico:fin -->
 
 ---
-## Estado vivo (2026-10-06T07:52Z, no verificado)
+## Estado vivo (2026-10-06T13:49Z, no verificado)
 
 ## Veredictos
 
-Film activo: `main` · engineHash `e605679620b5e6baf48168919ff275d8040327e5042b4fd2646920409bc5f654` · filmHash `988b84a39afcb6a2`
+Film activo: `potencias` · engineHash `37c17c7c6f05a87f1caa016b167065854282ab255a85e21909bebd7b200aba77` · filmHash `9ffbf0bcb3f29ae5`
 
 - out/lint.json: SHIP · CADUCADO
 - out/critic.json: no existe
-- veredictos por shot: 0 vigentes, 3 caducados
+- veredictos por shot: 0 vigentes, 13 caducados
 
 ### Estado de gates (out/gates.json)
 
@@ -66,13 +67,14 @@ Film activo: `main` · engineHash `e605679620b5e6baf48168919ff275d8040327e5042b4
 ## Ramas sin integrar
 
 - `backup/pre-limpieza` (+136 commits)
-- `dsl80` (+9 commits)
 - `gobernanza` (+96 commits)
 - `harness` (+101 commits)
 - `medios` (+57 commits)
 - `metricas` (+76 commits)
 - `orquestacion` (+101 commits)
 - `perf` (+53 commits)
+- `prod-potencias` (+4 commits)
+- `prod-reel` (+3 commits)
 - `semantica` (+101 commits)
 - `video-mate` (+33 commits)
 - `video-reel` (+34 commits)
@@ -92,11 +94,11 @@ Film activo: `main` · engineHash `e605679620b5e6baf48168919ff275d8040327e5042b4
 
 ## Último run de tests
 
-- 2026-10-06T07:44:55.716Z: todo verde
+- 2026-10-06T13:46:15.718Z: 4 fallos (--fast)
 
 ## Ledger
 
-- cadena: íntegra · 11 entradas (0 encadenadas, 11 heredadas, 0 firmadas) · códigos 100 %
+- cadena: íntegra · 2 entradas (2 encadenadas, 0 heredadas, 0 firmadas) · códigos 100 %
 
 ## Presupuestos
 
