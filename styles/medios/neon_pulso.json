@@ -1,0 +1,241 @@
+{
+ "name": "neon_pulso",
+ "description": "Callejón de ladrillo ciruela bajo un letrero de neón ROTO: los tubos (lima ácida y magenta) parpadean, zumban y se apagan; bruma de color, suelo mojado que refleja. El tono del reel (el ruido tiene compás; romper libera) pide un letrero que se rompe y vuelve a encender. Nunca negro plano.",
+ "seed": 9137,
+ "font": "DejaVu Sans Mono, monospace",
+ "blend": "screen",
+ "accents": [
+  "#D8FF3C",
+  "#FF3D7F"
+ ],
+ "palette": {
+  "paper": "#0B0812",
+  "ink": "#F6F3E8",
+  "accent": "#D8FF3C",
+  "accent2": "#FF3D7F",
+  "shade": "#2E2450"
+ },
+ "support": {
+  "kind": "muro_mojado",
+  "base": "#0B0812",
+  "mottle": {
+   "amount": 0.2,
+   "cell": 210,
+   "warm": "#3A1230",
+   "cool": "#0C2230"
+  },
+  "tooth": 0.1,
+  "fibers": {
+   "n": 160,
+   "len": [
+    20,
+    120
+   ],
+   "alpha": [
+    0.06,
+    0.16
+   ],
+   "color": "#05040A",
+   "light": "#3A3F66",
+   "width": 1.2
+  },
+  "decor": {
+   "bricks": {
+    "w": 92,
+    "h": 38,
+    "light": "#6A3A6E",
+    "dark": "#0C0714",
+    "vary": [
+     0.1,
+     0.34
+    ],
+    "mortar": "#05030A",
+    "mortarAlpha": 0.6,
+    "ymax": 0.86
+   }
+  },
+  "wet": {
+   "y": 0.86,
+   "color": "#3A2A78",
+   "color2": "#0B0A1F",
+   "alpha": 0.42,
+   "streaks": 90,
+   "streakLen": [
+    60,
+    320
+   ],
+   "streakAlpha": [
+    0.04,
+    0.12
+   ],
+   "streak": "#C4FF6A",
+   "line": "#E8FF8F",
+   "lineAlpha": 0.22
+  }
+ },
+ "layers": [
+  {
+   "name": "bruma",
+   "depth": 0.12,
+   "haze": {
+    "n": 9,
+    "r": [
+     260,
+     620
+    ],
+    "colors": [
+     "#D8FF3C",
+     "#FF3D7F",
+     "#5B2EFF"
+    ],
+    "alpha": [
+     0.05,
+     0.1
+    ]
+   }
+  },
+  {
+   "name": "bokeh",
+   "depth": 0.4,
+   "bokeh": {
+    "n": 18,
+    "r": [
+     10,
+     44
+    ],
+    "colors": [
+     "#FF3D7F",
+     "#D8FF3C"
+    ],
+    "alpha": [
+     0.07,
+     0.2
+    ]
+   }
+  },
+  {
+   "name": "motas",
+   "depth": 0.75,
+   "specks": {
+    "n": 240,
+    "r": [
+     0.6,
+     1.6
+    ],
+    "alpha": [
+     0.1,
+     0.45
+    ],
+    "color": "#E8FF9F"
+   }
+  },
+  {
+   "name": "lluvia",
+   "depth": 1.45,
+   "over": true,
+   "fibers": {
+    "n": 16,
+    "len": [
+     40,
+     120
+    ],
+    "alpha": [
+     0.04,
+     0.11
+    ],
+    "color": "#C8D0FF",
+    "width": 1.4
+   },
+   "specks": {
+    "n": 40,
+    "r": [
+     1,
+     2.8
+    ],
+    "alpha": [
+     0.05,
+     0.14
+    ],
+    "color": "#E8FF9F"
+   }
+  }
+ ],
+ "ink": {
+  "alpha": 1,
+  "erosion": {
+   "amount": 0.1,
+   "cell": 5,
+   "fps": 12
+  },
+  "misregister": {
+   "dx": 3,
+   "dy": 0,
+   "alpha": 0.22
+  },
+  "flicker": {
+   "amount": 0.07,
+   "fps": 24,
+   "hum": 2.28,
+   "dropout": 0.035
+  },
+  "halo": [
+   {
+    "lv": 2,
+    "a": 0.3
+   },
+   {
+    "lv": 4,
+    "a": 0.5
+   },
+   {
+    "lv": 6,
+    "a": 0.45
+   }
+  ],
+  "reflection": {
+   "y": 0.86,
+   "alpha": 0.5,
+   "fade": 0.2,
+   "ripple": 3,
+   "band": 3
+  }
+ },
+ "grain": {
+  "amount": 0.05,
+  "fps": 15,
+  "tiles": 5
+ },
+ "vignette": {
+  "amount": 0.3,
+  "color": "#04020C",
+  "inner": 0.55
+ },
+ "grade": {
+  "vignette": 0,
+  "grain": 0,
+  "post": {
+   "bloom": {
+    "threshold": 0.6,
+    "strength": 0.4,
+    "radius": 26
+   },
+   "color": null,
+   "chroma": 0
+  }
+ },
+ "rules": {
+  "glow": true,
+  "gradients": false,
+  "glowScale": 1.0,
+  "tube": 0.03
+ },
+ "composition": {
+  "edgeMargin": 0.04,
+  "anchor": "free",
+  "negativeSpace": 0.22
+ },
+ "encode": {
+  "crf": 24,
+  "tune": "grain"
+ }
+}

@@ -17,7 +17,8 @@ const r = (x) => +x.toFixed(4);
 // ── los shots, en pulsos. a,b = índices de `beats` (b: 'fin' = DUR). hits: pulsos (desde el inicio del shot) con acento visual+sonoro (on_beat_at).
 //    sfx: [pulso, tipo, ganancia, dur?]. Cada shot lleva su porqué (action/on_beat) y su plano.
 const S = [
-  { id: 'K01', a: 0, b: 1, size: 'ECU', text: '¿', action: 'una ¿ lima gigante golpea el primer pulso y se asienta', on_beat: 'el golpe de la ¿ es el primer pulso del film', hits: [0], cam: { move: 'push', why: 'approach', amount: 0.05 }, sakuga: 'normal' },
+  { id: 'K01', a: 0, b: 1, size: 'ECU', text: '¿', action: 'una ¿ lima gigante golpea el primer pulso y se asienta', on_beat: 'el golpe de la ¿ es el primer pulso del film', hits: [0], cam: { move: 'push', why: 'approach', amount: 0.05 }, sakuga: 'normal',
+    sfx: [[0.38, 'tick', 0.6], [0.7, 'tick', 0.75]] },   // dos tics que ascienden: la entonación de la pregunta
   { id: 'K02', a: 1, b: 2, size: 'ECU', text: 'QUÉ', action: 'QUÉ entra a golpe, tembloroso (ruido); la ¿ queda de viñeta', on_beat: 'QUÉ cae en el pulso', hits: [0], cam: { move: 'push', why: 'approach', amount: 0.05 }, sakuga: 'normal' },
   { id: 'K03', a: 2, b: 4, size: 'CU', text: 'SUENA', action: 'SUENA tiembla; en el 2.º pulso se parte en tiras y canales', on_beat: 'pulso 1 entra; pulso 2 glitch', hits: [0, 1], cam: { move: 'push', why: 'approach', amount: 0.06 }, sakuga: 'normal' },
   { id: 'K04', a: 4, b: 5, size: 'ECU', text: 'CUANDO', action: 'CUANDO barre de izquierda a derecha en un pulso', on_beat: 'el barrido termina en el pulso', hits: [0], cam: { move: 'push', why: 'approach', amount: 0.04 }, sakuga: 'normal' },
@@ -78,7 +79,7 @@ const signals = {
   tom: { op: 'audio', feature: 'onsets', track: 'tom', decay: 0.18, attack: 0.004, description: 'toms' },
   chaos: { op: 'keys', description: 'del ruido al orden: 1 = caos, 0 = rejilla; se desordena de golpe en el pico', keys: [
     { t: 0, v: 1 }, { t: r(B[8]), v: 1, ease: 'inOut' }, { t: r(B[16]), v: 0.7, ease: 'inOut' }, { t: r(B[24]), v: 0.3, ease: 'inOut' }, { t: r(B[32]), v: 0.12, ease: 'in' },
-    { t: r(B[38]), v: 0.65, ease: 'out' }, { t: r(B[39]), v: 0 }, { t: A.hit, v: 1 }, { t: r(B[HIT + 2]), v: 0.4, ease: 'out' }, { t: A.rev0, v: 0.2, ease: 'out' }, { t: r(B[REV0 + 2]), v: 0 }] },
+    { t: r(B[38]), v: 0.65, ease: 'out' }, { t: r(B[39]), v: 0 }, { t: A.hit, v: 1 }, { t: r(B[HIT + 2]), v: 0.4, ease: 'out' }, { t: A.rev0, v: 0.7, ease: 'out' }, { t: r(B[REV0 + 2]), v: 0 }] },
   lock: { op: 'keys', description: 'cuánto se pega todo a la rejilla (sube durante el enganche, se suelta en el golpe)', keys: [
     { t: 0, v: 0 }, { t: r(B[12]), v: 0, ease: 'inOut' }, { t: r(B[16]), v: 0.3, ease: 'inOut' }, { t: r(B[22]), v: 0.8, ease: 'inOut' }, { t: r(B[28]), v: 1 }, { t: A.hit - 0.001, v: 1 }, { t: A.hit, v: 0 }] },
   shock: { op: 'env', at: [A.hit, A.rev0], attack: 0, decay: 0.5, peak: 1.4, description: 'onda de choque: el golpe y el reencaje' },
@@ -91,7 +92,7 @@ const signals = {
 
 const tl = {
   title: 'Pulso — ¿Qué suena cuando todo se rompe?', style: 'pulso', profile: 'reel',
-  profileOverrides: { shotLen: [0.4, 3.2], readCps: 20 },
+  medium: 'neon_pulso', profileOverrides: { shotLen: [0.4, 3.2], readCps: 20 },
   fps: FPS, width: 1080, height: 1920, duration: DUR, end_hold_ok: true,
   sound: { style: 'electro', memoria: 'data/reel/memoria.json', overrides: { impact: { vacuum: r(A.hit - B[HIT - 1]) } } },
   signals, shots,

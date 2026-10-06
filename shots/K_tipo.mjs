@@ -76,6 +76,32 @@ export const widthEm = (str, track = TRACK) => layout(str, track).w;
 export const fit = (str, width, track = TRACK) => width / layout(str, track).w;   // tamaño (px) para que la palabra mida `width`
 export const capPx = (size) => CAP * size;
 
+// ───────── tubo de neón (medio neon_pulso: rules.tube = grosor del tubo en em) ─────────
+// La letra deja de ser una mancha y pasa a ser un TUBO de vidrio: contorno con halo de color, núcleo caliente y cuerpo apenas
+// encendido que se llena con el bombo. El color del halo cuenta el estado del letrero: magenta = roto (caos), lima = enganchado (lock).
+// Un tubo apagado es vidrio oscuro: sigue viéndose (nunca desaparece del todo). Sin `rules.tube` todo sigue como siempre.
+const hexRgb = (c) => { const m = /^#?([0-9a-f]{6})$/i.exec(String(c)); if (!m) return null; const n = parseInt(m[1], 16); return [(n >> 16) & 255, (n >> 8) & 255, n & 255]; };
+export const mixHex = (a, b, u) => { const A = hexRgb(a), B = hexRgb(b); if (!A || !B) return a; return '#' + A.map((v, i) => Math.round(lerp(v, B[i], clamp(u))).toString(16).padStart(2, '0')).join(''); };
+export const WHITE_HOT = '#FFFFFF';
+// Encendido de la letra i en t (0..1): con caos el letrero tartamudea (caídas de ~0,1 s por letra); con orden queda estable.
+export function litOf(i, t, chaos, seed = 1) {
+  if (chaos <= 0.12) return 1;
+  const f = Math.floor(t * 11), r = hash2(i * 17 + seed, f), hum = 0.9 + 0.1 * noise1(t * 23 + i, seed + 3);
+  return (r < chaos * 0.3 ? 0.1 + 0.25 * hash2(i, f + 5) : 1) * hum;
+}
+// Un contorno de letra como tubo. ctx en em (ya escalado). o: {color, fringe, lit, body (0..1 relleno), w (em)}
+export function tubeLetter(ctx, shape, o) {
+  const w = o.w, L = o.lit ?? 1, core = mixHex(o.color, WHITE_HOT, 0.66), a0 = ctx.globalAlpha;
+  const path = () => { ctx.beginPath(); tracePath(ctx, shape); };
+  ctx.lineJoin = 'round'; ctx.lineCap = 'round';
+  if (L < 0.995) { ctx.globalAlpha = a0 * (1 - L) * 0.55; ctx.strokeStyle = o.glass ?? '#3A2E5C'; ctx.lineWidth = w * 0.7; path(); ctx.stroke(); }
+  if (o.body > 0.01) { ctx.globalAlpha = a0 * o.body * L; ctx.fillStyle = mixHex(o.color, o.fringe, 0.3); path(); ctx.fill(); }
+  ctx.globalAlpha = a0 * 0.4 * L; ctx.strokeStyle = o.fringe; ctx.lineWidth = w * 2.2; path(); ctx.stroke();      // vidrio incandescente (halo cercano)
+  ctx.globalAlpha = a0 * L; ctx.strokeStyle = o.color; ctx.lineWidth = w; ctx.stroke();                              // tubo
+  ctx.globalAlpha = a0 * L; ctx.strokeStyle = core; ctx.lineWidth = w * 0.4; ctx.stroke();                           // núcleo caliente
+  ctx.globalAlpha = a0;
+}
+
 // ───────── la palabra ─────────
 // word(ctx, api, str, cx, cy, size, o) — (cx, cy) = centro de la caja de mayúsculas (align:'center'|'left'|'right' mueve el ancla horizontal).
 //   o: color, alpha, s | sx, sy, rot, track, label, reg:false (no registrar),
@@ -85,12 +111,27 @@ export const capPx = (size) => CAP * size;
 export function word(ctx, api, str, cx, cy, size, o = {}) {
   const lay = layout(str, o.track ?? TRACK), wpx = lay.w * size, hpx = CAP * size, a = o.alpha ?? 1, sx = o.sx ?? o.s ?? 1, sy = o.sy ?? o.s ?? 1;
   const al = o.align ?? 'center', ox = al === 'left' ? 0 : al === 'right' ? -wpx : -wpx / 2, pad = o.pad ?? 0.02 * size;
-  const col = api.color(o.color ?? 'ink');
-  const fill = (color, dx = 0) => { ctx.save(); ctx.fillStyle = color; ctx.translate(ox + dx, hpx / 2); ctx.scale(size, size); ctx.beginPath(); tracePath(ctx, wordShape(str, o.track ?? TRACK)); ctx.fill(); ctx.restore(); };
+  const col = api.color(o.color ?? 'ink'), TW = o.solid ? 0 : api.S?.rules?.tube ?? 0, PR = TW ? api.params ?? {} : null;
+  const tubeKit = TW ? (() => {                                                // color/halo/encendido del tubo según el estado del letrero
+    const isInk = !o.color || o.color === 'ink', fr = isInk ? mixHex(api.color('accent2'), api.color('accent'), Math.max(PR.lock ?? 0, clamp(((1 - (PR.chaos ?? 0)) - 0.15) * 2))) : col;
+    const kick = Math.min(1.5, (PR.kick ?? 0) + (PR.shock ?? 0) * 0.5), body = Math.min(0.42, 0.06 + 0.3 * kick + 0.18 * (PR.tension ?? 0));
+    return { color: isInk ? mixHex(api.color('ink'), fr, 0.28) : col, fringe: fr, body, kick, lit: (i) => litOf(i, api.t ?? 0, PR.chaos ?? 0, o.litSeed ?? 1) * (o.litMul ?? 1), w: TW * (1 + 0.1 * kick) };
+  })() : null;
+  const fill = (color, dx = 0) => {
+    if (TW) {
+      ctx.save(); ctx.translate(ox + dx, hpx / 2); ctx.scale(size, size);
+      const sp = color !== col, K = tubeKit;                                    // pasada de canal (split): tubo fino del color pedido, sin cuerpo
+      pieces(str, o.track ?? TRACK).forEach((p, i) => { if (p.ch === ' ') return; tubeLetter(ctx, p.shape, { ...K, color: sp ? color : K.color, fringe: sp ? color : K.fringe, body: sp ? 0 : K.body, lit: sp ? 1 : K.lit(i) }); });
+      ctx.restore(); return;
+    } ctx.save(); ctx.fillStyle = color; ctx.translate(ox + dx, hpx / 2); ctx.scale(size, size); ctx.beginPath(); tracePath(ctx, wordShape(str, o.track ?? TRACK)); ctx.fill(); ctx.restore(); };
   const draw = () => {
     ctx.save(); ctx.translate(cx, cy); if (o.rot) ctx.rotate(o.rot); ctx.scale(sx, sy); ctx.globalAlpha = a;
     if (o.reg !== false && (a > 0.2 || o.reg === 'only')) api._box(ctx.getTransform(), { x: ox - pad, y: -hpx / 2 - pad, w: wpx + 2 * pad, h: hpx + 2 * pad }, { kind: 'text', label: o.label ?? str, size, role: 'h1', chars: String(str).length });
     if (o.reg === 'only') { ctx.restore(); return; }
+    if (TW && o.wash !== false && a > 0.05) {                                  // la luz del tubo baña el muro: pozo de color tras la palabra
+      const R = Math.max(wpx, hpx) * 0.75, g = ctx.createRadialGradient(0, 0, 0, 0, 0, R), K = tubeKit; g.addColorStop(0, K.fringe); g.addColorStop(1, 'rgba(0,0,0,0)');
+      ctx.save(); ctx.globalCompositeOperation = 'lighter'; ctx.globalAlpha = a * clamp(0.1 + 0.16 * K.kick); ctx.fillStyle = g; ctx.translate(ox + wpx / 2, 0); ctx.fillRect(-R, -R, 2 * R, 2 * R); ctx.restore();
+    }
     const rv = o.reveal, clipRev = () => { if (rv) { ctx.beginPath(); ctx.rect(ox + wpx * rv[0] - 1, -hpx, wpx * (rv[1] - rv[0]) + 2, 2 * hpx); ctx.clip(); } };
     ctx.save(); clipRev();
     if (o.per) {                                                              // por letra: cada glifo con su propio transform
@@ -98,7 +139,7 @@ export function word(ctx, api, str, cx, cy, size, o = {}) {
       P.forEach((p, i) => {
         if (p.ch === ' ') return; const q = o.per(i, n) ?? {}, gx = ox + (p.x + p.adv / 2) * size;
         ctx.save(); ctx.globalAlpha = a * (q.a ?? 1); ctx.translate(gx + (q.dx ?? 0), hpx / 2 + (q.dy ?? 0) - 0.5 * hpx * 0); ctx.rotate(q.rot ?? 0); ctx.scale(q.s ?? 1, q.s ?? 1);
-        ctx.translate(-(p.x + p.adv / 2) * size, 0); ctx.scale(size, size); ctx.fillStyle = q.color ? api.color(q.color) : col; ctx.beginPath(); tracePath(ctx, p.shape); ctx.fill(); ctx.restore();
+        ctx.translate(-(p.x + p.adv / 2) * size, 0); ctx.scale(size, size); if (TW) { const K = tubeKit, qc = q.color ? api.color(q.color) : null; tubeLetter(ctx, p.shape, { ...K, color: qc ?? K.color, fringe: qc ?? K.fringe, lit: K.lit(i) * (q.lit ?? 1) }); } else { ctx.fillStyle = q.color ? api.color(q.color) : col; ctx.beginPath(); tracePath(ctx, p.shape); ctx.fill(); } ctx.restore();
       });
     } else if (o.slice && o.slice.amp > 0.01) {
       const S = o.slice, n = S.n ?? 5, R = rng(Math.floor((S.t ?? 0) * 24) * 131 + (S.seed ?? 1));

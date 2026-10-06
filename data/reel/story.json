@@ -1,14 +1,58 @@
 {
-  "idea": "Lo roto no se pierde: el ruido tiene compás, y al romperse del todo vuelve a sonar.",
-  "question": { "text": "¿Qué suena cuando todo se rompe?", "posed_at": 0.63, "answered_at": 24.2, "on_screen": true },
-  "beats": [
-    { "id": "b1", "t": 0.63, "text": "Una ¿ lima pregunta: ¿qué suena cuando todo se rompe?" },
-    { "id": "b2", "t": 4.93, "text": "pero solo contesta ruido: golpes sueltos fuera de compás", "link": "pero" },
-    { "id": "b3", "t": 9.8, "text": "por lo tanto el ruido se engancha a la rejilla y se vuelve secuenciador", "link": "por lo tanto" },
-    { "id": "b4", "t": 18.33, "text": "por lo tanto lo que cae a compás también se rompe a compás: tensión", "link": "por lo tanto" },
-    { "id": "b5", "t": 22.0, "text": "pero el golpe lo parte todo", "link": "pero" },
-    { "id": "b6", "t": 24.2, "text": "por lo tanto las esquirlas se recomponen: lo roto vuelve a sonar", "link": "por lo tanto" }
-  ],
-  "accommodation": { "t": 22.0, "type": "idea", "text": "romper del todo no destruye: libera las piezas de la frase" },
-  "accent": { "means": "el pulso y la respuesta (lima); la rotura es magenta" }
+ "idea": "Un letrero de neón roto no calla: zumba, y su zumbido tiene compás. Lo roto no se pierde: cuando el letrero se rompe del todo, las piezas vuelven a encenderse y la frase suena.",
+ "question": {
+  "text": "¿Qué suena cuando todo se rompe?",
+  "posed_at": 0.63,
+  "answered_at": 24.2,
+  "on_screen": true
+ },
+ "beats": [
+  {
+   "id": "b1",
+   "t": 0.63,
+   "text": "Un letrero apagado en un callejón: una ¿ lima se enciende y pregunta qué suena cuando todo se rompe"
+  },
+  {
+   "id": "b2",
+   "t": 4.93,
+   "text": "pero el letrero solo contesta ruido: tubos que parpadean y golpes sueltos fuera de compás",
+   "link": "pero"
+  },
+  {
+   "id": "b3",
+   "t": 9.8,
+   "text": "por lo tanto el zumbido se engancha a la rejilla del pulso y el ruido se vuelve secuenciador: los tubos dejan de tartamudear",
+   "link": "por lo tanto"
+  },
+  {
+   "id": "b4",
+   "t": 18.33,
+   "text": "por lo tanto lo que cae a compás también se rompe a compás: la tensión sube hasta el límite (TODO SE ROMPE) y el aire se retira",
+   "link": "por lo tanto"
+  },
+  {
+   "id": "b5",
+   "t": 22.0,
+   "text": "pero el golpe lo parte todo: apagón y flash, el letrero estalla en esquirlas",
+   "link": "pero"
+  },
+  {
+   "id": "b6",
+   "t": 24.2,
+   "text": "por lo tanto las esquirlas se recomponen y los tubos se reenciendan uno a uno: lo roto vuelve a sonar",
+   "link": "por lo tanto"
+  }
+ ],
+ "accommodation": {
+  "t": 22.0,
+  "type": "idea",
+  "text": "romper del todo no destruye: libera las piezas de la frase (el apagón era el material del regreso)"
+ },
+ "accent": {
+  "means": "el color del halo es el estado del letrero: magenta = roto (ruido), lima = enganchado al pulso y respuesta; el blanco caliente del núcleo es la voz"
+ },
+ "medium": {
+  "name": "neon_pulso",
+  "porque": "El reel pregunta qué suena cuando todo se rompe, y un letrero de neón es el objeto que suena roto: zumba (100 Hz de balastro), parpadea con ruido, se apaga a golpes y se reenciende. Su luz es aditiva, así que el fondo nunca es negro vacío: muro de ladrillo ciruela con bruma, bokeh y suelo mojado que refleja. Cada letra es un tubo de vidrio con núcleo caliente; el halo cuenta el estado (magenta roto, lima enganchado) y el cuerpo se llena con el bombo. El apagón antes del golpe es el tubo sin corriente, y el regreso es la reignición uno a uno: el medio dice la tesis."
+ }
 }

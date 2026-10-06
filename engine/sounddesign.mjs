@@ -10,9 +10,9 @@ import { SR, TAU, clamp, lerp, mtof, db2lin, rng, hashStr, stereo, reverb } from
 const SIZE = { ECU: 0, CU: 0, MCU: 1, MS: 2, MWS: 2.5, WS: 3, EWS: 4 }, rank = (s) => SIZE[s?.size] ?? 2;
 const TRANS = ['morph', 'cut', 'scale-cut', 'hold-cut'];
 const BANDS = { impact: [1, 0.3, 0.3],   // el golpe cede solo los graves: el acorde del clímax canta por encima del sub
-   bloom: [0.8, 1, 0.8], riser: [0.5, 1, 1], whoosh: [0.5, 1, 1], shimmer: [0.7, 0.8, 1], anom: [0.9, 1, 0.8], resolve: [1, 0.8, 0.7], accent: [1, 0.6, 0.4], tick: [0, 0.5, 1], pop: [0.3, 1, 0.6], click: [0, 0.4, 1] };
-const GAIN = { impact: 1.25, bloom: 1.1, riser: 1, shimmer: 1.4, anom: 1, pop: 1.5, click: 1, drone: 0.4, air: 0.5 };   // escala sobre el gain declarado (calibra el banco propio frente al v1)
-const SEND = { impact: 0.45, bloom: 0.65, riser: 0.3, whoosh: 0.18, shimmer: 0.6, anom: 0.4, resolve: 0.4, accent: 0.25, tick: 0.14, pop: 0.2, click: 0.1, drone: 0.1, air: 0.1 };
+   bloom: [0.8, 1, 0.8], riser: [0.5, 1, 1], whoosh: [0.5, 1, 1], shimmer: [0.7, 0.8, 1], anom: [0.9, 1, 0.8], resolve: [1, 0.8, 0.7], accent: [1, 0.6, 0.4], tick: [0, 0.5, 1], pop: [0.3, 1, 0.6], click: [0, 0.4, 1], buzz: [0.2, 0.7, 0.6] };
+const GAIN = { impact: 1.25, bloom: 1.1, riser: 1, shimmer: 1.4, anom: 1, pop: 1.5, click: 1, drone: 0.4, air: 0.5, buzz: 0.5 };   // escala sobre el gain declarado (calibra el banco propio frente al v1)
+const SEND = { impact: 0.45, bloom: 0.65, riser: 0.3, whoosh: 0.18, shimmer: 0.6, anom: 0.4, resolve: 0.4, accent: 0.25, tick: 0.14, pop: 0.2, click: 0.1, drone: 0.1, buzz: 0.05, air: 0.1 };
 const keyMidi = (k) => { const pc = ({ C: 0, D: 2, E: 4, F: 5, G: 7, A: 9, B: 11 })[k.root[0]] + (k.root[1] === '#' ? 1 : k.root[1] === 'b' ? -1 : 0); return (pc + 12) % 12; };   // clase de altura de la tónica
 
 // ───────── eventos ─────────
@@ -47,6 +47,9 @@ export function designEvents(tl, plan, style) {
   for (const r of ev.filter((e) => e.type === 'riser')) if (!ev.some((e) => e !== r && e.type !== 'riser' && e.type !== 'drone' && e.t >= r.t - 0.1 && e.t <= r.t + 0.6)) push({ t: r.t, type: 'resolve', bus: 'sfx', gain: 0.8 * r.gain / 0.4, src: `${r.src}:resuelve`, derived: 'riser' });
   // ambientes por escala: una cama por plano (cruza 1 s con el vecino); los drones declarados son la cama grave
   if (SX.air !== false) shots.forEach((s) => push({ t: s.t[0] - 1, type: 'air', bus: 'amb', priority: 0, dur: s.t[1] - s.t[0] + 2, lead: 0, gain: GAIN.air, p: { rank: rank(s) }, src: `${s.id}.ambiente`, derived: 'ambiente' }));
+  // zumbido de tubo (opt-in, SX.buzz = {gain, signal}): una cama continua en el bus de ambiente; su inestabilidad sigue la señal `signal` del timeline
+  // (1 = ruido: caídas y chisporroteo; 0 = enganchado: hum limpio afinado a la tónica). El vacío del golpe la corta como un apagón. Estilos sin SX.buzz: nada.
+  if (SX.buzz) { const ks = (tl.signals?.[SX.buzz.signal ?? 'chaos']?.keys ?? []).map((k) => [k.t, k.v]); push({ t: 0, type: 'buzz', bus: 'amb', priority: 0, dur: tl.duration + 0.5, lead: 0, gain: SX.buzz.gain ?? 0.3, p: { keys: ks.length ? ks : [[0, 0.5]] }, src: 'letrero.zumbido', derived: 'medio' }); }
   ev.sort((a, b) => a.t - b.t);
   // tics: ascienden por la escala del estilo dentro de cada racha; nivel y brillo siguen la intensidad
   const ticks = ev.filter((e) => e.type === 'tick'); let run = 0, last = -9;
@@ -77,6 +80,7 @@ export function designEvents(tl, plan, style) {
 
 // ───────── voces ─────────
 // Cada voz devuelve {x: mono, lead: segundos antes del instante de sincronía en que empieza x}.
+const hash01 = (n) => { let h = (Math.imul(n | 0, 374761393) + 668265263) | 0; h = Math.imul(h ^ (h >>> 13), 1274126177); return ((h ^ (h >>> 16)) >>> 0) / 4294967296; };
 const env = (t, a, d) => (t < a ? t / a : Math.exp(-(t - a) / d));
 const mk = (sec) => new Float32Array(Math.max(1, Math.round(sec * SR)));
 const VOICE = {
@@ -136,6 +140,23 @@ const VOICE = {
   drone(e, R, C) { // cama grave en quinta y octava de la tónica, con deriva lenta; sigue la intensidad
     const d = e.dur, x = mk(d), f = mtof(24 + keyMidi(C.style.key)); const ph0 = R() * TAU;
     for (let i = 0; i < x.length; i++) { const t = i / SR, a = Math.min(1, t / 0.8, (d - t) / 0.8), it = C.I(e.t + t); x[i] = e.gain * a * (0.5 + 0.9 * it) * (Math.sin(TAU * f * t + ph0) + 0.6 * Math.sin(TAU * f * 1.5 * t + 0.6 * Math.sin(0.3 * t)) + 0.2 * Math.sin(TAU * f * 2 * t + Math.sin(t))); }
+    return { x, lead: 0 };
+  },
+  buzz(e, R, C) { // zumbido de un tubo de neón: hum de armónicos afinado a la tónica (sierra filtrada) + caídas y chisporroteo según la inestabilidad (señal 0..1)
+    const d = e.dur, x = mk(d), f0 = mtof(36 + keyMidi(C.style.key)), K = e.p.keys, NH = 12, ph = Array.from({ length: NH }, () => R());
+    const at = (t) => { if (t <= K[0][0]) return K[0][1]; for (let k = 1; k < K.length; k++) if (t <= K[k][0]) { const u = (t - K[k - 1][0]) / Math.max(1e-6, K[k][0] - K[k - 1][0]); return K[k - 1][1] + (K[k][1] - K[k - 1][1]) * u; } return K[K.length - 1][1]; };
+    let lp = 0, g = 1, hp = 0, burst = 0;
+    for (let i = 0; i < x.length; i++) {
+      const t = i / SR, c = clamp(at(t)), it = C.I(e.t + t), step = Math.floor(t * 11), drop = hash01(step * 3 + 99) < c * 0.32 ? 0.12 : 1, n = R() * 2 - 1;
+      g += (drop - g) * (drop < g ? 0.02 : 0.004);                                                      // cae rápido, vuelve lento (el tubo se reencima)
+      if (R() < c * 22 / SR * 3) burst = 0.004 * SR * (0.5 + R());                                      // chisporroteo: ráfagas de ruido de pocos ms
+      const cr = burst > 0 ? (burst-- / (0.006 * SR)) * (n - hp) : 0; hp += 0.2 * (n - hp);
+      let sg = 0; const wob = 1 + 0.0015 * c * Math.sin(TAU * 7 * t);
+      for (let h = 0; h < NH; h++) { ph[h] += (f0 * (h + 1) * wob) / SR; if (ph[h] >= 1) ph[h] -= 1; sg += Math.sin(TAU * ph[h]) / (1 + 0.55 * h); }
+      const fc = 260 + 700 * (1 - c) + 500 * it, a = 1 - Math.exp((-TAU * fc) / SR); lp += a * (sg - lp);
+      const am = Math.min(1, t / 0.4, (d - t) / 0.4);
+      x[i] = e.gain * am * (0.4 + 0.6 * it) * (g * lp * (0.7 + 0.3 * (1 - c)) + 0.5 * c * cr);
+    }
     return { x, lead: 0 };
   },
   air(e, R, C) { // aire/ambiente por escala del plano: íntimo y cálido (CU) → amplio y frío con destellos de estrellas (EWS)

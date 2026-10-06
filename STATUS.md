@@ -50,15 +50,15 @@ Archivos (test/*.mjs): `arc.mjs` `bench-skia.mjs` `critic.mjs` `cut-render.mjs` 
 <!-- estatico:fin -->
 
 ---
-## Estado vivo (2026-10-06T13:38Z, no verificado)
+## Estado vivo (2026-10-06T13:55Z, no verificado)
 
 ## Veredictos
 
-Film activo: `regla` · engineHash `e605679620b5e6baf48168919ff275d8040327e5042b4fd2646920409bc5f654` · filmHash `80a7eb83c0c40dba`
+Film activo: `main` · engineHash `3e53cb2232249bc9cd55f3f5af9dced83ea971b89a4aa2b8f7849bcaa9c46bd2` · filmHash `988b84a39afcb6a2`
 
-- out/lint.json: SHIP · VIGENTE
-- out/critic.json: SHIP · VIGENTE
-- veredictos por shot: 14 vigentes, 0 caducados
+- out/lint.json: SHIP · CADUCADO
+- out/critic.json: no existe
+- veredictos por shot: 0 vigentes, 3 caducados
 
 ### Estado de gates (out/gates.json)
 
@@ -73,9 +73,8 @@ Film activo: `regla` · engineHash `e605679620b5e6baf48168919ff275d8040327e5042b
 - `metricas` (+76 commits)
 - `orquestacion` (+101 commits)
 - `perf` (+53 commits)
-- `prod-potencias` (+3 commits)
+- `prod-potencias` (+6 commits)
 - `prod-reel` (+3 commits)
-- `prod-regla` (+2 commits)
 - `semantica` (+101 commits)
 - `video-mate` (+33 commits)
 - `video-reel` (+34 commits)
@@ -95,11 +94,11 @@ Film activo: `regla` · engineHash `e605679620b5e6baf48168919ff275d8040327e5042b
 
 ## Último run de tests
 
-- 2026-10-06T13:37:58.354Z: 3 fallos (--fast)
+- 2026-10-06T07:57:13.180Z: todo verde
 
 ## Ledger
 
-- cadena: íntegra · 5 entradas (5 encadenadas, 0 heredadas, 0 firmadas) · códigos 100 %
+- cadena: íntegra · 11 entradas (0 encadenadas, 11 heredadas, 0 firmadas) · códigos 100 %
 
 ## Presupuestos
 
