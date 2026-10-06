@@ -80,3 +80,7 @@ Cuatro medios con identidad propia (no variantes de color del papel): **kraft** 
 | C1–C2 | compresión por medio: `encode {crf,tune}`; mate_papel ≤ 40 % del tamaño de crf 16 con ≥70 % del grano | medido con ffmpeg |
 | V1–V4 | variantes del acento morado: A ciruela `#4A2F7A`, B terracota `#B4532A`; el film por defecto no cambia | datos |
 | H1 | hoja A/B por medio | archivo generado |
+
+### Calificación 2026-10-06 (medios nuevos y acento)
+- kraft, pizarra, técnico y neón: "están bien, pero cada vídeo debería tener libertad para ello". → El medio es decisión del film (story/timeline `medium`), justificada por su tono; no hay medio impuesto.
+- Acento de mate_papel: "cualquiera de los 3 está bien, pero tal vez terracota" → mate_papel pasa a `papel_crema_terracota`.

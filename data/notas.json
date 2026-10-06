@@ -99,6 +99,33 @@
       "texto": "fluido y estilo acorde; plano; falla integración con escenario y ángulo",
       "fuente": "004",
       "medible": true
+    },
+    {
+      "film": "stress/potencias",
+      "version": "world3d v2 (A/B P03)",
+      "dim": "visual",
+      "nota": null,
+      "texto": "bueno; la integración visual es buena, pero se ve pegado con cinta porque no está guionizado desde el principio",
+      "fuente": "009",
+      "medible": false
+    },
+    {
+      "film": "medios",
+      "version": "kraft, pizarra, técnico, neón",
+      "dim": "visual",
+      "nota": null,
+      "texto": "los 4 están bien; cada vídeo debe tener libertad para elegir su medio",
+      "fuente": "003",
+      "medible": false
+    },
+    {
+      "film": "mate_papel",
+      "version": "acento morado: violeta / ciruela / terracota",
+      "dim": "visual",
+      "nota": null,
+      "texto": "cualquiera de los 3 está bien, tal vez terracota → se adopta terracota",
+      "fuente": "003",
+      "medible": false
     }
   ]
 }

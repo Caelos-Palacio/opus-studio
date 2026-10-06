@@ -53,4 +53,8 @@ línea de suelo, un solo punto de fuga y una sola luz para las dos capas.
 ## Calificaciones
 | versión | nota | comentario |
 |---|---|---|
-| (pendiente v2) | — | — |
+| world3d v2 (A/B Potencias P03, vídeo) | — (2026-10-06) | "bueno": la integración visual es buena, pero "se ve pegado con cinta porque no está guionizado desde el principio" |
+
+### Lección (falso negativo → escenario nuevo)
+El 3D añadido a un film ya guionizado se lee como parche aunque los píxeles casen. Escenario:
+- S10 Dado un film que usa world3d, Entonces su story.json declara desde el guion qué beats son 3D y por qué (concepto de la memoria que el 3D encarna); el lint de arc avisa `w3d.sin-guion` si un shot usa world3d sin beat 3D declarado.
