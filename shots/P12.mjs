@@ -1,21 +1,239 @@
-import { clamp, ease, seg } from '../engine/core.mjs';
-import { geo, hud, ruler, sqdot, TEX_LOG, texPow, LMAX, CUR, inkA } from './P_mundo.mjs';
-// Descenso. El cursor vuelve por la regla de 26,9 a 0 (los hitos se encienden al pasar) y la ecuación se escribe con
-// los números que ya están en pantalla: contar pasos de ×10 ES tomar el logaritmo.
-const T0 = 63;
-export const vOf = (t) => LMAX * (1 - ease.inOut(clamp((t - T0 - 1.5) / 5)));
-const win = (t, film) => { const G = geo(film), v = vOf(t); return { x: G.rx(v), y: G.ry, s: CUR * G.dot, L: v }; };
-const EQ = String.raw`\log_{10}\!\left(\frac{8{,}8\times10^{26}\,\mathrm{m}}{1\,\mathrm{m}}\right)\approx 26{,}9`;
-export default {
-  entities: { win },
-  draw(ctx, t, u, shot, film, api) {
-    const lt = t - T0, G = geo(film), v = vOf(t), acc = api.color('accent');
-    ruler(ctx, api, G, { hi: lt > 1.4 && lt < 6.8 ? v : null });
-    for (let k = 0; k <= 26; k++) sqdot(ctx, G.rx(k), G.ry, G.dot, 1, acc, k > v + 0.02 ? 0.4 : 1);   // lo recorrido queda atenuado
-    const c = win(t, film); sqdot(ctx, c.x, c.y, c.s, 0, acc, 1, 1.8);
-    const w = clamp((lt - 0.9) / 2.4), out = 1 - seg(lt, 7.4, 8);
-    if (w > 0) api.tex(EQ, G.cx, G.sy0 + 0.3 * G.sh, { size: 40 * G.k * 1.5, color: inkA(api, out), write: w });
-    if (lt < 6.5) hud(api, film, t, { tex: { from: TEX_LOG } });
-    else hud(api, film, t, { tex: { from: TEX_LOG, to: texPow(0), u: api.ease('inOut', clamp((lt - 6.5) / 0.6)) } });
+// GENERADO desde shots/P12.scene.json por `node engine/dsl.mjs build` (spec 006). No editar a mano: edita el .scene.json y regenera.
+import { shot } from '../engine/dsl-core.mjs';
+import * as P_mundo from './P_mundo.mjs';
+import * as P_dsl from './P_dsl.mjs';
+export default shot({
+ "dsl": 1,
+ "id": "P12",
+ "doc": "Descenso. El cursor vuelve por la regla de 26,9 a 0 (los hitos se encienden al pasar) y la ecuación se escribe con los números que ya están en pantalla: contar pasos de ×10 ES tomar el logaritmo.",
+ "libs": {
+  "P_mundo": "./P_mundo.mjs",
+  "P_dsl": "./P_dsl.mjs"
+ },
+ "fns": {
+  "rx": {
+   "lib": "P_dsl",
+   "fn": "rx"
+  }
+ },
+ "entities": {
+  "win": {
+   "lib": "P_dsl",
+   "fn": "win12",
+   "fields": [
+    "x",
+    "y",
+    "s"
+   ],
+   "reads": []
+  }
+ },
+ "objects": [
+  {
+   "id": "G",
+   "type": "let",
+   "lib": "P_mundo",
+   "fn": "geo",
+   "args": [
+    "film"
+   ],
+   "fields": [
+    "S0",
+    "cx",
+    "cy",
+    "k",
+    "sy0",
+    "sh",
+    "dot",
+    "ry"
+   ],
+   "semantic": "geometría de pantalla de la escala"
   },
-};
+  {
+   "id": "LM",
+   "type": "let",
+   "lib": "P_dsl",
+   "fn": "lmax",
+   "args": []
+  },
+  {
+   "id": "T0",
+   "type": "let",
+   "value": 63
+  },
+  {
+   "id": "l",
+   "type": "let",
+   "value": {
+    "$expr": "t - T0"
+   }
+  },
+  {
+   "id": "v",
+   "type": "let",
+   "semantic": "la marca por la que va el cursor",
+   "value": {
+    "$expr": "LM * (1 - ease('inOut', clamp((t - T0 - 1.5) / 5)))"
+   }
+  },
+  {
+   "id": "regla",
+   "type": "axis",
+   "lib": "P_mundo",
+   "fn": "ruler",
+   "args": [
+    "ctx",
+    "api",
+    {
+     "$expr": "G"
+    },
+    {
+     "hi": {
+      "$expr": "l > 1.4 && l < 6.8 ? v : nil()"
+     }
+    }
+   ],
+   "semantic": "regla de exponentes: línea, marcas, iconos de hitos y etiquetas"
+  },
+  {
+   "id": "marcas",
+   "type": "repeat",
+   "n": 27,
+   "children": [
+    {
+     "type": "plot",
+     "lib": "P_mundo",
+     "fn": "sqdot",
+     "args": [
+      "ctx",
+      {
+       "$expr": "rx(G, i)"
+      },
+      {
+       "$expr": "G_ry"
+      },
+      {
+       "$expr": "G_dot"
+      },
+      {
+       "$expr": "1"
+      },
+      {
+       "$expr": "color('accent')"
+      },
+      {
+       "$expr": "i > v + 0.02 ? 0.4 : 1"
+      }
+     ],
+     "semantic": "cuadrado→punto de la regla"
+    }
+   ]
+  },
+  {
+   "type": "plot",
+   "lib": "P_mundo",
+   "fn": "sqdot",
+   "args": [
+    "ctx",
+    {
+     "$expr": "win_x"
+    },
+    {
+     "$expr": "win_y"
+    },
+    {
+     "$expr": "win_s"
+    },
+    {
+     "$expr": "0"
+    },
+    {
+     "$expr": "color('accent')"
+    },
+    {
+     "$expr": "1"
+    },
+    {
+     "$expr": "1.8"
+    }
+   ],
+   "semantic": "cuadrado→punto de la regla",
+   "id": "cursor"
+  },
+  {
+   "id": "w",
+   "type": "let",
+   "value": {
+    "$expr": "clamp((l - 0.9) / 2.4)"
+   }
+  },
+  {
+   "id": "out",
+   "type": "let",
+   "value": {
+    "$expr": "1 - seg(l, 7.4, 8)"
+   }
+  },
+  {
+   "id": "ecuacion",
+   "type": "formula",
+   "when": "w > 0",
+   "tex": "\\log_{10}\\!\\left(\\frac{8{,}8\\times10^{26}\\,\\mathrm{m}}{1\\,\\mathrm{m}}\\right)\\approx 26{,}9",
+   "x": {
+    "$expr": "G_cx"
+   },
+   "y": {
+    "$expr": "G_sy0 + 0.3 * G_sh"
+   },
+   "size": {
+    "$expr": "40 * G_k * 1.5"
+   },
+   "color": {
+    "$expr": "inkA(out)"
+   },
+   "write": {
+    "$expr": "w"
+   }
+  },
+  {
+   "id": "contador",
+   "type": "hud",
+   "lib": "P_mundo",
+   "fn": "hud",
+   "args": [
+    "api",
+    "film",
+    "t",
+    {
+     "tex": {
+      "from": "10^{26{,}9}\\,\\mathrm{m}"
+     }
+    }
+   ],
+   "semantic": "contador 10^n m con morph glifo a glifo",
+   "when": "l < 6.5"
+  },
+  {
+   "id": "contador2",
+   "type": "hud",
+   "lib": "P_mundo",
+   "fn": "hud",
+   "args": [
+    "api",
+    "film",
+    "t",
+    {
+     "tex": {
+      "from": "10^{26{,}9}\\,\\mathrm{m}",
+      "to": "10^{0}\\,\\mathrm{m}",
+      "u": {
+       "$expr": "ease('inOut', clamp((l - 6.5) / 0.6))"
+      }
+     }
+    }
+   ],
+   "semantic": "contador 10^n m con morph glifo a glifo",
+   "when": "!(l < 6.5)"
+  }
+ ]
+}, { P_mundo, P_dsl });

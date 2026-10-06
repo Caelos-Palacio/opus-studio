@@ -1,14 +1,85 @@
-import { seg } from '../engine/core.mjs';
-import { drawWorld, drawTicks, drawEq, zEntity } from './M_mundo.mjs';
-// El límite (pico). Calma; luego n pasa de 8 a 2500 y el polígono se redondea hasta ser una semicircunferencia; su extremo aterriza en −1.
-// Tras el aterrizaje, silencio visual y sonoro (hold).
-export default {
-  entities: { z: zEntity },
-  draw(ctx, t, u, shot, film, api) {
-    drawWorld(ctx, api, film, t);
-    drawTicks(api, film, t);
-    drawEq(api, film, t);
-    api.text(shot.text, film.width / 2, film.height * 0.865, { role: 'h2', alpha: seg(t, 59.9, 60.9) * (1 - seg(t, 62.4, 63.2)) });
-    api.text('el polígono se vuelve arco', film.width / 2, film.height * 0.865, { role: 'h2', alpha: seg(t, 69.2, 70.4) });
+// GENERADO desde shots/M06.scene.json por `node engine/dsl.mjs build` (spec 006). No editar a mano: edita el .scene.json y regenera.
+import { shot } from '../engine/dsl-core.mjs';
+import * as M_mundo from './M_mundo.mjs';
+export default shot({
+ "dsl": 1,
+ "id": "M06",
+ "doc": "El límite (pico). Calma; luego n pasa de 8 a 2500 y el polígono se redondea hasta ser una semicircunferencia; su extremo aterriza en −1. Tras el aterrizaje, silencio visual y sonoro (hold).",
+ "libs": {
+  "M_mundo": "./M_mundo.mjs"
+ },
+ "entities": {
+  "z": {
+   "lib": "M_mundo",
+   "fn": "zEntity"
+  }
+ },
+ "objects": [
+  {
+   "id": "mundo",
+   "type": "plot",
+   "lib": "M_mundo",
+   "fn": "drawWorld",
+   "args": [
+    "ctx",
+    "api",
+    "film",
+    "t"
+   ],
+   "semantic": "plano complejo: eje real, imaginario, arco y punto z"
   },
-};
+  {
+   "id": "marcas",
+   "type": "axis",
+   "lib": "M_mundo",
+   "fn": "drawTicks",
+   "args": [
+    "api",
+    "film",
+    "t"
+   ],
+   "semantic": "etiquetas numéricas de la recta/plano"
+  },
+  {
+   "id": "ecuacion",
+   "type": "equation",
+   "steps": {
+    "lib": "M_mundo",
+    "export": "EQ"
+   },
+   "semantic": "la ecuación única que muta"
+  },
+  {
+   "id": "cierre",
+   "type": "text",
+   "text": {
+    "$shot": "text"
+   },
+   "x": {
+    "$expr": "W / 2"
+   },
+   "y": {
+    "$expr": "H * 0.865"
+   },
+   "role": "h2",
+   "alpha": {
+    "$expr": "seg(t, 59.9, 60.9) * (1 - seg(t, 62.4, 63.2))"
+   }
+  },
+  {
+   "id": "arco",
+   "type": "text",
+   "text": "el polígono se vuelve arco",
+   "x": {
+    "$expr": "W / 2"
+   },
+   "y": {
+    "$expr": "H * 0.865"
+   },
+   "role": "h2",
+   "alpha": {
+    "$expr": "seg(t, 69.2, 70.4)"
+   }
+  }
+ ]
+}, { M_mundo });

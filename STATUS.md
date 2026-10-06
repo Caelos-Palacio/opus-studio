@@ -32,21 +32,28 @@ Definición (gates.json); el estado de cierre está en la parte viva.
 
 ## Motor
 
-- versión: 5.0.0 (package.json) · módulos engine/: 78
+- versión: 5.0.0 (package.json) · módulos engine/: 79
 - roles: modo `enforce` (*, director, dp, investigador, td, productor, animator, review) · digest `35a737817acffefa`
 - presupuestos: data/budgets.json digest `5290bbde06ea538a`
 
+## DSL de escenas (spec 010)
+
+- cobertura: **92.1 %** (58/63 shots en DSL; honesta: los 3 pendientes de otra rama cuentan en contra; sin ellos 96.7 %) · umbral ratchet 92 %
+- clases: dsl 58 · escape 2 · pendiente:world3d2 3 · shots 100 % nativos 1 · el resto usa objetos respaldados por una función de módulo (plot/axis/world/hud/word…) con semántica y deps declaradas
+- escapes: A1 (objetivo de las mutaciones de test/run.mjs, golden.mjs, gov.mjs y orch: esos tests editan su JS por texto); A2 (objetivo de las mutaciones de test/run.mjs, golden.mjs, gov.mjs y orch: esos tests editan su JS por texto)
+- pendientes: D01 (world3d2), P03 (world3d2), P04 (world3d2)
+
 ## Tests
 
-Archivos (test/*.mjs): `arc.mjs` `bench-skia.mjs` `critic.mjs` `cut-render.mjs` `film.mjs` `fuzz.mjs` `golden.mjs` `gov.mjs` `guard.mjs` `harness.mjs` `hash.mjs` `lib.mjs` `medios.mjs` `memoria.mjs` `metrics.mjs` `motor.mjs` `orch.mjs` `orquestacion.mjs` `params.mjs` `perf.mjs` `run.mjs` `schema.mjs` `semantica.mjs` `sound.mjs` `unit.mjs` `world3d.mjs`
+Archivos (test/*.mjs): `arc.mjs` `bench-skia.mjs` `critic.mjs` `cut-render.mjs` `dsl-cov.mjs` `film.mjs` `fuzz.mjs` `golden.mjs` `gov.mjs` `guard.mjs` `harness.mjs` `hash.mjs` `lib.mjs` `medios.mjs` `memoria.mjs` `metrics.mjs` `motor.mjs` `orch.mjs` `orquestacion.mjs` `params.mjs` `perf.mjs` `run.mjs` `schema.mjs` `semantica.mjs` `sound.mjs` `unit.mjs` `world3d.mjs`
 <!-- estatico:fin -->
 
 ---
-## Estado vivo (2026-10-06T07:41Z, no verificado)
+## Estado vivo (2026-10-06T07:52Z, no verificado)
 
 ## Veredictos
 
-Film activo: `main` · engineHash `e605679620b5e6baf48168919ff275d8040327e5042b4fd2646920409bc5f654` · filmHash `2ba9a9d721cb4a06`
+Film activo: `main` · engineHash `e605679620b5e6baf48168919ff275d8040327e5042b4fd2646920409bc5f654` · filmHash `988b84a39afcb6a2`
 
 - out/lint.json: SHIP · CADUCADO
 - out/critic.json: no existe
@@ -59,7 +66,7 @@ Film activo: `main` · engineHash `e605679620b5e6baf48168919ff275d8040327e5042b4
 ## Ramas sin integrar
 
 - `backup/pre-limpieza` (+136 commits)
-- `dsl80` (+7 commits)
+- `dsl80` (+9 commits)
 - `gobernanza` (+96 commits)
 - `harness` (+101 commits)
 - `medios` (+57 commits)
@@ -82,11 +89,10 @@ Film activo: `main` · engineHash `e605679620b5e6baf48168919ff275d8040327e5042b4
 - `worktree-agent-aeb50bfa4294a3a73` (+1 commits)
 - `worktree-agent-aeecba00c45e50119` (+2 commits)
 - `world3d` (+75 commits)
-- `world3d2` (+10 commits)
 
 ## Último run de tests
 
-- 2026-10-06T07:41:25.168Z: todo verde (--fast)
+- 2026-10-06T07:44:55.716Z: todo verde
 
 ## Ledger
 

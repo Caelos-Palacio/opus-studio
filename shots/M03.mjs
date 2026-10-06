@@ -1,20 +1,133 @@
-import { seg } from '../engine/core.mjs';
-import { drawWorld, drawTicks, drawEq, zEntity, view, velocity } from './M_mundo.mjs';
-// Otra idea: crecer. La flecha de velocidad tiene siempre el largo de la posición (dz/dt = z) y el punto avanza por la recta.
-// Concepto nuevo: «velocidad». La etiqueta nace pegada a la flecha y la sigue.
-export default {
-  entities: { z: zEntity },
-  draw(ctx, t, u, shot, film, api) {
-    const S = api.k * 1.5;
-    drawWorld(ctx, api, film, t);
-    drawTicks(api, film, t);
-    drawEq(api, film, t);
-    const v = velocity(film, t);
-    if (v && v.alpha > 0.2) {
-      api.focus(Math.min(v.x0, v.x1), v.y0 - 10 * S, Math.abs(v.x1 - v.x0), 20 * S, 'velocidad', { weight: 0.6, hollow: 0.5 });
-      api.text('velocidad', (v.x0 + v.x1) / 2, v.y0 - 40 * S, { role: 'body', alpha: seg(t, 23.0, 23.8) * (1 - seg(t, 32.6, 33.6)), color: 'accent2' });
-    }
-    api.text(shot.text, film.width / 2, film.height * 0.865, { role: 'h2', alpha: seg(t, 22.0, 23.2) * (1 - seg(t, 31.6, 32.6)) });
-    void view;
+// GENERADO desde shots/M03.scene.json por `node engine/dsl.mjs build` (spec 006). No editar a mano: edita el .scene.json y regenera.
+import { shot } from '../engine/dsl-core.mjs';
+import * as M_mundo from './M_mundo.mjs';
+export default shot({
+ "dsl": 1,
+ "id": "M03",
+ "doc": "Otra idea: crecer. La flecha de velocidad tiene siempre el largo de la posición (dz/dt = z) y el punto avanza por la recta. Concepto nuevo: «velocidad». La etiqueta nace pegada a la flecha y la sigue.",
+ "libs": {
+  "M_mundo": "./M_mundo.mjs"
+ },
+ "entities": {
+  "z": {
+   "lib": "M_mundo",
+   "fn": "zEntity"
+  }
+ },
+ "objects": [
+  {
+   "id": "S",
+   "type": "let",
+   "value": {
+    "$expr": "k * 1.5"
+   }
   },
-};
+  {
+   "id": "mundo",
+   "type": "plot",
+   "lib": "M_mundo",
+   "fn": "drawWorld",
+   "args": [
+    "ctx",
+    "api",
+    "film",
+    "t"
+   ],
+   "semantic": "plano complejo: eje real, imaginario, arco y punto z"
+  },
+  {
+   "id": "marcas",
+   "type": "axis",
+   "lib": "M_mundo",
+   "fn": "drawTicks",
+   "args": [
+    "api",
+    "film",
+    "t"
+   ],
+   "semantic": "etiquetas numéricas de la recta/plano"
+  },
+  {
+   "id": "ecuacion",
+   "type": "equation",
+   "steps": {
+    "lib": "M_mundo",
+    "export": "EQ"
+   },
+   "semantic": "la ecuación única que muta"
+  },
+  {
+   "id": "v",
+   "type": "let",
+   "lib": "M_mundo",
+   "fn": "velocity",
+   "args": [
+    "film",
+    "t"
+   ],
+   "fields": [
+    "x0",
+    "x1",
+    "y0",
+    "alpha"
+   ]
+  },
+  {
+   "id": "flecha",
+   "type": "group",
+   "when": "has(v) && v_alpha > 0.2",
+   "children": [
+    {
+     "type": "focus",
+     "x": {
+      "$expr": "min(v_x0, v_x1)"
+     },
+     "y": {
+      "$expr": "v_y0 - 10 * S"
+     },
+     "w": {
+      "$expr": "abs(v_x1 - v_x0)"
+     },
+     "h": {
+      "$expr": "20 * S"
+     },
+     "label": "velocidad",
+     "weight": 0.6,
+     "hollow": 0.5
+    },
+    {
+     "type": "text",
+     "text": "velocidad",
+     "x": {
+      "$expr": "(v_x0 + v_x1) / 2"
+     },
+     "y": {
+      "$expr": "v_y0 - 40 * S"
+     },
+     "role": "body",
+     "alpha": {
+      "$expr": "seg(t, 23.0, 23.8) * (1 - seg(t, 32.6, 33.6))"
+     },
+     "color": "accent2"
+    }
+   ]
+  },
+  {
+   "id": "cierre",
+   "type": "text",
+   "text": {
+    "$shot": "text"
+   },
+   "x": {
+    "$expr": "W / 2"
+   },
+   "y": {
+    "$expr": "H * 0.865"
+   },
+   "role": "h2",
+   "alpha": {
+    "$expr": "seg(t, 22.0, 23.2) * (1 - seg(t, 31.6, 32.6))"
+   }
+  }
+ ]
+}, { M_mundo });

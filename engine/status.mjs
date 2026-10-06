@@ -10,6 +10,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { spawnSync } from 'node:child_process';
 import { ROOT, digest, verify, stats } from './ledger.mjs';
+import { coverage, formatCoverageSummary } from './dsl-coverage.mjs';
 
 const rd = (f) => { try { return fs.readFileSync(path.join(ROOT, f), 'utf8'); } catch { return null; } };
 const rj = (f) => { try { return JSON.parse(rd(f)); } catch { return null; } };
@@ -32,6 +33,7 @@ export function staticPart() {
   o.push('', '## Motor', '', `- versión: ${pkg.version ?? '?'} (package.json) · módulos engine/: ${ls('engine').filter((f) => f.endsWith('.mjs')).length}`);
   const R = rj('roles.json'); o.push(`- roles: modo \`${R?.mode ?? '?'}\` (${Object.keys(R?.roles ?? {}).join(', ')}) · digest \`${digest(R)}\``);
   o.push(`- presupuestos: data/budgets.json digest \`${digest(rj('data/budgets.json'))}\``);
+  o.push('', '## DSL de escenas (spec 010)', '', ...formatCoverageSummary(coverage(ROOT)));
   o.push('', '## Tests', '', `Archivos (test/*.mjs): ${ls('test').filter((f) => f.endsWith('.mjs')).map((f) => '`' + f + '`').join(' ') || 'ninguno'}`);
   return o.join('\n');
 }

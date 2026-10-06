@@ -1,0 +1,17 @@
+{
+  "_doc": "Spec 010. Entrada de `dsl coverage`. pendiente: shots que toca otra rama (no se convierten aquí; SIGUEN contando en el denominador honesto). escape: shots que se quedan en JS con razón. libfn: función de lib/módulo auxiliar → tipo DSL que la sustituye (si el tipo existe en dsl-core, el shot es convertible).",
+  "pendiente": {
+    "D01": "world3d2",
+    "P03": "world3d2",
+    "P04": "world3d2"
+  },
+  "escape": {
+    "A1": "objetivo de las mutaciones de test/run.mjs, golden.mjs, gov.mjs y orch: esos tests editan su JS por texto",
+    "A2": "objetivo de las mutaciones de test/run.mjs, golden.mjs, gov.mjs y orch: esos tests editan su JS por texto"
+  },
+  "libfn": {},
+  "ratchet": {
+    "_doc": "Umbral de cobertura honesta (% de shots en DSL sobre TODOS los shots, pendientes incluidos). Solo sube: test/dsl-cov.mjs C7 falla si baja; súbelo al convertir más.",
+    "min": 92.0
+  }
+}

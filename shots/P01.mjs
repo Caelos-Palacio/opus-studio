@@ -1,22 +1,239 @@
-import { clamp, seg } from '../engine/core.mjs';
-import { ride, hud, winRide, geo } from './P_mundo.mjs';
-// Un metro. Escala humana ANTES del salto: la persona se dibuja y la ventana de 1 m se cierra a su alrededor (beat 2,4 s).
-export default {
-  entities: { win: winRide },
-  draw(ctx, t, u, shot, film, api) {
-    const lt = t - shot.t[0], G = geo(film);
-    ride(ctx, api, film, t, { person: { trim: seg(lt, 0.3, 1.9), fill: seg(lt, 1.5, 2.4) }, win: { draw0: 0 } });
-    const k = api.spring(lt - 1.6), s = G.S0 * (1 + 0.7 * (1 - k)), a = seg(lt, 1.5, 1.9);   // la ventana llega desde fuera y se asienta
-    ctx.save(); ctx.strokeStyle = api.color('accent'); ctx.globalAlpha = a * 0.95; ctx.lineWidth = 2.2 * G.k * 1.5; ctx.strokeRect(G.cx - s / 2, G.cy - s / 2, s, s); ctx.restore();
-    if (a > 0.1) api.focus(G.cx - s / 2, G.cy - s / 2, s, s, 'ventana', { weight: 0.3, hollow: 0.9 });
-    // cota de 1 m
-    const d = seg(lt, 2.5, 3.2) * (1 - seg(lt, 5.4, 6)), x = G.cx + G.S0 / 2 + 16 * G.k * 1.5;
-    if (d > 0) {
-      ctx.save(); ctx.strokeStyle = api.color('ink'); ctx.globalAlpha = 0.6 * d; ctx.lineWidth = 1.2; ctx.beginPath();
-      ctx.moveTo(x, G.cy - G.S0 / 2); ctx.lineTo(x, G.cy - G.S0 / 2 + G.S0 * d);
-      ctx.moveTo(x - 5, G.cy - G.S0 / 2); ctx.lineTo(x + 5, G.cy - G.S0 / 2); ctx.moveTo(x - 5, G.cy + G.S0 / 2); ctx.lineTo(x + 5, G.cy + G.S0 / 2); ctx.stroke(); ctx.restore();
-    }
-    api.text(shot.text, x + 14 * G.k * 1.5, G.cy, { role: 'body', align: 'left', alpha: api.spring(lt - 2.7) * (1 - seg(lt, 5.4, 6)) });
-    hud(api, film, t, { write: clamp((lt - 1.0) / 1.2) });
+// GENERADO desde shots/P01.scene.json por `node engine/dsl.mjs build` (spec 006). No editar a mano: edita el .scene.json y regenera.
+import { shot } from '../engine/dsl-core.mjs';
+import * as P_mundo from './P_mundo.mjs';
+export default shot({
+ "dsl": 1,
+ "id": "P01",
+ "doc": "Un metro. Escala humana ANTES del salto: la persona se dibuja y la ventana de 1 m se cierra a su alrededor (beat 2,4 s).",
+ "libs": {
+  "P_mundo": "./P_mundo.mjs"
+ },
+ "entities": {
+  "win": {
+   "lib": "P_mundo",
+   "fn": "winRide",
+   "fields": [],
+   "reads": []
+  }
+ },
+ "objects": [
+  {
+   "id": "G",
+   "type": "let",
+   "lib": "P_mundo",
+   "fn": "geo",
+   "args": [
+    "film"
+   ],
+   "fields": [
+    "S0",
+    "cx",
+    "cy",
+    "k",
+    "W",
+    "H",
+    "sy0",
+    "sh",
+    "dot",
+    "ry"
+   ],
+   "semantic": "geometría de pantalla de la escala"
   },
-};
+  {
+   "id": "viaje",
+   "type": "world",
+   "lib": "P_mundo",
+   "fn": "ride",
+   "args": [
+    "ctx",
+    "api",
+    "film",
+    "t",
+    {
+     "person": {
+      "trim": {
+       "$expr": "seg(lt, 0.3, 1.9)"
+      },
+      "fill": {
+       "$expr": "seg(lt, 1.5, 2.4)"
+      }
+     },
+     "win": {
+      "draw0": 0
+     }
+    }
+   ],
+   "semantic": "el viaje de escala: cielo, estrellas, suelo, sistema solar, ventana (continuidad exacta en cada corte)"
+  },
+  {
+   "id": "k1",
+   "type": "let",
+   "value": {
+    "$expr": "spring(lt - 1.6)"
+   }
+  },
+  {
+   "id": "s",
+   "type": "let",
+   "semantic": "la ventana llega desde fuera y se asienta",
+   "value": {
+    "$expr": "G_S0 * (1 + 0.7 * (1 - k1))"
+   }
+  },
+  {
+   "id": "a",
+   "type": "let",
+   "value": {
+    "$expr": "seg(lt, 1.5, 1.9)"
+   }
+  },
+  {
+   "id": "ventana",
+   "type": "shape",
+   "shape": "rect",
+   "stroke": true,
+   "color": "accent",
+   "alpha": {
+    "$expr": "a * 0.95"
+   },
+   "lineWidth": {
+    "$expr": "2.2 * G_k * 1.5"
+   },
+   "x": {
+    "$expr": "G_cx - s / 2"
+   },
+   "y": {
+    "$expr": "G_cy - s / 2"
+   },
+   "w": {
+    "$expr": "s"
+   },
+   "h": {
+    "$expr": "s"
+   }
+  },
+  {
+   "type": "focus",
+   "x": {
+    "$expr": "G_cx - s / 2"
+   },
+   "y": {
+    "$expr": "G_cy - s / 2"
+   },
+   "w": {
+    "$expr": "s"
+   },
+   "h": {
+    "$expr": "s"
+   },
+   "label": "ventana",
+   "weight": 0.3,
+   "hollow": 0.9,
+   "when": "a > 0.1"
+  },
+  {
+   "id": "d",
+   "type": "let",
+   "semantic": "cota de 1 m",
+   "value": {
+    "$expr": "seg(lt, 2.5, 3.2) * (1 - seg(lt, 5.4, 6))"
+   }
+  },
+  {
+   "id": "x",
+   "type": "let",
+   "value": {
+    "$expr": "G_cx + G_S0 / 2 + 16 * G_k * 1.5"
+   }
+  },
+  {
+   "id": "cota",
+   "type": "lines",
+   "when": "d > 0",
+   "color": "ink",
+   "alpha": {
+    "$expr": "0.6 * d"
+   },
+   "lineWidth": 1.2,
+   "segs": [
+    [
+     {
+      "$expr": "x"
+     },
+     {
+      "$expr": "G_cy - G_S0 / 2"
+     },
+     {
+      "$expr": "x"
+     },
+     {
+      "$expr": "G_cy - G_S0 / 2 + G_S0 * d"
+     }
+    ],
+    [
+     {
+      "$expr": "x - 5"
+     },
+     {
+      "$expr": "G_cy - G_S0 / 2"
+     },
+     {
+      "$expr": "x + 5"
+     },
+     {
+      "$expr": "G_cy - G_S0 / 2"
+     }
+    ],
+    [
+     {
+      "$expr": "x - 5"
+     },
+     {
+      "$expr": "G_cy + G_S0 / 2"
+     },
+     {
+      "$expr": "x + 5"
+     },
+     {
+      "$expr": "G_cy + G_S0 / 2"
+     }
+    ]
+   ]
+  },
+  {
+   "id": "rotulo",
+   "type": "text",
+   "text": {
+    "$shot": "text"
+   },
+   "x": {
+    "$expr": "x + 14 * G_k * 1.5"
+   },
+   "y": {
+    "$expr": "G_cy"
+   },
+   "role": "body",
+   "align": "left",
+   "alpha": {
+    "$expr": "spring(lt - 2.7) * (1 - seg(lt, 5.4, 6))"
+   }
+  },
+  {
+   "id": "contador",
+   "type": "hud",
+   "lib": "P_mundo",
+   "fn": "hud",
+   "args": [
+    "api",
+    "film",
+    "t",
+    {
+     "write": {
+      "$expr": "clamp((lt - 1.0) / 1.2)"
+     }
+    }
+   ],
+   "semantic": "contador 10^n m con morph glifo a glifo"
+  }
+ ]
+}, { P_mundo });
