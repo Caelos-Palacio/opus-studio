@@ -15,3 +15,16 @@
   intacto (la secuencia de Math.random no se reinicia). `makeTexStore.get` lo usa solo en fallo de caché; cadena ≤ 2000 caracteres. El resultado es función pura de la cadena.
 - `assets --tex` sigue precompilando los literales (más rápido en frío y manifiesto para el navegador); lo dinámico se compila al vuelo y se cachea igual.
 - Tests: test/guard.mjs (trusted) y mutación `tex-dinamico` en test/run.mjs.
+
+## 4. CI macOS (reproducido en Linux)
+- Log real del job macos-14 (gh run view --job): golden demo 6/9 y fixture 6/15 = EXACTAMENTE los fotogramas con texto que cambian al sustituir la tipografía
+  (simulado con otra fuente en Linux: mismos fotogramas y Δmax 224 en A1@mid). Causa: otras fuentes/cairo, no el motor.
+- Fix: modo tolerante por BLOQUES de 8×8 celdas (composición), umbral 90/2 (calibrado: otra tipografía ≤ 41/0,6). Selftests `golden-otra-fuente`
+  (DejaVu Serif vía `OPUS_GOLDEN_FONTCONF`/test/golden/fonts-alt.conf pasa) y `golden-tolerante-detecta` (cuadrado de 200 px se detecta). Estricto intacto en misma huella.
+- gov 124/129 (ENOENT ledger + 4 E11): reproducido con `TMPDIR=<symlink>`. `roles.rel()` comparaba la ruta simbólica (/var/…) con ROOT real (/private/var/…) → "fuera del proyecto" → allow sin registrar.
+  Fix: realpath del ancestro existente. Test sin plataforma (symlink explícito). `copyRepo` ahora devuelve realpath (hash: grafo-vivo y digests fallaban por lo mismo en macOS).
+- Siguen sin cubrir (solo macOS, no reproducibles aquí): world3d (headless-gl/GL en macOS: determinismo, PSNR 27 dB, coste) — el job es `experimental`.
+- Para reproducir: `ln -s $(mktemp -d) /tmp/lnk; TMPDIR=/tmp/lnk npm test`.
+
+## 5. isMain
+- `engine/{ctx,status,dsl,vocab}.mjs` usan `isMain` de paths.mjs (sin `file://${argv[1]}`). docs/ctx y STATUS.md regenerados (estaban caducados).

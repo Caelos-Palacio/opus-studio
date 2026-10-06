@@ -5,6 +5,7 @@
 //   node engine/status.mjs --links   exit 1 si algún .md (raíz y docs/) tiene un enlace relativo roto
 // Dos partes: ESTÁTICA (derivada de ficheros versionados: reproducible en CI, se verifica) y VIVA (veredictos, ramas, último run, ledger:
 // depende de la máquina, se regenera pero no se compara). Un STATUS.md estático desfasado es un fallo de test.
+import { isMain } from './paths.mjs';
 import fs from 'node:fs';
 import path from 'node:path';
 import { spawnSync } from 'node:child_process';
@@ -84,7 +85,7 @@ export function brokenLinks() {
   }
   return bad;
 }
-if (import.meta.url === `file://${process.argv[1]}`) {
+if (isMain(import.meta.url)) {
   const a = process.argv.slice(2);
   if (a.includes('--links')) { const b = brokenLinks(); for (const x of b) console.log('✗ ' + x); console.log(b.length ? `✗ ${b.length} enlaces rotos` : '✓ sin enlaces rotos'); process.exit(b.length ? 1 : 0); }
   else if (a.includes('--check')) { const c = checkStatic(); console.log(c.ok ? '✓ STATUS.md al día' : `✗ STATUS.md desactualizado: ${c.why} → node engine/status.mjs`); process.exit(c.ok ? 0 : 1); }

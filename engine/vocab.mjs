@@ -2,6 +2,7 @@
 // Vocabulario controlado versionado (spec 006; research/10-rosetta.md: vocabulario cerrado + guardas deterministas, NO compresión por LLM).
 //   node engine/vocab.mjs list [sección] | canon <palabra> | lint [--json] | sync | refs <original> <derivado>
 // Fuente: data/vocab.json. Cada término = {id, def, forbid:[sinónimos prohibidos]}. Puro salvo carga/lint (fs).
+import { isMain } from './paths.mjs';
 import fs from 'node:fs';
 import path from 'node:path';
 
@@ -95,7 +96,7 @@ export async function syncMetrics() {
   fs.writeFileSync(path.join(ROOT, 'data/vocab.json'), JSON.stringify(VOCAB, null, 1) + '\n'); return S.metric.terms.length;
 }
 
-if (process.argv[1] && path.resolve(process.argv[1]) === path.resolve(new URL(import.meta.url).pathname)) {
+if (isMain(import.meta.url)) {
   const [cmd, a, b] = process.argv.slice(2), json = process.argv.includes('--json');
   if (cmd === 'list') { for (const sec of a ? [a] : sections()) console.log(`${sec} (${terms(sec).length}): ${terms(sec).join(' ')}`); }
   else if (cmd === 'canon') { const c = canon(a); console.log(c ?? '(no canónico)'); process.exit(c ? 0 : 1); }

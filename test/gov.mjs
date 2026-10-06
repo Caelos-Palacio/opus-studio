@@ -182,6 +182,8 @@ test('roles', async () => {
     ok(R.canWrite('animator:A2', 'shots/A2.mjs').allow && !R.canWrite('animator:A2', 'shots/A1.mjs').allow && !R.canWrite('animator:A2', 'data/timeline.json').allow, 'roles: animator:A2 solo escribe shots/A2.mjs');
     ok(R.canWrite('animator:A2', 'out/sheets/A2.png').allow && R.canWrite('director', 'data/timeline.json').allow && !R.canWrite('td', 'styles/noir.json').allow, 'roles: globs comunes y por rol');
     ok(!R.canWrite('fantasma', 'shots/A1.mjs').allow, 'roles: rol desconocido no escribe');
+    const link = d + '-link'; fs.symlinkSync(d, link);                    // macOS: tmp por symlink (/var → /private/var); el motor ve la ruta real
+    try { ok(R.rel(path.join(link, 'shots/A1.mjs')) === 'shots/A1.mjs' && R.rel(path.join(link, 'shots/NUEVO.mjs')) === 'shots/NUEVO.mjs' && R.rel(path.join(os.tmpdir(), 'fuera.txt')) === null, 'roles: ruta por symlink hacia el proyecto = ruta relativa (no "fuera del proyecto")'); } finally { fs.rmSync(link, { force: true }); }
     const hook = (env, input) => spawnSync(NODE, [path.join(d, '.claude/hooks/opus-roles.mjs')], { cwd: d, encoding: 'utf8', input, env: { ...process.env, ...env } });
     const ev = JSON.stringify({ tool_name: 'Edit', tool_input: { file_path: path.join(d, 'shots/A1.mjs') } });
     let h = hook({ OPUS_ROLE: 'animator:A2', OPUS_AGENT: 'bob', OPUS_ROLES_MODE: 'observer' }, ev);
