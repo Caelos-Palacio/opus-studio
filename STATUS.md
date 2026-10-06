@@ -26,9 +26,10 @@ Definición (gates.json); el estado de cierre está en la parte viva.
 | [006-semantica.md](docs/specs/006-semantica.md) | 006 — Semántica al límite: el vídeo como datos con significado | sin nota |
 | [007-orquestacion.md](docs/specs/007-orquestacion.md) | 007 · Orquestación al límite (paso 4 del roadmap) | sin nota |
 | [008-gobernanza.md](docs/specs/008-gobernanza.md) | 008 — Gobernanza al límite (roadmap paso 5) | sin nota |
-| [009-world3d-v2.md](docs/specs/009-world3d-v2.md) | 009 — world3d v2: profundidad, escenario y ángulo | (pendiente v2) · — · — |
+| [009-world3d-v2.md](docs/specs/009-world3d-v2.md) | 009 — world3d v2: profundidad, escenario y ángulo | S10 Dado un film que usa world3d, Entonces su story.json declara desde el guion qué beats son 3D y por qué (concepto de la memoria que el 3D encarna); el lint d |
 | [010-dsl-80.md](docs/specs/010-dsl-80.md) | 010 — DSL de escenas al ~80 % de los shots | sin nota |
 | [011-motor.md](docs/specs/011-motor.md) | 011 — Motor: renderizar una vez, analizar muchas, recalcular solo lo afectado | sin nota |
+| [012-produccion-v2.md](docs/specs/012-produccion-v2.md) | 012 — Producción v2: Regla, Reel y Potencias | mate_papel · terracota · — · (re-render con el acento elegido) |
 
 ## Motor
 
@@ -49,15 +50,15 @@ Archivos (test/*.mjs): `arc.mjs` `bench-skia.mjs` `critic.mjs` `cut-render.mjs` 
 <!-- estatico:fin -->
 
 ---
-## Estado vivo (2026-10-06T07:52Z, no verificado)
+## Estado vivo (2026-10-06T13:38Z, no verificado)
 
 ## Veredictos
 
-Film activo: `main` · engineHash `e605679620b5e6baf48168919ff275d8040327e5042b4fd2646920409bc5f654` · filmHash `988b84a39afcb6a2`
+Film activo: `regla` · engineHash `e605679620b5e6baf48168919ff275d8040327e5042b4fd2646920409bc5f654` · filmHash `80a7eb83c0c40dba`
 
-- out/lint.json: SHIP · CADUCADO
-- out/critic.json: no existe
-- veredictos por shot: 0 vigentes, 3 caducados
+- out/lint.json: SHIP · VIGENTE
+- out/critic.json: SHIP · VIGENTE
+- veredictos por shot: 14 vigentes, 0 caducados
 
 ### Estado de gates (out/gates.json)
 
@@ -66,13 +67,15 @@ Film activo: `main` · engineHash `e605679620b5e6baf48168919ff275d8040327e5042b4
 ## Ramas sin integrar
 
 - `backup/pre-limpieza` (+136 commits)
-- `dsl80` (+9 commits)
 - `gobernanza` (+96 commits)
 - `harness` (+101 commits)
 - `medios` (+57 commits)
 - `metricas` (+76 commits)
 - `orquestacion` (+101 commits)
 - `perf` (+53 commits)
+- `prod-potencias` (+3 commits)
+- `prod-reel` (+3 commits)
+- `prod-regla` (+2 commits)
 - `semantica` (+101 commits)
 - `video-mate` (+33 commits)
 - `video-reel` (+34 commits)
@@ -92,11 +95,11 @@ Film activo: `main` · engineHash `e605679620b5e6baf48168919ff275d8040327e5042b4
 
 ## Último run de tests
 
-- 2026-10-06T07:44:55.716Z: todo verde
+- 2026-10-06T13:37:58.354Z: 3 fallos (--fast)
 
 ## Ledger
 
-- cadena: íntegra · 11 entradas (0 encadenadas, 11 heredadas, 0 firmadas) · códigos 100 %
+- cadena: íntegra · 5 entradas (5 encadenadas, 0 heredadas, 0 firmadas) · códigos 100 %
 
 ## Presupuestos
 
