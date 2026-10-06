@@ -32,7 +32,7 @@ Definición (gates.json); el estado de cierre está en la parte viva.
 
 ## Motor
 
-- versión: 5.0.0 (package.json) · módulos engine/: 77
+- versión: 5.0.0 (package.json) · módulos engine/: 78
 - roles: modo `enforce` (*, director, dp, investigador, td, productor, animator, review) · digest `35a737817acffefa`
 - presupuestos: data/budgets.json digest `5290bbde06ea538a`
 
@@ -42,11 +42,11 @@ Archivos (test/*.mjs): `arc.mjs` `bench-skia.mjs` `critic.mjs` `cut-render.mjs` 
 <!-- estatico:fin -->
 
 ---
-## Estado vivo (2026-10-06T07:39Z, no verificado)
+## Estado vivo (2026-10-06T07:41Z, no verificado)
 
 ## Veredictos
 
-Film activo: `main` · engineHash `84b82c04851bb3da5a7ce016bd1ce88f396a20aee02c0219ec9540e3acddd531` · filmHash `2ba9a9d721cb4a06`
+Film activo: `main` · engineHash `e605679620b5e6baf48168919ff275d8040327e5042b4fd2646920409bc5f654` · filmHash `2ba9a9d721cb4a06`
 
 - out/lint.json: SHIP · CADUCADO
 - out/critic.json: no existe
@@ -59,12 +59,11 @@ Film activo: `main` · engineHash `84b82c04851bb3da5a7ce016bd1ce88f396a20aee02c0
 ## Ramas sin integrar
 
 - `backup/pre-limpieza` (+136 commits)
-- `dsl80` (+4 commits)
+- `dsl80` (+7 commits)
 - `gobernanza` (+96 commits)
 - `harness` (+101 commits)
 - `medios` (+57 commits)
 - `metricas` (+76 commits)
-- `motor` (+11 commits)
 - `orquestacion` (+101 commits)
 - `perf` (+53 commits)
 - `semantica` (+101 commits)
@@ -83,11 +82,11 @@ Film activo: `main` · engineHash `84b82c04851bb3da5a7ce016bd1ce88f396a20aee02c0
 - `worktree-agent-aeb50bfa4294a3a73` (+1 commits)
 - `worktree-agent-aeecba00c45e50119` (+2 commits)
 - `world3d` (+75 commits)
-- `world3d2` (+9 commits)
+- `world3d2` (+10 commits)
 
 ## Último run de tests
 
-- 2026-10-06T04:55:25.552Z: todo verde (--fast)
+- 2026-10-06T07:41:25.168Z: todo verde (--fast)
 
 ## Ledger
 

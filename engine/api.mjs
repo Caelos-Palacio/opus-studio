@@ -90,7 +90,7 @@ export function makeApi(ctx, film, shot, cx) {
     },
     // Suelo: plano que ancla al sujeto y se mueve distinto (parallax 0.6). fy = altura relativa al área segura.
     ground(fy, alpha = 0.3) {
-      const yy = safe.y0 + fy * safe.h;
+      const yy = safe.y0 + fy * safe.h; cx.groundY = yy;                       // world3d (spec 009): la línea de suelo del shot es única para el 2D y el 3D
       api.depth(0.6, () => { ctx.fillStyle = hexA(col('shade'), alpha); ctx.fillRect(-W, yy, 3 * W, 3 * H); ctx.fillStyle = hexA(col('shade'), Math.min(1, alpha * 2)); ctx.fillRect(-W, yy - 1, 3 * W, 2); });
     },
 

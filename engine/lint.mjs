@@ -203,6 +203,7 @@ async function layout(R, fps, FC) {
   for (let i = 0; i <= film.duration * fps; i++) {
     if (sc && (i / fps < sc.t0 || i / fps > sc.t1)) continue;
     const t = i / fps, boxes = await frame(t);
+    for (const m of boxes.meta ?? []) if (m.prim === 'world3d' && m.angulo) once('w3a' + m.shot, () => warn(m.shot, t, m.angulo, m.remedy));   // spec 009: w3d.angulo (ángulo fuera de la regla de la escala de plano, sin override)
     for (const m of boxes.meta ?? []) if (m.prim === 'world3d' && m.unavailable) once('w3' + m.shot, () => fix(m.shot, t, `world3d no disponible: ${m.reason}`, 'instalar el backend 3D (npm i gl three + Mesa libEGL/libGL con llvmpipe) o quitar api.world3d del shot'));   // spec 004
     const texts = boxes.filter((b) => b.kind === 'text'), foci = boxes.filter((b) => b.kind === 'focus');
     const sizes = [];

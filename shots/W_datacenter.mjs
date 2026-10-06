@@ -35,6 +35,15 @@ function build() {
 }
 const CACHE = {};                                              // la escena se construye una sola vez (el motor la cachea por identidad del objeto)
 export const datacenterScene = () => (CACHE.scene ??= build());
+// v2 (spec 009): MISMOS objetos, pero la cámara se deriva del shot (camera.fromShot) y el suelo toma el color del suelo 2D del shot.
+// Una escena por color de suelo (el motor cachea lo construido por identidad del objeto de escena).
+const V2 = new Map();
+export function datacenterSceneV2(groundColor = 'paper') {
+  if (!V2.has(groundColor)) V2.set(groundColor, { ...datacenterScene(), id: 'datacenter-v2-' + groundColor.replace('#', ''), background: groundColor, fog: {}, ground: { color: groundColor, size: 80000, contact: true, lit: 0.14 },       // la niebla lleva al color del suelo 2D (el horizonte no tiene costura)
+   
+    camera: { fromShot: true, target: [HX, 0, RD / 2 + 3], nearK: 0.02, farK: 60 } });
+  return V2.get(groundColor);
+}
 const ease = (u) => u * u * (3 - 2 * u);
 export const dist = (t, D = 3) => D0 * Math.pow(D1 / D0, ease(Math.min(1, Math.max(0, t / D))));
 // Cámara como función pura de t (la usan step/motionBlur del motor): de vista aérea oblicua a plano frontal.
