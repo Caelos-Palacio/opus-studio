@@ -17,11 +17,15 @@ import { checkPalette } from './styles.mjs';
 import { luminance } from './color.mjs';
 import { guardCtx, scanShots } from './guard.mjs';
 import { activeShots } from './seek.mjs';
-import { currentHashes, stamp, neighbors, lintDir } from './verdict.mjs';
+import { currentHashes, stamp, neighbors, lintDir, filmKey } from './verdict.mjs';
 import { writeAtomic } from './lock.mjs';
 import { record } from './ledger.mjs';
 import { contractIssues } from './contract.mjs';
 import { secPair } from './core.mjs';
+import { frameCache, frameKey, noCache, stats as FCS, pruneFrames } from './framecache.mjs';
+
+// R3 (spec 009): lint corre con fxFast por defecto (−45 % ms/fotograma; PSNR ≈ 70 dB); OPUS_FXFAST=0 lo apaga. El master NO lo usa.
+process.env.OPUS_FXFAST ??= '1';
 
 const argv = process.argv.slice(2);
 const arg = (k, d) => { const i = argv.indexOf(k); return i >= 0 ? argv[i + 1] : d; };
@@ -121,13 +125,25 @@ function motifCheck(film) {
 }
 
 // Determinismo con atribución: se muestrea el centro de CADA shot (y extremos); el fallo nombra los shots activos.
-function determinism(R) {
-  const f = R.film, sc = f.lintScope, ts = sc ? f.shots.filter((s) => sc.ids.has(s.id)).map((s) => (s.t[0] + s.t[1]) / 2) : [0, 0.37, f.duration, ...f.shots.map((s) => (s.t[0] + s.t[1]) / 2)], seen = new Set();
+// R6 (spec 009): solo se cachean las muestras que PASARON (clave = film+motor+shots activos+t+tamaño); cuando una muestra corre, renderiza
+// dos veces de verdad (renderizador propio, SIN caché de fotogramas). OPUS_NOCACHE=1 fuerza todas.
+const detFile = () => path.join(ROOT, 'out/cache/lint', filmKey(), 'determinism.json');
+async function determinism(film) {
+  const sc = film.lintScope, ts = sc ? film.shots.filter((s) => sc.ids.has(s.id)).map((s) => (s.t[0] + s.t[1]) / 2) : [0, 0.37, film.duration, ...film.shots.map((s) => (s.t[0] + s.t[1]) / 2)], seen = new Set();
+  const size = arg('--size', undefined); let [W, H] = size ? size.split('x').map(Number) : [film.width, film.height]; W -= W % 2; H -= H % 2;
+  let ok = new Set(); try { ok = new Set(JSON.parse(fs.readFileSync(detFile(), 'utf8'))); } catch {}
+  const n0 = ok.size; let R = null;
   for (const t of ts) {
+    const key = frameKey(film, t, { W, H, grade: true });
+    if (!noCache() && ok.has(key)) { FCS.det.hit++; continue; }
+    FCS.det.miss++;
+    R ??= await makeRenderer({ size, grade: true });
     R.frame(t); const a = R.cv.toBuffer('raw');
-    R.frame(f.duration * 0.2); R.frame(t); const b = R.cv.toBuffer('raw');
-    if (!a.equals(b)) for (const s of activeShots(f, f.timeMap ? f.timeMap(t) : t)) if (!seen.has(s.id)) { seen.add(s.id); fix(s.id, t, 'seek(t) no determinista en este shot', 'eliminar estado entre frames / Math.random / Date (ver avisos de escaneo)'); }
+    R.frame(film.duration * 0.2); R.frame(t); const b = R.cv.toBuffer('raw');
+    if (!a.equals(b)) { for (const s of activeShots(film, film.timeMap ? film.timeMap(t) : t)) if (!seen.has(s.id)) { seen.add(s.id); fix(s.id, t, 'seek(t) no determinista en este shot', 'eliminar estado entre frames / Math.random / Date (ver avisos de escaneo)'); } }
+    else ok.add(key);
   }
+  if (!noCache() && ok.size !== n0) { try { fs.mkdirSync(path.dirname(detFile()), { recursive: true }); writeAtomic(detFile(), JSON.stringify([...ok].slice(-20000))); } catch {} }
 }
 // Fuentes: si la familia no está instalada/registrada, node-canvas cae al fallback EN SILENCIO y el navegador no → métricas distintas.
 function fonts(R) {
@@ -176,15 +192,17 @@ function camera(film) {
 }
 
 const inter = (a, b) => Math.max(0, Math.min(a.x + a.w, b.x + b.w) - Math.max(a.x, b.x)) * Math.max(0, Math.min(a.y + a.h, b.y + b.h) - Math.max(a.y, b.y));
-function layout(R, fps) {
+async function layout(R, fps, FC) {
   const { film, W, H } = R, P = film.P, S = film.S, bar = barHeight(film) * (H / film.height), visH = H - 2 * bar;
   const minPx = (P.minFontPx * Math.min(W, H)) / 1080, seen = new Set(), once = (k, f) => { if (!seen.has(k)) { seen.add(k); f(); } };
   const safe = { x0: W * P.safe.side, x1: W * (1 - P.safe.side), y0: bar + H * P.safe.top, y1: H - bar - H * P.safe.bottom };
   const vis = new Map(); // etiqueta → {first,last,chars,shot}: tiempo de lectura
   const sc = film.lintScope;                                                 // --shot: solo la ventana del shot y sus vecinos
+  const frame = async (t, px = false) => { const f = await FC.get(t, { px, guard: guardCtx }); film.guardLog.push(...f.guardLog); lastPx = f.data; return f.boxes; };   // R1: fotogramas de la caché compartida (los registros de la guardia viajan con ellos)
+  let lastPx = null;
   for (let i = 0; i <= film.duration * fps; i++) {
     if (sc && (i / fps < sc.t0 || i / fps > sc.t1)) continue;
-    const t = i / fps, boxes = R.frame(t);
+    const t = i / fps, boxes = await frame(t);
     for (const m of boxes.meta ?? []) if (m.prim === 'world3d' && m.unavailable) once('w3' + m.shot, () => fix(m.shot, t, `world3d no disponible: ${m.reason}`, 'instalar el backend 3D (npm i gl three + Mesa libEGL/libGL con llvmpipe) o quitar api.world3d del shot'));   // spec 004
     const texts = boxes.filter((b) => b.kind === 'text'), foci = boxes.filter((b) => b.kind === 'focus');
     const sizes = [];
@@ -212,7 +230,7 @@ function layout(R, fps) {
   const cm = S.compose, m = cm.edgeMargin;
   for (const s of film.shots) {
     if (s.compose === 'free' || (sc && !sc.ids.has(s.id))) continue;
-    const tm = (s.t[0] + s.t[1]) / 2, all = R.frame(tm), foci = all.filter((b) => b.kind === 'focus' && b.shot === s.id);
+    const tm = (s.t[0] + s.t[1]) / 2, all = await frame(tm, true), px = lastPx, foci = all.filter((b) => b.kind === 'focus' && b.shot === s.id);
     if (!foci.length) { if (film.mods[s.id]) fix(s.id, tm, 'el shot no registra ningún foco (composición y tipo sobre sujeto no se pueden medir)', 'api.focus(...) o una primitiva que lo registre (morph, path, plot, tex…)'); continue; }
     for (const f of foci) if (!f.bleed && (f.x < W * m || f.x + f.w > W * (1 - m) || f.y < bar + visH * m || f.y + f.h > H - bar - visH * m))
       warn(s.id, tm, `sujeto "${f.label}" toca el borde del encuadre${bar ? ' útil (letterbox)' : ''}`, 'dar aire (margen ' + Math.round(m * 100) + '%) o focus(...,{bleed:true}) si es intencional');
@@ -225,7 +243,7 @@ function layout(R, fps) {
     const main = foci.filter((f) => f.weight >= 0.5).map((f) => f.w * f.h).sort((x, y) => y - x);
     if (main.length > 1 && main[1] >= 0.6 * main[0] && main[1] / (W * visH) > 0.05) warn(s.id, tm, 'dos focos compiten por la atención (el segundo ≥ 0.6× el primero)', 'jerarquía: uno domina; el otro weight<0.5 o más pequeño');
     if (s.must_read_mute !== false) {     // en grises el sujeto debe separarse del papel
-      const px = R.ctx.getImageData(0, 0, W, H).data, pl = luminance(S.palette.paper) ** (1 / 2.2);
+      const pl = luminance(S.palette.paper) ** (1 / 2.2);
       for (const f of foci.filter((q) => q.weight >= 0.5 && !q.bleed)) {
         const df = [], x0 = Math.max(0, Math.floor(f.x)), x1 = Math.min(W, Math.ceil(f.x + f.w)), y0 = Math.max(0, Math.floor(f.y)), y1 = Math.min(H, Math.ceil(f.y + f.h));
         for (let y = y0; y < y1; y += 2) for (let x = x0; x < x1; x += 2) { const i = (y * W + x) * 4, d = Math.abs((0.299 * px[i] + 0.587 * px[i + 1] + 0.114 * px[i + 2]) / 255 - pl); if (d > 0.06) df.push(d); }
@@ -235,7 +253,7 @@ function layout(R, fps) {
       }
     }
     if (s.saliency !== false) {   // ¿el ojo va donde dice el foco? prominencia = contraste de valor con el papel, fuera del texto
-      const px = R.ctx.getImageData(0, 0, W, H).data, pl = luminance(S.palette.paper) ** (1 / 2.2), txt = all.filter((b) => b.kind === 'text'), gx = 64, gy = 36, cells = [];
+      const pl = luminance(S.palette.paper) ** (1 / 2.2), txt = all.filter((b) => b.kind === 'text'), gx = 64, gy = 36, cells = [];
       for (let j = 0; j < gy; j++) for (let i = 0; i < gx; i++) { const x = Math.floor(((i + 0.5) * W) / gx), y = Math.floor(((j + 0.5) * H) / gy); if (y < bar || y > H - bar || txt.some((b) => x >= b.x && x <= b.x + b.w && y >= b.y && y <= b.y + b.h)) continue;
         const q = (y * W + x) * 4; cells.push([x, y, Math.abs((0.299 * px[q] + 0.587 * px[q + 1] + 0.114 * px[q + 2]) / 255 - pl)]); }
       cells.sort((a, b) => b[2] - a[2]); const top = cells.slice(0, Math.max(8, Math.floor(cells.length * 0.05))).filter((c) => c[2] > 0.25);
@@ -247,13 +265,13 @@ function layout(R, fps) {
   }
 }
 
-function transitions(R) {
+async function transitions(R, FC) {
   const { film, W, H } = R, P = film.P, bar = barHeight(film) * (H / film.height);
   const safe = { x0: W * P.safe.side, x1: W * (1 - P.safe.side), y0: bar + H * P.safe.top, y1: H - bar - H * P.safe.bottom };
   for (let i = 0; i < film.shots.length - 1; i++) {
     const A = film.shots[i];
-    if (tOf(A) !== 'wipe-obj') continue;
-    const t = A.t[1] - 1 / film.fps, foci = R.frame(t).filter((b) => b.kind === 'focus' && b.shot === A.id);
+    if (tOf(A) !== 'wipe-obj' || (film.lintScope && !film.lintScope.ids.has(A.id))) continue;
+    const t = A.t[1] - 1 / film.fps, foci = (await FC.get(t)).boxes.filter((b) => b.kind === 'focus' && b.shot === A.id);
     const cov = foci.reduce((p, f) => p + Math.max(0, Math.min(f.x + f.w, safe.x1) - Math.max(f.x, safe.x0)) * Math.max(0, Math.min(f.y + f.h, safe.y1) - Math.max(f.y, safe.y0)), 0) / ((safe.x1 - safe.x0) * (safe.y1 - safe.y0));
     if (cov < 0.8) fix(A.id, A.t[1], `wipe-obj: el sujeto cubre ${(cov * 100).toFixed(0)}% del área segura en el corte (< 80%)`, 'que el objeto tape el cuadro antes de cortar');
   }
@@ -291,67 +309,69 @@ function handoffs(film) {
 }
 
 // Energía de movimiento a baja resolución (sin grade): holds y pops medibles, no opinados.
-async function motion(fps, film) {
-  const r2 = await makeRenderer({ size: `192x${Math.round((192 * film.height) / film.width / 2) * 2}`, grade: false });
-  const n = Math.round(film.duration * fps), E = [];
+// R1/R6 (spec 009): fotogramas de la caché compartida; con --shot solo la ventana del shot y sus vecinos (±3 fotogramas de margen para la mediana local).
+async function motion(fps, film, FC) {
+  const sc = film.lintScope, n = Math.round(film.duration * fps), f0 = sc ? Math.max(0, Math.floor(sc.t0 * fps) - 3) : 0, f1 = sc ? Math.min(n, Math.ceil(sc.t1 * fps) + 3) : n, E = [];
   let prev = null; const metas = [];
-  for (let i = 0; i <= n; i++) {
-    metas.push(...(r2.frame(i / fps)?.meta ?? []));
-    const d = r2.ctx.getImageData(0, 0, r2.W, r2.H).data;
+  for (let i = f0; i <= f1; i++) {
+    const F = await FC.get(i / fps, { px: true }), d = F.data; metas.push(...(F.boxes.meta ?? []));
     if (prev) { let s = 0; for (let k = 0; k < d.length; k += 4) s += Math.abs(d[k] - prev[k]) + Math.abs(d[k + 1] - prev[k + 1]) + Math.abs(d[k + 2] - prev[k + 2]); E.push(s / (d.length * 0.75 * 255)); }
-    prev = Uint8ClampedArray.from(d);
+    prev = d;
   }
   const { declaredImpacts, inImpact } = await import('./sakuga.mjs'), imps = declaredImpacts(film, metas);   // un impact declarado no es un pop
   const cuts = new Set(film.shots.map((s) => Math.round(s.t[0] * fps)));
   const silent = (t) => film.silences.some(([a, b]) => t >= a && t <= b);
   const holdOk = (t) => film.shots.some((s) => (s.hold_ok ?? []).some(([a, b]) => t >= s.t[0] + a && t <= s.t[0] + b));
+  const inScope = (t) => !sc || (t >= sc.t0 - 1e-9 && t <= sc.t1 + 1e-9);
   let run = 0;
-  for (let i = 0; i < E.length; i++) {
-    const t = (i + 1) / fps;
-    if (E[i] < (film.S.rules.holdEnergy ?? film.P.holdEnergy) && !silent(t) && !holdOk(t)) run++; else run = 0;
-    if (run / fps > film.P.maxHold && run / fps - 1 / fps <= film.P.maxHold) {
+  for (let j = 0; j < E.length; j++) {
+    const i = f0 + j, t = (i + 1) / fps;
+    if (E[j] < (film.S.rules.holdEnergy ?? film.P.holdEnergy) && !silent(t) && !holdOk(t)) run++; else run = 0;
+    if (inScope(t) && run / fps > film.P.maxHold && run / fps - 1 / fps <= film.P.maxHold) {
       const s = film.shots.find((x) => t >= x.t[0] && t < x.t[1]);
       fix(s?.id ?? '-', t - run / fps, `hold > ${film.P.maxHold}s sin silencio de audio`, 'añadir acción secundaria o declarar hold_ok');
     }
-    const nb = [...E.slice(Math.max(0, i - 3), i), ...E.slice(i + 1, i + 4)].sort((a, b) => a - b), med = nb[Math.floor(nb.length / 2)] ?? 0;
-    if (E[i] > 0.01 && E[i] > (film.S.rules.popRatio ?? film.P.popRatio) * Math.max(med, 0.001) && !cuts.has(i + 1) && !cuts.has(i) && !inImpact(t, imps, fps)) {
+    const nb = [...E.slice(Math.max(0, j - 3), j), ...E.slice(j + 1, j + 4)].sort((a, b) => a - b), med = nb[Math.floor(nb.length / 2)] ?? 0;
+    if (inScope(t) && E[j] > 0.01 && E[j] > (film.S.rules.popRatio ?? film.P.popRatio) * Math.max(med, 0.001) && !cuts.has(i + 1) && !cuts.has(i) && !inImpact(t, imps, fps)) {
       const s = film.shots.find((x) => t >= x.t[0] && t < x.t[1]);
-      warn(s?.id ?? '-', t, `pop: energía ${(E[i] / Math.max(med, 1e-4)).toFixed(1)}× la mediana local`, 'suavizar con spring o repartir en 2–3 frames');
+      warn(s?.id ?? '-', t, `pop: energía ${(E[j] / Math.max(med, 1e-4)).toFixed(1)}× la mediana local`, 'suavizar con spring o repartir en 2–3 frames');
     }
   }
+  if (sc) return;                                                            // el final apagado y out/motion.json son del film entero
   { const nn = E.length, k = Math.max(2, Math.round(nn * 0.08)), last = E.slice(-k).reduce((a, b) => a + b, 0) / k, p70 = [...E].sort((a, b) => a - b)[Math.floor(nn * 0.7)];
     if (!film.end_hold_ok && last < p70) warn('-', film.duration * 0.92, `final apagado: energía del último 8% (${(last * 1000).toFixed(2)}) < p70 del film (${(p70 * 1000).toFixed(2)})`, 'peak-end: cerrar con energía o declarar end_hold_ok:true'); }
   writeAtomic(path.join(ROOT, 'out/motion.json'), JSON.stringify({ fps, energy: E.map((e) => +e.toFixed(5)) }));
 }
 
 // Rima: el primer y el último frame dialogan (mismo tipo de masa/lugar) sin ser un clon.
-function rima(R) {
+async function rima(R, FC) {
   const { film, W, H } = R; if (film.rhyme === false) return;
   const pl = luminance(film.S.palette.paper) ** (1 / 2.2);
-  const st = (t) => { R.frame(t); const d = R.ctx.getImageData(0, 0, W, H).data, hs = new Float64Array(32 * 18), hn = new Float64Array(32 * 18); let m = 0, sx = 0, sy = 0;
+  const st = async (t) => { const d = (await FC.get(t, { px: true })).data, hs = new Float64Array(32 * 18), hn = new Float64Array(32 * 18); let m = 0, sx = 0, sy = 0;
     for (let y = 0; y < H; y += 4) for (let x = 0; x < W; x += 4) { const i = (y * W + x) * 4, L = (0.299 * d[i] + 0.587 * d[i + 1] + 0.114 * d[i + 2]) / 255, c = Math.floor((y / H) * 18) * 32 + Math.floor((x / W) * 32); hs[c] += L; hn[c]++; if (Math.abs(L - pl) > 0.15) { m++; sx += x; sy += y; } }
     return { m, cx: m ? sx / m : W / 2, cy: m ? sy / m : H / 2, h: hs.map((v, i) => v / Math.max(1, hn[i])) }; };
-  const a = st(Math.min(0.6, film.duration * 0.1)), b = st(film.duration - 0.05);
+  const a = await st(Math.min(0.6, film.duration * 0.1)), b = await st(film.duration - 0.05);
   const hd = a.h.reduce((p, v, i) => p + Math.abs(v - b.h[i]), 0) / a.h.length, dc = Math.hypot(a.cx - b.cx, a.cy - b.cy) / W, ratio = (b.m + 1) / (a.m + 1);
   if (hd < 0.01) warn('-', film.duration, 'primer y último frame casi idénticos (clon perezoso)', 'el final debe ser el principio con otra función');
   else if (dc > 0.25 || ratio > 5 || ratio < 0.2) warn('-', film.duration, `sin rima: primer y último frame no dialogan (centroide Δ${(dc * 100).toFixed(0)}% del ancho, masa ×${ratio.toFixed(1)})`, 'devolver la masa al lugar del inicio, o rhyme:false');
 }
 
 // Firma de ritmo a 30 fps (solo alrededor de eventos): valle antes del beat, pico en el beat; cortes en la acción, no en el reposo; hold-cut.
-async function rhythm(film) {
-  const r2 = await makeRenderer({ size: `192x${Math.round((192 * film.height) / film.width / 2) * 2}`, grade: false }), holdE = film.S.rules.holdEnergy ?? film.P.holdEnergy;
-  const series = (t0, t1, f) => { const out = []; let prev = null; for (let t = Math.max(0, t0 - 1 / f); t <= Math.min(film.duration, t1) + 1e-9; t += 1 / f) { r2.frame(t); const d = r2.ctx.getImageData(0, 0, r2.W, r2.H).data; if (prev) { let s = 0; for (let k = 0; k < d.length; k += 4) s += Math.abs(d[k] - prev[k]) + Math.abs(d[k + 1] - prev[k + 1]) + Math.abs(d[k + 2] - prev[k + 2]); out.push({ t, e: s / (d.length * 0.75 * 255) }); } prev = Uint8ClampedArray.from(d); } return out; };
+async function rhythm(film, FC) {
+  const holdE = film.S.rules.holdEnergy ?? film.P.holdEnergy, sc = film.lintScope;
+  const series = async (t0, t1, f) => { const out = []; let prev = null; for (let t = Math.max(0, t0 - 1 / f); t <= Math.min(film.duration, t1) + 1e-9; t += 1 / f) { const d = (await FC.get(t, { px: true })).data; if (prev) { let s = 0; for (let k = 0; k < d.length; k += 4) s += Math.abs(d[k] - prev[k]) + Math.abs(d[k + 1] - prev[k + 1]) + Math.abs(d[k + 2] - prev[k + 2]); out.push({ t, e: s / (d.length * 0.75 * 255) }); } prev = d; } return out; };
   const mean = (a) => (a.length ? a.reduce((p, q) => p + q.e, 0) / a.length : 0), F = 30;
   const ev = film.shots.flatMap((s) => (s.on_beat_at ?? []).map((x) => [s.id, s.t[0] + x])), stepE = Math.max(1, Math.ceil(ev.length / 40));
-  for (const [id, b] of ev.filter((_, i) => i % stepE === 0)) {
-    const v = mean(series(b - 0.25, b - 0.06, F)), pk = Math.max(0, ...series(b - 1 / F, b + 0.15, F).map((q) => q.e));
+  for (const [id, b] of ev.filter((_, i) => i % stepE === 0).filter(([id]) => !sc || sc.ids.has(id))) {
+    const v = mean(await series(b - 0.25, b - 0.06, F)), pk = Math.max(0, ...(await series(b - 1 / F, b + 0.15, F)).map((q) => q.e));
     if (pk < 1.4 * Math.max(v, holdE * 0.5) || pk < holdE * 2) warn(id, b, `beat sin firma de ritmo (pico ${(pk * 1000).toFixed(2)} vs valle ${(v * 1000).toFixed(2)})`, 'anticipación → acento en el beat: valle antes, pico en on_beat_at');
   }
   for (let i = 0; i < film.shots.length - 1; i++) {
     const A = film.shots[i], c = A.t[1], tr = tOf(A);
-    if (tr === 'cut' || tr === 'scale-cut') { const eb = mean(series(c - 0.1, c - 1 / F, F)), ep = mean(series(c - 0.6, c - 0.1, F)); if (ep > holdE * 2 && eb < 0.4 * ep) warn(A.id, c, 'corte en el reposo: la acción ya terminó antes del corte', 'cortar con la energía subiendo (en la acción), o hold-cut'); }
+    if (sc && !sc.ids.has(A.id)) continue;
+    if (tr === 'cut' || tr === 'scale-cut') { const eb = mean(await series(c - 0.1, c - 1 / F, F)), ep = mean(await series(c - 0.6, c - 0.1, F)); if (ep > holdE * 2 && eb < 0.4 * ep) warn(A.id, c, 'corte en el reposo: la acción ya terminó antes del corte', 'cortar con la energía subiendo (en la acción), o hold-cut'); }
     if (tr === 'hold-cut') {
-      const s = series(c - 10 / film.fps, c - 1 / film.fps, film.fps); let q = 0; for (let k = s.length - 1; k >= 0 && s[k].e < holdE * 1.5; k--) q++;
+      const s = await series(c - 10 / film.fps, c - 1 / film.fps, film.fps); let q = 0; for (let k = s.length - 1; k >= 0 && s[k].e < holdE * 1.5; k--) q++;
       if (q < 2 || q > 4) warn(A.id, c, `hold-cut con ${q} fotogramas quietos antes del corte (pide 2–4)`, 'congelar 2–4 fotogramas y cortar en la acción');
     }
   }
@@ -378,24 +398,34 @@ if (shotArg) { const sc = R.film.shots.filter((s) => s.id === shotArg || neighbo
 const lfps = +arg('--fps', 12);
 fs.mkdirSync(path.join(ROOT, 'out'), { recursive: true });
 let aborted = null;
-const step = async (k, f) => { if (want(k)) { CHECK = k; await f(); } };
+// R1: dos cachés de fotogramas compartidas por los checks (tamaño del lint para layout/transiciones/rima; 192 px para energía, ritmo y arco).
+const SMALL = `192x${Math.round((192 * R.film.height) / R.film.width / 2) * 2}`;
+let R2 = null;
+const FCL = frameCache({ film: R.film, size: arg('--size', undefined), grade: false, make: async () => R });
+const FCS_ = frameCache({ film: R.film, size: SMALL, grade: false, make: async () => (R2 ??= await makeRenderer({ size: SMALL, grade: false })) });
+const stepMs = {};
+const step = async (k, f) => { if (want(k)) { CHECK = k; const t0 = Date.now(); try { await f(); } finally { stepMs[k] = Date.now() - t0; } } };
 try {
 await step('validate', () => { validate(R.film); for (const x of scanShots(ROOT, R.film.shots.map((s) => s.id))) (x.level === 'FIX' ? fix : warn)(x.shot, 0, x.problem, x.remedy); fonts(R); });
-await step('determinism', async () => determinism(await makeRenderer({ size: arg('--size', undefined), grade: true })));
-await step('layout', () => { R.film.guard = guardCtx; R.film.guardLog = []; layout(R, Math.min(lfps, 8)); R.film.guard = null; guardReport(R.film); });
+await step('determinism', () => determinism(R.film));
+await step('layout', async () => { R.film.guard = guardCtx; R.film.guardLog = []; await layout(R, Math.min(lfps, 8), FCL); R.film.guard = null; guardReport(R.film); });
 await step('camera', () => camera(R.film));
-await step('transitions', () => transitions(R));
+await step('transitions', () => transitions(R, FCL));
 await step('beats', () => beats(R.film));
 await step('handoffs', () => handoffs(R.film));
 await step('contracts', () => { for (const x of contractIssues(R.film)) (x.level === 'FIX' ? fix : warn)(x.shot, x.t, x.problem, x.remedy); });   // F3: contratos congelados en el animatic
-await step('motion', () => motion(lfps, R.film));
-await step('rhythm', async () => { rima(R); await rhythm(R.film); });
+await step('motion', () => motion(lfps, R.film, FCS_));
+await step('rhythm', async () => { if (!R.film.lintScope) await rima(R, FCL); await rhythm(R.film, FCS_); });
 await step('arc', async () => {                                             // F5: lint dramático, solo si hay story.json (sin story no cambia nada)
   const A = await import('./arc.mjs');
-  if (A.storyPath(R.film)) { const r = await A.runArc({ fps: lfps }); for (const x of r.issues) push(x.level)(x.shot, x.t, `[arc] ${x.problem}`, x.remedy); }
+  if (A.storyPath(R.film)) { const r = await A.runArc({ fps: lfps, film: R.film, fc: FCS_, cacheOnly: !!R.film.lintScope }); /* --shot: el arco es del film entero; solo corre si todos sus fotogramas ya están en caché */ for (const x of r.issues) push(x.level)(x.shot, x.t, `[arc] ${x.problem}`, x.remedy); }
 });
 } catch (e) { aborted = e.message; CHECK = 'lint'; fix('-', 0, `lint abortado: ${e.message}`.slice(0, 300), 'arreglar el error y relanzar'); }
 const fixes = emit(R.film, aborted);
+if (process.env.OPUS_STATS === '1') {                                         // medidas del propio lint (docs/current/EFICIENCIA.md; test/motor.mjs)
+  try { fs.mkdirSync(path.join(ROOT, 'out/cache'), { recursive: true }); fs.writeFileSync(path.join(ROOT, 'out/cache/lint-stats.json'), JSON.stringify({ frames: { hit: FCS.hit, miss: FCS.miss, missT: FCS.missT }, det: FCS.det, ms: stepMs })); } catch {}
+  console.log(`cache: fotogramas ${FCS.hit} acierto / ${FCS.miss} fallo · determinismo ${FCS.det.hit} acierto / ${FCS.det.miss} fallo · ms ${JSON.stringify(stepMs)}`);
+}
 for (const x of issues) console.log(`${x.level.padEnd(4)}  ${String(x.shot).padEnd(6)} ${x.t.toFixed(2).padStart(7)}s  ${x.problem}  →  ${x.remedy}`);
 const tag = `[${R.film.S.name}/${R.film.profileName}]${only ? ` (parcial: --only ${only}; no escribe out/lint.json)` : shotArg ? ` (shot ${shotArg} + vecinos → out/lint/${H0.film}/)` : ''}`;
 console.log(fixes.length ? `\nFIX (${fixes.length})  ${tag}` : `\n${only ? 'PASS' : 'SHIP'}${issues.length ? ` (${issues.length} avisos)` : ''}  ${tag}`);

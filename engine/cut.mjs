@@ -30,19 +30,13 @@ import { cookEntry } from './resolve.mjs';
 import { filmId } from './filmid.mjs';
 import { workerThreads } from './encode.mjs';
 import { atempoChain } from './inputs.mjs';
+import { shotImports } from './cookkey.mjs';
 
 const argv = process.argv.slice(2), has = (k) => argv.includes(k), arg = (k, d) => { const i = argv.indexOf(k); return i >= 0 && argv[i + 1] && !argv[i + 1].startsWith('--') ? argv[i + 1] : d; };
 export const filmName = (tlPath = timelinePath()) => filmId(tlPath);
 export { shotHash };
 // P2: el master se llama como el film (out/mate.mp4); el demo conserva out/master.mp4 por compatibilidad.
 export const masterFile = (name, review = false) => `out/${name === 'main' ? 'master' : name}${review ? '.review' : ''}.mp4`;
-// ids de los shots que el código de `id` importa (transitivo, sin él mismo).
-function shotImports(id, seen = new Set()) {
-  if (seen.has(id)) return []; seen.add(id);
-  const f = path.join(ROOT, 'shots', id + '.mjs'); if (!fs.existsSync(f)) return [];
-  for (const [, dep] of fs.readFileSync(f, 'utf8').matchAll(/from\s+['"]\.\/([\w-]+)\.mjs['"]/g)) shotImports(dep, seen);
-  return [...seen].filter((x) => x !== id);
-}
 // Segmentos: grupos de shots que se solapan (morphs) no se parten; cortes limpios sí.
 export function plan(film, { fps, size, chunk = 900, preset = 'medium' }) {
   const engine = sha(engineSig(), JSON.stringify(film.S), ...(film.medium ? [JSON.stringify(film.medium)] : []), fontSig([film.S.typeface]), ...(usesWorld3d(film.shots.map((s) => s.id)) ? [world3dSig()] : []));   // spec 004: backend GL + Mesa en el hash solo si el film usa world3d

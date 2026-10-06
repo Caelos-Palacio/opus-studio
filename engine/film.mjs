@@ -69,7 +69,7 @@ export async function loadFilm({ timeline = timelinePath(), animatic = false, st
   if (tl.medium) tl.mediumDef = assertMedio(rd(`styles/medios/${tl.medium}.json`), `styles/medios/${tl.medium}.json`);                  // spec 003: el medio como datos (compile lo aplica)
   const film = compile(tl, rd('engine/profiles.json'), loadStyles(), fs.existsSync(aj) ? assertAudio(JSON.parse(fs.readFileSync(aj, 'utf8')), path.relative(ROOT, aj)) : null);
   film.timelinePath = timeline;
-  if (process.env.OPUS_FXFAST === '1') film.P.fxFast = true;                          // R3 opt-in (fx baratos): entra en el hash vía film.P; también por perfil/overrides
+  if (process.env.OPUS_FXFAST === '1') film.P.fxFast = true; else if (process.env.OPUS_FXFAST === '0') film.P.fxFast = false;   // spec 009: lint/peek/review lo activan por defecto; 0 lo fuerza fuera                          // R3 opt-in (fx baratos): entra en el hash vía film.P; también por perfil/overrides
   film.resolution = R;
   film.assets = makeAssets(ROOT);
   film.canvas = (w, h) => createCanvas(w, h);

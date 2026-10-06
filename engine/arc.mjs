@@ -81,13 +81,17 @@ export function camShape(shot, film) {
   return { move: sp.move, ease: sp.ease, linearDev: +dev.toFixed(4), overshoot: +Math.max(0, over).toFixed(4) };
 }
 
-export async function measure({ fps = 12, story = null, width = 1280, height = 720 } = {}) {
-  const { makeRenderer } = await import('./render.mjs');
-  const R = await makeRenderer({ size: `192x${Math.round((192 * height) / width / 2) * 2}`, grade: false }), film = R.film, W = R.W, H = R.H;
-  const n = Math.round(film.duration * fps), E = [], accent = [], frames = [], acc = rgb(film.S.palette.accent), impacts = new Map(), smear = {};
+export async function measure({ fps = 12, story = null, width = 1280, height = 720, film: F0 = null, fc = null, cacheOnly = false } = {}) {
+  // R1 (spec 009): los fotogramas salen de la caché compartida (engine/framecache.mjs); lint pasa su film y su caché (el renderizador solo se crea en el 1.er fallo).
+  const size = `192x${Math.round((192 * height) / width / 2) * 2}`;
+  let R0 = null;
+  if (!fc) { const { makeRenderer } = await import('./render.mjs'); R0 = await makeRenderer({ size, grade: false }); fc = (await import('./framecache.mjs')).frameCache({ film: R0.film, size, grade: false, make: async () => R0 }); }
+  const film = F0 ?? R0.film, n = Math.round(film.duration * fps);
+  if (cacheOnly && !fc.hasAll(Array.from({ length: n + 1 }, (_, i) => i / fps), { px: true })) return null;
+  const E = [], accent = [], frames = [], acc = rgb(film.S.palette.accent), impacts = new Map(), smear = {};
   let prev = null;
   for (let i = 0; i <= n; i++) {
-    const t = i / fps, boxes = R.frame(t), d = R.ctx.getImageData(0, 0, W, H).data;
+    const t = i / fps, F = await fc.get(t, { px: true }), boxes = F.boxes, d = F.data, W = F.W, H = F.H;
     if (prev) E.push(frameEnergy(d, prev));
     prev = Uint8ClampedArray.from(d);
     let a = 0; if (acc) for (let k = 0; k < d.length; k += 4) { const dr = d[k] - acc[0], dg = d[k + 1] - acc[1], db = d[k + 2] - acc[2]; if (dr * dr + dg * dg + db * db < 45 * 45) a++; }
@@ -262,10 +266,12 @@ const shotOfT = (M, t) => (M.shots.find((s) => t >= s.t[0] && t < s.t[1]) ?? M.s
 
 // ───────── etapa completa ─────────
 const rdJ = (p, d) => (fs.existsSync(path.join(ROOT, p)) ? JSON.parse(fs.readFileSync(path.join(ROOT, p), 'utf8')) : d);
-export async function runArc({ fps = 12, story: sp, record = false, write = true } = {}) {
-  const { loadFilm } = await import('./film.mjs'), film = await loadFilm({ animatic: true }), spath = storyPath(film, sp);
+export async function runArc({ fps = 12, story: sp, record = false, write = true, film: F0 = null, fc = null, cacheOnly = false } = {}) {
+  const { loadFilm } = await import('./film.mjs'), film = F0 ?? await loadFilm({ animatic: true }), spath = storyPath(film, sp);
   let story = null; if (spath) { try { story = JSON.parse(fs.readFileSync(path.join(ROOT, spath), 'utf8')); } catch (e) { story = { _parseError: e.message }; } }
-  const M = await measure({ fps, story, width: film.width, height: film.height }), calib = rdJ('data/arc.calib.json', {}), T = thresholds(M.profile, calib);
+  const M = await measure({ fps, story, width: film.width, height: film.height, film: F0, fc, cacheOnly });
+  if (!M) return { deferred: true, issues: [], verdict: 'SHIP', skipped: true };
+  const calib = rdJ('data/arc.calib.json', {}), T = thresholds(M.profile, calib);
   const res = story?._parseError ? { verdict: 'FIX', score: 0, measures: {}, checks: [], issues: [{ level: 'FIX', shot: '-', t: 0, problem: `story.json ilegible: ${story._parseError}`, remedy: 'JSON válido' }] } : analyze(M, story, T);
   const out = { title: M.title, story: spath, profile: M.profile, style: M.style, ...res, thresholds: T, energy: { fps, E: M.E.map((e) => +e.toFixed(5)) } };
   if (record && story && !res.skipped) {                                       // esta pieza es referencia aprobada: sus medidas alimentan la calibración
