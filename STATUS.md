@@ -50,15 +50,15 @@ Archivos (test/*.mjs): `arc.mjs` `bench-skia.mjs` `critic.mjs` `cut-render.mjs` 
 <!-- estatico:fin -->
 
 ---
-## Estado vivo (2026-10-06T13:49Z, no verificado)
+## Estado vivo (2026-10-06T13:55Z, no verificado)
 
 ## Veredictos
 
-Film activo: `potencias` · engineHash `37c17c7c6f05a87f1caa016b167065854282ab255a85e21909bebd7b200aba77` · filmHash `9ffbf0bcb3f29ae5`
+Film activo: `main` · engineHash `37c17c7c6f05a87f1caa016b167065854282ab255a85e21909bebd7b200aba77` · filmHash `a3f15e847f29bf4d`
 
 - out/lint.json: SHIP · CADUCADO
-- out/critic.json: no existe
-- veredictos por shot: 0 vigentes, 13 caducados
+- out/critic.json: SHIP · CADUCADO
+- veredictos por shot: 0 vigentes, 0 caducados
 
 ### Estado de gates (out/gates.json)
 
@@ -73,8 +73,7 @@ Film activo: `potencias` · engineHash `37c17c7c6f05a87f1caa016b167065854282ab25
 - `metricas` (+76 commits)
 - `orquestacion` (+101 commits)
 - `perf` (+53 commits)
-- `prod-potencias` (+4 commits)
-- `prod-reel` (+3 commits)
+- `prod-potencias` (+6 commits)
 - `semantica` (+101 commits)
 - `video-mate` (+33 commits)
 - `video-reel` (+34 commits)
@@ -98,7 +97,7 @@ Film activo: `potencias` · engineHash `37c17c7c6f05a87f1caa016b167065854282ab25
 
 ## Ledger
 
-- cadena: íntegra · 2 entradas (2 encadenadas, 0 heredadas, 0 firmadas) · códigos 100 %
+- cadena: íntegra · 5 entradas (5 encadenadas, 0 heredadas, 0 firmadas) · códigos 100 %
 
 ## Presupuestos
 
