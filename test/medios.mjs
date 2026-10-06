@@ -47,7 +47,7 @@ try { RB = await load(B); mB = TS.map((t) => bgMetrics(grab(RB, t))); } catch (e
 if (RB) {
   ok(mB.every((m) => !flat(m)), 'M1 mate_papel: ningún fotograma con fondo plano', mB.map((m) => `low ${m.low.toFixed(2)} hf ${m.hf.toFixed(2)}`).join(' | '));
   const med = RB.film.medium;
-  ok(!!med && med.name === 'papel_crema', 'film carga el medio declarado', med?.name ?? 'sin medio');
+  ok(!!med && med.name === 'papel_crema_terracota', 'film carga el medio declarado (mate_papel: terracota, elección del usuario 2026-10-06)', med?.name ?? 'sin medio');
   // M2: paleta
   const acc = (med?.accents ?? []);
   ok(acc.length >= 1 && acc.length <= 2, 'M2 el medio declara 1–2 acentos', acc.join(' '));
@@ -174,7 +174,7 @@ ok(names.length === 4 && minD >= 40, 'X1 los 5 medios son visualmente distintos 
     const d = hsv(base.accents[1]), va = hsv(a.accents[1]), vb = hsv(b.accents[1]);
     ok(va.s < d.s - 0.1 && va.v < d.v - 0.05 && hd(va.h, d.h) <= 40, 'V2 variante A: violeta más profundo y menos saturado', `s ${d.s.toFixed(2)}→${va.s.toFixed(2)} v ${d.v.toFixed(2)}→${va.v.toFixed(2)}`);
     ok(hd(vb.h, 18) <= 25 && vb.s >= 0.5, 'V3 variante B: terracota (segundo tono cálido en lugar del violeta)', `matiz ${vb.h.toFixed(0)}°`);
-    ok(base.accents[1] === '#6A2CB8' && JSON.parse(fs.readFileSync(path.join(ROOT, B), 'utf8')).medium === 'papel_crema', 'V4 el film por defecto (mate_papel) sigue con papel_crema y su violeta');
+    ok(base.accents[1] === '#6A2CB8' && JSON.parse(fs.readFileSync(path.join(ROOT, B), 'utf8')).medium === 'papel_crema_terracota', 'V4 el film por defecto (mate_papel) declara papel_crema_terracota; el medio base papel_crema conserva su violeta');
   }
 }
 // Hojas de contacto A/B por medio (herramienta tools/medios-sheets.mjs)

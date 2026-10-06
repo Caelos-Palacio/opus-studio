@@ -50,7 +50,7 @@ Archivos (test/*.mjs): `arc.mjs` `bench-skia.mjs` `critic.mjs` `cut-render.mjs` 
 <!-- estatico:fin -->
 
 ---
-## Estado vivo (2026-10-06T13:55Z, no verificado)
+## Estado vivo (2026-10-06T14:02Z, no verificado)
 
 ## Veredictos
 
@@ -73,7 +73,7 @@ Film activo: `main` · engineHash `37c17c7c6f05a87f1caa016b167065854282ab255a85e
 - `metricas` (+76 commits)
 - `orquestacion` (+101 commits)
 - `perf` (+53 commits)
-- `prod-potencias` (+6 commits)
+- `prod-potencias` (+7 commits)
 - `semantica` (+101 commits)
 - `video-mate` (+33 commits)
 - `video-reel` (+34 commits)
@@ -93,7 +93,7 @@ Film activo: `main` · engineHash `37c17c7c6f05a87f1caa016b167065854282ab255a85e
 
 ## Último run de tests
 
-- 2026-10-06T13:46:15.718Z: 4 fallos (--fast)
+- 2026-10-06T14:00:52.746Z: todo verde
 
 ## Ledger
 
