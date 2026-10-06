@@ -41,7 +41,7 @@ if (argv[0] === '--worker') {
   ok(fixes(wrap("const c = film.canvas(8, 8).getContext('webgl'); c.createShader(35633);")).some((p) => /webgl|GL/i.test(p)), 'getContext(webgl) en un shot → FIX');
   ok(fixes(wrap('const g = new WebGLRenderingContext();')).some((p) => /WebGL/i.test(p)), 'WebGLRenderingContext → FIX');
   ok(!fixes(wrap("api.world3d({ id: 'x', objects: [{ shape: 'box', size: [1, 1, 1], color: 'accent' }] }, { t, u });")).length, 'api.world3d con escena declarada (datos) no da FIX');
-  const sh = fs.readdirSync(path.join(ROOT, 'shots')).filter((f) => /^W_|^P03/.test(f));
+  const sh = fs.readdirSync(path.join(ROOT, 'shots')).filter((f) => /^(W_|P03|P04).*\.mjs$/.test(f));
   for (const f of sh) ok(!scanSource(fs.readFileSync(path.join(ROOT, 'shots', f), 'utf8'), f).filter((i) => i.level === 'FIX').length, `shots/${f} limpio para la guardia`);
 }
 

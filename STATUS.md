@@ -39,10 +39,10 @@ Definición (gates.json); el estado de cierre está en la parte viva.
 
 ## DSL de escenas (spec 010)
 
-- cobertura: **92.1 %** (58/63 shots en DSL; honesta: los 3 pendientes de otra rama cuentan en contra; sin ellos 96.7 %) · umbral ratchet 92 %
-- clases: dsl 58 · escape 2 · pendiente:world3d2 3 · shots 100 % nativos 1 · el resto usa objetos respaldados por una función de módulo (plot/axis/world/hud/word…) con semántica y deps declaradas
+- cobertura: **95.2 %** (60/63 shots en DSL; honesta: los 1 pendientes de otra rama cuentan en contra; sin ellos 96.8 %) · umbral ratchet 95 %
+- clases: dsl 60 · escape 2 · pendiente:world3d2 1 · shots 100 % nativos 1 · el resto usa objetos respaldados por una función de módulo (plot/axis/world/hud/word…) con semántica y deps declaradas
 - escapes: A1 (objetivo de las mutaciones de test/run.mjs, golden.mjs, gov.mjs y orch: esos tests editan su JS por texto); A2 (objetivo de las mutaciones de test/run.mjs, golden.mjs, gov.mjs y orch: esos tests editan su JS por texto)
-- pendientes: D01 (world3d2), P03 (world3d2), P04 (world3d2)
+- pendientes: D01 (world3d2)
 
 ## Tests
 
@@ -50,11 +50,11 @@ Archivos (test/*.mjs): `arc.mjs` `bench-skia.mjs` `critic.mjs` `cut-render.mjs` 
 <!-- estatico:fin -->
 
 ---
-## Estado vivo (2026-10-06T13:55Z, no verificado)
+## Estado vivo (2026-10-06T14:11Z, no verificado)
 
 ## Veredictos
 
-Film activo: `main` · engineHash `3e53cb2232249bc9cd55f3f5af9dced83ea971b89a4aa2b8f7849bcaa9c46bd2` · filmHash `988b84a39afcb6a2`
+Film activo: `main` · engineHash `c2bbf72002d430b3772442e3d2303923558aea7eda25d8009ae2a469844100f9` · filmHash `a3f15e847f29bf4d`
 
 - out/lint.json: SHIP · CADUCADO
 - out/critic.json: no existe
@@ -73,8 +73,7 @@ Film activo: `main` · engineHash `3e53cb2232249bc9cd55f3f5af9dced83ea971b89a4aa
 - `metricas` (+76 commits)
 - `orquestacion` (+101 commits)
 - `perf` (+53 commits)
-- `prod-potencias` (+6 commits)
-- `prod-reel` (+3 commits)
+- `prod-potencias` (+8 commits)
 - `semantica` (+101 commits)
 - `video-mate` (+33 commits)
 - `video-reel` (+34 commits)
@@ -94,7 +93,7 @@ Film activo: `main` · engineHash `3e53cb2232249bc9cd55f3f5af9dced83ea971b89a4aa
 
 ## Último run de tests
 
-- 2026-10-06T07:57:13.180Z: todo verde
+- 2026-10-06T14:11:39.323Z: todo verde
 
 ## Ledger
 

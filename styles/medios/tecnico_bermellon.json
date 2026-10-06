@@ -1,0 +1,216 @@
+{
+ "name": "tecnico_bermellon",
+ "description": "Plano técnico (cianotipia) con REDLINE bermellón: el azul de plano con cuadrícula milimetrada y cotas, pero el acento es el rojo-naranja de las correcciones de ingeniero (no el dorado sobre azul noche). Para viajes de escala: cada ventana es una cota.",
+ "seed": 7310,
+ "font": "DejaVu Sans Mono, monospace",
+ "blend": "screen",
+ "accents": [
+  "#F27A5E",
+  "#7FD6FF"
+ ],
+ "palette": {
+  "paper": "#123C6E",
+  "ink": "#EAF3FF",
+  "accent": "#F27A5E",
+  "accent2": "#7FD6FF",
+  "shade": "#3C6FA8"
+ },
+ "support": {
+  "kind": "blueprint",
+  "base": "#123C6E",
+  "mottle": {
+   "amount": 0.05,
+   "cell": 220,
+   "warm": "#18508A",
+   "cool": "#0C2E58"
+  },
+  "tooth": 0.03,
+  "fibers": {
+   "n": 300,
+   "len": [
+    6,
+    20
+   ],
+   "alpha": [
+    0.03,
+    0.08
+   ],
+   "color": "#7FB2E8",
+   "width": 0.8
+  },
+  "decor": {
+   "grid": {
+    "minor": 16,
+    "major": 5,
+    "color": "#9CC8F2",
+    "alpha": 0.1,
+    "majorAlpha": 0.22
+   }
+  }
+ },
+ "layers": [
+  {
+   "name": "rejilla gruesa",
+   "depth": 0.25,
+   "grid": {
+    "minor": 64,
+    "major": 4,
+    "color": "#9CC8F2",
+    "alpha": 0.07,
+    "majorAlpha": 0.14
+   }
+  },
+  {
+   "name": "cotas",
+   "depth": 0.5,
+   "dims": {
+    "n": 9,
+    "len": [
+     90,
+     300
+    ],
+    "size": 11,
+    "color": "#CFE4FA",
+    "alpha": [
+     0.25,
+     0.5
+    ],
+    "unit": 0.5,
+    "font": "DejaVu Sans Mono, monospace"
+   },
+   "marks": {
+    "n": 5,
+    "r": [
+     10,
+     22
+    ],
+    "color": "#CFE4FA",
+    "alpha": [
+     0.25,
+     0.4
+    ]
+   }
+  },
+  {
+   "name": "motas",
+   "depth": 0.75,
+   "specks": {
+    "n": 260,
+    "r": [
+     0.6,
+     1.6
+    ],
+    "alpha": [
+     0.1,
+     0.35
+    ],
+    "color": "#BFDBF7"
+   }
+  },
+  {
+   "name": "HUD",
+   "depth": 0,
+   "over": true,
+   "text": {
+    "color": "#CFE4FA",
+    "alpha": 0.55,
+    "size": 12,
+    "font": "DejaVu Sans Mono, monospace",
+    "items": [
+     {
+      "t": "FIG. 10⁰ – 10²⁷ · ESCALA DE ×10 POR PASO",
+      "x": 0.03,
+      "y": 0.965
+     },
+     {
+      "t": "REV C   2026-10-06",
+      "x": 0.97,
+      "y": 0.04,
+      "align": "right"
+     },
+     {
+      "t": "UD m · LOGARITMO DECIMAL",
+      "x": 0.97,
+      "y": 0.07,
+      "align": "right"
+     },
+     {
+      "t": "HOJA 1/1",
+      "x": 0.97,
+      "y": 0.965,
+      "align": "right"
+     }
+    ]
+   }
+  },
+  {
+   "name": "polvo",
+   "depth": 1.4,
+   "over": true,
+   "specks": {
+    "n": 40,
+    "r": [
+     1.2,
+     3
+    ],
+    "alpha": [
+     0.05,
+     0.12
+    ],
+    "color": "#BFDBF7"
+   }
+  }
+ ],
+ "ink": {
+  "alpha": 1,
+  "erosion": {
+   "amount": 0.12,
+   "cell": 3,
+   "fps": 12
+  },
+  "misregister": {
+   "dx": 0.7,
+   "dy": 0.5,
+   "alpha": 0.15
+  },
+  "halo": [
+   {
+    "lv": 3,
+    "a": 0.18
+   }
+  ]
+ },
+ "grain": {
+  "amount": 0.03,
+  "fps": 15,
+  "tiles": 5
+ },
+ "vignette": {
+  "amount": 0.3,
+  "color": "#030F20",
+  "inner": 0.5
+ },
+ "grade": {
+  "vignette": 0,
+  "grain": 0,
+  "post": {
+   "bloom": null,
+   "color": null,
+   "chroma": 0
+  }
+ },
+ "rules": {
+  "glow": true,
+  "gradients": false,
+  "glowScale": 1.0
+ },
+ "composition": {
+  "edgeMargin": 0.05,
+  "anchor": "free",
+  "negativeSpace": 0.5
+ },
+ "encode": {
+  "crf": 20,
+  "tune": "grain"
+ }
+}

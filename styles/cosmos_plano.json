@@ -1,0 +1,101 @@
+{
+ "name": "cosmos_plano",
+ "description": "cosmos sobre plano técnico: mismo carácter (asombro, bloom, niebla) con el 3D de luz de borde cian (la atmósfera, no el acento) y la luz clave desde la dirección del Sol de Potencias (abajo-izquierda; az 25° en la convención del motor). Para films con medio técnico.",
+ "mood": [
+  "asombro",
+  "preciso",
+  "nocturno"
+ ],
+ "defaultProfile": "cinematic",
+ "palette": {
+  "paper": "#0C0E16",
+  "ink": "#E9E6EF",
+  "accent": "#F2A650",
+  "accent2": "#5FA8CF",
+  "shade": "#3A4160"
+ },
+ "typeface": {
+  "family": "Helvetica",
+  "fallback": "'DejaVu Sans', sans-serif",
+  "weights": [
+   400,
+   700
+  ],
+  "scale": 1.5,
+  "base": 30,
+  "case": "upper",
+  "tracking": 0.12
+ },
+ "motion": {
+  "spring": {
+   "omega": 9,
+   "zeta": 0.9
+  },
+  "ease": "cinema",
+  "stagger": 0.1
+ },
+ "camera": {
+  "amount": 0.06,
+  "ease": "cinema",
+  "maxZoomPerSec": 0.12,
+  "maxPanPerSec": 0.25,
+  "maxRotPerSec": 3,
+  "shake": 0,
+  "maxShake": 0.003,
+  "slide": 0.04
+ },
+ "grade": {
+  "vignette": 0.35,
+  "grain": 0.03,
+  "fade": {
+   "in": 0.6,
+   "out": 0.9,
+   "color": "paper"
+  },
+  "post": {
+   "bloom": {
+    "threshold": 0.62,
+    "strength": 0.7,
+    "radius": 26
+   },
+   "chroma": 2.5,
+   "color": {
+    "lift": 0.015,
+    "gamma": 1.04,
+    "gain": 1.0,
+    "temp": 0.25,
+    "sat": 1.05,
+    "dither": 2
+   }
+  }
+ },
+ "depth": {
+  "focal": 1.2,
+  "fog": 0.9,
+  "dof": 2.2,
+  "focusZ": 0
+ },
+ "compose": {
+  "anchor": "thirds",
+  "anchorTol": 0.16,
+  "negativeSpace": 0.45
+ },
+ "rules": {
+  "glow": true,
+  "gradients": false,
+  "maxColors": 5,
+  "maxChroma": 0.16,
+  "holdEnergy": 0.00015
+ },
+ "light": {
+  "enabled": false,
+  "az": 25
+ },
+ "world3d": {
+  "rim": {
+   "color": "accent2",
+   "strength": 0.55,
+   "width": 3
+  }
+ }
+}

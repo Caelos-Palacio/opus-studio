@@ -424,6 +424,11 @@
           "forbid": []
         },
         {
+          "id": "w3d-sin-guion",
+          "def": "comprobación del arco: un shot con world3d no cae en ningún beat 3D declarado (beat.w3d) de story.json; emite el aviso w3d.sin-guion (spec 009, S10)",
+          "forbid": []
+        },
+        {
           "id": "schema",
           "def": "comprobación del arco: schema",
           "forbid": []
@@ -677,6 +682,11 @@
           "id": "w3d.angulo",
           "def": "elevación de la cámara 3D fuera de la regla de su escala de plano (PG [8°,20°], PM [5°,15°], contrapicado heroico [−12°,−4°]) sin camera.override",
           "forbid": []
+        },
+        {
+          "id": "w3d.sin-guion",
+          "def": "un shot usa world3d sin pertenecer a un beat 3D (beat.w3d = {concepto, porque}) declarado en story.json: el 3D se guioniza desde el principio, no se añade después (spec 009, S10)",
+          "forbid": []
         }
       ]
     },
@@ -693,6 +703,7 @@
         { "id": "kraft", "def": "tinta negra de estampa sobre cartón de estraza", "forbid": [] },
         { "id": "pizarra", "def": "tiza sobre pizarra con borrado parcial", "forbid": [] },
         { "id": "tecnico", "def": "plano técnico azul con cuadrícula, cotas y HUD", "forbid": [] },
+        { "id": "tecnico_bermellon", "def": "plano técnico azul con acento bermellón (redline de ingeniero) en vez del ámbar", "forbid": [] },
         { "id": "neon", "def": "tubos de luz sobre muro mojado con parpadeo y reflejo", "forbid": [] },
         { "id": "neon_pulso", "def": "neón del reel: letrero roto de tubos lima y magenta sobre ladrillo ciruela, con parpadeo, zumbido y suelo mojado", "forbid": [] }
       ]

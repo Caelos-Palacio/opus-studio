@@ -88,7 +88,7 @@ export async function measure({ fps = 12, story = null, width = 1280, height = 7
   if (!fc) { const { makeRenderer } = await import('./render.mjs'); R0 = await makeRenderer({ size, grade: false }); fc = (await import('./framecache.mjs')).frameCache({ film: R0.film, size, grade: false, make: async () => R0 }); }
   const film = F0 ?? R0.film, n = Math.round(film.duration * fps);
   if (cacheOnly && !fc.hasAll(Array.from({ length: n + 1 }, (_, i) => i / fps), { px: true })) return null;
-  const E = [], accent = [], frames = [], acc = rgb(film.S.palette.accent), impacts = new Map(), smear = {};
+  const E = [], accent = [], frames = [], acc = rgb(film.S.palette.accent), impacts = new Map(), smear = {}, w3d = new Set();
   let prev = null;
   for (let i = 0; i <= n; i++) {
     const t = i / fps, F = await fc.get(t, { px: true }), boxes = F.boxes, d = F.data, W = F.W, H = F.H;
@@ -100,6 +100,7 @@ export async function measure({ fps = 12, story = null, width = 1280, height = 7
     frames.push({ t, texts: boxes.filter((b) => b.kind === 'text').map(nb), foci: boxes.filter((b) => b.kind === 'focus').map(nb) });
     for (const m of boxes.meta ?? []) {
       if (m.prim === 'impact') impacts.set(`${m.shot}@${(+m.t).toFixed(4)}`, { shot: m.shot, t: +m.t, frames: m.frames });
+      if (m.prim === 'world3d' && m.shot) w3d.add(m.shot);
       if (m.prim === 'smear') smear[m.shot] = (smear[m.shot] ?? 0) + 1 / fps;
     }
   }
@@ -111,7 +112,7 @@ export async function measure({ fps = 12, story = null, width = 1280, height = 7
   return {
     title: film.title, profile: film.profileName, style: film.S.name, duration: film.duration, fps: film.fps, sampleFps: fps,
     holdEnergy: film.S.rules.holdEnergy ?? film.P.holdEnergy, E, accent, frames, cuts,
-    impacts: [...impacts.values()].sort((a, b) => a.t - b.t), smear, transients, silences: film.silences ?? [],
+    impacts: [...impacts.values()].sort((a, b) => a.t - b.t), smear, w3d: [...w3d], transients, silences: film.silences ?? [],
     shots: film.shots.map((s) => ({ id: s.id, t: s.t, size: s.size ?? null, on: s.on ?? 1, sakuga: s.sakuga ?? tiers[s.id] ?? null, transition_out: s.transition_out ?? null, text: s.text ?? '', action: s.action ?? '', cam: camShape(s, film) })),
   };
 }
@@ -218,6 +219,14 @@ export function analyze(M, story, T) {
   // 10 · referencia de escala humana antes del salto
   for (const s of story.scale ?? []) add('scale-ref', typeof s.ref_at === 'number' && s.ref_at < s.at, 'FIX', `salto de escala en ${s.at}s sin referencia humana previa${typeof s.ref_at === 'number' ? ` (ref en ${s.ref_at}s)` : ''}`, 'mostrar antes algo de escala humana (una mano, una persona) y declarar ref_at', shotAt(s.at)?.id, s.at);
   for (const s of M.shots) if ((s.transition_out ?? '').toLowerCase() === 'scale-cut' && !(story.scale ?? []).some((x) => Math.abs(x.at - s.t[1]) < 0.5)) add('scale-declared', false, 'WARN', `scale-cut en ${s.t[1]}s sin story.scale`, 'declarar el salto con su referencia humana', s.id, s.t[1]);
+  // 12 · S10 (spec 009): el 3D se guioniza desde el principio. Un shot con world3d debe caer en un beat 3D declarado (beat.w3d = {concepto, porque}).
+  {
+    const D3 = beats.map((b, i) => ({ b, t0: b.t, t1: beats[i + 1]?.t ?? D })).filter((x) => x.b.w3d);
+    for (const id of M.w3d ?? []) {
+      const sh = M.shots.find((x) => x.id === id), decl = D3.some((x) => x.b.shot === id || (sh && sh.t[0] < x.t1 - 1e-9 && sh.t[1] > x.t0 + 1e-9));
+      add('w3d-sin-guion', decl, 'WARN', decl ? '' : `w3d.sin-guion: ${id} usa world3d sin un beat 3D declarado en story.json`, 'beat.w3d = { concepto, porque }: qué concepto de la memoria encarna el 3D (o quitar el 3D)', id, sh?.t[0] ?? 0);
+    }
+  }
   // 11 · pedagogía (Mayer), solo explainer
   if (M.profile === 'explainer') pedagogy(M, story, T, add, measures);
   const issues = checks.filter((c) => !c.pass).map(({ level, shot, t, problem, remedy }) => ({ level, shot, t, problem, remedy }));
