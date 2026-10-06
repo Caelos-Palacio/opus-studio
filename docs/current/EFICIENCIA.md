@@ -73,3 +73,17 @@ lo que otro ya sabía; (5) Opus usado en tareas mecánicas; (6) informes largos 
   TeX, golden y `npm test` verdes.
 - Pendiente de la tabla: P3, P4, P6, P7 (lint incremental, hash por check, workers, caché de texturas) y los de proceso A2–A5.
 - Nota: modificar engine/lint.mjs/filmid.mjs caduca los veredictos de todos los films (hash del motor): relanzar `npm run lint` tras `use <film>`.
+
+## Motor: resultados (spec 009, rama motor, 2026-10-06)
+Medido en Potencias (13 shots, 78 s) con 12 CPUs y la máquina cargada por otros agentes (load 5–24): el reloj es ruidoso, la CPU (user+sys) no.
+| medida | antes | después |
+|---|---|---|
+| master en frío (mezcla ya hecha) | 167 s reloj / 791 s CPU (referencia histórica 282 s) | 84 s / 615 s (preset faster, hilos auto, troceo 120 + LPT) |
+| lint completo en frío | 70 s | 16,8 s (R1 + precalentamiento paralelo); avisos idénticos |
+| lint completo en caliente | 70 s | 1,5 s |
+| lint --shot P05 tras cambiar ese shot | 68 s | 6,3 s |
+| mezcla de sonido Potencias | 15,7 s | 11,0 s en frío; música/efectos de caché: solo mixdown (3,7 s) |
+| mezcla de sonido Mate (piano) | 55,7 s CPU | 12 s CPU (WAV: 24 de 8,8 M muestras difieren 1 LSB) |
+| npm test | 285 s / 1415 s CPU | 269 s con el test nuevo (motor, 23 comprobaciones) |
+Causa del ×3 del sonido: no se reproduce 40→133 s en aislado; el coste real era `piano` (41 %), `Float32Array.from(cb)` en el bucle del master (~4 s), GC por alocaciones por iteración y cos/sin del paneo por muestra. Corregido (potencias bit a bit igual).
+Hallazgo fuera de alcance: cada tamaño de fuente nuevo cuesta 40–130 ms (fontconfig con 2 451 fuentes), por proceso.

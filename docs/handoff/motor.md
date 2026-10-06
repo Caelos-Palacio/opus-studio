@@ -1,23 +1,6 @@
-# Handoff — motor
-
-Rama `motor` · worktree `/home/carlos/Documentos/MUltia/opus-studio-4/.claude/worktrees/motor`
-
-## Objetivo
-(sin declarar: orch handoff)
-
-## Hecho
-- R1 frame cache + R6 lint incremental hechos; sigo con cut/fxFast, audio R7, tests
-
-## Pendiente
-- —
-
-## Siguiente
-—
-
-## Verificación (argv, sin shell)
-- —
-
-## Riesgos
-- —
-
-_Generado por `orch handoff` (esquema $defs.handoff); edita el .json._
+# Handoff — motor (spec docs/specs/009-motor.md)
+Hecho: engine/cookkey.mjs (clave por shot/film), framecache.mjs (R1), framewarm.mjs (precalentamiento paralelo), audiocache.mjs (R7); lint incremental
+(determinismo por muestra OK, --shot real en motion/rhythm/transitions, arc solo con caché), peek/index/metrics por caché; fxFast por defecto en lint/peek/review/stills;
+cut: preset faster, hilos auto, troceo 120 + LPT. Audio: caché de música y efectos, mixdown/limitador sin alocaciones, piano por recurrencia.
+Env: OPUS_NOCACHE=1, OPUS_WARM=0|1, OPUS_STATS=1 (imprime aciertos/fallos y ms por check), OPUS_FXFAST=0.
+Pendiente: critic no usa la caché (territorio de deuda); R2/R7 por sección fina; tocar film.mjs/render.mjs caduca fragmentos y veredictos una vez.
