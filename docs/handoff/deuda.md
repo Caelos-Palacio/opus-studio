@@ -8,3 +8,10 @@
 ## 2. Capas de film con carpeta
 - `layersDir`: `<carpeta del film>/layers` si el film tiene carpeta propia (`data/<f>/timeline.json` o `data/<f>/<f>.json`) y existe; si no `data/layers/<f>`.
 - **El cookKey de regla cambia** (ahora se aplica `data/regla/layers/memoria.json`): caducan sus veredictos y fragmentos; relanzar lint antes del master.
+
+## 3. TeX dinámico en el sandbox
+- Causa: la caché de TeX falla (cadena generada por el shot) → `compileTexSync` + `writeAtomic` usaban `process.pid`/`Date` dentro del sandbox → SandboxError.
+- Vía: `trusted(fn)` en `engine/sandbox.mjs` (solo el motor lo importa; el shot no puede) ejecuta la compilación con los globales reales y reinstala el sandbox
+  intacto (la secuencia de Math.random no se reinicia). `makeTexStore.get` lo usa solo en fallo de caché; cadena ≤ 2000 caracteres. El resultado es función pura de la cadena.
+- `assets --tex` sigue precompilando los literales (más rápido en frío y manifiesto para el navegador); lo dinámico se compila al vuelo y se cachea igual.
+- Tests: test/guard.mjs (trusted) y mutación `tex-dinamico` en test/run.mjs.

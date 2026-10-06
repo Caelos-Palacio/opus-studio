@@ -16,6 +16,8 @@ const inject = (code) => (src) => src.replace(/api\.text\(shot\.text,/, `${code}
 const MUT = [
   { name: 'base-ship', file: null, expect: { verdict: 'SHIP' }, quick: 'layout' },
   { name: 'impact-sin-pop', file: 'shots/A2.mjs', edit: inject("api.impact(1, { frames: 2, mode: 'invert' });"), expect: { nowarn: /pop:/ }, quick: 'motion' },   // deuda F3: un impact declarado no es un pop
+  // deuda 3: TeX generado por el shot (una cadena por década, no literal) se compila en el servicio síncrono del motor, fuera del sandbox del shot.
+  { name: 'tex-dinamico', file: 'shots/A2.mjs', edit: inject("{ const dec = 4200 + Math.floor(t * 2); api.tex(String.raw`\\approx 10^{${dec}}\\,\\mathrm{m}`, 640, 120, { size: 40 }); }"), expect: { verdict: 'SHIP', nofix: /sandbox|process/ }, quick: 'validate' },
   { name: 'math-random', file: 'shots/A2.mjs', edit: inject("ctx.fillStyle='#f00'; ctx.fillRect(50+Math.random()*30,50,20,20);"), expect: { fix: /Math\.random en shots\/A2/ }, quick: 'validate' },
   { name: 'estado-global', file: 'shots/A2.mjs', edit: (s) => inject("ctx.fillStyle='#f00'; ctx.fillRect(50+(n++%2)*30,50,20,20);")(s.replace('export default {', 'let n = 0;\nexport default {')), expect: { fix: /no determinista en este shot/, shot: 'A2' }, quick: 'determinism' },
   { name: 'filltext-crudo', file: 'shots/A2.mjs', edit: inject("ctx.font='8px sans-serif'; ctx.fillStyle='#000'; ctx['fill'+'Text']('OCULTO', 300, 300);"), expect: { fix: /ctx\.fillText/ }, quick: 'layout' },
@@ -45,6 +47,7 @@ async function mutation(m) {
     if (e.verdict) ok &&= L.verdict === (fast && e.verdict === 'SHIP' ? 'PASS' : e.verdict);
     if (e.fix) ok &&= fx.some((i) => e.fix.test(i.problem) && (!e.shot || i.shot === e.shot));
     if (e.warn) ok &&= wn.some((i) => e.warn.test(i.problem));
+    if (e.nofix) ok &&= !fx.some((i) => e.nofix.test(i.problem));
     if (e.nowarn) ok &&= !wn.some((i) => e.nowarn.test(i.problem));
     return { ok, line: `${ok ? '✓' : '✗'} ${m.name.padEnd(16)} ${L.verdict}${fast ? `  (lint --only ${m.quick})` : ''}  ${ok ? '' : r.stdout.split('\n').slice(-12).join('\n   ')}` };
   } catch (err) { return { ok: false, line: `✗ ${m.name}: ${err.message}` }; }

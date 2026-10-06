@@ -4,7 +4,7 @@ import fs from 'node:fs';
 import { rootFrom } from '../engine/paths.mjs';
 import path from 'node:path';
 import { scanSource, shotImportAllowed } from '../engine/guard.mjs';
-import { makeSandbox } from '../engine/sandbox.mjs';
+import { makeSandbox, trusted } from '../engine/sandbox.mjs';
 
 const ROOT = rootFrom(import.meta.url);
 let n = 0, bad = 0; const ok = (c, m) => { n++; if (!c) { bad++; console.log('  ✗ guardia:', m); } };
@@ -85,6 +85,11 @@ ok(shotImportAllowed(ROOT, path.join(ROOT, 'shots', 'A1.mjs')) && !shotImportAll
   ok(throws(() => setTimeout(() => 0, 1)), 'setTimeout lanza');
   ok(Math.random === realRandom && Date.now === realNow && typeof process.getBuiltinModule === 'function' && eval('1') === 1 && new Function('return 2')() === 2, 'globales restaurados al salir');
   let inner = null; try { sb.run('A', () => { throw new Error('x'); }); } catch { inner = Math.random === realRandom; } ok(inner, 'restaura también si el shot lanza');
+  // trusted: servicios SÍNCRONOS del motor (TeX) que el shot invoca vía api; corren con los globales reales y el sandbox del shot sigue después
+  const seq = sb.run('B', () => { const a = Math.random(); const inside = trusted(() => [typeof process.pid, Math.random === realRandom, Date.now === realNow, typeof setTimeout]); return [a, inside, Math.random === realRandom, (() => { try { return typeof process.pid; } catch { return 'blocked'; } })(), Math.random()]; });
+  ok(seq[1].join() === 'number,true,true,function' && seq[2] === false && seq[3] === 'blocked', 'trusted: globales reales dentro, sandbox restaurado después');
+  ok(sb.run('B', () => [Math.random(), Math.random()]).join() !== '' && seq[4] === sb.run('B', () => { const a = Math.random(); return [a, Math.random()]; })[1], 'trusted: no desplaza la secuencia de Math.random del shot');
+  ok(trusted(() => 7) === 7 && Math.random === realRandom, 'trusted fuera de sandbox = llamada directa');
   ok(sb.run('A', () => [1, 2, 3].map((x) => x * 2).join()) === '2,4,6' && sb.run('A', () => typeof Function.prototype.call) === 'function' && sb.run('A', () => ((f) => f instanceof Function)(() => 0)), 'código normal intacto (instanceof Function)');
 }
 console.log(`${bad ? '✗' : '✓'} guardia        ${n - bad}/${n}`); process.exit(bad ? 1 : 0);

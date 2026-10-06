@@ -81,12 +81,25 @@ function patches(id) {
   return list;
 }
 
+// Servicios síncronos del MOTOR que un shot invoca solo vía api (p. ej. compilar TeX): corren con los globales REALES (compilar y
+// escribir la caché necesita process/Date/fs) y el sandbox del shot se reinstala intacto después (Math.random no se reinicia).
+// El shot no recibe esta función (no es importable: engine/sandbox no es módulo puro); solo cede datos (una cadena) y recibe datos.
+let ACTIVE = null;                                          // sandbox en curso: lista [obj, key, descriptor original]
+export function trusted(fn) {
+  if (!ACTIVE) return fn();
+  const saved = ACTIVE, cur = saved.map(([obj, key]) => [obj, key, Object.getOwnPropertyDescriptor(obj, key)]);
+  const prev = current;
+  for (const [obj, key, d] of saved) { if (d) Object.defineProperty(obj, key, d); else delete obj[key]; }
+  try { return fn(); }
+  finally { for (const [obj, key, d] of cur) Object.defineProperty(obj, key, d); ACTIVE = saved; current = prev; }
+}
+
 export function makeSandbox(root) {
   const hooks = installHooks(root);
   let depth = 0, saved = null;
   const enter = (id) => {
     if (depth++ > 0) return;
-    current = id; saved = [];
+    current = id; saved = []; ACTIVE = saved;
     for (const [obj, key, val] of patches(id)) {
       saved.push([obj, key, Object.getOwnPropertyDescriptor(obj, key)]);
       Object.defineProperty(obj, key, { value: val, writable: true, configurable: true, enumerable: false });
@@ -95,7 +108,7 @@ export function makeSandbox(root) {
   const exit = () => {
     if (--depth > 0) return;
     for (let i = saved.length - 1; i >= 0; i--) { const [obj, key, d] = saved[i]; if (d) Object.defineProperty(obj, key, d); else delete obj[key]; }
-    saved = null; current = null;
+    saved = null; current = null; ACTIVE = null;
   };
   // Síncrono: ejecuta fn con los globales del shot; propaga cualquier error (también SandboxError).
   const run = (id, fn) => { enter(id); try { return fn(); } finally { exit(); } };
