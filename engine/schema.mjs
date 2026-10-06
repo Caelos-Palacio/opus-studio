@@ -65,6 +65,8 @@ export function validate(value, schema, root = schema, p = '') {
     if (byType.length) return errs.concat(byType.sort((a, b) => a.length - b.length)[0]);
     E(`tipo ${typeOf(value)} no válido`, `usar ${schema.anyOf.map((s) => describe(resolve(s, root))).join(' o ')}`); return errs;
   }
+  if (schema.allOf) for (const sub of schema.allOf) errs.push(...validate(value, sub, root, p));
+  if (schema.if) { const hit = !validate(value, schema.if, root, p).some((e) => e.level === 'FIX'), br = hit ? schema.then : schema.else; if (br) errs.push(...validate(value, br, root, p)); }   // spec 013: story.schema condicional a v:2
   if (schema.type && ![].concat(schema.type).some((t) => typeOk(value, t))) { E(`se esperaba ${[].concat(schema.type).join(' o ')}, es ${typeOf(value)} (${show(value)})`, `usar ${[].concat(schema.type).join(' o ')}`); return errs; }
   if ('const' in schema && value !== schema.const) E(`${show(value)} ≠ ${show(schema.const)}`, `usar ${show(schema.const)}`);
   if (schema.enum && !schema.enum.includes(value)) {
