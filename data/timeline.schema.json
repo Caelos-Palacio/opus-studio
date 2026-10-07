@@ -29,6 +29,7 @@
     "handoffs": { "type": "array", "items": { "$ref": "#/$defs/handoff" } },
     "motif": { "anyOf": [{ "type": "null" }, { "$ref": "#/$defs/motif" }] },
     "rhyme": { "type": "boolean", "description": "false desactiva el aviso de rima (lint rima)" },
+    "fondo": { "type": "boolean", "description": "false desactiva el aviso fondo.vacio (lint fondo): solo para fixtures técnicos; un film real justifica su oscuro con profundidad" },
     "end_hold_ok": { "type": "boolean", "description": "true permite un final en reposo (lint motion)" },
     "shots": { "type": "array", "minItems": 1, "items": { "$ref": "#/$defs/shot" } },
     "signals": { "type": "object", "description": "F4: señales nombradas, funciones puras de t (docs/PARAMS.md); se enlazan a parámetros con {\"$sig\"} o sig('x') en {\"$expr\"}", "additionalProperties": { "$ref": "#/$defs/signal" } },

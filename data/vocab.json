@@ -254,6 +254,11 @@
           "forbid": []
         },
         {
+          "id": "fondo",
+          "def": "profundidad del fondo (métrica fondo.profundidad): avisa del fondo oscuro sin profundidad (spec 012 P6)",
+          "forbid": []
+        },
+        {
           "id": "arc",
           "def": "arco dramático",
           "forbid": []
@@ -679,6 +684,11 @@
       "doc": "Códigos de aviso del lint/crítico para reglas de dirección (no confundir con lint.stage).",
       "terms": [
         {
+          "id": "fondo.vacio",
+          "def": "fondo oscuro sin profundidad medible (varianza espacial, gradiente y cambio temporal bajos fuera de sujeto y texto) en ≥ 30 % del film (FIX si ≥ 60 %); el oscuro elegido por el tema, con estrellas, niebla, viñeta o parallax, pasa (spec 012 P6)",
+          "forbid": []
+        },
+        {
           "id": "w3d.angulo",
           "def": "elevación de la cámara 3D fuera de la regla de su escala de plano (PG [8°,20°], PM [5°,15°], contrapicado heroico [−12°,−4°]) sin camera.override",
           "forbid": []
@@ -1026,6 +1036,11 @@
         {
           "id": "informacion.openQuestions",
           "def": "Preguntas abiertas simultáneas (media)",
+          "forbid": []
+        },
+        {
+          "id": "fondo.profundidad",
+          "def": "Profundidad del fondo",
           "forbid": []
         },
         {

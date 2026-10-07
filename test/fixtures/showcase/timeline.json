@@ -145,5 +145,6 @@
   }
  ],
  "end_hold_ok": true,
- "rhyme": false
+ "rhyme": false,
+ "fondo": false
 }
