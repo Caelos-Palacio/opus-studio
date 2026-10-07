@@ -69,13 +69,13 @@ const SPEC = JSON.parse(fs.readFileSync(path.join(ROOT, 'data/dsl-coverage.json'
 }
 
 // ── C2: tipos nuevos — schema con «¿quisiste decir…?», pureza y deps exactas ──
-const NEW = ['curve', 'lines', 'repeat', 'formula', 'layer', 'smear', 'word', 'box', 'impact', 'particles', 'world3d', 'let', 'focusOf', 'ring', 'dot', 'shatter', 'cracks', 'gridlines', 'playhead', 'world', 'hud', 'caption'];
+const NEW = ['curve', 'lines', 'repeat', 'formula', 'layer', 'smear', 'word', 'box', 'impact', 'particles', 'world3d', 'let', 'focusOf', 'ring', 'dot', 'shatter', 'cracks', 'gridlines', 'playhead', 'world', 'hud', 'caption', 'arrow'];
 {
   const base = (o) => ({ dsl: 1, id: 'T', libs: { L: './L.mjs' }, params: { a: { type: 'number', default: 1 }, b: { type: 'number', default: 2 } }, objects: [o] });
   const good = { curve: { type: 'curve', n: 4, x: { $expr: 'i' }, y: { $expr: 'a' } }, lines: { type: 'lines', segs: [[0, 0, 1, 1]] }, repeat: { type: 'repeat', n: 2, children: [] }, formula: { type: 'formula', tex: 'x', x: 1, y: 1 },
     layer: { type: 'layer', children: [] }, smear: { type: 'smear', x: 1, y: 1, vx: 1, vy: 1, children: [] }, word: { type: 'word', lib: 'L', str: 'A', x: 1, y: 1, size: 9 }, box: { type: 'box', x: 1, y: 1, w: 1, h: 1 }, impact: { type: 'impact', at: 0 },
     particles: { type: 'particles', n: 3, seed: 1, x: 1, y: 1, r: 1 }, world3d: { type: 'world3d', scene: { objects: [] } }, let: { type: 'let', value: 1 }, focusOf: { type: 'focusOf', lib: 'L', fn: 'f' }, ring: { type: 'ring', lib: 'L', fn: 'f' }, dot: { type: 'dot', lib: 'L', fn: 'f' },
-    shatter: { type: 'shatter', lib: 'L', fn: 'f' }, cracks: { type: 'cracks', lib: 'L', fn: 'f' }, gridlines: { type: 'gridlines', lib: 'L', fn: 'f' }, playhead: { type: 'playhead', lib: 'L', fn: 'f' }, world: { type: 'world', lib: 'L', fn: 'f' }, hud: { type: 'hud', lib: 'L', fn: 'f' }, caption: { type: 'caption', lib: 'L', fn: 'f' } };
+    shatter: { type: 'shatter', lib: 'L', fn: 'f' }, cracks: { type: 'cracks', lib: 'L', fn: 'f' }, gridlines: { type: 'gridlines', lib: 'L', fn: 'f' }, playhead: { type: 'playhead', lib: 'L', fn: 'f' }, world: { type: 'world', lib: 'L', fn: 'f' }, hud: { type: 'hud', lib: 'L', fn: 'f' }, caption: { type: 'caption', lib: 'L', fn: 'f' }, arrow: { type: 'arrow', x0: 0, y0: 0, x1: 1, y1: 1 } };
   const bad = [];
   for (const T of NEW) {
     const g = good[T], v = D.validateScene(base(g));
@@ -87,7 +87,7 @@ const NEW = ['curve', 'lines', 'repeat', 'formula', 'layer', 'smear', 'word', 'b
   ok('C2a cada tipo nuevo: schema estricto con ruta y «¿quisiste decir…?», requeridas exigidas', !bad.length && NEW.every((T) => T in D.TYPES), bad.join('; '));
   // pureza: lienzo-espía; el mismo t da la misma secuencia de llamadas, también tras dibujar otros instantes
   const spy = (log) => new Proxy({}, { get: (_, k) => (k === 'getTransform' ? () => ({}) : (...a) => { log.push(k + JSON.stringify(a)); }), set: (_, k, v) => { log.push(k + '=' + v); return true; } });
-  const mkApi = (log) => ({ params: { a: 1, b: 2 }, k: 1, dt: 0.04, safe: { x0: 0, x1: 100, y0: 0, y1: 50, w: 100, h: 50, cx: 50, cy: 25 }, color: (c) => c, spring: (x) => Math.min(1, Math.max(0, x)), at: (x, y) => [x, y], param: () => 0, text: (...a) => log.push('text' + JSON.stringify(a)), focus: (...a) => log.push('focus' + JSON.stringify(a)), glow: (...a) => log.push('glow' + JSON.stringify(a)), morph: () => ({}), depth: (d, f) => f(), ground() {}, impact: (...a) => log.push('impact' + JSON.stringify(a)), smear: (x, y, vx, vy, f) => f(), layer: (o, f) => f(spy(log), 0, mkApi(log)), tex() {}, world3d: (sc, o) => log.push('w3d' + JSON.stringify([sc, { t: o.t, cam3: o.cam?.(3), mb: o.motionBlur }])), _box() {}, sizes: {} });
+  const mkApi = (log) => ({ params: { a: 1, b: 2 }, k: 1, dt: 0.04, safe: { x0: 0, x1: 100, y0: 0, y1: 50, w: 100, h: 50, cx: 50, cy: 25 }, color: (c) => c, spring: (x) => Math.min(1, Math.max(0, x)), at: (x, y) => [x, y], param: () => 0, text: (...a) => log.push('text' + JSON.stringify(a)), arrow: (...a) => log.push('arrow' + JSON.stringify(a)), focus: (...a) => log.push('focus' + JSON.stringify(a)), glow: (...a) => log.push('glow' + JSON.stringify(a)), morph: () => ({}), depth: (d, f) => f(), ground() {}, impact: (...a) => log.push('impact' + JSON.stringify(a)), smear: (x, y, vx, vy, f) => f(), layer: (o, f) => f(spy(log), 0, mkApi(log)), tex() {}, world3d: (sc, o) => log.push('w3d' + JSON.stringify([sc, { t: o.t, cam3: o.cam?.(3), mb: o.motionBlur }])), _box() {}, sizes: {} });
   const scene = { dsl: 1, id: 'PU', params: { a: { type: 'number', default: 1 }, b: { type: 'number', default: 2 } }, objects: [
     { id: 'c', type: 'curve', n: { $expr: '4' }, x: { $expr: 'i * a * 10' }, y: { $expr: 'lt * 5' }, color: 'ink' },
     { id: 'l', type: 'lines', segs: [[0, 0, { $expr: 'b * 10' }, 5]] },
@@ -99,6 +99,11 @@ const NEW = ['curve', 'lines', 'repeat', 'formula', 'layer', 'smear', 'word', 'b
   ok('C2b pureza: mismo t → mismas llamadas (también tras otros instantes); distinto t → distinto', f1 === f1b && f1 !== f2 && f1.length > 50);
   const dep = Object.fromEntries(D.depsOf(scene).map((d) => [d.id, d]));
   ok('C2c deps exactas: curve lee a (y el tiempo); lines solo b y es estática; particles no lee params', dep.c.params.join() === 'a' && dep.c.time && dep.l.params.join() === 'b' && !dep.l.time && dep.p.params.length === 0 && dep.p.time, JSON.stringify([dep.c, dep.l, dep.p]));
+  // C2d (spec 017): arrow nativo = api.arrow(x0,y0,x1,y1,{u,color,lw,head}); u/lw/head son expresiones; deps exactas
+  { const sa = { dsl: 1, id: 'AR', params: { a: { type: 'number', default: 1 }, b: { type: 'number', default: 2 } }, objects: [{ id: 'f', type: 'arrow', x0: 1, y0: 2, x1: { $expr: 'a * 10' }, y1: 4, u: { $expr: 'seg(lt, 0, 4)' }, color: 'accent', lw: 3, head: { $expr: 'b * 4' } }] };
+    const log = []; D.shot(clone(sa), {}).draw(spy(log), 2, 0.5, { t: [0, 4], text: 'x' }, { width: 100, height: 50 }, mkApi(log));
+    const call = JSON.parse(log.find((x) => x.startsWith('arrow')).slice(5)), dA = D.depsOf(sa)[0];
+    ok('C2d arrow: api.arrow con args evaluados (x1 = a*10, u = seg(lt), head = b*4) y deps exactas (a, b y el tiempo)', call[0] === 1 && call[2] === 10 && call[4].u === 0.5 && call[4].color === 'accent' && call[4].lw === 3 && call[4].head === 8 && dA.params.join() === 'a,b' && dA.time, JSON.stringify([call, dA.params])); }
   // C4: particles con semilla
   const ps = (seed) => { const sc = clone(scene); sc.objects = [sc.objects[3]]; sc.objects[0].seed = seed; const m2 = D.shot(sc, {}), log = []; m2.draw(spy(log), 1, 0.5, { t: [0, 4], text: 'x' }, { width: 100, height: 50 }, mkApi(log)); return JSON.stringify(log); };
   ok('C4 particles: misma semilla → mismos píxeles (llamadas); otra semilla → distintos; sin Math.random en el núcleo', ps(7) === ps(7) && ps(7) !== ps(8) && !/Math\.random/.test(fs.readFileSync(path.join(ROOT, 'engine/dsl-core.mjs'), 'utf8')));

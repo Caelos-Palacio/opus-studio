@@ -1,0 +1,544 @@
+{
+ "dsl": 1,
+ "id": "S03",
+ "doc": "Diagrama 3 · arquitectura del motor por capas: gobernanza, orquestación, semántica, render, sonido y harness; en ámbar los invariantes.",
+ "objects": [
+  {
+   "type": "text",
+   "text": {
+    "$shot": "text"
+   },
+   "x": {
+    "$expr": "W / 2"
+   },
+   "y": 100,
+   "role": "h2",
+   "color": "ink",
+   "id": "titulo"
+  },
+  {
+   "type": "shape",
+   "shape": "rect",
+   "x": 1180,
+   "y": 154,
+   "w": 22,
+   "h": 22,
+   "color": "accent"
+  },
+  {
+   "type": "text",
+   "text": "invariante que no se negocia",
+   "x": 1216,
+   "y": 165,
+   "role": "label",
+   "color": "ink",
+   "align": "left"
+  },
+  {
+   "id": "l",
+   "type": "repeat",
+   "items": [
+    [
+     264,
+     "gobernanza",
+     "quién puede qué, y cuándo",
+     "accent2",
+     0.2
+    ],
+    [
+     396,
+     "orquestación",
+     "reparte y coordina el trabajo",
+     "accent2",
+     0.75
+    ],
+    [
+     528,
+     "semántica",
+     "significado, no píxeles",
+     "accent2",
+     1.3
+    ],
+    [
+     660,
+     "render",
+     "tiempo → imagen, sin azar",
+     "accent2",
+     1.85
+    ],
+    [
+     792,
+     "sonido",
+     "la pista es el reloj",
+     "accent2",
+     2.4
+    ],
+    [
+     924,
+     "harness",
+     "lo que no se puede romper",
+     "accent2",
+     2.95
+    ]
+   ],
+   "fields": [
+    "y",
+    "n",
+    "d",
+    "c",
+    "d2"
+   ],
+   "children": [
+    {
+     "type": "shape",
+     "shape": "rect",
+     "x": 115,
+     "y": {
+      "$expr": "l_y - 59"
+     },
+     "w": 345,
+     "h": 118,
+     "color": "paper",
+     "alpha": {
+      "$expr": "0.92 * seg(lt, l_d2, l_d2 + 0.45)"
+     }
+    },
+    {
+     "type": "shape",
+     "shape": "rect",
+     "x": 115,
+     "y": {
+      "$expr": "l_y - 59"
+     },
+     "w": 345,
+     "h": 118,
+     "color": "shade",
+     "alpha": {
+      "$expr": "0.22 * seg(lt, l_d2, l_d2 + 0.45)"
+     }
+    },
+    {
+     "type": "shape",
+     "shape": "rect",
+     "x": 115,
+     "y": {
+      "$expr": "l_y - 59"
+     },
+     "w": 345,
+     "h": 118,
+     "color": {
+      "$expr": "l_c"
+     },
+     "stroke": true,
+     "lineWidth": 3,
+     "alpha": {
+      "$expr": "seg(lt, l_d2, l_d2 + 0.45)"
+     }
+    },
+    {
+     "type": "shape",
+     "shape": "rect",
+     "x": 115,
+     "y": {
+      "$expr": "l_y - 59"
+     },
+     "w": 10,
+     "h": 118,
+     "color": {
+      "$expr": "l_c"
+     },
+     "alpha": {
+      "$expr": "seg(lt, l_d2, l_d2 + 0.45)"
+     }
+    },
+    {
+     "type": "text",
+     "text": {
+      "$expr": "l_n"
+     },
+     "x": 145,
+     "y": {
+      "$expr": "l_y - 14"
+     },
+     "role": "body",
+     "color": "ink",
+     "alpha": {
+      "$expr": "seg(lt, l_d2, l_d2 + 0.45)"
+     },
+     "align": "left"
+    },
+    {
+     "type": "text",
+     "text": {
+      "$expr": "l_d"
+     },
+     "x": 145,
+     "y": {
+      "$expr": "l_y + 28"
+     },
+     "role": "label",
+     "color": "ink",
+     "alpha": {
+      "$expr": "0.85 * seg(lt, l_d2, l_d2 + 0.45)"
+     },
+     "align": "left"
+    }
+   ]
+  },
+  {
+   "id": "c",
+   "type": "repeat",
+   "items": [
+    [
+     557,
+     248,
+     134,
+     "ledger",
+     "ink",
+     0.45
+    ],
+    [
+     700,
+     248,
+     108,
+     "gate",
+     "accent",
+     0.57
+    ],
+    [
+     836,
+     248,
+     121,
+     "roles",
+     "ink",
+     0.69
+    ],
+    [
+     992,
+     248,
+     147,
+     "budgets",
+     "ink",
+     0.81
+    ],
+    [
+     544,
+     380,
+     108,
+     "orch",
+     "ink",
+     1.0
+    ],
+    [
+     694,
+     380,
+     147,
+     "toolbox",
+     "ink",
+     1.12
+    ],
+    [
+     888,
+     380,
+     199,
+     "continuidad",
+     "ink",
+     1.24
+    ],
+    [
+     550,
+     512,
+     121,
+     "vocab",
+     "ink",
+     1.55
+    ],
+    [
+     680,
+     512,
+     95,
+     "DSL",
+     "ink",
+     1.67
+    ],
+    [
+     824,
+     512,
+     147,
+     "memoria",
+     "ink",
+     1.79
+    ],
+    [
+     1044,
+     512,
+     251,
+     "semindex / OTIO",
+     "ink",
+     1.91
+    ],
+    [
+     596,
+     644,
+     212,
+     "seek(t) puro",
+     "accent",
+     2.1
+    ],
+    [
+     876,
+     644,
+     303,
+     "caché de fotogramas",
+     "ink",
+     2.22
+    ],
+    [
+     1142,
+     644,
+     186,
+     "fragmentos",
+     "ink",
+     2.34
+    ],
+    [
+     1330,
+     644,
+     147,
+     "world3d",
+     "ink",
+     2.46
+    ],
+    [
+     1493,
+     644,
+     134,
+     "medios",
+     "ink",
+     2.58
+    ],
+    [
+     550,
+     776,
+     121,
+     "score",
+     "ink",
+     2.65
+    ],
+    [
+     732,
+     776,
+     199,
+     "sounddesign",
+     "ink",
+     2.77
+    ],
+    [
+     914,
+     776,
+     121,
+     "mixer",
+     "ink",
+     2.89
+    ],
+    [
+     564,
+     908,
+     147,
+     "schemas",
+     "ink",
+     3.2
+    ],
+    [
+     732,
+     908,
+     147,
+     "sandbox",
+     "accent",
+     3.32
+    ],
+    [
+     888,
+     908,
+     121,
+     "guard",
+     "accent",
+     3.44
+    ],
+    [
+     1025,
+     908,
+     108,
+     "fuzz",
+     "ink",
+     3.56
+    ],
+    [
+     1168,
+     908,
+     134,
+     "golden",
+     "ink",
+     3.68
+    ]
+   ],
+   "fields": [
+    "x",
+    "y",
+    "w",
+    "t",
+    "c",
+    "d"
+   ],
+   "children": [
+    {
+     "type": "shape",
+     "shape": "rect",
+     "x": {
+      "$expr": "c_x - c_w / 2"
+     },
+     "y": {
+      "$expr": "c_y - 28"
+     },
+     "w": {
+      "$expr": "c_w"
+     },
+     "h": 56,
+     "color": "paper",
+     "alpha": {
+      "$expr": "0.92 * seg(lt, c_d, c_d + 0.35)"
+     }
+    },
+    {
+     "type": "shape",
+     "shape": "rect",
+     "x": {
+      "$expr": "c_x - c_w / 2"
+     },
+     "y": {
+      "$expr": "c_y - 28"
+     },
+     "w": {
+      "$expr": "c_w"
+     },
+     "h": 56,
+     "color": "shade",
+     "alpha": {
+      "$expr": "0.18 * seg(lt, c_d, c_d + 0.35)"
+     }
+    },
+    {
+     "type": "shape",
+     "shape": "rect",
+     "x": {
+      "$expr": "c_x - c_w / 2"
+     },
+     "y": {
+      "$expr": "c_y - 28"
+     },
+     "w": {
+      "$expr": "c_w"
+     },
+     "h": 56,
+     "color": {
+      "$expr": "c_c"
+     },
+     "stroke": true,
+     "lineWidth": 2.5,
+     "alpha": {
+      "$expr": "seg(lt, c_d, c_d + 0.35)"
+     }
+    },
+    {
+     "type": "text",
+     "text": {
+      "$expr": "c_t"
+     },
+     "x": {
+      "$expr": "c_x"
+     },
+     "y": {
+      "$expr": "c_y"
+     },
+     "role": "label",
+     "color": "ink",
+     "alpha": {
+      "$expr": "seg(lt, c_d, c_d + 0.35)"
+     }
+    }
+   ]
+  },
+  {
+   "type": "text",
+   "text": "contrato: ningún master sin lint SHIP vigente y crítico sin FIX",
+   "x": 490,
+   "y": 298,
+   "role": "label",
+   "color": "ink",
+   "alpha": {
+    "$expr": "0.8 * seg(lt, 1.1, 1.5999999999999999)"
+   },
+   "align": "left"
+  },
+  {
+   "type": "text",
+   "text": "contrato: ≤ 3 agentes Sonnet en paralelo, cada uno en su worktree",
+   "x": 490,
+   "y": 430,
+   "role": "label",
+   "color": "ink",
+   "alpha": {
+    "$expr": "0.8 * seg(lt, 1.65, 2.15)"
+   },
+   "align": "left"
+  },
+  {
+   "type": "text",
+   "text": "contrato: el film se lee como datos: story, memoria, escenas JSON",
+   "x": 490,
+   "y": 562,
+   "role": "label",
+   "color": "ink",
+   "alpha": {
+    "$expr": "0.8 * seg(lt, 2.2, 2.7)"
+   },
+   "align": "left"
+  },
+  {
+   "type": "text",
+   "text": "contrato: mismo t → mismos píxeles; solo se recalcula lo que cambió",
+   "x": 490,
+   "y": 694,
+   "role": "label",
+   "color": "ink",
+   "alpha": {
+    "$expr": "0.8 * seg(lt, 2.75, 3.25)"
+   },
+   "align": "left"
+  },
+  {
+   "type": "text",
+   "text": "contrato: score y mezcla con techo de −3 dBTP",
+   "x": 490,
+   "y": 826,
+   "role": "label",
+   "color": "ink",
+   "alpha": {
+    "$expr": "0.8 * seg(lt, 3.3, 3.8)"
+   },
+   "align": "left"
+  },
+  {
+   "type": "text",
+   "text": "contrato: todo cambio de motor entra con su test en rojo primero",
+   "x": 490,
+   "y": 958,
+   "role": "label",
+   "color": "ink",
+   "alpha": {
+    "$expr": "0.8 * seg(lt, 3.85, 4.35)"
+   },
+   "align": "left"
+  }
+ ]
+}

@@ -40,6 +40,7 @@ export const TYPES = {
   cracks: { props: LIBP, req: ['lib', 'fn'] }, gridlines: { props: LIBP, req: ['lib', 'fn'] }, playhead: { props: LIBP, req: ['lib', 'fn'] },
   curve: { props: ['n', 'x', 'y', 'color', 'lineWidth', 'alpha', 'cap'], req: ['n', 'x', 'y'] },
   lines: { props: ['segs', 'color', 'lineWidth', 'alpha'], req: ['segs'] },
+  arrow: { props: ['x0', 'y0', 'x1', 'y1', 'u', 'color', 'lw', 'head'], req: ['x0', 'y0', 'x1', 'y1'] },
   repeat: { props: ['n', 'items', 'fields', 'children'], req: ['children'] },
   plot: { props: LIBP, req: ['lib', 'fn'] }, axis: { props: LIBP, req: ['lib', 'fn'] }, world: { props: LIBP, req: ['lib', 'fn'] },
   hud: { props: LIBP, req: ['lib', 'fn'] }, caption: { props: LIBP, req: ['lib', 'fn'] },
@@ -293,6 +294,7 @@ export function shot(scene, libs = {}) {
           else if (o.stroke) ctx.strokeRect(val(o.x), val(o.y), val(o.w), val(o.h)); else { ctx.beginPath(); ctx.rect(val(o.x), val(o.y), val(o.w), val(o.h)); ctx.fill(); }
           if (styled) ctx.restore(); break; }
         case 'glow': api.glow(val(o.x), val(o.y), val(o.r), ...(o.color != null ? [val(o.color)] : []), ...(o.alpha != null ? [val(o.alpha)] : [])); break;
+        case 'arrow': api.arrow(val(o.x0), val(o.y0), val(o.x1), val(o.y1), pick(o, ['u', 'color', 'lw', 'head'], val)); break;
         case 'text': api.text(val(o.text), val(o.x), val(o.y), pick(o, ['role', 'alpha', 'color', 'align'], val)); break;
         case 'equation': { const EQ = Array.isArray(o.steps) ? o.steps : pathGet(libs[o.steps.lib], o.steps.export), q = eqAt(EQ, t); if (q) api.tex(q.tex, q.x * film.width, q.y * film.height, { size: q.s * film.height, align: 'center', color: o.color ?? 'ink', write: q.write, morphTo: q.morphTo, u: q.u, stagger: o.stagger ?? 0.55 }); break; }
         case 'group': { const body = () => { if (o.translate) { const [tx, ty] = val(o.translate); ctx.save(); ctx.translate(tx, ty); try { run(o.children); } finally { ctx.restore(); } } else run(o.children); }; if (o.depth != null) api.depth(val(o.depth), body); else body(); break; }
