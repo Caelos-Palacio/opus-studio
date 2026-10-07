@@ -20,8 +20,8 @@ if (argv[0] === '--worker') {
   const perf = process.env.DSL_PERF ? Number(process.env.DSL_PERF) : 0;
   for (const s of R.film.shots) {
     if (only && !only.includes(s.id)) continue;
-    const [a, b] = s.t; out[s.id] = {};
-    for (const f of FRACS) { const t = a + (b - a) * f; R.frame(t); out[s.id][f] = crypto.createHash('sha256').update(R.ctx.getImageData(0, 0, R.W, R.H).data).digest('hex').slice(0, 20); }
+    const [a, b] = s.t; out[s.id] = {};   // en modo perf (C9) solo se cronometra: los hashes ya los comprueba C3
+    if (!perf) for (const f of FRACS) { const t = a + (b - a) * f; R.frame(t); out[s.id][f] = crypto.createHash('sha256').update(R.ctx.getImageData(0, 0, R.W, R.H).data).digest('hex').slice(0, 20); }
     if (perf) { const ts = []; for (let r = 0; r < perf; r++) { const t0 = process.hrtime.bigint(); for (const f of FRACS) R.frame(a + (b - a) * f); ts.push(Number(process.hrtime.bigint() - t0) / 1e6 / FRACS.length); } ts.sort((x, y) => x - y); tm[s.id] = ts[Math.floor(ts.length / 2)]; }
   }
   process.stdout.write(JSON.stringify(perf ? { hashes: out, ms: tm } : out)); process.exit(0);
@@ -154,12 +154,12 @@ if (!fast) {
   // ── C9: rendimiento ── (solo perfil full: 3 pasadas por film con cronómetro; es lo más caro de la suite)
   if (FULL) {
   const { copyRepo: cp2, rmrf: rm2 } = await import('./lib.mjs'), slow = [];
-  for (const film of Object.keys(FILMS)) {
-    const tl = JSON.parse(fs.readFileSync(path.join(ROOT, FILMS[film]), 'utf8')).shots.map((s) => s.id), ids = tl.filter((i) => dslShots().includes(i)); if (!ids.length) continue;
+  await Promise.all(Object.keys(FILMS).map(async (film) => {   // films en paralelo: el cociente DSL/JS compara dos renders bajo la misma carga
+    const tl = JSON.parse(fs.readFileSync(path.join(ROOT, FILMS[film]), 'utf8')).shots.map((s) => s.id), ids = tl.filter((i) => dslShots().includes(i)); if (!ids.length) return;
     const dd = cp2(); try { for (const id of ids) { fs.copyFileSync(path.join(ROOT, 'test/fixtures/dsl-legacy', id + '.mjs'), path.join(dd, 'shots', id + '.mjs')); fs.rmSync(path.join(dd, 'shots', id + '.scene.json'), { force: true }); }
       let best = 9; for (let tries = 0; tries < 3 && best > 1.1; tries++) { const a = await renderFilm(film, { perf: 3, ids }), b = await renderFilm(film, { cwd: dd, perf: 3, ids }); const sa = ids.reduce((s, i) => s + a.ms[i], 0), sb = ids.reduce((s, i) => s + b.ms[i], 0); best = Math.min(best, sa / sb); }
       if (best > 1.1) slow.push(`${film} ×${best.toFixed(3)}`); console.log(`  perf ${film}: DSL/JS = ×${best.toFixed(3)} (${ids.length} shots)`); } finally { rm2(dd); }
-  }
+  }));
   ok('C9 rendimiento: un shot DSL no es más de 10 % más lento que su JS legado (tiempo por fotograma, por film)', !slow.length, slow.join(' '));
   }
 }
