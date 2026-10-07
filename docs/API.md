@@ -56,6 +56,12 @@ Cámara sobre nodo: `shot.cam.track = { node, k, smooth }`.
 - **coherence** — continuidad con shots vecinos: color-rol, escala, dirección, motivo
 - **clarity** — se entiende sin sonido; el texto se lee; la idea del shot es inequívoca
 
+## Export para compositores externos (`cut --prores`, F6)
+- `node engine/cut.mjs --prores` → `out/<film>.prores.mov`: ProRes 4444 (`prores_ks`, `yuva444p10le`, bt709) con el aspecto completo del film (opaco) y el audio en PCM 48 kHz.
+- `--alpha` (implica `--prores`) → `out/<film>.alpha.mov`: **fondo transparente**. Se QUITA: papel/soporte del medio, capas de parallax y de primer plano del medio, y el post de pantalla (bloom, aberración, viñeta, fundido, letterbox, grade de color). Se QUEDA: lo que dibujan los shots (sujeto, texto, capas fx propias del shot) y la tinta del medio (erosión, temblor, halos, reflejo). `--alpha-grain` conserva además el grano del estilo, solo sobre el sujeto.
+- `--shot ID` exporta solo ese shot (y los que se solapan con él) con el audio recortado: `out/<film>.<ID>.alpha.mov`.
+- Pasa por el mismo gate que el master (`--force "razón"`); los fragmentos viven en `out/fragments/<film>.{prores|alpha}[.<ID>]/` y no tocan la caché del master mp4. Un shot que pinta su propio fondo a pantalla completa lo conserva: el alfa solo borra lo que el motor añade.
+
 ## Claves de estilo nuevas en v4
 ```json
 {
