@@ -45,7 +45,7 @@ export function validateFondo(spec, path = '', E = null) {
 }
 
 // ── color y paleta ──
-function makeColor(pal) {
+export function makeColor(pal) {
   const memo = new Map(), isHex = (s) => /^#[0-9a-fA-F]{3,8}$/.test(s);
   const ord = [...new Set(['paper', 'shade', 'accent2', 'accent', 'ink'].filter((r) => pal[r]).map((r) => pal[r]))].sort((a, b) => luminance(a) - luminance(b));
   const hex = (c) => {
