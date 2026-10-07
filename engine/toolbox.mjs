@@ -113,7 +113,6 @@ export async function buildRegistry({ root = ROOT } = {}) {
   const D = await genDsl(root); D.out.forEach(add); if (D.warn) warnings.push(D.warn);
   [...genJsonDir(root, 'styles', 'estilo'), ...genJsonDir(root, 'styles/medios', 'medio'), ...genJsonDir(root, 'styles/sound', 'sonido'), ...await genVoces(root), ...await genMetricas(root), ...genChecks(root), ...await loadExt(root, warnings)].forEach(add);
   for (const [id, x] of Object.entries(meta.extra ?? {})) add({ id, kind: id.split(':')[0], resumen: x.resumen, tags: [], uso: x.cmd ?? x.uso, cmd: x.cmd, src: x.script ?? 'data/tools.meta.json' });
-  const syn = meta.sinonimos ?? [];
   for (const [id, o] of Object.entries(meta.tools ?? {})) {
     const e = by.get(id); if (!e) { warnings.push(`tools.meta.json: id desconocido "${id}"`); continue; }
     const tags = [...new Set([...(e.tags ?? []), ...(o.tags ?? [])])];
@@ -121,19 +120,18 @@ export async function buildRegistry({ root = ROOT } = {}) {
   }
   const entries = [...by.values()].map((e) => {
     const kind = e.kind;
-    const base = { id: e.id, kind, resumen: e.resumen, tags: [...new Set((e.tags ?? []).map((t) => String(t).toLowerCase()))].sort(), cuando: e.cuando ?? e.resumen, entra: e.entra ?? '—', sale: e.sale ?? '—', coste: e.coste ?? DEFAULT_COSTE[kind] ?? '—', ejemplo: e.ejemplo ?? e.uso ?? e.cmd ?? '—', uso: e.uso ?? e.cmd ?? e.ejemplo ?? '—', siguiente: e.siguiente ?? DEFAULT_NEXT[kind] ?? [], fases: e.fases ?? [], src: e.src };
+    const base = { id: e.id, kind, resumen: e.resumen, tags: [...new Set([...(e.tags ?? []), ...e.id.slice(kind.length + 1).split(/[.:_-]/)].filter(Boolean).map((t) => String(t).toLowerCase()))].sort(), cuando: e.cuando ?? e.resumen, entra: e.entra ?? '—', sale: e.sale ?? '—', coste: e.coste ?? DEFAULT_COSTE[kind] ?? '—', ejemplo: e.ejemplo ?? e.uso ?? e.cmd ?? '—', uso: e.uso ?? e.cmd ?? e.ejemplo ?? '—', siguiente: e.siguiente ?? DEFAULT_NEXT[kind] ?? [], fases: e.fases ?? [], src: e.src };
     return base;
   }).sort((a, b) => (a.id < b.id ? -1 : a.id > b.id ? 1 : 0));
   const ids = new Set(entries.map((e) => e.id));
   for (const e of entries) for (const s of e.siguiente) if (!ids.has(s)) warnings.push(`${e.id}: siguiente "${s}" no existe`);
-  void syn;
   return { entries, warnings };
 }
 // Serialización estable: una entrada por línea (diffs pequeños).
 export const serialize = (entries) => '[\n' + entries.map((e) => JSON.stringify(e)).join(',\n') + '\n]\n';
 
 // ── búsqueda: BM25 + sinónimos ───────────────────────────────────────────────────────────────────────────────────
-const STOP = new Set('de la el en y a los las un una unos unas para por con del al que se mi su sus lo es como qué cual cuál cómo hay sobre entre quiero necesito hacer me o u e'.split(' '));
+const STOP = new Set('de la el en y a los las un una unos unas para por con del al que se mi su sus lo es como qué cual cuál cómo hay sobre entre quiero necesito hacer me o u e no dice sé tu muy más mas cada tiene tengo'.split(' '));
 export const fold = (s) => String(s).toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '');
 export const stem = (w) => { let x = fold(w).replace(/[^a-z0-9]/g, ''); if (x.length > 5) x = x.replace(/(aciones|iciones|ciones|cion|mente|ando|iendo|ados|idos|adas|idas|ado|ido|ar|er|ir|es|s)$/, (m) => (x.length - m.length >= 4 ? '' : m)); return x.slice(0, 6); };
 export const tok = (s) => fold(s).split(/[^a-z0-9ñ]+/).filter((w) => w && !STOP.has(w)).map(stem).filter(Boolean);
