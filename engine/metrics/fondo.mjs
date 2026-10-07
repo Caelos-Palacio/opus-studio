@@ -92,3 +92,5 @@ export function fondoSeries(frames, { fps, windowS = FONDO.windowS } = {}) {
   for (const w of wins) { if (w.empty) { if (cur) cur.t1 = w.t1; else runs.push((cur = { t0: w.t0, t1: w.t1, P: w.P, lum: w.lum })); } else cur = null; }
   return { wins, runs, P: median(meas.map((w) => w.P)), darkFrac: darkT / T, emptyFrac: emptyT / T, emptyS: emptyT, measuredS: T };
 }
+// Veredicto del check fondo.vacio (spec 012 P6) sobre el resumen de fondoSeries: null = pasa · 'WARN' · 'FIX' (la mayor parte del film).
+export const veredicto = (S) => (S.emptyFrac >= FONDO.fixFrac ? 'FIX' : S.emptyFrac >= FONDO.warnFrac ? 'WARN' : null);

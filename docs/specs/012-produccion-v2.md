@@ -28,7 +28,8 @@
 - P2 `story.json` declara el medio y su porqué. Los 3 films usan medios distintos.
 - P3 Si hay world3d, todo shot 3D pertenece a un beat 3D del guion (sin `w3d.sin-guion`).
 - P4 El audio da TP ≤ −1 dBTP y la sonoridad integrada está en el objetivo del estilo de sonido.
-- P5 Ningún fotograma con más de 60 % de área con luminancia < 8 % sin textura (anti fondo negro vacío). Medido con `metrics`.
+- P5 (subsumido por P6; se retira la regla de área: castigaba el negro elegido por el tema) Ningún fotograma con más de 60 % de área con luminancia < 8 % sin textura.
+- P6 Dado un film con fondo oscuro, la métrica `fondo.profundidad` (registro, spec 005; % de escala completa; varianza espacial multiescala + gradiente/viñeta + cambio temporal fuera de las cajas de sujeto y texto) mide su profundidad. El check de lint `fondo.vacio` da WARN si ≥ 30 % del film es fondo oscuro (mediana de luma ≤ 18 %) con profundidad < 1,0 %, y FIX si ≥ 60 %. Un oscuro con estrellas, atmósfera, globo, niebla o viñeta pasa; un soporte claro con textura pasa. Calibración con fotogramas reales: Potencias v2, Mate papel, Reel y Regla no avisan; Potencias v1 avisa (46 % vacío). Test: `test/fondo.mjs`; umbrales y porqués en `docs/handoff/fondo.md`.
 - [HUMANO] H1 Por film: nota ≥ 8 (meta 9). Comentario a Calificaciones.
 
 ## Calificaciones
@@ -47,4 +48,4 @@ ni motivo (relleno por defecto), no el negro elegido. Regla de elección de medi
 - Soporte con textura (papel, pizarra, kraft, técnico) cuando el tema es razonar, construir, medir o escribir, y el soporte es parte de la metáfora.
 - Neón cuando la luz es el sujeto y hay ritmo o ruptura.
 - El `porque` del medio en story.json debe nombrar el tema y por qué ese fondo lo sirve; si el porqué es "evitar el negro", está mal elegido.
-Escenario nuevo (P6): el lint avisa `fondo.vacio` solo si el fondo oscuro no tiene profundidad medible (varianza espacial y temporal baja); un fondo oscuro con profundidad pasa.
+Escenario P6: el lint avisa `fondo.vacio` solo si el fondo oscuro no tiene profundidad medible (varianza espacial y temporal baja); un fondo oscuro con profundidad pasa.

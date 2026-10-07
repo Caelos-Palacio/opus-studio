@@ -348,13 +348,13 @@ async function motion(fps, film, FC) {
 // Cadencia/tamaño propios (4 fps, 384 px, CON gradación: lo que ve el espectador); fotogramas cacheados como los demás. Solo film entero.
 async function fondo(film, FC) {
   if (film.lintScope) return;
-  const { FONDO, fondoSeries } = await import('./metrics/fondo.mjs'), n = Math.floor(film.duration * FONDO.fps), fr = [];
+  const { FONDO, fondoSeries, veredicto } = await import('./metrics/fondo.mjs'), n = Math.floor(film.duration * FONDO.fps), fr = [];
   for (let i = 0; i < n; i++) { const t = i / FONDO.fps, F = await FC.get(t, { px: true }); fr.push({ t, W: F.W, H: F.H, data: F.data, boxes: F.boxes }); }
   const S = fondoSeries(fr, { fps: FONDO.fps }), pct = (x) => Math.round(x * 100), long = [...S.runs].sort((a, b) => b.t1 - b.t0 - (a.t1 - a.t0))[0];
   writeAtomic(path.join(ROOT, 'out/fondo.json'), JSON.stringify({ P: S.P, darkFrac: S.darkFrac, emptyFrac: S.emptyFrac, runs: S.runs, wins: S.wins.map((w) => [+w.t0.toFixed(2), +(w.P ?? 0).toFixed(2), +(w.lum ?? 0).toFixed(1)]) }));
-  if (S.emptyFrac < FONDO.warnFrac) return;
+  const V = veredicto(S); if (!V) return;
   const sh = film.shots.find((x) => long.t0 >= x.t[0] && long.t0 < x.t[1]);
-  const lvl = S.emptyFrac >= FONDO.fixFrac ? fix : warn;
+  const lvl = V === 'FIX' ? fix : warn;
   lvl(sh?.id ?? '-', long.t0, `fondo.vacio: ${pct(S.emptyFrac)} % del film es fondo oscuro sin profundidad (fondo.profundidad ${S.P.toFixed(2)} % < ${FONDO.empty}; tramo mayor ${long.t0.toFixed(0)}–${long.t1.toFixed(0)} s)`, 'dar al fondo estrellas, niebla, viñeta, parallax o un soporte con textura (medio); o aclarar si el negro NO es del tema');
 }
 
