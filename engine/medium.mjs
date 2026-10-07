@@ -314,7 +314,7 @@ export function paintBackdrop(out, film, st, cam, B) {
 }
 // Tinta: erosiona la capa (destination-out con la máscara desplazada), la pasa con temblor por bandas y la compone con multiply,
 // más una pasada fantasma desplazada (desregistro). Luego capas en primer plano (polvo, parallax > 1).
-export function compositeInk(out, film, st, cam, t, B, animated = true) {   // animated=false (mediciones sin grade): erosión fija y sin temblor → la energía de movimiento mide solo la animación del film
+export function compositeInk(out, film, st, cam, t, B, animated = true, { noOver = false } = {}) {   // noOver: export con alfa, sin capas en primer plano   // animated=false (mediciones sin grade): erosión fija y sin temblor → la energía de movimiento mide solo la animación del film
   const M = film.medium, I = M.ink, lc = st.ink.getContext('2d'), W = st.W, H = st.H, k = W / 1280, op = M.blend === 'screen' ? 'screen' : 'multiply', fl = animated ? flickerAt(M, t) : 1;
   if (I.erosion) {
     const i = animated ? Math.floor(t * I.erosion.fps) : 0, r = rng(i * 7919 + 13), ox = Math.floor(r() * 64), oy = Math.floor(r() * 64);
@@ -331,6 +331,7 @@ export function compositeInk(out, film, st, cam, t, B, animated = true) {   // a
   out.restore();
   if (I.halo) drawHalos(out, st, film, I.halo, op, fl);
   if (I.reflection) drawReflection(out, st, film, I.reflection, k, fl);
+  if (noOver) return;
   out.save(); out.globalCompositeOperation = op;
   for (const l of st.layers) if (l.L.over) drawLayer(out, B, st, l, cam, film);
   out.restore();
