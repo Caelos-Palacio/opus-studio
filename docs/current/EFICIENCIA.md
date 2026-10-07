@@ -87,3 +87,16 @@ Medido en Potencias (13 shots, 78 s) con 12 CPUs y la máquina cargada por otros
 | npm test | 285 s / 1415 s CPU | 269 s con el test nuevo (motor, 23 comprobaciones) |
 Causa del ×3 del sonido: no se reproduce 40→133 s en aislado; el coste real era `piano` (41 %), `Float32Array.from(cb)` en el bucle del master (~4 s), GC por alocaciones por iteración y cos/sin del paneo por muestra. Corregido (potencias bit a bit igual).
 Hallazgo fuera de alcance: cada tamaño de fuente nuevo cuesta 40–130 ms (fontconfig con 2 451 fuentes), por proceso.
+
+## Toolbox: descubrimiento progresivo de herramientas (spec 015, rama toolbox, 2026-10-07)
+Problema: un agente que produce un film leía CLAUDE.md, SKILL.md, CRAFT, CINE, STYLES, MOTOR, API, STATUS, HANDOFF y ROADMAP y aun así no sabía qué herramienta tocaba en cada paso.
+Solución: `node engine/tools.mjs` — registro generado del código (319 entradas: 70 cli, 34 prim, 35 dsl, 66 métricas, 79 checks, 12 estilos, 9 medios, 4 sonidos, 10 voces; más fondos/objetos cuando exista su `META`),
+búsqueda léxica local (BM25 + sinónimos curados y del canon, sin red ni LLM), plan por estado real y brief por rol.
+| medida | antes | después |
+|---|---|---|
+| contexto mínimo de arranque (chars/4) | ≈ 15 300 tokens (10 documentos) | CLAUDE.md 451 + `tools brief` 890–950 ≈ 1 400 tokens (−91 %) |
+| «qué herramienta uso para X» | leer API.md (1 770) + STYLES/MOTOR o adivinar | `tools find` ≈ 120–250 tokens por consulta (top-5, una línea c/u) |
+| «qué hago ahora» | releer HANDOFF/STATUS/SKILL (~4 300) | `tools plan` ≈ 250–350 tokens, con comando exacto y bloqueos del gate |
+| acierto de la búsqueda | — | recall@3 = 100 % sobre 51 intenciones (41 de diseño + 10 de contraste redactadas después de afinar; 1 de ellas falló antes de añadir el sinónimo «voces») |
+Reproducir: `node engine/tools.mjs measure` (tokens), `node engine/tools.mjs eval` (recall), `node test/tools.mjs`.
+Mantenimiento: tras añadir una primitiva, tipo DSL, métrica, estilo o script → `node engine/tools.mjs build` (el test falla si el índice está caducado). Lo curado (cuándo, tags, siguiente, sinónimos, reglas) vive en `data/tools.meta.json`.

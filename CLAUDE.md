@@ -11,4 +11,5 @@
 - Audio: master con techo ≈ −3 dBTP (el AAC sube el pico); verifica ebur128 sobre el mp4 final (TP ≤ −1).
 - Tests: `npm test -- --fast` mientras iteras; `npm test` completo antes de integrar. `master` sin --force.
 - Agentes: Sonnet por defecto; ≤3 en paralelo; worktree desde main actualizado; commits WIP + docs/handoff/<tarea>.md.
+- Empieza por `node engine/tools.mjs brief --role <rol>` y `tools plan "<objetivo>"`; usa `tools find "<intención>"` / `show <id>` en vez de leer el catálogo (spec 015).
 - Eficiencia: docs/current/EFICIENCIA.md. Mapa de docs: docs/current/README.md; decisiones: docs/adr/.

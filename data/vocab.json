@@ -806,6 +806,20 @@
           "forbid": [
             "camara"
           ]
+        },
+        {
+          "id": "herramienta",
+          "def": "entrada del registro de tools: comando CLI, primitiva, tipo DSL, medio, métrica o check (spec 015)",
+          "forbid": [
+            "tool"
+          ]
+        },
+        {
+          "id": "intención",
+          "def": "lo que el agente quiere conseguir, en español libre; entrada de find y plan (spec 015)",
+          "forbid": [
+            "intent"
+          ]
         }
       ]
     },
