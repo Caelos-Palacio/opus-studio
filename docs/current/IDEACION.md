@@ -37,6 +37,13 @@ Prompt (escéptico), recibe solo el **tema** de cada candidato:
 > Para el tema «{tema}» escribe el vídeo por defecto: logline, giro y cierre, como lo haría un modelo sin más contexto. Marca además
 > las frases de póster ("la verdadera X era Y", "todo es …") que se te ocurran para cerrarlo.
 Se compara con el candidato: si coincide en giro o cierre, `distancia_default` = 0.
+**Obligatorio y ANTES de escribir beats** (lección 2026-10-07: en la primera oleada el escéptico corrió al final y adivinó los 3
+giros). Al escéptico se le da el tema SIN pistas del giro (no "la diferencia con sus copias", sino "el kilo patrón").
+**Meta-molde a evitar:** "el hecho verificado desinfla lo romántico y lo cambia por una limitación metodológica". Es el giro por
+defecto de un guionista que verifica hechos: si los 3 giros de una oleada tienen esa forma, la oleada falla `diversidad.oleada`
+(juicio del director). Busca giros de otra especie: un dato que agranda en vez de desinflar, un cambio de punto de vista, una
+consecuencia práctica, una coincidencia documentada, un detalle que reordena lo visto. Lo que el escéptico NO adivina
+(detalles concretos, tiempos reales, objetos, la voz) es donde vive la personalidad: súbelo al centro.
 
 ## Fase 4 — Filtro duro
 Puntuar los 7 criterios (0–2) de research §4.1: ancla, pregunta, hecho_raro, giro_relee, apuesta, distancia_default, distancia_archivo.
