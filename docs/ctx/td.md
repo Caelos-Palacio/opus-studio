@@ -4,10 +4,10 @@
 Escribes: out/**, docs/handoff/**, .trash/**, engine/**, test/**, docs/**, MOTOR.md, README.md, CLAUDE.md, AGENTES.md, ORQUESTADOR.md, STATUS.md, PROMPTS.md, FUNDAMENTOS.md, REVIEW.md, package.json, package-lock.json, .gitignore, .claude/**, .github/**, spike/**, assets/**, data/*.schema.json, data/*.template.*, data/*.example.*, data/world3d/**, styles/*/**, data/notas.json  (roles.json, modo enforce)
 
 Lee (puntero ruta@digest):
-- CLAUDE.md@fdb70ee2
+- CLAUDE.md@b116fe2c
 - docs/HANDOFF.md@13d13053
 - MOTOR.md@b7bc5a44
-- docs/API.md@0dccb895
+- docs/API.md@1eba3c99
 - docs/EFICIENCIA.md@af889db4
 
 Comandos (sin shell):

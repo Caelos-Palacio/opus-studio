@@ -7,7 +7,7 @@
 //   E = { pal:{rol:hex}, k, t, font }
 import { clamp, lerp, rng, hashStr } from './core.mjs';
 import { mix as mixHex, rgba } from './color.mjs';
-import { hint, T, paramMeta } from './fondo-capas.mjs';
+import { hint, T, paramMeta, paramsTB } from './fondo-capas.mjs';
 import { makeColor } from './fondos.mjs';
 
 const P2 = Math.PI * 2;
@@ -410,6 +410,7 @@ objeto('libro', 'Libro cerrado o abierto con tapas, lomo, páginas con texto y p
 
 // ── meta uniforme ──
 export const metaObjeto = (o) => ({ id: o.id, kind: 'objeto', resumen: o.resumen, tags: o.tags, params: [...paramMeta(o.params), ...Object.entries(o.partes).map(([name, d]) => ({ name: `partes.${name}`, type: `num[${d.min},${d.max}]`, def: d.def }))], anclas: o.anclas, estados: Object.keys(o.estados) });
+export const META = Object.values(OBJETOS).map((o) => ({ id: o.id, resumen: o.resumen, tags: o.tags, params: { ...paramsTB(o.params), ...Object.fromEntries(Object.keys(o.partes).map((k) => ['partes.' + k, 'number'])), estado: 'string' }, cuando: `objeto ancla con anclas ${o.anclas.join(', ')} y estados ${Object.keys(o.estados).join(', ')}`, ejemplo: `{"type":"objeto","objeto":"${o.id}","x":640,"y":360,"size":300}` }));
 export const META_OBJETOS = Object.values(OBJETOS).map(metaObjeto);
 
 // ── validación de los literales de un objeto (los {$expr} del DSL se comprueban aparte) ──

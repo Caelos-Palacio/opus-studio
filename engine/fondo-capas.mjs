@@ -399,6 +399,9 @@ capa('perfil', 'tematica', 'Silueta de horizonte: montañas, ciudad con ventanas
 // ── meta uniforme ─────────────────────────────────────────────────────────────────────────────────────────────
 export const paramMeta = (params) => Object.entries(params).map(([name, d]) => ({ name, type: d.type === 'enum' ? `enum(${d.opts.join('|')})` : d.type, def: d.def }));
 export const metaCapa = (c) => ({ id: c.tipo, kind: 'capa-fondo', resumen: c.resumen, tags: c.tags, params: paramMeta(c.params) });
+// contrato toolbox (spec 015 §4): params {nombre: tipo ⊂ number|integer|string|color|boolean|enum|json}
+const TIPO_TB = { num: 'number', int: 'integer', bool: 'boolean', color: 'color', colores: 'json', par: 'json', enum: 'enum', json: 'json', string: 'string' };
+export const paramsTB = (params) => Object.fromEntries(Object.entries(params).map(([k, d]) => [k, TIPO_TB[d.type] ?? 'json']));
 export const META_CAPAS = Object.values(CAPAS).map(metaCapa);
 
 // ── validación estricta ───────────────────────────────────────────────────────────────────────────────────────

@@ -5,7 +5,7 @@ import { rng, clamp, hashStr } from './core.mjs';
 import { luminance } from './color.mjs';
 import { mix, hex2rgb } from './color.mjs';
 import { compile } from './expr.mjs';
-import { CAPAS, PAD, MEZCLAS, hint, validateCapa, colorOk } from './fondo-capas.mjs';
+import { CAPAS, PAD, MEZCLAS, hint, validateCapa, colorOk, paramsTB } from './fondo-capas.mjs';
 import { PRESETS } from './fondo-presets.mjs';
 export { CAPAS, PRESETS, PAD };
 export const FONDO_KEYS = ['preset', 'semilla', 'ajustes', 'sin', 'capas'];
@@ -86,3 +86,8 @@ export function drawFondo(ctx, spec, t, E) {
   });
 }
 export const listaPresets = () => Object.entries(PRESETS).map(([id, p]) => ({ id, ...p }));
+// META para el índice de herramientas (spec 015 §4): 23 capas + 10 presets; subtipo distingue capa de preset
+export const META = [
+  ...Object.values(CAPAS).map((c) => ({ id: c.tipo, subtipo: 'capa', resumen: c.resumen, tags: c.tags, params: paramsTB(c.params), cuando: `capa de fondo (${c.familia}): ${c.resumen}`, ejemplo: `{"tipo":"${c.tipo}"}` })),
+  ...Object.entries(PRESETS).map(([id, p]) => ({ id, subtipo: 'preset', resumen: p.resumen, tags: p.tags, params: { semilla: 'integer', ajustes: 'json', sin: 'json', capas: 'json' }, cuando: p.porque, ejemplo: `{"type":"fondo","preset":"${id}"}` })),
+];
