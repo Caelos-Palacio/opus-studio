@@ -6,6 +6,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { ROOT, copyRepo, rmrf, run } from './lib.mjs';
 
+process.env.OPUS_USE_FILE = '';   // estos tests ejercitan `use` en una copia: out/.film de la COPIA, no el aislamiento global de lib.mjs
 let n = 0, bad = 0;
 const ok = (c, m) => { n++; if (!c) { bad++; console.log('  ✗ film:', m); } };
 const d = copyRepo();

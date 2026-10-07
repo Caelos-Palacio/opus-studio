@@ -6,6 +6,10 @@ import path from 'node:path';
 import { spawn } from 'node:child_process';
 
 export const ROOT = rootFrom(import.meta.url);
+// Aislamiento del film activo: la suite nunca debe depender de out/.film ni de OPUS_TIMELINE del usuario (`npm run use -- <film>`).
+// OPUS_USE_FILE apunta a una ruta inexistente (se hereda en todos los procesos hijos); los tests que prueban `use` la sobreescriben con ''.
+delete process.env.OPUS_TIMELINE;
+process.env.OPUS_USE_FILE ||= path.join(os.tmpdir(), `opus-nofilm-${process.pid}`, '.film');
 export const FONTS_CONF = path.join(ROOT, 'test/golden/fonts.conf');
 // Solo lo que el motor lee al renderizar/lintar/montar. Antes se copiaba TODO el repo (incluidos docs/, test/ y, en el
 // checkout principal, .claude/worktrees/* con sus copias enteras): lento y frágil.
