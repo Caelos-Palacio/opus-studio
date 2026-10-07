@@ -100,3 +100,15 @@ búsqueda léxica local (BM25 + sinónimos curados y del canon, sin red ni LLM),
 | acierto de la búsqueda | — | recall@3 = 100 % sobre 51 intenciones (41 de diseño + 10 de contraste redactadas después de afinar; 1 de ellas falló antes de añadir el sinónimo «voces») |
 Reproducir: `node engine/tools.mjs measure` (tokens), `node engine/tools.mjs eval` (recall), `node test/tools.mjs`.
 Mantenimiento: tras añadir una primitiva, tipo DSL, métrica, estilo o script → `node engine/tools.mjs build` (el test falla si el índice está caducado). Lo curado (cuándo, tags, siguiente, sinónimos, reglas) vive en `data/tools.meta.json`.
+
+## Recetas: el agente llena huecos en vez de escribir el scene (spec 016, rama recetas, 2026-10-07)
+Problema: un shot DSL típico son 300–400 tokens de JSON que el agente escribía entero (estructura, expresiones de muelle, foco, cámara) aunque lo único que decide en el film es qué objeto, qué texto y qué cifra.
+Solución: `node engine/opus.mjs new shot <id> --receta <r> [--param k=v] [--llenar objeto.prop=texto] [--mov temblor]` escribe un `.scene.json` propio (scaffold, sin herencia) con `$hueco` donde va lo concreto. 17 recetas ≤ 25 líneas y ≤ 4 params (`node engine/recetas.mjs list`; descubribles con `tools find "…" --kind receta`).
+Medida (R7, `node engine/recetas.mjs medir`, tokens ≈ caracteres/4, 3 shots inspirados en los guiones). «Con receta» = el comando (con `--param`/`--llenar`) + una llamada de herramienta de overhead (15 tok) + lo que aún se edita a mano (old_string con 16 caracteres de contexto + new_string + 15 de overhead). «Desde cero» = el scene entero + 15 de overhead. «Peor caso» = reescribir líneas enteras en vez de fragmentos.
+| shot | con receta | desde cero | ahorro | peor caso |
+|---|---|---|---|---|
+| contar · Veinticuatro (24 neutrinos en 13 s) | 103 | 347 | −70 % | −58 % |
+| documento · Consta (acta del kilo y sello) | 109 | 379 | −71 % | −61 % |
+| presentar_objeto · Botella (tarjeta de 1906) | 108 | 323 | −67 % | −53 % |
+Primer intento, descartado: llenar los huecos con una `Edit` por hueco daba solo −41…−45 % (cada edición paga old_string + new_string + overhead); lo que cruza el 50 % es poder pasar `--param` y `--llenar` en el mismo comando. No se mide el coste de LEER (`tools find` ≈ 150 tok + el comando imprime los huecos que quedan): es del mismo orden en ambos caminos.
+Límite honesto: la medida es de escritura, no de calidad. «Ningún output audiovisual está hecho sin la nota del usuario» (H1: que la oleada E2 no se sienta hecha con plantilla) sigue abierto; por eso `receta.repeticion` avisa si una receta es > 50 % de los shots de un film.
