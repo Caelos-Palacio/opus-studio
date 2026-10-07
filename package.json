@@ -16,6 +16,7 @@
     "validate": "node engine/lint.mjs --only validate",
     "lint": "node engine/lint.mjs",
     "arc": "node engine/arc.mjs",
+    "narr": "node engine/narr.mjs",
     "sheet": "node engine/render.mjs --stills --every 0.5",
     "strips": "node engine/render.mjs --strip --around-cuts 8",
     "animatic": "node engine/render.mjs --stills --every 0.5 --animatic --size 960x540",

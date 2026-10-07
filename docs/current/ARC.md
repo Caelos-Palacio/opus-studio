@@ -49,3 +49,6 @@ obras aprobadas (`--record`) `data/arc.calib.json` los recalibra con un posterio
 - `lint.mjs` importa `arc.mjs` con `import('./arc.mjs')` literal, así que entra en el cierre del hash de veredictos.
   `engine/arc.json` todavía no entra en `ENGINE_DATA` de `hash.mjs`: cambiar un umbral no caduca veredictos.
 - Pendiente: `engine/arc.rubric.mjs` (lo no medible, para el crítico) y que los pops del lint ignoren los impactos declarados.
+
+## Forma narrativa y story v2 (spec 013)
+`story.forma` (causal, kisho, espiral, cuenta_atras) fija la ventana del pico, la tolerancia del giro y si el spine es estricto (valores en `engine/arc.json`: `formas`; `causal` = comportamiento v1). `accommodation.type` admite `creencia`. El lint narrativo (`npm run narr`, stage `narr` del lint) está en [IDEACION](IDEACION.md); `data/story.template.json` es un ejemplo v2 completo.

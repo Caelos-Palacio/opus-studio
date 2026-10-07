@@ -55,6 +55,8 @@ export function lintMemoriaEnums(mem, { file = '-' } = {}) {
   return out;
 }
 const listFiles = (dir, re) => { const d = path.join(ROOT, dir); return fs.existsSync(d) ? fs.readdirSync(d).filter((f) => re.test(f)).map((f) => path.join(dir, f)) : []; };
+// Exentos del lint de vocab A PROPOSITO: data/anticliche.es.json (lista de sinonimos prohibidos y frases de poster) y data/ideas.md; ninguno esta en el corpus.
+export const EXEMPT = ['data/anticliche.es.json', 'data/ideas.md'];
 export function corpus(root = ROOT) {
   const dataDirs = ['data', ...fs.readdirSync(path.join(root, 'data'), { withFileTypes: true }).filter((e) => e.isDirectory()).map((e) => 'data/' + e.name)];
   const files = [...dataDirs.flatMap((d) => ['memoria.json', 'story.json'].map((f) => `${d}/${f}`)), 'data/notas.json', 'data/story.template.json'].filter((f) => fs.existsSync(path.join(root, f)));

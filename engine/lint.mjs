@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 // Escalera de verificación determinista (barata → cara). Sin VLM. Aplica el gusto del estilo activo.
-//   node engine/lint.mjs [--only validate|determinism|layout|camera|transitions|beats|handoffs|contracts|motion|rhythm|arc] [--shot ID] [--fps 12] [--style X] [--profile Y]
+//   node engine/lint.mjs [--only validate|determinism|layout|camera|transitions|beats|handoffs|contracts|motion|rhythm|arc|narr] [--shot ID] [--fps 12] [--style X] [--profile Y]
 // Salida: out/lint.json (solo pasada completa) + out/lint/<film>/<ID>.json + veredicto SHIP / FIX (shot  t  problema  arreglo)
 //   --shot ID: ID + vecinos inmediatos del timeline; escribe solo sus veredictos por shot. --only X: parcial, nunca el global.
 import './summary.mjs';   // T2: --summary / OPUS_SUMMARY=1 / OPUS_AGENT=1
@@ -438,6 +438,10 @@ await step('fondo', () => fondo(R.film, FCF));
 await step('arc', async () => {                                             // F5: lint dramático, solo si hay story.json (sin story no cambia nada)
   const A = await import('./arc.mjs');
   if (A.storyPath(R.film)) { const r = await A.runArc({ fps: lfps, film: R.film, fc: FCS_, cacheOnly: !!R.film.lintScope }); /* --shot: el arco es del film entero; solo corre si todos sus fotogramas ya están en caché */ for (const x of r.issues) push(x.level)(x.shot, x.t, `[arc] ${x.problem}`, x.remedy); }
+});
+await step('narr', async () => {                                            // spec 013: lint narrativo (FIX solo si el story es v2; v1 = WARN)
+  const [A, N, F] = await Promise.all([import('./arc.mjs'), import('./narr.mjs'), import('./film.mjs')]), sp = A.storyPath(R.film);
+  if (sp) { const r = N.analyzeOne(sp, F.timelinePath()); for (const x of r.issues) { const l = N.effLevel(x, r.story); if (l !== 'EXC') push(l)('-', x.t ?? 0, `[narr] ${x.check}: ${x.problem}`, x.remedy); } }
 });
 } catch (e) { aborted = e.message; CHECK = 'lint'; fix('-', 0, `lint abortado: ${e.message}`.slice(0, 300), 'arreglar el error y relanzar'); }
 const fixes = emit(R.film, aborted);

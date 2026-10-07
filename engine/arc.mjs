@@ -54,7 +54,7 @@ export function validateStory(st) {
   if (!Array.isArray(st.beats) || st.beats.length < 2) e.push('beats: mínimo 2');
   else st.beats.forEach((b, i) => { if (!num(b?.t) || typeof b?.text !== 'string') e.push(`beats[${i}] sin t/text`); });
   const a = st.accommodation;
-  if (!a || !num(a.t) || !['regla', 'escala', 'idea'].includes(a.type)) e.push('accommodation {t, type: regla|escala|idea} incompleta');
+  if (!a || !num(a.t) || !['regla', 'escala', 'idea', 'creencia'].includes(a.type)) e.push('accommodation {t, type: regla|escala|idea|creencia} incompleta');
   for (const [i, s] of (st.scale ?? []).entries()) if (!num(s?.at)) e.push(`scale[${i}] sin at`);
   for (const [k, v] of Object.entries(st.sakuga ?? {})) if (!['hero', 'normal', 'simple'].includes(v)) e.push(`sakuga.${k} = "${v}" (hero|normal|simple)`);
   return e;
@@ -134,7 +134,14 @@ export function energyArc(M, T) {
     endDrop: peak > 0 ? mean(last) / peak : 1, holds, silences: sil, longestHold: Math.max(0, ...runs.filter(near).map((h) => h[1] - h[0])), peaks: peaks.length };
 }
 
+// spec 013: la forma del story fija la ventana del pico y la tolerancia del giro (engine/arc.json: formas). causal = perfil intacto.
+export function formaT(T, forma) {
+  const f = CFG.formas?.[forma ?? 'causal'] ?? CFG.formas?.causal ?? {}, o = { ...T };
+  for (const k of ['peakPos', 'accomTol', 'endDrop']) if (f[k] != null) o[k] = f[k];
+  return o;
+}
 export function analyze(M, story, T) {
+  const formaSpine = CFG.formas?.[story?.forma ?? 'causal']?.spine ?? 'estricto'; T = formaT(T, story?.forma);
   const checks = [], D = M.duration, fr = 1 / M.fps;
   const add = (id, pass, level, problem, remedy, shot = '-', t = 0, weight) => checks.push({ id, pass: !!pass, level, problem, remedy, shot, t: +(+t).toFixed(3), weight: weight ?? (level === 'FIX' ? 3 : 1) });
   const A = energyArc(M, T), shotAt = (t) => M.shots.find((s) => t >= s.t[0] && t < s.t[1]) ?? M.shots[M.shots.length - 1];
@@ -148,7 +155,7 @@ export function analyze(M, story, T) {
   // 1 · spine causal (Parker/Stone)
   beats.forEach((b, i) => {
     if (!i) return;
-    const l = norm(b.link ?? ''), ok = LINKS_OK.includes(l);
+    const l = norm(b.link ?? ''), ok = formaSpine === 'libre' || LINKS_OK.includes(l);
     add('spine', ok, 'FIX', ok ? '' : `beat ${b.id ?? i} → "${b.text}": conector "${b.link ?? '(ninguno)'}" con el anterior = "y luego"`, 'reescribir para que quepa "pero" o "por lo tanto" (causa o giro)', b.shot ?? shotAt(b.t)?.id, b.t);
   });
   for (let i = 1; i < beats.length; i++) if (beats[i].t < beats[i - 1].t) add('spine-order', false, 'WARN', `beats desordenados en el tiempo (${beats[i - 1].t} → ${beats[i].t})`, 'ordenar por t', '-', beats[i].t);

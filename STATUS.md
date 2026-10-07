@@ -30,10 +30,11 @@ Definición (gates.json); el estado de cierre está en la parte viva.
 | [010-dsl-80.md](docs/specs/010-dsl-80.md) | 010 — DSL de escenas al ~80 % de los shots | sin nota |
 | [011-motor.md](docs/specs/011-motor.md) | 011 — Motor: renderizar una vez, analizar muchas, recalcular solo lo afectado | sin nota |
 | [012-produccion-v2.md](docs/specs/012-produccion-v2.md) | 012 — Producción v2: Regla, Reel y Potencias | mate_papel · terracota · — (2026-10-06) · "está muy bien" |
+| [013-storytelling.md](docs/specs/013-storytelling.md) | 013 — Storytelling auténtico: voz, ancla, frescura | (pendiente) ·  ·  ·  · |
 
 ## Motor
 
-- versión: 5.0.0 (package.json) · módulos engine/: 79
+- versión: 5.0.0 (package.json) · módulos engine/: 80
 - roles: modo `enforce` (*, director, dp, investigador, td, productor, animator, review) · digest `35a737817acffefa`
 - presupuestos: data/budgets.json digest `5290bbde06ea538a`
 
@@ -46,19 +47,19 @@ Definición (gates.json); el estado de cierre está en la parte viva.
 
 ## Tests
 
-Archivos (test/*.mjs): `arc.mjs` `bench-skia.mjs` `critic.mjs` `cut-render.mjs` `dsl-cov.mjs` `film.mjs` `fondo.mjs` `fuzz.mjs` `golden.mjs` `gov.mjs` `guard.mjs` `harness.mjs` `hash.mjs` `lib.mjs` `medios.mjs` `memoria.mjs` `metrics.mjs` `motor.mjs` `orch.mjs` `orquestacion.mjs` `params.mjs` `perf.mjs` `run.mjs` `schema.mjs` `semantica.mjs` `sound.mjs` `unit.mjs` `world3d.mjs`
+Archivos (test/*.mjs): `arc.mjs` `bench-skia.mjs` `critic.mjs` `cut-render.mjs` `dsl-cov.mjs` `film.mjs` `fondo.mjs` `fuzz.mjs` `golden.mjs` `gov.mjs` `guard.mjs` `harness.mjs` `hash.mjs` `lib.mjs` `medios.mjs` `memoria.mjs` `metrics.mjs` `motor.mjs` `narr.mjs` `orch.mjs` `orquestacion.mjs` `params.mjs` `perf.mjs` `run.mjs` `schema.mjs` `semantica.mjs` `sound.mjs` `unit.mjs` `world3d.mjs`
 <!-- estatico:fin -->
 
 ---
-## Estado vivo (2026-10-07T02:54Z, no verificado)
+## Estado vivo (2026-10-07T03:12Z, no verificado)
 
 ## Veredictos
 
-Film activo: `main` · engineHash `00550e7d2345efb7fdd6ba0f76c1aed44a8169898234094e8b191af8a921e36b` · filmHash `a3f15e847f29bf4d`
+Film activo: `main` · engineHash `398ef580eb89b47aba1415cdcb2ce0724ed5287d1e16910587180b2241738af7` · filmHash `a3f15e847f29bf4d`
 
-- out/lint.json: no existe
-- out/critic.json: no existe
-- veredictos por shot: 0 vigentes, 0 caducados
+- out/lint.json: SHIP · CADUCADO
+- out/critic.json: SHIP · CADUCADO
+- veredictos por shot: 0 vigentes, 3 caducados
 
 ### Estado de gates (out/gates.json)
 
@@ -67,7 +68,6 @@ Film activo: `main` · engineHash `00550e7d2345efb7fdd6ba0f76c1aed44a81698982340
 ## Ramas sin integrar
 
 - `backup/pre-limpieza` (+136 commits)
-- `fondo` (+8 commits)
 - `gobernanza` (+96 commits)
 - `harness` (+101 commits)
 - `medios` (+57 commits)
@@ -94,11 +94,11 @@ Film activo: `main` · engineHash `00550e7d2345efb7fdd6ba0f76c1aed44a81698982340
 
 ## Último run de tests
 
-- 2026-10-07T02:51:00.021Z: 2 fallos
+- 2026-10-06T14:26:33.974Z: todo verde
 
 ## Ledger
 
-- cadena: íntegra · 10 entradas (10 encadenadas, 0 heredadas, 0 firmadas) · códigos 100 %
+- cadena: íntegra · 14 entradas (3 encadenadas, 11 heredadas, 0 firmadas) · códigos 100 %
 
 ## Presupuestos
 
