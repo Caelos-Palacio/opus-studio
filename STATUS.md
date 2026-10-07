@@ -47,19 +47,19 @@ Definición (gates.json); el estado de cierre está en la parte viva.
 
 ## Tests
 
-Archivos (test/*.mjs): `arc.mjs` `bench-skia.mjs` `critic.mjs` `cut-render.mjs` `dsl-cov.mjs` `film.mjs` `fondo.mjs` `fuzz.mjs` `golden.mjs` `gov.mjs` `guard.mjs` `harness.mjs` `hash.mjs` `lib.mjs` `medios.mjs` `memoria.mjs` `metrics.mjs` `motor.mjs` `narr.mjs` `orch.mjs` `orquestacion.mjs` `params.mjs` `perf.mjs` `run.mjs` `schema.mjs` `semantica.mjs` `sound.mjs` `unit.mjs` `world3d.mjs`
+Archivos (test/*.mjs): `arc.mjs` `bench-skia.mjs` `critic.mjs` `cut-render.mjs` `dsl-cov.mjs` `film.mjs` `fondo.mjs` `fuzz.mjs` `golden.mjs` `gov.mjs` `guard.mjs` `harness.mjs` `hash.mjs` `lib.mjs` `medios.mjs` `memoria.mjs` `metrics.mjs` `motor.mjs` `narr.mjs` `orch.mjs` `orquestacion.mjs` `params.mjs` `perf.mjs` `prores.mjs` `run.mjs` `schema.mjs` `semantica.mjs` `sound.mjs` `suites.mjs` `unit.mjs` `world3d.mjs`
 <!-- estatico:fin -->
 
 ---
-## Estado vivo (2026-10-07T03:12Z, no verificado)
+## Estado vivo (2026-10-07T20:51Z, no verificado)
 
 ## Veredictos
 
-Film activo: `main` · engineHash `398ef580eb89b47aba1415cdcb2ce0724ed5287d1e16910587180b2241738af7` · filmHash `a3f15e847f29bf4d`
+Film activo: `main` · engineHash `ef231535ac88b4be816238e65d1706031d3da7fa6f1d7442ac17f40e96643f14` · filmHash `a3f15e847f29bf4d`
 
-- out/lint.json: SHIP · CADUCADO
-- out/critic.json: SHIP · CADUCADO
-- veredictos por shot: 0 vigentes, 3 caducados
+- out/lint.json: no existe
+- out/critic.json: no existe
+- veredictos por shot: 0 vigentes, 0 caducados
 
 ### Estado de gates (out/gates.json)
 
@@ -68,13 +68,16 @@ Film activo: `main` · engineHash `398ef580eb89b47aba1415cdcb2ce0724ed5287d1e169
 ## Ramas sin integrar
 
 - `backup/pre-limpieza` (+136 commits)
+- `deuda2` (+8 commits)
+- `diagramas` (+1 commits)
+- `fondos` (+5 commits)
 - `gobernanza` (+96 commits)
 - `harness` (+101 commits)
 - `medios` (+57 commits)
 - `metricas` (+76 commits)
-- `narr` (+6 commits)
 - `orquestacion` (+101 commits)
 - `perf` (+53 commits)
+- `recetas` (+4 commits)
 - `semantica` (+101 commits)
 - `video-mate` (+33 commits)
 - `video-reel` (+34 commits)
@@ -94,11 +97,11 @@ Film activo: `main` · engineHash `398ef580eb89b47aba1415cdcb2ce0724ed5287d1e169
 
 ## Último run de tests
 
-- 2026-10-06T14:26:33.974Z: todo verde
+- 2026-10-07T17:25:58.665Z: 2 fallos (perfil full)
 
 ## Ledger
 
-- cadena: íntegra · 14 entradas (3 encadenadas, 11 heredadas, 0 firmadas) · códigos 100 %
+- cadena: íntegra · 0 entradas (0 encadenadas, 0 heredadas, 0 firmadas) · códigos 0 %
 
 ## Presupuestos
 
