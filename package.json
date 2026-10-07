@@ -11,6 +11,8 @@
   "scripts": {
     "test": "node test/run.mjs",
     "test:fast": "node test/run.mjs --fast",
+    "test:full": "node test/run.mjs --full",
+    "test:nightly": "node test/run.mjs --full --times",
     "golden": "node test/golden.mjs",
     "golden:update": "node test/golden.mjs --update",
     "validate": "node engine/lint.mjs --only validate",

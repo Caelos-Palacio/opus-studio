@@ -1,5 +1,6 @@
 // Manifiesto de suites de `npm test`. UNA línea por suite; test/run.mjs solo lo recorre.
 //   { name, file, args?, stderr? , skip? }
+//     w      : peso (opcional, 1 por defecto): las suites pesadas se lanzan primero para acortar el camino crítico del pool; no cambia el orden de salida de cada perfil.
 //     name   : lo que acepta `--only <name>`; se imprime en el resumen de tiempos.
 //     file   : script autónomo (imprime sus ✓/✗ y sale con código ≠ 0 si falla).
 //     args   : argumentos extra, o por perfil: { fast: [...], quick: [...], full: [...] } (lo no listado = []).
@@ -13,27 +14,27 @@ export const SUITES = [
   { name: 'cut', file: 'test/cut-render.mjs', skip: ['fast'] },
   { name: 'unit', file: 'test/unit.mjs' },
   { name: 'schema', file: 'test/schema.mjs' },
-  { name: 'critic', file: 'test/critic.mjs' },
-  { name: 'gov', file: 'test/gov.mjs' },
+  { name: 'critic', w: 6, file: 'test/critic.mjs' },
+  { name: 'gov', w: 8, file: 'test/gov.mjs' },
   { name: 'guard', file: 'test/guard.mjs', stderr: false },
-  { name: 'hash', file: 'test/hash.mjs' },
-  { name: 'params', file: 'test/params.mjs' },
+  { name: 'hash', w: 5, file: 'test/hash.mjs' },
+  { name: 'params', w: 3, file: 'test/params.mjs' },
   { name: 'memoria', file: 'test/memoria.mjs' },
-  { name: 'arc', file: 'test/arc.mjs' },
-  { name: 'sound', file: 'test/sound.mjs', args: { fast: ['--fast'], quick: ['--fast'] } },   // fast/quick: fixture ×0,6 (mismo código y reglas); full: los 78 s de Potencias
-  { name: 'film', file: 'test/film.mjs' },
+  { name: 'arc', w: 3, file: 'test/arc.mjs' },
+  { name: 'sound', w: 4, file: 'test/sound.mjs', args: { fast: ['--fast'], quick: ['--fast'] } },   // fast/quick: fixture ×0,6 (mismo código y reglas); full: los 78 s de Potencias
+  { name: 'film', w: 5, file: 'test/film.mjs' },
   { name: 'perf', file: 'test/perf.mjs' },
-  { name: 'orch', file: 'test/orch.mjs' },
-  { name: 'medios', file: 'test/medios.mjs' },
+  { name: 'orch', w: 9, file: 'test/orch.mjs' },
+  { name: 'medios', w: 3, file: 'test/medios.mjs' },
   { name: 'world3d', file: 'test/world3d.mjs' },
-  { name: 'metrics', file: 'test/metrics.mjs' },
+  { name: 'metrics', w: 3, file: 'test/metrics.mjs' },
   { name: 'fondo', file: 'test/fondo.mjs' },
-  { name: 'harness', file: 'test/harness.mjs' },
+  { name: 'harness', w: 4, file: 'test/harness.mjs' },
   { name: 'narr', file: 'test/narr.mjs' },
-  { name: 'fuzz', file: 'test/fuzz.mjs' },
-  { name: 'orquestacion', file: 'test/orquestacion.mjs' },
+  { name: 'fuzz', w: 3, file: 'test/fuzz.mjs' },
+  { name: 'orquestacion', w: 7, file: 'test/orquestacion.mjs' },
   { name: 'semantica', file: 'test/semantica.mjs', args: { fast: ['--fast'] } },
-  { name: 'dsl-cov', file: 'test/dsl-cov.mjs', args: { fast: ['--fast'] } },
-  { name: 'motor', file: 'test/motor.mjs' },
+  { name: 'dsl-cov', w: 6, file: 'test/dsl-cov.mjs', args: { fast: ['--fast'] } },
+  { name: 'motor', w: 7, file: 'test/motor.mjs' },
   { name: 'prores', file: 'test/prores.mjs' },   // F6: cut --prores/--alpha
 ];

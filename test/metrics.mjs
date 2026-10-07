@@ -3,7 +3,7 @@
 // resolución/fps/duración, coherencia del registro, CLI. Corre en el repo (escribe en out/tmp-metrics, ignorado por git).
 import fs from 'node:fs';
 import path from 'node:path';
-import { ROOT, run } from './lib.mjs';
+import { ROOT, run, FULL } from './lib.mjs';
 
 let fail = 0;
 const ok = (name, cond, extra = '') => { console.log(`${cond ? '✓' : '✗'} metrics: ${name}${cond ? '' : '  ' + extra}`); if (!cond) fail++; };
@@ -110,7 +110,7 @@ const periodic = (n, len) => Array.from({ length: n }, (_, i) => shot('S' + i, i
   ok('CLI: 1.ª línea «film: …» (stderr con --json) y stdout JSON puro', /^film: main/.test(first) && J?.schema === 'opus-metrics/1', first + r.stdout.slice(0, 80));
   ok('CLI: escribe out/metrics/main.json y la ficha .md', fs.existsSync(path.join(ROOT, 'out/metrics/main.json')) && /Ficha de métricas/.test(fs.readFileSync(path.join(ROOT, 'out/metrics/main.md'), 'utf8')));
   const u = await run(['engine/metrics.mjs', 'units', 'demo']); ok('CLI units: params promovidos con conversión (A1.size → escala de plano)', /A1\.size.*escala de plano/.test(u.stdout) && /A3\.hitR.*anchos de pantalla/.test(u.stdout), u.stdout.slice(0, 300));
-  const c = await run(['engine/metrics.mjs', 'calibrate']); ok('CLI calibrate: advierte n pequeño', /n pequeño/.test(c.stdout), c.stdout + c.stderr);
+  const c = await run(['engine/metrics.mjs', 'calibrate', ...(FULL ? [] : ['--dry'])]);; ok('CLI calibrate: advierte n pequeño', /n pequeño/.test(c.stdout), c.stdout + c.stderr);   // quick: --dry = solo cabecera y advertencia, sin medir los 3 films de data/notas.json
 }
 fs.rmSync(TMP, { recursive: true, force: true });
 console.log(fail ? `${fail} fallos` : 'metrics: todo verde'); process.exit(fail ? 1 : 0);

@@ -67,11 +67,11 @@ jobs:
 
       - name: npm test (Linux, con pantalla virtual para gl)
         if: runner.os == 'Linux'
-        run: xvfb-run -a npm test
+        run: xvfb-run -a npm run test:nightly   # perfil FULL (todo); el rápido es `npm test`
 
       - name: npm test (macOS)
         if: runner.os == 'macOS'
-        run: npm test
+        run: npm test   # perfil quick (macOS es experimental; world3d con tolerancias por backend: docs/handoff/deuda2.md)
 
       - name: Si falla golden, regenera las miniaturas actuales para comparar
         if: failure()
