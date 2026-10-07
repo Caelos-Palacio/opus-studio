@@ -45,7 +45,7 @@
 {"q": "la cámara tiembla demasiado", "esperado": ["check:camera", "metrica:camara.shake"]},
 {"q": "sacar un fotograma suelto para mirarlo", "esperado": ["cli:render.still", "cli:peek"]},
 {"q": "compruebo si el audio se desfasa de la imagen", "esperado": ["metrica:audio.avSync"]},
-{"q": "hacer un fondo de estrellas", "esperado": ["prim:particles", "prim:atmos", "check:fondo.vacio"]},
+{"q": "hacer un fondo de estrellas", "esperado": ["fondo:estrellas", "fondo:cosmos_profundo", "prim:particles", "prim:atmos", "check:fondo.vacio"]},
 {"q": "mi lint dice FIX y no sé dónde", "esperado": ["cli:lint", "cli:lint.shot"]},
 {"q": "bajar el volumen de la música cuando hay voz", "esperado": ["cli:sound", "metrica:audio.loudness"]},
 {"q": "comparar la paleta de dos films", "esperado": ["cli:ab", "cli:metrics"]},
