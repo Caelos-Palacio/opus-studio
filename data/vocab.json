@@ -1039,6 +1039,11 @@
           "forbid": []
         },
         {
+          "id": "fondo.profundidad",
+          "def": "Profundidad del fondo",
+          "forbid": []
+        },
+        {
           "id": "drama.peakPos",
           "def": "Posición del clímax",
           "forbid": []

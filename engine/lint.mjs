@@ -347,7 +347,7 @@ async function motion(fps, film, FC) {
 // Fondo vacío (spec 012 P6): el negro ELEGIDO por el tema pasa; el negro VACÍO (oscuro y sin profundidad) avisa. Métrica fondo.profundidad.
 // Cadencia/tamaño propios (4 fps, 384 px, CON gradación: lo que ve el espectador); fotogramas cacheados como los demás. Solo film entero.
 async function fondo(film, FC) {
-  if (film.lintScope) return;
+  if (film.lintScope || film.fondo === false) return;
   const { FONDO, fondoSeries, veredicto } = await import('./metrics/fondo.mjs'), n = Math.floor(film.duration * FONDO.fps), fr = [];
   for (let i = 0; i < n; i++) { const t = i / FONDO.fps, F = await FC.get(t, { px: true }); fr.push({ t, W: F.W, H: F.H, data: F.data, boxes: F.boxes }); }
   const S = fondoSeries(fr, { fps: FONDO.fps }), pct = (x) => Math.round(x * 100), long = [...S.runs].sort((a, b) => b.t1 - b.t0 - (a.t1 - a.t0))[0];
