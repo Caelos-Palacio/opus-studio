@@ -698,6 +698,16 @@
           "forbid": []
         },
         {
+          "id": "receta.hueco",
+          "def": "un shot nacido de una receta conserva un $hueco sin llenar (cadena «$hueco: …» en su .scene.json); WARN con la ruta: lo concreto del film aún no está escrito (spec 016)",
+          "forbid": []
+        },
+        {
+          "id": "receta.repeticion",
+          "def": "una misma receta genera más del 50 % de los shots de un film (con ≥ 3), o los films de una oleada comparten la secuencia de recetas: la plantilla se volvió molde (WARN; spec 016)",
+          "forbid": []
+        },
+        {
           "id": "w3d.sin-guion",
           "def": "un shot usa world3d sin pertenecer a un beat 3D (beat.w3d = {concepto, porque}) declarado en story.json: el 3D se guioniza desde el principio, no se añade después (spec 009, S10)",
           "forbid": []

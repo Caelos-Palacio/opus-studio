@@ -1,13 +1,13 @@
 {
-"meta": {"id":"escala","grupo":"plano","resumen":"zoom entre órdenes de magnitud con el exponente a la vista","tags":["escala","zoom","magnitud","orden","potencias","tamaño"],"params":{"ordenes":"number","empieza":"number","dur":"number"},"cuando":"la idea depende de cuántas veces cabe una cosa en otra"},
+"meta": {"id":"escala","grupo":"plano","resumen":"zoom entre órdenes de magnitud con el exponente a la vista","tags":["escala","zoom","magnitud","orden","potencias","tamaño"],"params":{"ordenes":"number","empieza":"number","tarda":"number"},"cuando":"la idea depende de cuántas veces cabe una cosa en otra"},
 "scene": {"dsl":1,"id":"$ID","doc":"[receta:escala] el ancla crece órdenes de magnitud y el exponente se lee.",
  "params": {"ordenes":{"type":"number","range":[1,6],"default":3,"semantic":"órdenes de magnitud que recorre"},
   "empieza":{"type":"number","range":[0,3],"unit":"s","default":0.4,"semantic":"cuándo empieza el zoom"},
-  "dur":{"type":"number","range":[0.5,8],"unit":"s","default":3,"semantic":"duración del zoom"}},
+  "tarda":{"type":"number","range":[0.5,8],"unit":"s","default":3,"semantic":"duración del zoom"}},
  "camera": {"move":"pull","why":"reveal"}, "transition": {"out":"cut"},
  "objects": [
   {"id":"fondo","type":"ground","fy":0.86,"alpha":0.22},
-  {"id":"p","type":"let","value":{"$expr":"ease('inOut', seg(lt, empieza, empieza + dur))"}},
+  {"id":"p","type":"let","value":{"$expr":"ease('inOut', seg(lt, empieza, empieza + tarda))"}},
   {"id":"ancla","type":"shape","shape":"circle","x":{"$expr":"S_cx"},"y":{"$expr":"S_cy - 30"},"r":{"$expr":"min(6 * pow(10, ordenes * p), 900)"},"color":"accent","alpha":0.8,"semantic":"$hueco: lo que cambia de escala"},
   {"id":"foco","type":"focus","x":{"$expr":"S_cx - 40"},"y":{"$expr":"S_cy - 70"},"w":80,"h":80,"label":"escala"},
   {"id":"exp","type":"text","text":{"$expr":"cat('× 10^', str(floor(ordenes * p)))"},"x":{"$expr":"S_cx"},"y":{"$expr":"S_y1 - 40"},"role":"h2","align":"center"},

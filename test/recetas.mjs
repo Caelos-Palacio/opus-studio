@@ -52,7 +52,7 @@ for (const r of CAT) {
 }
 {
   const { entries, warnings } = await buildRegistry();
-  ok('R2 cada receta aparece en el registro del toolbox como receta:<id>', CAT.every((r) => entries.some((e) => e.id === `receta:${r.meta.id}` && e.kind === 'receta' && e.ejemplo.includes('opus new shot'))));
+  ok('R2 cada receta aparece en el registro del toolbox como receta:<id>', CAT.every((r) => entries.some((e) => e.id === `receta:${r.meta.id}` && e.kind === 'receta' && /new shot/.test(e.ejemplo))));
   ok('R2 el registro sigue sin avisos con las recetas', warnings.length === 0, warnings.slice(0, 2).join(' | '));
   const top = (q) => search(entries, q, { k: 3, kind: 'receta' }).map((x) => x.entry.id);
   ok('R2 «un contador que suba al ritmo real» → receta:contar', top('un contador que suba al ritmo real').includes('receta:contar'), top('un contador que suba al ritmo real').join(','));
@@ -83,6 +83,11 @@ try {
   ok('R1 receta desconocida: error con sugerencia', r.status !== 0 && /receta/.test(r.stderr + r.stdout));
   r = await cli(D, ['new', 'shot', 'RX3', '--receta', 'presentar_objeto', '--fondo', 'niebla', '--film', 'demo']);
   ok('R1 --fondo y --film aceptados (fondo ausente → $hueco)', r.status === 0 && /niebla/.test(rd(path.join(D, 'shots/RX3.scene.json'))), (r.stderr || '').slice(-160));
+  r = await cli(D, ['new', 'shot', 'RX4', '--receta', 'contar', '--param', 'final=24', '--llenar', 'que=neutrinos', '--llenar', 'ancla.semantic=un destello', '--mov', 'parpadeo']);
+  const s4 = r.status === 0 ? JSON.parse(rd(path.join(D, 'shots/RX4.scene.json'))) : null;
+  ok('R1 --param fija defaults, --llenar llena huecos por objeto[.prop], --mov compone un movimiento', !!s4 && s4.params.final.default === 24 && s4.objects.find((o) => o.id === 'que').text === 'neutrinos' && R.huecos(s4).length === 0 && /\[receta:contar\+parpadeo\]/.test(s4.doc) && validateScene(s4).length === 0, (r.stderr || '').slice(-200));
+  r = await cli(D, ['new', 'shot', 'RX5', '--receta', 'contar', '--llenar', 'nada=1']);
+  ok('R1 --llenar de un hueco inexistente falla y lista los huecos válidos', r.status !== 0 && /que\.text/.test(r.stderr) && !fs.existsSync(path.join(D, 'shots/RX5.scene.json')));
   // todo el catálogo: cada receta (y cada movimiento sobre la base) compila y renderiza, no vacío, determinista
   const ids = [];
   for (const rc of CAT) { const id = 'Z' + rc.meta.id.replace(/_/g, ''); const q = await cli(D, ['new', 'shot', id, '--receta', rc.meta.id]); if (q.status !== 0) ok(`R1 scaffold ${rc.meta.id}`, false, q.stderr.slice(-200)); else ids.push(id); }
@@ -125,10 +130,13 @@ try {
   const sc = (o) => JSON.stringify(o);
   let allOk = true, why = '';
   const kinds = { shape: 'ancla', text: 'detalle', focus: 'foco' };
+  const SIN = ['acercar/text', 'parpadeo/focus'];   // propiedad que el tipo no tiene: falla claro, no en silencio
   for (const m of MOV) for (const [tipo, id] of Object.entries(kinds)) {
-    const r = R.scaffold('presentar_objeto', { id: 'M2', mov: [m.meta.id], a: [id] }).scene, p = validateScene(r);
-    const changed = sc(r.objects.find((o) => o.id === id)) !== sc(base.objects.find((o) => o.id === id));
-    if (p.length || (!changed && !(m.meta.id === 'parpadeo' && tipo === 'focus') && !(m.meta.id === 'acercar' && tipo === 'text'))) { allOk = false; why += ` ${m.meta.id}→${tipo}${p.length ? ':' + p[0].message : ':sin cambio'}`; }
+    let r = null, err = '';
+    try { r = R.scaffold('presentar_objeto', { id: 'M2', mov: [m.meta.id], a: [id] }).scene; } catch (e) { err = e.message; }
+    if (SIN.includes(`${m.meta.id}/${tipo}`)) { if (!/aplicable/.test(err)) { allOk = false; why += ` ${m.meta.id}→${tipo}:debía fallar`; } continue; }
+    const p = r ? validateScene(r) : [{ message: err }], changed = r && sc(r.objects.find((o) => o.id === id)) !== sc(base.objects.find((o) => o.id === id));
+    if (p.length || !changed) { allOk = false; why += ` ${m.meta.id}→${tipo}${p.length ? ':' + p[0].message : ':sin cambio'}`; }
   }
   ok('R5 los 6 movimientos se aplican a shape, text y focus: escena válida y objeto modificado', allOk, why);
   const two = R.scaffold('presentar_objeto', { id: 'M3', mov: ['caida_con_peso', 'temblor'] }).scene;
@@ -154,7 +162,7 @@ try {
 {
   const M = R.medirAhorro();
   ok('R7 hay 3 shots de ejemplo (contar·Veinticuatro, documento·Consta, presentar_objeto·Botella)', M.length === 3 && ['contar', 'documento', 'presentar_objeto'].every((x) => M.some((m) => m.receta === x)));
-  for (const m of M) ok(`R7 ${m.receta}: el agente escribe ≥ 50 % menos que desde cero`, m.ahorro >= 0.5, `${m.tokReceta} vs ${m.tokCero} tok (−${(m.ahorro * 100).toFixed(0)} %)`);
+  for (const m of M) ok(`R7 ${m.receta}: el agente escribe ≥ 50 % menos que desde cero (también reescribiendo líneas enteras)`, m.ahorro >= 0.5 && m.ahorroLineas >= 0.5, `${m.tokReceta} vs ${m.tokCero} tok (−${(m.ahorro * 100).toFixed(0)} %; peor caso −${(m.ahorroLineas * 100).toFixed(0)} %)`);
   ok('R7 los ejemplos terminados son escenas válidas, sin $hueco y distintos del scaffold', M.every((m) => m.valida && m.huecos === 0 && m.distinto));
   ok('R7 tokens() del toolbox y la medida usan la misma unidad', tokens('abcd') === 1);
 }

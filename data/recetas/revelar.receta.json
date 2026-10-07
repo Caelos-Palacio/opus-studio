@@ -1,14 +1,14 @@
 {
-"meta": {"id":"revelar","grupo":"plano","resumen":"de un detalle ampliado al todo, o del todo al detalle","tags":["revelar","detalle","todo","zoom","descubrir"],"params":{"tam":"number","empieza":"number","dur":"number","alReves":"boolean"},"cuando":"el sentido de lo que se ve solo aparece al cambiar de escala"},
+"meta": {"id":"revelar","grupo":"plano","resumen":"de un detalle ampliado al todo, o del todo al detalle","tags":["revelar","detalle","todo","zoom","descubrir"],"params":{"tam":"number","empieza":"number","tarda":"number","alReves":"boolean"},"cuando":"el sentido de lo que se ve solo aparece al cambiar de escala"},
 "scene": {"dsl":1,"id":"$ID","doc":"[receta:revelar] el detalle ocupa el cuadro y retrocede hasta que se ve el todo.",
  "params": {"tam":{"type":"number","range":[20,200],"unit":"px","default":90,"semantic":"radio del todo"},
   "empieza":{"type":"number","range":[0,3],"unit":"s","default":0.6,"semantic":"cuándo empieza el retroceso"},
-  "dur":{"type":"number","range":[0.4,4],"unit":"s","default":1.8,"semantic":"duración del retroceso"},
+  "tarda":{"type":"number","range":[0.4,4],"unit":"s","default":1.8,"semantic":"duración del retroceso"},
   "alReves":{"type":"boolean","default":false,"semantic":"true: del todo al detalle"}},
  "camera": {"move":"pull","why":"reveal"}, "transition": {"out":"cut"},
  "objects": [
   {"id":"fondo","type":"ground","fy":0.86,"alpha":0.22},
-  {"id":"p","type":"let","value":{"$expr":"ease('inOut', seg(lt, empieza, empieza + dur))"}},
+  {"id":"p","type":"let","value":{"$expr":"ease('inOut', seg(lt, empieza, empieza + tarda))"}},
   {"id":"ancla","type":"shape","shape":"circle","x":{"$expr":"S_cx"},"y":{"$expr":"S_cy - 30"},"r":{"$expr":"tam * mix(5, 1, alReves ? 1 - p : p)"},"color":"accent","semantic":"$hueco: el objeto ancla del film"},
   {"id":"foco","type":"focus","x":{"$expr":"S_cx - tam"},"y":{"$expr":"S_cy - tam - 30"},"w":{"$expr":"2 * tam"},"h":{"$expr":"2 * tam"},"label":"ancla"},
   {"id":"todo","type":"text","text":"$hueco: lo que el todo dice","x":{"$expr":"S_cx"},"y":{"$expr":"S_cy + tam + 40"},"role":"body","align":"center","alpha":{"$expr":"alReves ? 1 - p : p"}}
