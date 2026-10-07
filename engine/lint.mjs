@@ -421,7 +421,7 @@ const FCS_ = frameCache({ film: R.film, size: SMALL, grade: false, make: async (
 const FCF = frameCache({ film: R.film, size: '384x' + Math.round((384 * R.film.height) / R.film.width / 2) * 2, grade: true, make: async () => (R3 ??= await makeRenderer({ size: '384x' + Math.round((384 * R.film.height) / R.film.width / 2) * 2, grade: true })) });
 const stepMs = {};
 let warmP = null;                                                            // R6: relleno de la caché en paralelo (solo en frío y si merece la pena); corre MIENTRAS validate y determinismo (que no usan la caché)
-{ const { prewarm } = await import('./framewarm.mjs'), t0 = Date.now(); warmP = prewarm({ film: R.film, FCL, FCS_, lfps, scope: R.film.lintScope ?? null, needLayout: want('layout') || want('rhythm'), needSmall: want('motion') || want('arc') || want('rhythm') }).then((n) => { if (n) { stepMs.prewarm = Date.now() - t0; stepMs.warmFrames = n; } }); }
+{ const { prewarm } = await import('./framewarm.mjs'), t0 = Date.now(); warmP = prewarm({ film: R.film, FCL, FCS_, FCF, needFondo: want('fondo'), lfps, scope: R.film.lintScope ?? null, needLayout: want('layout') || want('rhythm'), needSmall: want('motion') || want('arc') || want('rhythm') }).then((n) => { if (n) { stepMs.prewarm = Date.now() - t0; stepMs.warmFrames = n; } }); }
 const step = async (k, f) => { if (want(k)) { if (warmP && k !== 'validate' && k !== 'determinism') { await warmP; warmP = null; } CHECK = k; const t0 = Date.now(); try { await f(); } finally { stepMs[k] = Date.now() - t0; } } };
 try {
 await step('validate', () => { validate(R.film); for (const x of scanShots(ROOT, R.film.shots.map((s) => s.id))) (x.level === 'FIX' ? fix : warn)(x.shot, 0, x.problem, x.remedy); fonts(R); });

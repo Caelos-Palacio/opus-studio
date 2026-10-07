@@ -9,6 +9,8 @@ import os from 'node:os';
 import { spawn } from 'node:child_process';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { FONDO } from './metrics/fondo.mjs';
+export const fondoSize = (film) => `${FONDO.size}x${Math.round((FONDO.size * film.height) / film.width / 2) * 2}`;
 
 export function lintFrames(film, { lfps = 12, scope = null } = {}) {
   const fps = Math.min(lfps, 8), layout = [], small = [], n = Math.floor(film.duration * fps + 1e-9);
@@ -26,21 +28,23 @@ export function lintFrames(film, { lfps = 12, scope = null } = {}) {
     if (tr === 'cut' || tr === 'scale-cut') { series(c - 0.1, c - 1 / F, F); series(c - 0.6, c - 0.1, F); }
     if (tr === 'hold-cut') series(c - 10 / film.fps, c - 1 / film.fps, film.fps);
   }
-  void n; return { layout, small };
+  // fondo.vacio (spec 012 P6): 4 fps a 384 px con gradación, solo film entero (mismos instantes que el check `fondo` de lint.mjs)
+  const fondo = []; if (!scope && film.fondo !== false) for (let i = 0, m = Math.floor(film.duration * FONDO.fps); i < m; i++) fondo.push({ t: i / FONDO.fps, px: true });
+  void n; return { layout, small, fondo };
 }
 
 // OPUS_WARM=0 lo apaga (la suite de tests ya paraleliza por su cuenta); OPUS_WARM=1 lo fuerza aunque haya pocos fotogramas; por debajo de OPUS_WARM_MIN, arrancar procesos cuesta más que renderizar.
 const MIN_FRAMES = +(process.env.OPUS_WARM_MIN ?? (process.env.OPUS_WARM === '1' ? 20 : 400));
-export async function prewarm({ film, FCL, FCS_, lfps, scope, needLayout = true, needSmall = true }) {
+export async function prewarm({ film, FCL, FCS_, FCF = null, lfps, scope, needLayout = true, needSmall = true, needFondo = false }) {
   if (process.env.OPUS_NOCACHE === '1' || process.env.OPUS_WARM === '0') return 0;
   const cpus = os.availableParallelism?.() ?? os.cpus().length; if (cpus < 4) return 0;
-  const F = lintFrames(film, { lfps, scope }), jobs = [needLayout ? FCL.missing(F.layout) : [], needSmall ? FCS_.missing(F.small) : []];
-  const total = jobs[0].length + jobs[1].length; if (total < MIN_FRAMES) return 0;
+  const F = lintFrames(film, { lfps, scope }), jobs = [needLayout ? FCL.missing(F.layout) : [], needSmall ? FCS_.missing(F.small) : [], needFondo && FCF ? FCF.missing(F.fondo) : []];
+  const total = jobs[0].length + jobs[1].length + jobs[2].length; if (total < MIN_FRAMES) return 0;
   const k = Math.max(2, Math.min(cpus - 2, Math.ceil(total / 40))), me = fileURLToPath(import.meta.url);
   const sc = scope ? `${scope.t0}:${scope.t1}:${[...scope.ids].join(',')}` : '';
   const sz = process.argv.includes('--size') ? process.argv[process.argv.indexOf('--size') + 1] : null;
   const run = (i) => new Promise((res) => {
-    const p = spawn(process.execPath, [me, '--slice', `${i}/${k}`, '--lfps', String(lfps), '--need', `${needLayout ? 'L' : ''}${needSmall ? 'S' : ''}`, ...(sz ? ['--size', sz] : []), ...(sc ? ['--scope', sc] : [])], { stdio: ['ignore', 'ignore', 'inherit'], env: process.env });
+    const p = spawn(process.execPath, [me, '--slice', `${i}/${k}`, '--lfps', String(lfps), '--need', `${needLayout ? 'L' : ''}${needSmall ? 'S' : ''}${needFondo && FCF ? 'F' : ''}`, ...(sz ? ['--size', sz] : []), ...(sc ? ['--scope', sc] : [])], { stdio: ['ignore', 'ignore', 'inherit'], env: process.env });
     p.on('close', () => res()); p.on('error', () => res());                     // si un hijo falla, el lint renderiza lo que falte por su cuenta
   });
   // cada hijo hace su porción de TODO lo que falte (layout y small), así el reparto es parejo
@@ -57,8 +61,11 @@ if (isMain(import.meta.url)) {
   const small = `192x${Math.round((192 * film.height) / film.width / 2) * 2}`;
   let R2 = null;
   const FCL = frameCache({ film, size: sz, grade: false, make: async () => R }), FCS_ = frameCache({ film, size: small, grade: false, make: async () => (R2 ??= await makeRenderer({ size: small, grade: false })) });
+  const fz = fondoSize(film); let R3 = null;
+  const FCF = frameCache({ film, size: fz, grade: true, make: async () => (R3 ??= await makeRenderer({ size: fz, grade: true })) });
   const F = lintFrames(film, { lfps, scope }), need = arg('--need', 'LS'), mine = (l) => l.filter((_, j) => j % sk === si);   // se reparte la lista COMPLETA (determinista), luego cada hijo filtra lo que falta
   if (need.includes('L')) for (const it of FCL.missing(mine(F.layout))) await FCL.get(it.t, { px: it.px, guard: it.guard ? guardCtx : null });
   if (need.includes('S')) for (const it of FCS_.missing(mine(F.small))) await FCS_.get(it.t, { px: it.px });
+  if (need.includes('F')) for (const it of FCF.missing(mine(F.fondo))) await FCF.get(it.t, { px: it.px });
   process.exit(0);
 }
