@@ -2,11 +2,11 @@
 // Vocabulario controlado versionado (spec 006; research/10-rosetta.md: vocabulario cerrado + guardas deterministas, NO compresión por LLM).
 //   node engine/vocab.mjs list [sección] | canon <palabra> | lint [--json] | sync | refs <original> <derivado>
 // Fuente: data/vocab.json. Cada término = {id, def, forbid:[sinónimos prohibidos]}. Puro salvo carga/lint (fs).
-import { isMain } from './paths.mjs';
+import { isMain, rootFrom } from './paths.mjs';
 import fs from 'node:fs';
 import path from 'node:path';
 
-export const ROOT = path.resolve(path.dirname(new URL(import.meta.url).pathname), '..');
+export const ROOT = rootFrom(import.meta.url);
 export const VOCAB = JSON.parse(fs.readFileSync(path.join(ROOT, 'data/vocab.json'), 'utf8'));
 export const VERSION = VOCAB.version;
 const S = VOCAB.sections;

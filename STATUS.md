@@ -32,10 +32,11 @@ Definición (gates.json); el estado de cierre está en la parte viva.
 | [012-produccion-v2.md](docs/specs/012-produccion-v2.md) | 012 — Producción v2: Regla, Reel y Potencias | mate_papel · terracota · — (2026-10-06) · "está muy bien" |
 | [013-storytelling.md](docs/specs/013-storytelling.md) | 013 — Storytelling auténtico: voz, ancla, frescura | (pendiente) ·  ·  ·  · |
 | [015-toolbox.md](docs/specs/015-toolbox.md) | Spec 015 — toolbox: descubrimiento progresivo de herramientas | sin nota |
+| [016-recetas.md](docs/specs/016-recetas.md) | 016 — Recetas: el agente no escribe todo el código | sin nota |
 
 ## Motor
 
-- versión: 5.0.0 (package.json) · módulos engine/: 82
+- versión: 5.0.0 (package.json) · módulos engine/: 83
 - roles: modo `enforce` (*, director, dp, investigador, td, productor, animator, review) · digest `35a737817acffefa`
 - presupuestos: data/budgets.json digest `5290bbde06ea538a`
 
@@ -48,15 +49,15 @@ Definición (gates.json); el estado de cierre está en la parte viva.
 
 ## Tests
 
-Archivos (test/*.mjs): `arc.mjs` `bench-skia.mjs` `critic.mjs` `cut-render.mjs` `dsl-cov.mjs` `film.mjs` `fondo.mjs` `fuzz.mjs` `golden.mjs` `gov.mjs` `guard.mjs` `harness.mjs` `hash.mjs` `lib.mjs` `medios.mjs` `memoria.mjs` `metrics.mjs` `motor.mjs` `narr.mjs` `orch.mjs` `orquestacion.mjs` `params.mjs` `perf.mjs` `run.mjs` `schema.mjs` `semantica.mjs` `sound.mjs` `tools.mjs` `unit.mjs` `world3d.mjs`
+Archivos (test/*.mjs): `arc.mjs` `bench-skia.mjs` `critic.mjs` `cut-render.mjs` `dsl-cov.mjs` `film.mjs` `fondo.mjs` `fuzz.mjs` `golden.mjs` `gov.mjs` `guard.mjs` `harness.mjs` `hash.mjs` `lib.mjs` `medios.mjs` `memoria.mjs` `metrics.mjs` `motor.mjs` `narr.mjs` `orch.mjs` `orquestacion.mjs` `params.mjs` `perf.mjs` `recetas.mjs` `run.mjs` `schema.mjs` `semantica.mjs` `sound.mjs` `tools.mjs` `unit.mjs` `world3d.mjs`
 <!-- estatico:fin -->
 
 ---
-## Estado vivo (2026-10-07T17:20Z, no verificado)
+## Estado vivo (2026-10-07T20:51Z, no verificado)
 
 ## Veredictos
 
-Film activo: `main` · engineHash `398ef580eb89b47aba1415cdcb2ce0724ed5287d1e16910587180b2241738af7` · filmHash `a3f15e847f29bf4d`
+Film activo: `main` · engineHash `3b2fa4af9a7475663cda0c6346ea365bca90f6447ad42a501b30f08cda7e9fb3` · filmHash `a3f15e847f29bf4d`
 
 - out/lint.json: no existe
 - out/critic.json: no existe
@@ -69,16 +70,17 @@ Film activo: `main` · engineHash `398ef580eb89b47aba1415cdcb2ce0724ed5287d1e169
 ## Ramas sin integrar
 
 - `backup/pre-limpieza` (+136 commits)
-- `deuda2` (+6 commits)
-- `fondos` (+4 commits)
+- `deuda2` (+8 commits)
+- `diagramas` (+1 commits)
+- `fondos` (+5 commits)
 - `gobernanza` (+96 commits)
 - `harness` (+101 commits)
 - `medios` (+57 commits)
 - `metricas` (+76 commits)
 - `orquestacion` (+101 commits)
 - `perf` (+53 commits)
+- `recetas` (+4 commits)
 - `semantica` (+101 commits)
-- `toolbox` (+3 commits)
 - `video-mate` (+33 commits)
 - `video-reel` (+34 commits)
 - `video-regla` (+34 commits)
@@ -97,11 +99,11 @@ Film activo: `main` · engineHash `398ef580eb89b47aba1415cdcb2ce0724ed5287d1e169
 
 ## Último run de tests
 
-- 2026-10-07T17:20:24.172Z: todo verde
+- 2026-10-07T17:42:09.756Z: 2 fallos (--fast)
 
 ## Ledger
 
-- cadena: íntegra · 1 entradas (1 encadenadas, 0 heredadas, 0 firmadas) · códigos 0 %
+- cadena: íntegra · 0 entradas (0 encadenadas, 0 heredadas, 0 firmadas) · códigos 0 %
 
 ## Presupuestos
 
