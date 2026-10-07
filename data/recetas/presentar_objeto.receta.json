@@ -1,0 +1,14 @@
+{
+"meta": {"id":"presentar_objeto","grupo":"plano","resumen":"el ancla entra con muelle, se asienta y un detalle se lee","tags":["ancla","entrada","objeto","detalle","presentar","introducir"],"params":{"tam":"number","entra":"number","detalleEn":"number"},"cuando":"primer plano de un objeto que debe reconocerse antes de que ocurra nada más"},
+"scene": {"dsl":1,"id":"$ID","doc":"[receta:presentar_objeto] el ancla entra con muelle y se asienta; después se lee un detalle.",
+ "params": {"tam":{"type":"number","range":[20,200],"unit":"px","default":90,"semantic":"radio del ancla"},
+  "entra":{"type":"number","range":[0,2],"unit":"s","default":0.3,"semantic":"instante de la entrada"},
+  "detalleEn":{"type":"number","range":[0,4],"unit":"s","default":1.4,"semantic":"cuándo se lee el detalle"}},
+ "camera": {"move":"push","why":"approach"}, "transition": {"out":"cut"},
+ "objects": [
+  {"id":"fondo","type":"ground","fy":0.86,"alpha":0.22},
+  {"id":"ancla","type":"shape","shape":"circle","x":{"$expr":"S_cx"},"y":{"$expr":"S_cy - 30 + 60 * (1 - spring(lt - entra))"},"r":{"$expr":"tam * spring(lt - entra)"},"color":"accent","semantic":"$hueco: el objeto ancla del film"},
+  {"id":"foco","type":"focus","x":{"$expr":"S_cx - tam"},"y":{"$expr":"S_cy - tam - 30"},"w":{"$expr":"2 * tam"},"h":{"$expr":"2 * tam"},"label":"ancla"},
+  {"id":"detalle","type":"text","text":"$hueco: el detalle que se lee","x":{"$expr":"S_cx"},"y":{"$expr":"S_cy + tam + 40"},"role":"body","align":"center","alpha":{"$expr":"clamp(spring(lt - detalleEn))"}}
+ ]}
+}

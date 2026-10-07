@@ -1,0 +1,12 @@
+{
+"meta": {"id":"morph_objeto","grupo":"transicion","resumen":"el ancla cambia de forma al final y esa forma abre el siguiente plano","tags":["morph","transición","transformar","cambio de forma","enlace"],"params":{"tam":"number","a":"number"},"cuando":"el siguiente plano es el mismo objeto convertido en otra cosa"},
+"scene": {"dsl":1,"id":"$ID","doc":"[receta:morph_objeto] el ancla pasa de anillo a marco al final. Requiere transition_out morph y un handoff declarado en el timeline.",
+ "params": {"tam":{"type":"number","range":[40,300],"unit":"px","default":140,"semantic":"tamaño de la forma"},
+  "a":{"type":"number","range":[0,8],"unit":"s","default":1.4,"semantic":"cuándo empieza la transformación"}},
+ "camera": {"move":"static"}, "transition": {"out":"morph"},
+ "objects": [
+  {"id":"fondo","type":"ground","fy":0.86,"alpha":0.22},
+  {"id":"ancla","type":"morph","from":"ring","to":"frame","u":{"$expr":"ease('inOut', seg(lt, a, a + 1.2))"},"x":{"$expr":"S_cx"},"y":{"$expr":"S_cy"},"size":{"$expr":"tam"},"color":"accent","label":"ancla","semantic":"$hueco: qué es el objeto antes y en qué se convierte"},
+  {"id":"rotulo","type":"text","text":"$hueco: lo que se lee antes del cambio","x":{"$expr":"S_cx"},"y":{"$expr":"S_cy + tam"},"role":"body","align":"center","alpha":{"$expr":"1 - seg(lt, a, a + 1)"}}
+ ]}
+}

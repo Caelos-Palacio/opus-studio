@@ -1,0 +1,7 @@
+{
+"meta": {"id":"orbitar","grupo":"movimiento","resumen":"el objeto recorre una órbita elíptica lenta alrededor de su sitio","tags":["orbitar","órbita","girar","círculo","elipse"],"params":{"orbitarR":"number","orbitarT":"number"},"cuando":"el objeto debe sentirse vivo sin salir de su lugar"},
+"mod": {
+ "params": {"orbitarR":{"type":"number","range":[0,300],"unit":"px","default":60,"semantic":"radio de la órbita"},"orbitarT":{"type":"number","range":[1,20],"unit":"s","default":4,"semantic":"periodo de una vuelta"}},
+ "objects": [{"id":"orbitarX","type":"let","value":{"$expr":"orbitarR * cos(tau * lt / orbitarT)"}},{"id":"orbitarY","type":"let","value":{"$expr":"0.4 * orbitarR * sin(tau * lt / orbitarT)"}}],
+ "aplica": {"x":"+orbitarX","y":"+orbitarY"}, "acompana": true}
+}

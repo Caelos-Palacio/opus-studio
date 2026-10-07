@@ -1,0 +1,13 @@
+{
+"meta": {"id":"pausa_sostenida","grupo":"plano","resumen":"nada ocurre: el fondo respira y el silencio se sostiene","tags":["pausa","silencio","respirar","quieto","sostener","calma"],"params":{"tam":"number","respira":"number"},"cuando":"tras un golpe, para que el espectador lo asimile sin que nada lo distraiga"},
+"scene": {"dsl":1,"id":"$ID","doc":"[receta:pausa_sostenida] el ancla no se mueve; solo respira el halo del fondo.",
+ "params": {"tam":{"type":"number","range":[20,200],"unit":"px","default":80,"semantic":"radio del ancla"},
+  "respira":{"type":"number","range":[2,12],"unit":"s","default":6,"semantic":"periodo de la respiración"}},
+ "camera": {"move":"push","why":"approach","amount":0.02}, "transition": {"out":"cut"},
+ "objects": [
+  {"id":"fondo","type":"ground","fy":0.86,"alpha":0.22},
+  {"id":"halo","type":"glow","x":{"$expr":"S_cx"},"y":{"$expr":"S_cy - 30"},"r":{"$expr":"tam * (3 + 0.4 * sin(tau * lt / respira))"},"color":"accent","alpha":0.35},
+  {"id":"ancla","type":"shape","shape":"circle","x":{"$expr":"S_cx"},"y":{"$expr":"S_cy - 30"},"r":{"$expr":"tam"},"color":"accent","semantic":"$hueco: lo que se sostiene en silencio"},
+  {"id":"foco","type":"focus","x":{"$expr":"S_cx - tam"},"y":{"$expr":"S_cy - tam - 30"},"w":{"$expr":"2 * tam"},"h":{"$expr":"2 * tam"},"label":"ancla"}
+ ]}
+}

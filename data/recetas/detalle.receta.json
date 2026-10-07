@@ -1,0 +1,13 @@
+{
+"meta": {"id":"detalle","grupo":"plano","resumen":"primer plano con textura: marcas finas que se leen de cerca","tags":["detalle","primer plano","textura","cerca","marcas","superficie"],"params":{"densidad":"integer","tam":"number"},"cuando":"se quiere tocar la materia de un objeto antes de saber qué es"},
+"scene": {"dsl":1,"id":"$ID","doc":"[receta:detalle] superficie ampliada: una rejilla de marcas y un foco que se enciende.",
+ "params": {"densidad":{"type":"integer","range":[3,14],"default":9,"semantic":"columnas de marcas"},
+  "tam":{"type":"number","range":[20,200],"unit":"px","default":110,"semantic":"radio del foco"}},
+ "camera": {"move":"push","why":"approach","amount":0.1}, "transition": {"out":"cut"},
+ "objects": [
+  {"id":"fondo","type":"ground","fy":0.9,"alpha":0.18},
+  {"id":"textura","type":"group","depth":0.3,"children":[{"id":"marcas","type":"marks","cols":{"$expr":"densidad"},"rows":5,"x0":0.08,"dx":{"$expr":"0.84 / densidad"},"y0":0.12,"dy":0.18,"half":6,"color":"shade","lineWidth":2}]},
+  {"id":"ancla","type":"glow","x":{"$expr":"S_cx"},"y":{"$expr":"S_cy"},"r":{"$expr":"tam * (0.6 + 0.4 * spring(lt - 0.4))"},"color":"accent","alpha":0.7,"semantic":"$hueco: el detalle que se toca"},
+  {"id":"foco","type":"focus","x":{"$expr":"S_cx - tam"},"y":{"$expr":"S_cy - tam"},"w":{"$expr":"2 * tam"},"h":{"$expr":"2 * tam"},"label":"detalle"}
+ ]}
+}

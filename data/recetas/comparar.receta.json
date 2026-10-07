@@ -1,0 +1,15 @@
+{
+"meta": {"id":"comparar","grupo":"plano","resumen":"dos cosas lado a lado y una diferencia que se marca","tags":["comparar","diferencia","dos","contraste","barras"],"params":{"diff":"number","marcaEn":"number"},"cuando":"dos magnitudes o estados cuya distancia es la idea del plano"},
+"scene": {"dsl":1,"id":"$ID","doc":"[receta:comparar] dos barras; la diferencia se marca con una línea y se nombra.",
+ "params": {"diff":{"type":"number","range":[0.02,1],"unit":"×","default":0.3,"semantic":"cuánto mayor es B que A"},
+  "marcaEn":{"type":"number","range":[0,4],"unit":"s","default":1.2,"semantic":"cuándo se marca la diferencia"}},
+ "camera": {"move":"slide","why":"compare","dir":[1,0],"amount":0.03}, "transition": {"out":"cut"},
+ "objects": [
+  {"id":"fondo","type":"ground","fy":0.86,"alpha":0.22},
+  {"id":"A","type":"shape","shape":"rect","x":{"$expr":"S_cx - 190"},"y":{"$expr":"S_cy + 120 - 160 * spring(lt)"},"w":120,"h":{"$expr":"160 * spring(lt)"},"color":"accent2","semantic":"$hueco: la cosa A"},
+  {"id":"B","type":"shape","shape":"rect","x":{"$expr":"S_cx + 70"},"y":{"$expr":"S_cy + 120 - 160 * (1 + diff) * spring(lt - 0.2)"},"w":120,"h":{"$expr":"160 * (1 + diff) * spring(lt - 0.2)"},"color":"accent","semantic":"$hueco: la cosa B"},
+  {"id":"marca","type":"shape","shape":"rect","x":{"$expr":"S_cx - 190"},"y":{"$expr":"S_cy + 120 - 160 * (1 + diff)"},"w":{"$expr":"380 * seg(lt, marcaEn, marcaEn + 0.5)"},"h":3,"color":"anom"},
+  {"id":"foco","type":"focus","x":{"$expr":"S_cx + 70"},"y":{"$expr":"S_cy + 120 - 160 * (1 + diff)"},"w":120,"h":{"$expr":"160 * (1 + diff)"},"label":"B"},
+  {"id":"nombra","type":"text","text":"$hueco: la diferencia, dicha","x":{"$expr":"S_cx"},"y":{"$expr":"S_cy + 175"},"role":"body","align":"center","alpha":{"$expr":"seg(lt, marcaEn, marcaEn + 0.5)"}}
+ ]}
+}
