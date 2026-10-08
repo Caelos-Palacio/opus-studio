@@ -331,30 +331,17 @@
     "$expr": "S_cx"
    },
    "y": {
-    "$expr": "S_cy + 85"
+    "$expr": "S_cy + 60"
    },
-   "size": 250,
+   "size": 270,
    "partes": {
     "inclinacion": {
-     "$expr": "-0.05*floor(c) - 0.02*fract(c)*step(0.01,c)*exp(-9*fract(c))*0"
+     "$expr": "-0.07*floor(c) - 0.02*fract(c)*step(0.01,c)*exp(-9*fract(c))*0"
     },
     "aguja": {
-     "$expr": "-0.12*floor(c)"
+     "$expr": "-0.16*floor(c)"
     }
    }
-  },
-  {
-   "id": "foco",
-   "type": "focus",
-   "x": {
-    "$expr": "S_cx - 150"
-   },
-   "y": {
-    "$expr": "S_cy - 40"
-   },
-   "w": 300,
-   "h": 300,
-   "label": "la balanza"
   },
   {
    "id": "l1",
@@ -364,7 +351,7 @@
     "$expr": "S_cx"
    },
    "y": {
-    "$expr": "S_cy + 270+10"
+    "$expr": "S_cy + 270+2"
    },
    "role": "h2",
    "align": "center",

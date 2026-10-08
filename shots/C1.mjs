@@ -201,7 +201,7 @@ export default shot({
     "$expr": "S_cx"
    },
    "y": {
-    "$expr": "S_cy + 270-26"
+    "$expr": "S_cy + 270-44"
    },
    "role": "h2",
    "align": "center",
@@ -217,7 +217,7 @@ export default shot({
     "$expr": "S_cx"
    },
    "y": {
-    "$expr": "S_cy + 270+14"
+    "$expr": "S_cy + 270+2"
    },
    "role": "h2",
    "align": "center",

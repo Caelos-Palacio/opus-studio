@@ -101,7 +101,7 @@ export default shot({
     "$expr": "S_cx - 120"
    },
    "y": {
-    "$expr": "S_cy + 50 - 330*(1-spring(lt-0.9,\"snap\"))"
+    "$expr": "S_cy + 50 - 330*(1-spring(lt-1.2,\"snap\"))"
    },
    "size": 240,
    "params": {
@@ -110,13 +110,13 @@ export default shot({
    },
    "partes": {
     "altura": {
-     "$expr": "1-spring(lt-0.9,\"snap\")"
+     "$expr": "1-spring(lt-1.2,\"snap\")"
     },
     "tinta": {
      "$expr": "1"
     },
     "huella": {
-     "$expr": "step(1.0,lt)"
+     "$expr": "step(1.3,lt)"
     }
    },
    "focus": false
@@ -137,7 +137,7 @@ export default shot({
    "h": 450,
    "color": "accent",
    "alpha": {
-    "$expr": "step(1.0,lt)"
+    "$expr": "step(1.3,lt)"
    }
   },
   {
@@ -150,7 +150,7 @@ export default shot({
    "h": 720,
    "color": "ink",
    "alpha": {
-    "$expr": "0.3*step(0.9,lt)*exp(-9*(lt-0.9))"
+    "$expr": "0.3*step(1.2,lt)*exp(-9*(lt-1.2))"
    }
   },
   {
@@ -183,7 +183,7 @@ export default shot({
    "role": "h2",
    "align": "center",
    "alpha": {
-    "$expr": "seg(lt,0.1,0.4)"
+    "$expr": "seg(lt,0.0,0.3)"
    }
   }
  ]

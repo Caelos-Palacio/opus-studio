@@ -63,16 +63,16 @@ export default shot({
     "$expr": "S_cx"
    },
    "y": {
-    "$expr": "S_cy + 10"
+    "$expr": "S_cy - 25"
    },
-   "size": 460,
+   "size": 440,
    "hollow": 0.9,
    "partes": {
     "inclinacion": {
-     "$expr": "0.12*spring(lt-0.2)"
+     "$expr": "0.28*spring(lt-0.2)"
     },
     "aguja": {
-     "$expr": "0.35*spring(lt-0.2)"
+     "$expr": "0.6*spring(lt-0.2)"
     },
     "oscilacion": {
      "$expr": "0.5*exp(-3*lt)"
@@ -127,7 +127,7 @@ export default shot({
     "$expr": "S_cx"
    },
    "y": {
-    "$expr": "S_cy + 270-26"
+    "$expr": "S_cy + 270-44"
    },
    "role": "h2",
    "align": "center",
@@ -143,7 +143,7 @@ export default shot({
     "$expr": "S_cx"
    },
    "y": {
-    "$expr": "S_cy + 270+14"
+    "$expr": "S_cy + 270+2"
    },
    "role": "h2",
    "align": "center",
