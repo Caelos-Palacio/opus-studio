@@ -54,15 +54,15 @@ Archivos (test/*.mjs): `arc.mjs` `bench-skia.mjs` `critic.mjs` `cut-render.mjs` 
 <!-- estatico:fin -->
 
 ---
-## Estado vivo (2026-10-08T00:45Z, no verificado)
+## Estado vivo (2026-10-08T21:34Z, no verificado)
 
 ## Veredictos
 
-Film activo: `sistema` · engineHash `a3f2e0380af866955a2ced396812420ac797293398729c23f79c595ba75c947b` · filmHash `139b523f0f033735`
+Film activo: `main` · engineHash `a3f2e0380af866955a2ced396812420ac797293398729c23f79c595ba75c947b` · filmHash `77c181fa2a1f2728`
 
 - out/lint.json: SHIP · CADUCADO
-- out/critic.json: no existe
-- veredictos por shot: 2 vigentes, 3 caducados
+- out/critic.json: SHIP · CADUCADO
+- veredictos por shot: 0 vigentes, 3 caducados
 
 ### Estado de gates (out/gates.json)
 
@@ -71,9 +71,8 @@ Film activo: `sistema` · engineHash `a3f2e0380af866955a2ced396812420ac797293398
 ## Ramas sin integrar
 
 - `backup/pre-limpieza` (+136 commits)
-- `diagramas` (+4 commits)
-- `film-consta` (+2 commits)
-- `film-veinticuatro` (+3 commits)
+- `film-consta` (+9 commits)
+- `film-veinticuatro` (+6 commits)
 - `gobernanza` (+96 commits)
 - `harness` (+101 commits)
 - `medios` (+57 commits)
@@ -99,11 +98,11 @@ Film activo: `sistema` · engineHash `a3f2e0380af866955a2ced396812420ac797293398
 
 ## Último run de tests
 
-- 2026-10-08T00:34:29.207Z: 4 fallos (perfil quick)
+- 2026-10-08T00:28:55.760Z: todo verde (perfil quick)
 
 ## Ledger
 
-- cadena: íntegra · 7 entradas (7 encadenadas, 0 heredadas, 0 firmadas) · códigos 100 %
+- cadena: íntegra · 14 entradas (3 encadenadas, 11 heredadas, 0 firmadas) · códigos 100 %
 
 ## Presupuestos
 
