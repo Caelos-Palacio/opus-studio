@@ -34,6 +34,7 @@ Definición (gates.json); el estado de cierre está en la parte viva.
 | [014-fondos-objetos.md](docs/specs/014-fondos-objetos.md) | 014 — Fondos generativos y biblioteca de objetos | sin nota |
 | [015-toolbox.md](docs/specs/015-toolbox.md) | Spec 015 — toolbox: descubrimiento progresivo de herramientas | sin nota |
 | [016-recetas.md](docs/specs/016-recetas.md) | 016 — Recetas: el agente no escribe todo el código | sin nota |
+| [017-consta-foley.md](docs/specs/017-consta-foley.md) | 017 — Consta: foley de archivo y film sin música | consta · (pendiente) ·  · |
 
 ## Motor
 
@@ -54,7 +55,7 @@ Archivos (test/*.mjs): `arc.mjs` `bench-skia.mjs` `consta.mjs` `critic.mjs` `cut
 <!-- estatico:fin -->
 
 ---
-## Estado vivo (2026-10-08T01:05Z, no verificado)
+## Estado vivo (2026-10-08T01:15Z, no verificado)
 
 ## Veredictos
 
@@ -72,8 +73,8 @@ Film activo: `consta` · engineHash `656792dc0ea6ea6163721a83be26c735a2489f71999
 
 - `backup/pre-limpieza` (+136 commits)
 - `diagramas` (+5 commits)
-- `film-consta` (+7 commits)
-- `film-veinticuatro` (+5 commits)
+- `film-consta` (+8 commits)
+- `film-veinticuatro` (+6 commits)
 - `gobernanza` (+96 commits)
 - `harness` (+101 commits)
 - `medios` (+57 commits)
@@ -99,11 +100,11 @@ Film activo: `consta` · engineHash `656792dc0ea6ea6163721a83be26c735a2489f71999
 
 ## Último run de tests
 
-- 2026-10-08T01:05:09.395Z: 4 fallos (perfil quick)
+- 2026-10-08T01:14:38.560Z: todo verde (perfil quick)
 
 ## Ledger
 
-- cadena: íntegra · 26 entradas (26 encadenadas, 0 heredadas, 0 firmadas) · códigos 100 %
+- cadena: íntegra · 27 entradas (27 encadenadas, 0 heredadas, 0 firmadas) · códigos 100 %
 
 ## Presupuestos
 
