@@ -727,6 +727,7 @@
         { "id": "kraft", "def": "tinta negra de estampa sobre cartón de estraza", "forbid": [] },
         { "id": "pizarra", "def": "tiza sobre pizarra con borrado parcial", "forbid": [] },
         { "id": "tecnico", "def": "plano técnico azul con cuadrícula, cotas y HUD", "forbid": [] },
+        { "id": "tecnico_plano", "def": "lámina técnica de diagramas: cianotipia con cuadrícula milimetrada, HUD de plano (revisión, hoja) y trazo limpio; para esquemas del propio sistema", "forbid": [] },
         { "id": "tecnico_bermellon", "def": "plano técnico azul con acento bermellón (redline de ingeniero) en vez del ámbar", "forbid": [] },
         { "id": "neon", "def": "tubos de luz sobre muro mojado con parpadeo y reflejo", "forbid": [] },
         { "id": "neon_pulso", "def": "neón del reel: letrero roto de tubos lima y magenta sobre ladrillo ciruela, con parpadeo, zumbido y suelo mojado", "forbid": [] }
