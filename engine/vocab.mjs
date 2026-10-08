@@ -2,11 +2,11 @@
 // Vocabulario controlado versionado (spec 006; research/10-rosetta.md: vocabulario cerrado + guardas deterministas, NO compresión por LLM).
 //   node engine/vocab.mjs list [sección] | canon <palabra> | lint [--json] | sync | refs <original> <derivado>
 // Fuente: data/vocab.json. Cada término = {id, def, forbid:[sinónimos prohibidos]}. Puro salvo carga/lint (fs).
-import { isMain } from './paths.mjs';
+import { isMain, rootFrom } from './paths.mjs';
 import fs from 'node:fs';
 import path from 'node:path';
 
-export const ROOT = path.resolve(path.dirname(new URL(import.meta.url).pathname), '..');
+export const ROOT = rootFrom(import.meta.url);
 export const VOCAB = JSON.parse(fs.readFileSync(path.join(ROOT, 'data/vocab.json'), 'utf8'));
 export const VERSION = VOCAB.version;
 const S = VOCAB.sections;
@@ -95,7 +95,15 @@ export const reasonCode = (text) => REASONS.find(([re]) => re.test(String(text))
 export async function syncMetrics() {
   const { REGISTRY } = await import('./metrics/registry.mjs'), old = new Map(S.metric.terms.map((t) => [t.id, t]));
   S.metric.terms = REGISTRY.map((m) => ({ id: m.id, def: old.get(m.id)?.def ?? m.name, forbid: old.get(m.id)?.forbid ?? [] }));
-  fs.writeFileSync(path.join(ROOT, 'data/vocab.json'), JSON.stringify(VOCAB, null, 1) + '\n'); return S.metric.terms.length;
+  const f = path.join(ROOT, 'data/vocab.json'), txt = fs.readFileSync(f, 'utf8'), out = spliceTerms(txt, 'metric', S.metric.terms);
+  if (out !== txt) fs.writeFileSync(f, out); return S.metric.terms.length;
+}
+// Reescribe SOLO el arreglo "terms" de una sección (indent 2, como el resto del archivo): el resto de bytes (líneas compactadas a mano) queda intacto.
+export function spliceTerms(txt, sec, termList) {
+  const a = txt.indexOf(`\n    "${sec}": {`), b = a < 0 ? -1 : txt.indexOf('\n      "terms": [', a), c = b < 0 ? -1 : txt.indexOf('\n      ]', b);
+  if (c < 0) throw new Error(`vocab sync: no encuentro "terms" de la sección ${sec}`);
+  const body = JSON.stringify(termList, null, 2).split('\n').map((l) => '      ' + l).join('\n').trimStart();
+  return txt.slice(0, b) + '\n      "terms": ' + body + txt.slice(c + '\n      ]'.length);
 }
 
 if (isMain(import.meta.url)) {

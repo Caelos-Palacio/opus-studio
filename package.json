@@ -11,6 +11,8 @@
   "scripts": {
     "test": "node test/run.mjs",
     "test:fast": "node test/run.mjs --fast",
+    "test:full": "node test/run.mjs --full",
+    "test:nightly": "node test/run.mjs --full --times",
     "golden": "node test/golden.mjs",
     "golden:update": "node test/golden.mjs --update",
     "validate": "node engine/lint.mjs --only validate",
@@ -25,6 +27,7 @@
     "review": "node engine/cut.mjs --review",
     "master": "node engine/cut.mjs",
     "use": "node engine/opus.mjs use",
+    "new": "node engine/opus.mjs new",
     "peek": "node engine/peek.mjs",
     "ab": "node engine/ab.mjs",
     "plan": "node engine/cut.mjs --plan",

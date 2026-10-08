@@ -23,7 +23,7 @@ export const sibling = (name, fallback, tl) => { const d = filmDir(tl); return d
 import fs from 'node:fs';
 import { fileURLToPath } from 'node:url';
 const FROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
-export const USE_FILE = path.join(FROOT, 'out/.film');
+export const USE_FILE = process.env.OPUS_USE_FILE || path.join(FROOT, 'out/.film');   // OPUS_USE_FILE: ruta alternativa (los tests aíslan el film fijado del usuario)
 const readUse = () => { try { return fs.readFileSync(USE_FILE, 'utf8').trim() || null; } catch { return null; } };
 export function resolveFilm({ argv = process.argv, env = process.env } = {}) {
   const i = argv.indexOf('--timeline'), flag = i >= 0 && argv[i + 1] && !argv[i + 1].startsWith('--') ? argv[i + 1] : null;

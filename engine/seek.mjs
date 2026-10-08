@@ -2,7 +2,7 @@
 import { clamp, stepT, onT } from './core.mjs';
 import { makeApi } from './api.mjs';
 import { camState, applyCam } from './camera.mjs';
-import { applyGrade } from './grade.mjs';
+import { applyGrade, applyGrain } from './grade.mjs';
 import { resolveStyle, deepMerge } from './styles.mjs';
 import { releasePool } from './fx.mjs';
 import { nodeWorld, drawScene } from './scene.mjs';
@@ -41,14 +41,17 @@ export const shotBeats = (film, s) => film.beatTimes.filter((b) => b >= s.t[0] -
 
 // Un frame. Cámara por shot (un movimiento, con parallax por profundidad; puede seguir un nodo) → grade global.
 // Devuelve las cajas registradas (boxes.meta = metadatos de primitivas/nodos). tOut = tiempo de SALIDA (edición).
-export function seek(ctx, tOut, film, { grade = true } = {}) {
+// alpha (export con canal alfa, `cut --alpha`): false | true | 'grain'. Quita el FONDO (papel/soporte, capas de parallax, capas en primer plano del medio) y el
+// POST de pantalla (grade: bloom/viñeta/fundido/letterbox/color) para dejar solo el sujeto y el texto sobre transparente; 'grain' conserva el grano del estilo sobre el sujeto.
+export function seek(ctx, tOut, film, { grade = true, alpha = false } = {}) {
   const tReal = film.timeMap ? film.timeMap(tOut) : tOut;                  // EDL: remapeo de tiempo sin pérdida (se re-renderiza)
   const tStep = stepT(tReal, film);                                        // stop-motion: solo el dibujo se cuantiza
   ctx.save();
   const m = ctx.getTransform(), B = { a: m.a, b: m.b, c: m.c, d: m.d, e: m.e, f: m.f };
   const out = ctx, MX = mediumState(film, ctx.canvas), act = MX && grade ? activeShots(film, tStep) : null, bgCam = MX && act?.length ? camState(act[act.length - 1], tStep, film) : { z: 1, x: 0, y: 0, r: 0, fx: 0.5, fy: 0.5 };
-  if (MX) { paintBackdrop(out, film, MX, bgCam, B); ctx = beginInk(MX, B); }                        // medio (spec 003): soporte + capas atrás; los shots dibujan en la capa de tinta
-  else { ctx.fillStyle = film.palette.paper; ctx.fillRect(0, 0, film.width, film.height); }
+  if (alpha) { out.save(); out.setTransform(1, 0, 0, 1, 0, 0); out.clearRect(0, 0, out.canvas.width, out.canvas.height); out.restore(); }
+  if (MX) { if (!alpha) paintBackdrop(out, film, MX, bgCam, B); ctx = beginInk(MX, B); }                        // medio (spec 003): soporte + capas atrás; los shots dibujan en la capa de tinta
+  else if (!alpha) { ctx.fillStyle = film.palette.paper; ctx.fillRect(0, 0, film.width, film.height); }
   const boxes = [], meta = []; boxes.meta = meta;
   for (const s of activeShots(film, tStep)) {
     const t = onT(tStep, s, film);                                         // shot.on: doses/treses solo en el dibujo (cámara a ones)
@@ -71,8 +74,9 @@ export function seek(ctx, tOut, film, { grade = true } = {}) {
     if (perf.on) { leave(); perf.shot = null; }
     ctx.restore();
   }
-  if (MX) { ctx = out; compositeInk(out, film, MX, bgCam, tReal, B, grade); if (grade) postMedium(out, film, MX, tReal); }
-  if (grade) applyGrade(ctx, film, tOut);
+  if (MX) { ctx = out; compositeInk(out, film, MX, bgCam, tReal, B, grade, { noOver: !!alpha }); if (grade && !alpha) postMedium(out, film, MX, tReal); }
+  if (alpha) { if (alpha === 'grain' && grade) { ctx.globalCompositeOperation = 'source-atop'; applyGrain(ctx, film, tOut); ctx.globalCompositeOperation = 'source-over'; } }
+  else if (grade) applyGrade(ctx, film, tOut);
   ctx.restore();
   releasePool(film);
   return boxes;

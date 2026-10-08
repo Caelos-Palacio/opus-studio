@@ -10,7 +10,7 @@ import { rootFrom } from './paths.mjs';
 
 export const ROOT = rootFrom(import.meta.url);
 export const INDEX_FILE = 'data/tools.index.json', META_FILE = 'data/tools.meta.json', EVAL_FILE = 'data/tools.eval.json';
-export const KINDS = ['cli', 'prim', 'dsl', 'estilo', 'medio', 'sonido', 'voz', 'metrica', 'check', 'fondo', 'objeto'];
+export const KINDS = ['cli', 'prim', 'dsl', 'estilo', 'medio', 'sonido', 'voz', 'metrica', 'check', 'fondo', 'objeto', 'receta'];
 export const PARAM_TYPES = ['number', 'integer', 'string', 'color', 'boolean', 'enum', 'json'];
 export const tokens = (s) => Math.ceil(String(s).length / 4);
 const rd = (root, p) => { try { return JSON.parse(fs.readFileSync(path.join(root, p), 'utf8')); } catch { return null; } };
@@ -102,16 +102,22 @@ function genChecks(root) {
   return out;
 }
 
+// Recetas (spec 016): catálogo de data/recetas/ → receta:<id>. Tolerante: sin engine/recetas.mjs o sin recetas no hay entradas.
+async function loadRecetas(root, warnings) {
+  const f = path.join(root, 'engine/recetas.mjs'); if (!fs.existsSync(f) || !fs.existsSync(path.join(root, 'data/recetas'))) return [];
+  try { return (await import(pathToFileURL(f).href)).entradasRegistro(root); } catch (e) { warnings.push(`recetas: ${String(e.message).slice(0, 80)}`); return []; }
+}
+
 // Fusiona generado + curado (overlay) → entradas completas y ordenadas.
-const DEFAULT_COSTE = { cli: '~5 s; ~300 tok', prim: 'por fotograma; 0 tok', dsl: 'por fotograma; 0 tok', estilo: '0', medio: '0', sonido: 'mezcla 10–20 s', voz: '0', metrica: '~10–60 s por film', check: 'incluido en el lint', fondo: 'por fotograma', objeto: 'por fotograma' };
-const DEFAULT_NEXT = { prim: ['cli:lint'], dsl: ['cli:dsl.build'], estilo: ['cli:lint'], medio: ['cli:peek'], sonido: ['cli:sound'], voz: ['cli:sound'], metrica: ['cli:metrics'], check: ['cli:lint'], fondo: ['cli:peek'], objeto: ['cli:peek'], cli: [] };
+const DEFAULT_COSTE = { cli: '~5 s; ~300 tok', prim: 'por fotograma; 0 tok', dsl: 'por fotograma; 0 tok', estilo: '0', medio: '0', sonido: 'mezcla 10–20 s', voz: '0', metrica: '~10–60 s por film', check: 'incluido en el lint', fondo: 'por fotograma', objeto: 'por fotograma', receta: 'copia ≤25 líneas; el agente solo llena huecos' };
+const DEFAULT_NEXT = { prim: ['cli:lint'], dsl: ['cli:dsl.build'], estilo: ['cli:lint'], medio: ['cli:peek'], sonido: ['cli:sound'], voz: ['cli:sound'], metrica: ['cli:metrics'], check: ['cli:lint'], fondo: ['cli:peek'], objeto: ['cli:peek'], receta: ['check:receta.hueco'], cli: [] };
 export async function buildRegistry({ root = ROOT } = {}) {
   const warnings = [], meta = rd(root, META_FILE) ?? {}, by = new Map();
   const add = (e) => { if (e && !by.has(e.id)) by.set(e.id, e); };
   genCli(root).forEach(add);
   const P = await genProms(root); P.out.forEach(add); if (P.warn) warnings.push(P.warn);
   const D = await genDsl(root); D.out.forEach(add); if (D.warn) warnings.push(D.warn);
-  [...genJsonDir(root, 'styles', 'estilo'), ...genJsonDir(root, 'styles/medios', 'medio'), ...genJsonDir(root, 'styles/sound', 'sonido'), ...await genVoces(root), ...await genMetricas(root), ...genChecks(root), ...await loadExt(root, warnings)].forEach(add);
+  [...genJsonDir(root, 'styles', 'estilo'), ...genJsonDir(root, 'styles/medios', 'medio'), ...genJsonDir(root, 'styles/sound', 'sonido'), ...await genVoces(root), ...await genMetricas(root), ...genChecks(root), ...await loadExt(root, warnings), ...await loadRecetas(root, warnings)].forEach(add);
   for (const [id, x] of Object.entries(meta.extra ?? {})) add({ id, kind: id.split(':')[0], resumen: x.resumen, tags: [], uso: x.cmd ?? x.uso, cmd: x.cmd, src: x.script ?? 'data/tools.meta.json' });
   for (const [id, o] of Object.entries(meta.tools ?? {})) {
     const e = by.get(id); if (!e) { warnings.push(`tools.meta.json: id desconocido "${id}"`); continue; }

@@ -27,6 +27,8 @@ Todas registran cajas (lint) y metadatos (índice). Todas son funciones puras de
 | `api.p3(x, y, z) → [sx, sy, k]` | Proyección en perspectiva alrededor del foco de cámara (z>0 = lejos). k = escala. |
 | `api.card3d({x,y,w,h, rx, ry, z}, (ctx, api) => ...)` | Tarjeta con giro 3D real (homografía por malla) — ≤ 60° legible. |
 | `api.atmos(z) → {alpha, blur}` | Perspectiva atmosférica y DOF del estilo para una profundidad z. |
+| `api.fondo({preset?, semilla?, ajustes?:{idCapa:{…}}, sin?:[idCapa], capas?:[{tipo, id?, alfa, mezcla, paralaje, deriva, anim:{alfa,escala,dx,dy}, …params}]}, {alfa})` | Fondo GENERATIVO como pila de capas declaradas (datos): degradados, ruido (fbm, deformado, celular, flujo), atmósfera (niebla, polvo, rayos, bokeh, estrellas, orbes), motivos (retícula, trama, rayado, semitono, motivo), luz (viñeta, foco, terminador) y temáticas (olas, acuarela, perfil). Presets temáticos con `porque` (cosmos_profundo, cuba_oscura, expediente_kraft, papel_carta_acuarela, mar_acuarela, noche_ciudad, laboratorio, taller_madera, amanecer_niebla, plano_tecnico). Determinista (semilla), con parallax por capa y animación por expresiones de t; colores por rol de la paleta del medio. Pintar PRIMERO en el shot. Catálogo: node engine/fondos-meta.mjs. |
+| `api.objeto(id, {x, y, size, rot, estado, partes, params, color, relleno, acento, flip, alfa, label}) → {x, y, w, h, <ancla>:{x,y}}` | Objeto vectorial paramétrico de la biblioteca (cilindro_metalico, campana_cristal, llave_laton, balanza_cruz, sello_tampon, acta_cuaderno, pluma, fotomultiplicador, cuba, contador, papel_continuo, lapiz, lampara_mesa, botella_vidrio, tarjeta_postal, moneda, sobre_sello, red_pesca, mapa_costero, reloj, mano, puerta, ventana, mesa, libro). `estado` = nombre o [a,b,u] (interpola), `partes` = valores animables, `params` = forma/cantidad/texto; devuelve las anclas con nombre en px. Registra foco. Trazo con la tinta del medio y relleno por rol. |
 | `api.impact(at, {frames, mode, x, y, color, rays})` | Impact frame: `frames` fotogramas (2 por defecto, a fps del film) desde `at` (s, relativo al shot). mode "invert" (negativo de todo el cuadro) | "burst" (rayos radiales desde x,y) | "both" (1.º invertido, resto rayos). Llamarlo SIEMPRE (no dentro de un if): fuera de su ventana no dibuja, pero registra el impacto para arc (presupuesto y sincronía con el audio). |
 | `api.smear(x, y, vx, vy, fn)` | Smear: estira el dibujo de fn en el eje de la velocidad (px/s) según motion.smear del estilo; no hace nada si el estilo no lo pide. Cuando estira, lo registra (arc mide segundos de smear por escena). |
 
@@ -55,6 +57,12 @@ Cámara sobre nodo: `shot.cam.track = { node, k, smooth }`.
 - **aesthetic** — coherente con el estilo declarado; sin look de plantilla (gradiente+centrado, partículas decorativas, glow gratuito)
 - **coherence** — continuidad con shots vecinos: color-rol, escala, dirección, motivo
 - **clarity** — se entiende sin sonido; el texto se lee; la idea del shot es inequívoca
+
+## Export para compositores externos (`cut --prores`, F6)
+- `node engine/cut.mjs --prores` → `out/<film>.prores.mov`: ProRes 4444 (`prores_ks`, `yuva444p10le`, bt709) con el aspecto completo del film (opaco) y el audio en PCM 48 kHz.
+- `--alpha` (implica `--prores`) → `out/<film>.alpha.mov`: **fondo transparente**. Se QUITA: papel/soporte del medio, capas de parallax y de primer plano del medio, y el post de pantalla (bloom, aberración, viñeta, fundido, letterbox, grade de color). Se QUEDA: lo que dibujan los shots (sujeto, texto, capas fx propias del shot) y la tinta del medio (erosión, temblor, halos, reflejo). `--alpha-grain` conserva además el grano del estilo, solo sobre el sujeto.
+- `--shot ID` exporta solo ese shot (y los que se solapan con él) con el audio recortado: `out/<film>.<ID>.alpha.mov`.
+- Pasa por el mismo gate que el master (`--force "razón"`); los fragmentos viven en `out/fragments/<film>.{prores|alpha}[.<ID>]/` y no tocan la caché del master mp4. Un shot que pinta su propio fondo a pantalla completa lo conserva: el alfa solo borra lo que el motor añade.
 
 ## Claves de estilo nuevas en v4
 ```json

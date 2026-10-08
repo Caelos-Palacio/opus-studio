@@ -6,6 +6,13 @@ import path from 'node:path';
 import { spawn } from 'node:child_process';
 
 export const ROOT = rootFrom(import.meta.url);
+// Aislamiento del film activo: la suite nunca debe depender de out/.film ni de OPUS_TIMELINE del usuario (`npm run use -- <film>`).
+// (OPUS_TIMELINE heredado lo limpia run.mjs, no aquí: los workers de los tests lo reciben a propósito del padre.)
+// OPUS_USE_FILE apunta a una ruta inexistente (se hereda en todos los procesos hijos); los tests que prueban `use` la sobreescriben con ''.
+process.env.OPUS_USE_FILE ||= path.join(os.tmpdir(), `opus-nofilm-${process.pid}`, '.film');
+// Perfil de la suite (test/suites.mjs): run.mjs lo pasa en OPUS_TEST_PROFILE ('fast' | 'quick' | 'full'). Un test suelto sin perfil = 'full' (como siempre).
+export const PROFILE = process.env.OPUS_TEST_PROFILE || (process.argv.includes('--fast') ? 'fast' : 'full');
+export const FULL = PROFILE === 'full';
 export const FONTS_CONF = path.join(ROOT, 'test/golden/fonts.conf');
 // Solo lo que el motor lee al renderizar/lintar/montar. Antes se copiaba TODO el repo (incluidos docs/, test/ y, en el
 // checkout principal, .claude/worktrees/* con sus copias enteras): lento y frágil.

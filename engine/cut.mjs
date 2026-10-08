@@ -2,6 +2,10 @@
 // Sala de montaje. El film se trocea en FRAGMENTOS (segmentos entre cortes limpios) con hash de contenido:
 // solo se re-renderiza lo que cambió. El master es un concat sin recodificar + audio.
 //   node engine/cut.mjs [--review] [--fps N] [--size WxH] [--workers N] [--chunk 120] [--edit data/edit.json] [--plan]
+//   --prores [--alpha [--alpha-grain]] [--shot ID] : F6, export ProRes 4444 (.mov, yuva444p10le) para compositores externos. --alpha quita el FONDO
+//     (papel/soporte del medio, parallax, capas en primer plano) y el post de pantalla (bloom, viñeta, fundido, letterbox, color) y deja sujeto + texto sobre
+//     alfa real; --alpha-grain conserva el grano del estilo sobre el sujeto. --shot ID exporta solo ese shot (y los que se solapan en él). Salida
+//     out/<film>[.<shot>].{prores|alpha}.mov; fragmentos aparte en out/fragments/<film>.{prores|alpha}/ (no tocan la caché del master mp4).
 //   --plan : muestra qué fragmentos están en caché y cuáles se renderizarían (no renderiza)
 //   master (sin --review) exige lint SHIP vigente + crítico sin FIX (engine/gate.mjs); si no, falla salvo --force "razón" (queda en el ledger).
 // Concurrencia (F1): cada fragmento se renderiza a un archivo de staging y SOLO se registra si el hash del plan sigue igual tras el
@@ -43,9 +47,9 @@ export const DEFAULT_PRESET = 'faster';
 // Troceo (spec 009): un fragmento por shot de 285 fotogramas a 160 ms/fotograma era el camino crítico del master (46 s de 125 s con 12 núcleos casi ociosos). Con trozos de ≤120
 // fotogramas el reparto es casi perfecto; se encolan los más largos primero (LPT). Los fragmentos se concatenan sin recodificar: mismos píxeles, el chunk entra en el hash.
 export const DEFAULT_CHUNK = 120;
-export function plan(film, { fps, size, chunk = DEFAULT_CHUNK, preset = DEFAULT_PRESET }) {
+export function plan(film, { fps, size, chunk = DEFAULT_CHUNK, preset = DEFAULT_PRESET, mode = '', shot = null }) {   // mode: '' (h264) | 'prores' | 'alpha' | 'alpha-grain'
   const engine = sha(engineSig(), JSON.stringify(film.S), ...(film.medium ? [JSON.stringify(film.medium)] : []), fontSig([film.S.typeface]), ...(usesWorld3d(film.shots.map((s) => s.id)) ? [world3dSig()] : []));   // spec 004: backend GL + Mesa en el hash solo si el film usa world3d
-  const glob = sha(engine, assetsSig(), film.audioInfo ?? null, film.width, film.height, film.duration, film.fps, film.motif, film.handoffs, film.profileName, film.P, fps, size, film.edit?.items ?? null, ...(preset !== 'medium' ? [preset] : []));
+  const glob = sha(engine, assetsSig(), film.audioInfo ?? null, film.width, film.height, film.duration, film.fps, film.motif, film.handoffs, film.profileName, film.P, fps, size, film.edit?.items ?? null, ...(mode ? ['out:' + mode] : preset !== 'medium' ? [preset] : []));
   const N = Math.round(film.duration * fps) + 1, jobs = [];
   // F4 cookKey: entrada RESUELTA del shot (params tras capas + señales que usa; sin meta) + la de los shots cuyo código
   // importa (sus entidades leen los parámetros de ese shot: A2 hereda el punto de A1).
@@ -57,6 +61,12 @@ export function plan(film, { fps, size, chunk = DEFAULT_CHUNK, preset = DEFAULT_
     const h = sha(glob, shots.map(entry), shots.map(ac), prevChain, imported, ids.map((id) => shotDeps(id)), extra ?? '');
     for (let x = a; x < b; x += chunk) { const y = Math.min(b, x + chunk), id = `${ids.join('+')}${b - a > chunk ? '.' + Math.floor((x - a) / chunk) : ''}`; jobs.push({ id, shots: ids, a: x, b: y, hash: sha(h, x, y) }); }
   };
+  if (shot) {                                                               // un solo shot (y los que se solapan en su rango)
+    const s = film.shots.find((x) => x.id === shot); if (!s) throw new Error(`--shot ${shot}: no existe en el timeline`); if (film.edit) throw new Error('--shot no se combina con montaje (EDL)');
+    const a = Math.round(s.t[0] * fps), b = Math.min(N, Math.round(s.t[1] * fps));
+    push(a, b, film.shots.filter((x) => x.t[0] < s.t[1] && x.t[1] > s.t[0]).map((x) => x.id), { shot });
+    return { jobs, N: b - a, glob, a0: a };
+  }
   if (film.edit) {                                                          // montaje: un fragmento por ítem de la EDL
     let f0 = 0; film.edit.items.forEach((it, i) => { const f1 = i === film.edit.items.length - 1 ? N : Math.round((it.a + it.len + it.hold) * fps);
       const ids = film.shots.filter((s) => s.t[0] < it.t1 && s.t[1] > it.t0).map((s) => s.id); push(f0, f1, ids, { item: i, it }); f0 = f1; });
@@ -82,18 +92,21 @@ export async function commitFragment(stage, final, j, opts, film = null) {
 // Staging y .part.mp4 huérfanos: de un pid muerto (este host) o, sin pid, con más de 1 h.
 export function cleanPartials(dir) {
   for (const f of fs.existsSync(dir) ? fs.readdirSync(dir) : []) {
-    if (!/\.(part|tmp)\.mp4$/.test(f)) continue;
+    if (!/\.(part|tmp)\.(mp4|mov)$/.test(f)) continue;
     const m = f.match(/\.stage-(\d+)-/), q = path.join(dir, f);
     try { if (m ? !alive(+m[1]) : Date.now() - fs.statSync(q).mtimeMs > 3600e3) fs.rmSync(q, { force: true }); } catch {}
   }
 }
 
 async function main() {
-  const film = await loadFilm(), review = has('--review'), name = filmName() + (film.edit ? '.edit' : '');
+  const film = await loadFilm(), review = has('--review'), alphaOn = has('--alpha'), prores = has('--prores') || alphaOn, shotId = arg('--shot', null);
+  const mode = !prores ? '' : alphaOn ? (has('--alpha-grain') ? 'alpha-grain' : 'alpha') : 'prores', ext = prores ? 'mov' : 'mp4';
+  if (shotId && !prores) throw new Error('--shot solo con --prores/--alpha (el master h264 es del film entero)');
+  const base = filmName() + (film.edit ? '.edit' : ''), name = base + (mode ? '.' + (alphaOn ? 'alpha' : 'prores') : '') + (shotId ? '.' + shotId : '');
   if (review && process.env.OPUS_FXFAST !== '0') { film.P.fxFast = true; process.env.OPUS_FXFAST = '1'; }   // R3 (spec 009): review/preview con fx rápidos (los workers lo heredan); el master NO
   const fps = +arg('--fps', review ? 12 : film.fps), size = arg('--size', review ? `${Math.round((540 * film.width) / film.height / 2) * 2}x540` : `${film.width}x${film.height}`);
   const dir = path.join(ROOT, 'out/fragments', name); fs.mkdirSync(dir, { recursive: true });
-  const preset = arg('--preset', process.env.OPUS_PRESET ?? DEFAULT_PRESET), opts = { fps, size, chunk: +arg('--chunk', DEFAULT_CHUNK), preset }, P = plan(film, opts), file = (j) => path.join(dir, `${j.id}_${j.hash}_${fps}_${size}.mp4`);
+  const preset = arg('--preset', process.env.OPUS_PRESET ?? DEFAULT_PRESET), opts = { fps, size, chunk: +arg('--chunk', DEFAULT_CHUNK), preset, mode, shot: shotId }, P = plan(film, opts), file = (j) => path.join(dir, `${j.id}_${j.hash}_${fps}_${size}.${ext}`);
   const todo = P.jobs.filter((j) => !fs.existsSync(file(j)));
   console.log(`${film.edit ? 'montaje' : 'film'} "${name}" · ${P.N} frames @${fps} ${size} · ${P.jobs.length} fragmentos · ${P.jobs.length - todo.length} en caché · ${todo.length} por renderizar`);
   if (has('--plan')) { for (const j of P.jobs) console.log(`  ${fs.existsSync(file(j)) ? '✓' : '·'} ${j.id.padEnd(14)} [${j.a},${j.b})  ${j.hash}`); return; }
@@ -104,15 +117,15 @@ async function main() {
   cleanPartials(dir);
   const threads = arg('--threads', process.env.OPUS_THREADS ?? 'auto'), workers = +arg('--workers', Math.max(1, os.cpus().length)), q = [...todo], render = path.join(ROOT, 'engine/render.mjs'); q.sort((a, b) => (b.b - b.a) - (a.b - a.a));   // LPT: lo más largo primero
   const run = (j) => new Promise((res, rej) => {
-    const stage = path.join(dir, `.${j.id}_${j.hash}.stage-${process.pid}-${Math.random().toString(36).slice(2, 8)}.tmp.mp4`);
-    const p = spawn(process.execPath, [render, '--range', `${j.a}:${j.b}`, '--fps', String(fps), '--size', size, '--out', stage, '--crf', review ? '23' : String(film.medium?.encode?.crf ?? 16), '--preset', preset, '--threads', String(threads === 'auto' ? workerThreads(Math.min(workers, todo.length)) : +threads || 0)], { stdio: 'inherit', env: process.env });
-    p.on('close', async (c) => { if (c !== 0) { fs.rmSync(stage, { force: true }); fs.rmSync(stage + '.part.mp4', { force: true }); return rej(new Error('fragmento falló ' + j.id)); }
+    const stage = path.join(dir, `.${j.id}_${j.hash}.stage-${process.pid}-${Math.random().toString(36).slice(2, 8)}.tmp.${ext}`);
+    const p = spawn(process.execPath, [render, '--range', `${j.a}:${j.b}`, '--fps', String(fps), '--size', size, '--out', stage, '--crf', review ? '23' : String(film.medium?.encode?.crf ?? 16), '--preset', preset, ...(mode ? ['--prores'] : []), ...(alphaOn ? ['--alpha', has('--alpha-grain') ? 'grain' : 'on'] : []), '--threads', String(threads === 'auto' ? workerThreads(Math.min(workers, todo.length)) : +threads || 0)], { stdio: 'inherit', env: process.env });
+    p.on('close', async (c) => { if (c !== 0) { fs.rmSync(stage, { force: true }); fs.rmSync(stage + '.part.' + ext, { force: true }); return rej(new Error('fragmento falló ' + j.id)); }
       try { if (await commitFragment(stage, file(j), j, opts)) console.log('  ✓', j.id, `[${j.a},${j.b})`); else console.log('  ✗', j.id, 'cambió durante el render: descartado (relanza)'); res(); } catch (e) { rej(e); } });
   });
   if (has('--max-chunks')) q.splice(+arg('--max-chunks'));
   await Promise.all(Array.from({ length: workers }, async () => { while (q.length) await run(q.shift()); }));
   if (P.jobs.some((j) => !fs.existsSync(file(j)))) return console.log('Fragmentos pendientes: relanza el mismo comando (los hechos se saltan).');
-  const raw = path.join(ROOT, 'out', `${name}${review ? '.review' : ''}.${process.pid}_raw.mp4`);
+  const raw = path.join(ROOT, 'out', `${name}${review ? '.review' : ''}.${process.pid}_raw.${ext}`);
   const stale = await withLock(`fragments/${name}`, async () => {                // manifest + huérfanos + list + concat: un agente a la vez
     const now = plan(await loadFilm(), opts);                                    // re-verificación DENTRO del lock
     if (now.jobs.length !== P.jobs.length || now.jobs.some((j, i) => j.hash !== P.jobs[i].hash)) return true;
@@ -121,7 +134,7 @@ async function main() {
     writeAtomic(path.join(dir, 'manifest.json'), JSON.stringify({ film: name, fps, size, frames: P.N, fragments: P.jobs.map((j) => ({ ...j, file: path.relative(ROOT, file(j)), t: [j.a / fps, j.b / fps] })) }, null, 1));
     // limpieza: fragmentos de este film/tamaño/fps que ya no pertenecen al plan (vigente, verificado bajo lock)
     const keep = new Set(P.jobs.map((j) => path.basename(file(j))));
-    for (const f of fs.readdirSync(dir)) if (f.endsWith(`_${fps}_${size}.mp4`) && !keep.has(f)) fs.rmSync(path.join(dir, f), { force: true });
+    for (const f of fs.readdirSync(dir)) if (f.endsWith(`_${fps}_${size}.${ext}`) && !keep.has(f)) fs.rmSync(path.join(dir, f), { force: true });
     cleanPartials(dir);
     const list = path.join(dir, `list.${process.pid}.txt`); fs.writeFileSync(list, P.jobs.map((j) => `file '${file(j)}'`).join('\n'));
     try { await sh(['-y', '-loglevel', 'error', '-f', 'concat', '-safe', '0', '-i', list, '-c', 'copy', raw]); } finally { fs.rmSync(list, { force: true }); }
@@ -137,7 +150,7 @@ async function main() {
     audio = path.join(ROOT, 'out', `${name}.${process.pid}_audio.wav`);
     await sh(['-y', '-loglevel', 'error', '-i', mixf, '-filter_complex', parts.join(';') + ';' + film.edit.items.map((_, i) => `[a${i}]`).join('') + `concat=n=${film.edit.items.length}:v=0:a=1[o]`, '-map', '[o]', audio]);
   }
-  const final = path.join(ROOT, masterFile(name, review));
+  const final = path.join(ROOT, prores ? masterFile(base + (shotId ? '.' + shotId : ''), review).replace(/\.mp4$/, `.${alphaOn ? 'alpha' : 'prores'}.mov`) : masterFile(name, review));
   // Soundtrack v2 (spec 002): la mezcla ya sale masterizada (−14 LUFS, LRA ≥8, TP ≤ −1,5). loudnorm con LRA=7 la comprimiría (modo dinámico
   // cuando LRA > 7), así que se respeta tal cual. En montaje (EDL) el audio se recorta/re-temporiza y vuelve al camino clásico.
   let mastered = false; try { mastered = !film.edit && !!JSON.parse(fs.readFileSync(path.join(ROOT, `out/sfx${mixName()}.json`), 'utf8')).mastered; } catch {}
@@ -148,8 +161,9 @@ async function main() {
     silent = !Number.isFinite(+js.input_i);
     af = silent ? 'anull' : `loudnorm=I=-14:LRA=7:TP=-1:measured_I=${js.input_i}:measured_LRA=${js.input_lra}:measured_TP=${js.input_tp}:measured_thresh=${js.input_thresh}:offset=${js.target_offset}:linear=true`;
   }
-  const tmpFinal = final.replace(/\.mp4$/, `.${process.pid}.tmp.mp4`);             // el master aparece completo o no aparece
-  try { await sh(['-y', '-loglevel', 'error', '-i', raw, '-i', audio, '-t', String(film.duration), '-c:v', 'copy', '-c:a', 'aac', '-b:a', mastered ? '256k' : '192k', '-ar', '48000', '-af', af, '-movflags', '+faststart', tmpFinal]); fs.renameSync(tmpFinal, final); }
+  const tmpFinal = final.replace(/\.(mp4|mov)$/, `.${process.pid}.tmp.${ext}`);             // el master aparece completo o no aparece
+  const dur = shotId ? P.N / fps : film.duration, aSS = shotId ? ['-ss', String(P.a0 / fps)] : [];   // --shot: audio recortado al rango del shot
+  try { await sh(['-y', '-loglevel', 'error', '-i', raw, ...aSS, '-i', audio, '-t', String(dur), '-c:v', 'copy', ...(prores ? ['-c:a', 'pcm_s16le', '-ar', '48000', '-af', af] : ['-c:a', 'aac', '-b:a', mastered ? '256k' : '192k', '-ar', '48000', '-af', af, '-movflags', '+faststart']), tmpFinal]); fs.renameSync(tmpFinal, final); }
   finally { fs.rmSync(raw, { force: true }); fs.rmSync(tmpFinal, { force: true }); if (audio !== mixf) fs.rmSync(audio, { force: true }); }
   record({ action: review ? 'review' : 'master', target: path.relative(ROOT, final), hash_after: sha(P.jobs.map((j) => j.hash)), verdict: 'ok' });
   console.log('→', path.relative(ROOT, final), silent ? '(audio silencioso)' : mastered ? '(mezcla v2 masterizada, −14 LUFS)' : '(−14 LUFS)');

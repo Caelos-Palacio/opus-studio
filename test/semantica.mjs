@@ -37,6 +37,11 @@ const { REGISTRY } = await import('../engine/metrics/registry.mjs');
   const mm = await import('../engine/memoria.mjs');
   ok('V2b memoria.mjs importa sus enums de vocab', eq(mm.MEMORIA_SCHEMA.$defs.rol.enum, V.terms('memory.role')) && eq(mm.ROLES, V.terms('memory.role')));
   ok('V3 ids de métricas: registry == vocab', eq(REGISTRY.map((m) => m.id).sort(), V.terms('metric').slice().sort()), 'node engine/vocab.mjs sync');
+  { // V3b: sync preserva el formato (cero bytes de diferencia sobre el archivo actual) y solo toca la sección metric
+    const txt = fs.readFileSync(path.join(ROOT, 'data/vocab.json'), 'utf8'), same = V.spliceTerms(txt, 'metric', V.VOCAB.sections.metric.terms);
+    const mod = V.spliceTerms(txt, 'metric', [...V.VOCAB.sections.metric.terms, { id: 'x.nueva', def: 'd', forbid: [] }]), j = JSON.parse(mod);
+    ok('V3b vocab sync: serialización estable (0 bytes de cambio) y edición confinada a metric', same === txt && j.sections.metric.terms.at(-1).id === 'x.nueva' && mod.replace(/,\n\s*\{\s*"id": "x\.nueva"[^}]*\}/, '') === txt, 'engine/vocab.mjs spliceTerms');
+  }
   ok('V4 canon: sinónimo prohibido → canónico; canónico → sí mismo; desconocido → null', V.canon('clímax') === 'pico' && V.canon('Pico') === 'pico' && V.canon('banda sonora') === 'soundtrack' && V.canon('xyzzy') === null && V.canon('revelacion', 'concept.kind') === 'revelación');
   const f = V.lintText('el clímax llega\nuna «toma» citada\nel pico\n`climax` en código\n<!-- vocab-ok --> toma\ntoma suelta', { file: 'x.md' });
   ok('V5 lintText: línea, término y canónico; exime citas, código y vocab-ok', f.length === 2 && f[0].line === 1 && f[0].canonical === 'pico' && f[1].line === 6 && f[1].canonical === 'shot', JSON.stringify(f));
