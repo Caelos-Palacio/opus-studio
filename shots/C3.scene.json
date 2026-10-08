@@ -1,0 +1,213 @@
+{
+ "dsl": 1,
+ "id": "C3",
+ "doc": "[receta:documento] la hoja recibe dos líneas escritas y, al final, un sello.",
+ "params": {
+  "sellaEn": {
+   "type": "number",
+   "range": [
+    1,
+    8
+   ],
+   "unit": "s",
+   "default": 6.2,
+   "semantic": "cuándo cae el sello"
+  }
+ },
+ "camera": {
+  "move": "push",
+  "why": "approach",
+  "amount": 0.04
+ },
+ "transition": {
+  "out": "cut"
+ },
+ "objects": [
+  {
+   "id": "fondo",
+   "type": "fondo",
+   "preset": "expediente_kraft"
+  },
+  {
+   "id": "ancla",
+   "type": "objeto",
+   "objeto": "acta_cuaderno",
+   "x": {
+    "$expr": "S_cx"
+   },
+   "y": {
+    "$expr": "S_cy - 10"
+   },
+   "size": 470,
+   "partes": {
+    "escrito": {
+     "$expr": "0"
+    }
+   }
+  },
+  {
+   "id": "r1",
+   "type": "text",
+   "text": {
+    "$expr": "item(vec(\"\", \"h\", \"ha\", \"ha \", \"ha p\", \"ha pe\", \"ha per\", \"ha perd\", \"ha perdi\", \"ha perdid\", \"ha perdido\"), min(10, floor(max(0, lt - 1.0) * 10)))"
+   },
+   "x": {
+    "$expr": "S_cx - 85"
+   },
+   "y": {
+    "$expr": "S_cy - 80"
+   },
+   "role": "body",
+   "align": "left"
+  },
+  {
+   "id": "tach1",
+   "type": "shape",
+   "shape": "rect",
+   "x": {
+    "$expr": "S_cx - 85"
+   },
+   "y": {
+    "$expr": "S_cy - 84"
+   },
+   "w": {
+    "$expr": "180*seg(lt,2.4,2.9)"
+   },
+   "h": 3,
+   "color": "ink"
+  },
+  {
+   "id": "r2",
+   "type": "text",
+   "text": {
+    "$expr": "item(vec(\"\", \"h\", \"ha\", \"ha \", \"ha p\", \"ha pe\", \"ha per\", \"ha perd\", \"ha perdi\", \"ha perdid\", \"ha perdido\"), min(10, floor(max(0, lt - 3.4) * 10)))"
+   },
+   "x": {
+    "$expr": "S_cx - 85"
+   },
+   "y": {
+    "$expr": "S_cy - 30"
+   },
+   "role": "body",
+   "align": "left"
+  },
+  {
+   "id": "tach2",
+   "type": "shape",
+   "shape": "rect",
+   "x": {
+    "$expr": "S_cx - 85"
+   },
+   "y": {
+    "$expr": "S_cy - 34"
+   },
+   "w": {
+    "$expr": "180*seg(lt,4.8,5.3)"
+   },
+   "h": 3,
+   "color": "ink"
+  },
+  {
+   "id": "pluma",
+   "type": "objeto",
+   "objeto": "pluma",
+   "x": {
+    "$expr": "(S_cx - 85 + 180*(seg(lt,1,2)*(1-step(2.3,lt)) + seg(lt,2.4,2.9)*step(2.3,lt)*(1-step(3.3,lt)) + seg(lt,3.4,4.4)*step(3.3,lt)*(1-step(4.7,lt)) + seg(lt,4.8,5.3)*step(4.7,lt))) + 55 + 330*seg(lt,5.5,6.2)"
+   },
+   "y": {
+    "$expr": "(S_cy - 50 + 50*step(3.3,lt)) - 125 - 200*seg(lt,5.5,6.2)"
+   },
+   "size": 230,
+   "estado": "escribiendo"
+  },
+  {
+   "id": "sello",
+   "type": "objeto",
+   "objeto": "sello_tampon",
+   "x": {
+    "$expr": "S_cx"
+   },
+   "y": {
+    "$expr": "S_cy + 10 - 230*(1-spring(lt-6.2,\"snap\"))*step(5.9,lt)*(1-step(6.2,lt)) - 230*step(6.2,lt)*0"
+   },
+   "size": 270,
+   "params": {
+    "texto": "SIN VARIACIÓN"
+   },
+   "partes": {
+    "altura": {
+     "$expr": "1-spring(lt-6.2,\"snap\")"
+    },
+    "tinta": {
+     "$expr": "1"
+    },
+    "huella": {
+     "$expr": "step(6.3,lt)"
+    }
+   },
+   "alfa": {
+    "$expr": "step(5.9,lt)"
+   }
+  },
+  {
+   "id": "secante",
+   "type": "shape",
+   "shape": "rect",
+   "x": {
+    "$expr": "S_cx - 240 + 420*seg(lt,7.6,8.6)"
+   },
+   "y": {
+    "$expr": "S_cy - 120"
+   },
+   "w": 170,
+   "h": 210,
+   "color": "accent2",
+   "alpha": {
+    "$expr": "0.5*step(7.5,lt)*(1-seg(lt,8.8,9.2))"
+   }
+  },
+  {
+   "id": "foco",
+   "type": "focus",
+   "x": {
+    "$expr": "S_cx - 235"
+   },
+   "y": {
+    "$expr": "S_cy - 245"
+   },
+   "w": 470,
+   "h": 470,
+   "label": "el acta"
+  },
+  {
+   "id": "l1",
+   "type": "text",
+   "text": {
+    "$expr": "item(vec(\"\", \"C\", \"Co\", \"Con\", \"Cons\", \"Const\", \"Consta\", \"Consta \", \"Consta q\", \"Consta qu\", \"Consta que\", \"Consta que \", \"Consta que n\", \"Consta que no\", \"Consta que no \", \"Consta que no p\", \"Consta que no pu\", \"Consta que no pue\", \"Consta que no pued\", \"Consta que no puede\", \"Consta que no puede \", \"Consta que no puede p\", \"Consta que no puede pe\", \"Consta que no puede per\", \"Consta que no puede perd\", \"Consta que no puede perde\", \"Consta que no puede perder\", \"Consta que no puede perder \", \"Consta que no puede perder p\", \"Consta que no puede perder pe\", \"Consta que no puede perder pes\", \"Consta que no puede perder peso\", \"Consta que no puede perder peso.\"), min(32, floor(max(0, lt - 6.4) * 22)))"
+   },
+   "x": {
+    "$expr": "S_cx - 330"
+   },
+   "y": {
+    "$expr": "S_cy + 270-26"
+   },
+   "role": "body",
+   "align": "left"
+  },
+  {
+   "id": "l2",
+   "type": "text",
+   "text": {
+    "$expr": "item(vec(\"\", \"L\", \"Lo\", \"Lo \", \"Lo q\", \"Lo qu\", \"Lo que\", \"Lo que \", \"Lo que é\", \"Lo que él\", \"Lo que él \", \"Lo que él p\", \"Lo que él pe\", \"Lo que él pes\", \"Lo que él pesa\", \"Lo que él pesa,\", \"Lo que él pesa, \", \"Lo que él pesa, e\", \"Lo que él pesa, es\", \"Lo que él pesa, eso\", \"Lo que él pesa, eso \", \"Lo que él pesa, eso e\", \"Lo que él pesa, eso es\", \"Lo que él pesa, eso es \", \"Lo que él pesa, eso es u\", \"Lo que él pesa, eso es un\", \"Lo que él pesa, eso es un \", \"Lo que él pesa, eso es un k\", \"Lo que él pesa, eso es un ki\", \"Lo que él pesa, eso es un kil\", \"Lo que él pesa, eso es un kilo\", \"Lo que él pesa, eso es un kilo.\"), min(31, floor(max(0, lt - 8.0) * 20)))"
+   },
+   "x": {
+    "$expr": "S_cx - 330"
+   },
+   "y": {
+    "$expr": "S_cy + 270+14"
+   },
+   "role": "body",
+   "align": "left"
+  }
+ ]
+}

@@ -1,0 +1,80 @@
+{
+  "name": "archivo",
+  "description": "Expediente de archivo en miniatura: papel de estraza, tinta negra, un único rojo de sello; tipo mecanográfico, tiempo cuantizado a 12 fps (hecho a mano), cámara casi quieta. Humor seco y vértigo.",
+  "mood": [
+    "seco",
+    "tangible",
+    "oficial"
+  ],
+  "defaultProfile": "cinematic",
+  "palette": {
+    "paper": "#B58C5C",
+    "ink": "#1E1812",
+    "accent": "#B3261E",
+    "accent2": "#3A2A1C",
+    "shade": "#8A6A44"
+  },
+  "typeface": {
+    "family": "DejaVu Sans Mono",
+    "fallback": "monospace",
+    "weights": [
+      400,
+      700
+    ],
+    "scale": 1.5,
+    "base": 30,
+    "case": "none",
+    "tracking": 0
+  },
+  "motion": {
+    "spring": {
+      "omega": 16,
+      "zeta": 0.5
+    },
+    "ease": "outBack",
+    "stagger": 0.08,
+    "stepFps": 12,
+    "smear": 0.06
+  },
+  "camera": {
+    "amount": 0.04,
+    "slide": 0.04,
+    "ease": "inOut",
+    "maxZoomPerSec": 0.3,
+    "maxPanPerSec": 0.5,
+    "maxRotPerSec": 6,
+    "shake": 0.0008,
+    "maxShake": 0.002
+  },
+  "grade": {
+    "vignette": 0.28,
+    "grain": 0.06,
+    "letterbox": 0
+  },
+  "light": {
+    "enabled": true,
+    "az": 140,
+    "shadow": 0.3,
+    "highlight": 0.25
+  },
+  "compose": {
+    "anchor": "thirds",
+    "anchorTol": 0.14,
+    "negativeSpace": 0.4
+  },
+  "rules": {
+    "glow": false,
+    "gradients": false,
+    "maxColors": 5,
+    "maxChroma": 0.2,
+    "popRatio": 12
+  },
+  "bans": [
+    "crossfade",
+    "blur-in",
+    "glow",
+    "brightness",
+    "3d flip",
+    "flip"
+  ]
+}

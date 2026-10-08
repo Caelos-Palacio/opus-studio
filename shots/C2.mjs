@@ -1,0 +1,186 @@
+// GENERADO desde shots/C2.scene.json por `node engine/dsl.mjs build` (spec 006). No editar a mano: edita el .scene.json y regenera.
+import { shot } from '../engine/dsl-core.mjs';
+export default shot({
+ "dsl": 1,
+ "id": "C2",
+ "doc": "[receta:comparar] dos barras; la diferencia se marca con una línea y se nombra.",
+ "params": {
+  "diff": {
+   "type": "number",
+   "range": [
+    0.02,
+    1
+   ],
+   "unit": "×",
+   "default": 0.3,
+   "semantic": "inclinación"
+  },
+  "marcaEn": {
+   "type": "number",
+   "range": [
+    0,
+    4
+   ],
+   "unit": "s",
+   "default": 1.2,
+   "semantic": "cuándo se marca"
+  }
+ },
+ "camera": {
+  "move": "slide",
+  "why": "compare",
+  "dir": [
+   1,
+   0
+  ],
+  "amount": 0.03
+ },
+ "transition": {
+  "out": "cut"
+ },
+ "objects": [
+  {
+   "id": "fondo",
+   "type": "fondo",
+   "preset": "expediente_kraft"
+  },
+  {
+   "id": "ancla",
+   "type": "objeto",
+   "objeto": "balanza_cruz",
+   "x": {
+    "$expr": "S_cx"
+   },
+   "y": {
+    "$expr": "S_cy + 10"
+   },
+   "size": 460,
+   "partes": {
+    "inclinacion": {
+     "$expr": "0.12*spring(lt-0.2)"
+    },
+    "aguja": {
+     "$expr": "0.35*spring(lt-0.2)"
+    },
+    "oscilacion": {
+     "$expr": "0.5*exp(-3*lt)"
+    }
+   },
+   "fields": [
+    "platoIzq.x",
+    "platoIzq.y",
+    "platoDer.x",
+    "platoDer.y"
+   ]
+  },
+  {
+   "id": "ipk",
+   "type": "objeto",
+   "objeto": "cilindro_metalico",
+   "x": {
+    "$expr": "ancla_platoIzq_x"
+   },
+   "y": {
+    "$expr": "ancla_platoIzq_y - 38"
+   },
+   "size": 85,
+   "partes": {
+    "brillo": {
+     "$expr": "0.9"
+    }
+   }
+  },
+  {
+   "id": "copia",
+   "type": "objeto",
+   "objeto": "cilindro_metalico",
+   "x": {
+    "$expr": "ancla_platoDer_x"
+   },
+   "y": {
+    "$expr": "ancla_platoDer_y - 38"
+   },
+   "size": 85,
+   "partes": {
+    "brillo": {
+     "$expr": "0.9"
+    }
+   }
+  },
+  {
+   "id": "tK",
+   "type": "text",
+   "text": "K",
+   "x": {
+    "$expr": "ancla_platoIzq_x"
+   },
+   "y": {
+    "$expr": "ancla_platoIzq_y + 40"
+   },
+   "role": "body",
+   "align": "center",
+   "alpha": {
+    "$expr": "seg(lt,0.6,0.9)"
+   }
+  },
+  {
+   "id": "tK2",
+   "type": "text",
+   "text": "copia",
+   "x": {
+    "$expr": "ancla_platoDer_x"
+   },
+   "y": {
+    "$expr": "ancla_platoDer_y + 40"
+   },
+   "role": "body",
+   "align": "center",
+   "alpha": {
+    "$expr": "seg(lt,0.6,0.9)"
+   }
+  },
+  {
+   "id": "foco",
+   "type": "focus",
+   "x": {
+    "$expr": "S_cx - 100"
+   },
+   "y": {
+    "$expr": "S_cy - 200"
+   },
+   "w": 200,
+   "h": 60,
+   "label": "la aguja"
+  },
+  {
+   "id": "l1",
+   "type": "text",
+   "text": {
+    "$expr": "item(vec(\"\", \"C\", \"Co\", \"Con\", \"Cons\", \"Const\", \"Consta\", \"Consta \", \"Consta u\", \"Consta un\", \"Consta una\", \"Consta una \", \"Consta una d\", \"Consta una di\", \"Consta una dif\", \"Consta una dife\", \"Consta una difer\", \"Consta una difere\", \"Consta una diferen\", \"Consta una diferenc\", \"Consta una diferenci\", \"Consta una diferencia\", \"Consta una diferencia \", \"Consta una diferencia c\", \"Consta una diferencia co\", \"Consta una diferencia con\", \"Consta una diferencia con \", \"Consta una diferencia con s\", \"Consta una diferencia con su\", \"Consta una diferencia con sus\", \"Consta una diferencia con sus \", \"Consta una diferencia con sus c\", \"Consta una diferencia con sus co\", \"Consta una diferencia con sus cop\", \"Consta una diferencia con sus copi\", \"Consta una diferencia con sus copia\", \"Consta una diferencia con sus copias\", \"Consta una diferencia con sus copias:\"), min(37, floor(max(0, lt - 0.6) * 24)))"
+   },
+   "x": {
+    "$expr": "S_cx - 330"
+   },
+   "y": {
+    "$expr": "S_cy + 270-26"
+   },
+   "role": "body",
+   "align": "left"
+  },
+  {
+   "id": "l2",
+   "type": "text",
+   "text": {
+    "$expr": "item(vec(\"\", \"5\", \"50\", \"50 \", \"50 m\", \"50 mi\", \"50 mic\", \"50 micr\", \"50 micro\", \"50 microg\", \"50 microgr\", \"50 microgra\", \"50 microgram\", \"50 microgramo\", \"50 microgramos\", \"50 microgramos \", \"50 microgramos e\", \"50 microgramos en\", \"50 microgramos en \", \"50 microgramos en c\", \"50 microgramos en ci\", \"50 microgramos en cie\", \"50 microgramos en cien\", \"50 microgramos en cien \", \"50 microgramos en cien a\", \"50 microgramos en cien añ\", \"50 microgramos en cien año\", \"50 microgramos en cien años\", \"50 microgramos en cien años.\"), min(28, floor(max(0, lt - 2.0) * 20)))"
+   },
+   "x": {
+    "$expr": "S_cx - 330"
+   },
+   "y": {
+    "$expr": "S_cy + 270+14"
+   },
+   "role": "body",
+   "align": "left"
+  }
+ ]
+}, {  });

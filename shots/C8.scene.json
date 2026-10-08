@@ -1,0 +1,189 @@
+{
+ "dsl": 1,
+ "id": "C8",
+ "doc": "[receta:documento] la hoja recibe dos líneas escritas y, al final, un sello.",
+ "params": {
+  "sellaEn": {
+   "type": "number",
+   "range": [
+    1,
+    8
+   ],
+   "unit": "s",
+   "default": 4.6,
+   "semantic": "cuándo cae el sello"
+  }
+ },
+ "camera": {
+  "move": "push",
+  "why": "approach",
+  "amount": 0.04
+ },
+ "transition": {
+  "out": "cut"
+ },
+ "objects": [
+  {
+   "id": "fondo",
+   "type": "fondo",
+   "preset": "expediente_kraft"
+  },
+  {
+   "id": "ancla",
+   "type": "objeto",
+   "objeto": "acta_cuaderno",
+   "x": {
+    "$expr": "S_cx - 120"
+   },
+   "y": {
+    "$expr": "S_cy - 20"
+   },
+   "size": 470,
+   "partes": {
+    "escrito": {
+     "$expr": "0"
+    },
+    "firmadas": {
+     "$expr": "0.66"
+    }
+   }
+  },
+  {
+   "id": "c1",
+   "type": "text",
+   "text": {
+    "$expr": "item(vec(\"\", \"i\", \"in\", \"inc\", \"ince\", \"incer\", \"incert\", \"incerti\", \"incertid\", \"incertidu\", \"incertidum\", \"incertidumb\", \"incertidumbr\", \"incertidumbre\"), min(13, floor(max(0, lt - 0.6) * 16)))"
+   },
+   "x": {
+    "$expr": "S_cx - 250"
+   },
+   "y": {
+    "$expr": "S_cy - 90"
+   },
+   "role": "body",
+   "align": "left"
+  },
+  {
+   "id": "c2",
+   "type": "text",
+   "text": {
+    "$expr": "item(vec(\"\", \"1\", \"10\", \"10 \", \"10 µ\", \"10 µg\"), min(5, floor(max(0, lt - 2.0) * 6)))"
+   },
+   "x": {
+    "$expr": "S_cx - 250"
+   },
+   "y": {
+    "$expr": "S_cy - 30"
+   },
+   "role": "h2",
+   "align": "left"
+  },
+  {
+   "id": "pluma",
+   "type": "objeto",
+   "objeto": "pluma",
+   "x": {
+    "$expr": "S_cx - 250 + 14*min(0.95, 0.15*floor(max(0,lt-2.0)*6)) + 55 + 400*seg(lt,3.0,3.8)"
+   },
+   "y": {
+    "$expr": "S_cy - 110 - 250*seg(lt,3.0,3.8)"
+   },
+   "size": 230,
+   "estado": "escribiendo"
+  },
+  {
+   "id": "sello",
+   "type": "objeto",
+   "objeto": "sello_tampon",
+   "x": {
+    "$expr": "S_cx - 120"
+   },
+   "y": {
+    "$expr": "S_cy + 40 - 240*(1-seg(lt,4.6,5.4))*step(4.6,lt)*(1-step(5.4,lt)) - 240*step(5.4,lt)*seg(lt,5.4,5.8)"
+   },
+   "size": 250,
+   "params": {
+    "texto": "CONSTA"
+   },
+   "estado": "sin_tinta",
+   "alfa": {
+    "$expr": "step(4.6,lt)*(1-seg(lt,5.5,5.9))"
+   }
+  },
+  {
+   "id": "cil",
+   "type": "objeto",
+   "objeto": "cilindro_metalico",
+   "x": {
+    "$expr": "S_cx + 360"
+   },
+   "y": {
+    "$expr": "S_cy + 70"
+   },
+   "size": 160,
+   "partes": {
+    "brillo": {
+     "$expr": "0.9"
+    }
+   }
+  },
+  {
+   "id": "foco",
+   "type": "focus",
+   "x": {
+    "$expr": "S_cx - 355"
+   },
+   "y": {
+    "$expr": "S_cy - 255"
+   },
+   "w": 470,
+   "h": 470,
+   "label": "el acta"
+  },
+  {
+   "id": "l1",
+   "type": "text",
+   "text": {
+    "$expr": "item(vec(\"\", \"D\", \"De\", \"Des\", \"Desd\", \"Desde\", \"Desde \", \"Desde h\", \"Desde ho\", \"Desde hoy\", \"Desde hoy \", \"Desde hoy c\", \"Desde hoy co\", \"Desde hoy con\", \"Desde hoy cons\", \"Desde hoy const\", \"Desde hoy consta\", \"Desde hoy consta \", \"Desde hoy consta s\", \"Desde hoy consta su\", \"Desde hoy consta su \", \"Desde hoy consta su i\", \"Desde hoy consta su in\", \"Desde hoy consta su inc\", \"Desde hoy consta su ince\", \"Desde hoy consta su incer\", \"Desde hoy consta su incert\", \"Desde hoy consta su incerti\", \"Desde hoy consta su incertid\", \"Desde hoy consta su incertidu\", \"Desde hoy consta su incertidum\", \"Desde hoy consta su incertidumb\", \"Desde hoy consta su incertidumbr\", \"Desde hoy consta su incertidumbre\", \"Desde hoy consta su incertidumbre.\"), min(34, floor(max(0, lt - 0.4) * 22)))"
+   },
+   "x": {
+    "$expr": "S_cx - 330"
+   },
+   "y": {
+    "$expr": "S_cy + 270-40"
+   },
+   "role": "body",
+   "align": "left"
+  },
+  {
+   "id": "l2",
+   "type": "text",
+   "text": {
+    "$expr": "item(vec(\"\", \"P\", \"Po\", \"Por\", \"Por \", \"Por p\", \"Por pr\", \"Por pri\", \"Por prim\", \"Por prime\", \"Por primer\", \"Por primera\", \"Por primera \", \"Por primera v\", \"Por primera ve\", \"Por primera vez\", \"Por primera vez,\"), min(16, floor(max(0, lt - 2.4) * 20)))"
+   },
+   "x": {
+    "$expr": "S_cx - 330"
+   },
+   "y": {
+    "$expr": "S_cy + 270-2"
+   },
+   "role": "body",
+   "align": "left"
+  },
+  {
+   "id": "l3",
+   "type": "text",
+   "text": {
+    "$expr": "item(vec(\"\", \"c\", \"co\", \"con\", \"cons\", \"const\", \"consta\", \"consta \", \"consta q\", \"consta qu\", \"consta que\", \"consta que \", \"consta que p\", \"consta que pu\", \"consta que pue\", \"consta que pued\", \"consta que puede\", \"consta que puede \", \"consta que puede e\", \"consta que puede eq\", \"consta que puede equ\", \"consta que puede equi\", \"consta que puede equiv\", \"consta que puede equivo\", \"consta que puede equivoc\", \"consta que puede equivoca\", \"consta que puede equivocar\", \"consta que puede equivocars\", \"consta que puede equivocarse\", \"consta que puede equivocarse.\"), min(29, floor(max(0, lt - 3.3) * 20)))"
+   },
+   "x": {
+    "$expr": "S_cx - 330"
+   },
+   "y": {
+    "$expr": "S_cy + 270+36"
+   },
+   "role": "body",
+   "align": "left"
+  }
+ ]
+}
