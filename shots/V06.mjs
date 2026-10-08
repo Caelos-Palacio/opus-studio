@@ -1,0 +1,324 @@
+// GENERADO desde shots/V06.scene.json por `node engine/dsl.mjs build` (spec 006). No editar a mano: edita el .scene.json y regenera.
+import { shot } from '../engine/dsl-core.mjs';
+export default shot({
+ "dsl": 1,
+ "id": "V06",
+ "doc": "IMB: otra cuba, más fría y más azul, en una mina de sal de Ohio; ocho destellos en 5,6 s reales (11 a 19).",
+ "camera": {
+  "move": "static"
+ },
+ "transition": {
+  "out": "cut"
+ },
+ "objects": [
+  {
+   "type": "fondo",
+   "preset": "cuba_oscura",
+   "semilla": 7,
+   "ajustes": {
+    "haces": {
+     "intensidad": 0.07,
+     "color": "#9fb0ff"
+    },
+    "turbidez": {
+     "alfa": 0.2,
+     "colorB": "#2b3a9a"
+    },
+    "bruma": {
+     "color": "#1b2a7e",
+     "densidad": 0.34
+    },
+    "pmtLejanos": {
+     "brillo": 0.3,
+     "alfa": 0.5,
+     "color": "#a8b8ff",
+     "cristal": "#0b1230"
+    },
+    "pmtCercanos": {
+     "brillo": 0.4,
+     "alfa": 0.75,
+     "color": "#b9c6ff",
+     "cristal": "#0c1536"
+    },
+    "nieveMarina": {
+     "color": "#c8d2ff"
+    },
+    "vineta": {
+     "fuerza": 0.9
+    }
+   }
+  },
+  {
+   "id": "f",
+   "type": "repeat",
+   "items": [
+    [
+     0.6,
+     1057.834,
+     396.358,
+     0.342,
+     1.031,
+     1
+    ],
+    [
+     1.012,
+     815.723,
+     255.92,
+     0.283,
+     1,
+     1
+    ],
+    [
+     1.25,
+     389.938,
+     279.162,
+     0.134,
+     0.719,
+     1
+    ],
+    [
+     1.741,
+     555.561,
+     415.867,
+     0.945,
+     1.063,
+     1
+    ],
+    [
+     2.162,
+     984.096,
+     264.838,
+     0.705,
+     0.969,
+     1
+    ],
+    [
+     3.284,
+     1049.127,
+     434.449,
+     0.67,
+     0.969,
+     1
+    ],
+    [
+     5.61,
+     222.258,
+     412.057,
+     0.671,
+     0.438,
+     1
+    ],
+    [
+     6.182,
+     959.076,
+     212.281,
+     0.664,
+     0.531,
+     1
+    ]
+   ],
+   "fields": [
+    "k",
+    "x",
+    "y",
+    "z",
+    "e",
+    "ok"
+   ],
+   "children": [
+    {
+     "id": "age",
+     "type": "let",
+     "value": {
+      "$expr": "lt - f_k"
+     }
+    },
+    {
+     "id": "dec",
+     "type": "let",
+     "value": {
+      "$expr": "exp(-age * (2.6 + 3 * (1 - f_z)))"
+     }
+    },
+    {
+     "type": "group",
+     "when": "age >= 0 && age < 2.6",
+     "children": [
+      {
+       "type": "glow",
+       "x": {
+        "$expr": "f_x"
+       },
+       "y": {
+        "$expr": "f_y"
+       },
+       "r": {
+        "$expr": "(70 + 260 * f_z) * (0.7 + 0.5 * f_e)"
+       },
+       "color": "#7f9bff",
+       "alpha": {
+        "$expr": "0.95 * dec * f_ok"
+       }
+      },
+      {
+       "type": "glow",
+       "x": {
+        "$expr": "f_x"
+       },
+       "y": {
+        "$expr": "f_y"
+       },
+       "r": {
+        "$expr": "(20 + 60 * f_z)"
+       },
+       "color": "ink",
+       "alpha": {
+        "$expr": "0.9 * exp(-age * 9) * f_ok"
+       }
+      },
+      {
+       "type": "shape",
+       "shape": "circle",
+       "stroke": true,
+       "lineWidth": {
+        "$expr": "2 + 5 * f_z"
+       },
+       "x": {
+        "$expr": "f_x"
+       },
+       "y": {
+        "$expr": "f_y"
+       },
+       "r": {
+        "$expr": "12 + (60 + 190 * f_z) * (1 - exp(-age * 3.4))"
+       },
+       "color": "#7f9bff",
+       "alpha": {
+        "$expr": "1 * dec * f_ok"
+       }
+      },
+      {
+       "type": "shape",
+       "shape": "circle",
+       "stroke": true,
+       "lineWidth": {
+        "$expr": "0.8 + 1.5 * f_z"
+       },
+       "x": {
+        "$expr": "f_x"
+       },
+       "y": {
+        "$expr": "f_y"
+       },
+       "r": {
+        "$expr": "6 + (34 + 120 * f_z) * (1 - exp(-age * 3.4))"
+       },
+       "color": "ink",
+       "alpha": {
+        "$expr": "0.5 * dec * f_ok"
+       }
+      },
+      {
+       "type": "shape",
+       "shape": "circle",
+       "x": {
+        "$expr": "f_x"
+       },
+       "y": {
+        "$expr": "f_y"
+       },
+       "r": {
+        "$expr": "2 + 7 * f_z"
+       },
+       "color": "ink",
+       "alpha": {
+        "$expr": "exp(-age * 16) * f_ok"
+       }
+      },
+      {
+       "id": "p",
+       "type": "repeat",
+       "n": 9,
+       "children": [
+        {
+         "type": "glow",
+         "x": {
+          "$expr": "f_x + cos(i * 0.698 + f_k * 5) * (12 + (60 + 190 * f_z) * (1 - exp(-age * 3.4)))"
+         },
+         "y": {
+          "$expr": "f_y + sin(i * 0.698 + f_k * 5) * (12 + (60 + 190 * f_z) * (1 - exp(-age * 3.4))) * 0.92"
+         },
+         "r": {
+          "$expr": "7 + 9 * f_z"
+         },
+         "color": "#7f9bff",
+         "alpha": {
+          "$expr": "0.8 * dec * f_ok * (0.4 + 0.6 * abs(sin(i * 2.1 + f_k)))"
+         }
+        }
+       ]
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "cont",
+   "type": "objeto",
+   "objeto": "contador",
+   "x": 150,
+   "y": 640,
+   "size": 240,
+   "alfa": {
+    "$expr": "1"
+   },
+   "params": {
+    "digitos": 2,
+    "tipo": "numerico"
+   },
+   "partes": {
+    "valor": {
+     "$expr": "11 + seg(lt, 0.6, 0.76) + seg(lt, 1.012, 1.172) + seg(lt, 1.25, 1.41) + seg(lt, 1.741, 1.901) + seg(lt, 2.162, 2.322) + seg(lt, 3.284, 3.444) + seg(lt, 5.61, 5.77) + seg(lt, 6.182, 6.342)"
+    },
+    "brillo": 0.95
+   },
+   "color": "#07141c",
+   "relleno": "#0a1a24",
+   "acento": "#7f9bff"
+  },
+  {
+   "id": "et",
+   "type": "text",
+   "text": "IMB · OHIO",
+   "x": {
+    "$expr": "150"
+   },
+   "y": {
+    "$expr": "566"
+   },
+   "role": "body",
+   "align": "center",
+   "color": "#7f9bff",
+   "alpha": {
+    "$expr": "0.55 * seg(lt, 0.3, 1.1) * (1 - seg(lt, 98.2, 99))"
+   }
+  },
+  {
+   "id": "t0",
+   "type": "text",
+   "text": "En una mina de sal de Ohio, otra cuba: ocho.",
+   "x": {
+    "$expr": "S_cx"
+   },
+   "y": {
+    "$expr": "S_y1 - 46"
+   },
+   "role": "body",
+   "align": "center",
+   "color": "ink",
+   "alpha": {
+    "$expr": "1 * seg(lt, 0.8, 1.6) * (1 - seg(lt, 3.8, 4.6))"
+   }
+  }
+ ]
+}, {  });

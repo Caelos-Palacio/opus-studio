@@ -1,0 +1,338 @@
+// GENERADO desde shots/V02.scene.json por `node engine/dsl.mjs build` (spec 006). No editar a mano: edita el .scene.json y regenera.
+import { shot } from '../engine/dsl-core.mjs';
+export default shot({
+ "dsl": 1,
+ "id": "V02",
+ "doc": "Primer destello y los nueve de la primera ráfaga, al ritmo real de Kamiokande-II (1,915 s).",
+ "camera": {
+  "move": "static"
+ },
+ "transition": {
+  "out": "cut"
+ },
+ "objects": [
+  {
+   "type": "fondo",
+   "preset": "cuba_oscura",
+   "ajustes": {
+    "haces": {
+     "intensidad": 0.05
+    },
+    "turbidez": {
+     "alfa": 0.16
+    },
+    "bruma": {
+     "densidad": 0.3
+    },
+    "pmtLejanos": {
+     "brillo": 0.3,
+     "alfa": 0.5
+    },
+    "pmtCercanos": {
+     "brillo": 0.4,
+     "alfa": 0.75
+    },
+    "vineta": {
+     "fuerza": 0.9
+    }
+   }
+  },
+  {
+   "id": "f",
+   "type": "repeat",
+   "items": [
+    [
+     0.8,
+     406.298,
+     255.945,
+     0.5,
+     0.469,
+     1
+    ],
+    [
+     0.907,
+     506.192,
+     228.055,
+     0.2,
+     0.266,
+     1
+    ],
+    [
+     1.103,
+     833.686,
+     430.531,
+     0.85,
+     0.078,
+     1
+    ],
+    [
+     1.124,
+     266.62,
+     366.011,
+     0.35,
+     0.131,
+     1
+    ],
+    [
+     1.307,
+     283.28,
+     230.923,
+     0.65,
+     0.244,
+     1
+    ],
+    [
+     1.486,
+     898.937,
+     270.316,
+     0.15,
+     0.041,
+     1
+    ],
+    [
+     2.341,
+     513.372,
+     263.839,
+     0.95,
+     0.95,
+     1
+    ],
+    [
+     2.528,
+     656.508,
+     349.627,
+     0.4,
+     0.5,
+     1
+    ],
+    [
+     2.715,
+     543.186,
+     308.588,
+     0.7,
+     0.097,
+     1
+    ]
+   ],
+   "fields": [
+    "k",
+    "x",
+    "y",
+    "z",
+    "e",
+    "ok"
+   ],
+   "children": [
+    {
+     "id": "age",
+     "type": "let",
+     "value": {
+      "$expr": "lt - f_k"
+     }
+    },
+    {
+     "id": "dec",
+     "type": "let",
+     "value": {
+      "$expr": "exp(-age * (2.6 + 3 * (1 - f_z)))"
+     }
+    },
+    {
+     "type": "group",
+     "when": "age >= 0 && age < 2.6",
+     "children": [
+      {
+       "type": "glow",
+       "x": {
+        "$expr": "f_x"
+       },
+       "y": {
+        "$expr": "f_y"
+       },
+       "r": {
+        "$expr": "(70 + 260 * f_z) * (0.7 + 0.5 * f_e)"
+       },
+       "color": "accent2",
+       "alpha": {
+        "$expr": "0.95 * dec * f_ok"
+       }
+      },
+      {
+       "type": "glow",
+       "x": {
+        "$expr": "f_x"
+       },
+       "y": {
+        "$expr": "f_y"
+       },
+       "r": {
+        "$expr": "(20 + 60 * f_z)"
+       },
+       "color": "ink",
+       "alpha": {
+        "$expr": "0.9 * exp(-age * 9) * f_ok"
+       }
+      },
+      {
+       "type": "shape",
+       "shape": "circle",
+       "stroke": true,
+       "lineWidth": {
+        "$expr": "2 + 5 * f_z"
+       },
+       "x": {
+        "$expr": "f_x"
+       },
+       "y": {
+        "$expr": "f_y"
+       },
+       "r": {
+        "$expr": "12 + (60 + 190 * f_z) * (1 - exp(-age * 3.4))"
+       },
+       "color": "accent2",
+       "alpha": {
+        "$expr": "1 * dec * f_ok"
+       }
+      },
+      {
+       "type": "shape",
+       "shape": "circle",
+       "stroke": true,
+       "lineWidth": {
+        "$expr": "0.8 + 1.5 * f_z"
+       },
+       "x": {
+        "$expr": "f_x"
+       },
+       "y": {
+        "$expr": "f_y"
+       },
+       "r": {
+        "$expr": "6 + (34 + 120 * f_z) * (1 - exp(-age * 3.4))"
+       },
+       "color": "ink",
+       "alpha": {
+        "$expr": "0.5 * dec * f_ok"
+       }
+      },
+      {
+       "type": "shape",
+       "shape": "circle",
+       "x": {
+        "$expr": "f_x"
+       },
+       "y": {
+        "$expr": "f_y"
+       },
+       "r": {
+        "$expr": "2 + 7 * f_z"
+       },
+       "color": "ink",
+       "alpha": {
+        "$expr": "exp(-age * 16) * f_ok"
+       }
+      },
+      {
+       "id": "p",
+       "type": "repeat",
+       "n": 9,
+       "children": [
+        {
+         "type": "glow",
+         "x": {
+          "$expr": "f_x + cos(i * 0.698 + f_k * 5) * (12 + (60 + 190 * f_z) * (1 - exp(-age * 3.4)))"
+         },
+         "y": {
+          "$expr": "f_y + sin(i * 0.698 + f_k * 5) * (12 + (60 + 190 * f_z) * (1 - exp(-age * 3.4))) * 0.92"
+         },
+         "r": {
+          "$expr": "7 + 9 * f_z"
+         },
+         "color": "accent2",
+         "alpha": {
+          "$expr": "0.8 * dec * f_ok * (0.4 + 0.6 * abs(sin(i * 2.1 + f_k)))"
+         }
+        }
+       ]
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "cont",
+   "type": "objeto",
+   "objeto": "contador",
+   "x": 150,
+   "y": 640,
+   "size": 240,
+   "alfa": {
+    "$expr": "0.5 + 0.5 * seg(lt, 0.6, 0.8)"
+   },
+   "params": {
+    "digitos": 2,
+    "tipo": "numerico"
+   },
+   "partes": {
+    "valor": {
+     "$expr": "0 + seg(lt, 0.8, 0.96) + seg(lt, 0.907, 1.067) + seg(lt, 1.103, 1.263) + seg(lt, 1.124, 1.284) + seg(lt, 1.307, 1.467) + seg(lt, 1.486, 1.646) + seg(lt, 2.341, 2.501) + seg(lt, 2.528, 2.688) + seg(lt, 2.715, 2.875)"
+    },
+    "brillo": 0.95
+   },
+   "color": "#07141c",
+   "relleno": "#0a1a24",
+   "acento": "accent2"
+  },
+  {
+   "id": "et",
+   "type": "text",
+   "text": "KAMIOKANDE-II",
+   "x": {
+    "$expr": "150"
+   },
+   "y": {
+    "$expr": "566"
+   },
+   "role": "body",
+   "align": "center",
+   "color": "accent2",
+   "alpha": {
+    "$expr": "0.55 * seg(lt, 0.3, 1.1) * (1 - seg(lt, 98.2, 99))"
+   }
+  },
+  {
+   "id": "t0",
+   "type": "text",
+   "text": "Uno.",
+   "x": {
+    "$expr": "S_cx"
+   },
+   "y": {
+    "$expr": "S_y1 - 46"
+   },
+   "role": "h2",
+   "align": "center",
+   "color": "ink",
+   "alpha": {
+    "$expr": "1 * seg(lt, 0.95, 1.75) * (1 - seg(lt, 1.2, 2))"
+   }
+  },
+  {
+   "id": "t1",
+   "type": "text",
+   "text": "Nueve en menos de dos segundos.",
+   "x": {
+    "$expr": "S_cx"
+   },
+   "y": {
+    "$expr": "S_y1 - 46"
+   },
+   "role": "body",
+   "align": "center",
+   "color": "ink",
+   "alpha": {
+    "$expr": "1 * seg(lt, 2.15, 2.95) * (1 - seg(lt, 2.5, 3.3))"
+   }
+  }
+ ]
+}, {  });

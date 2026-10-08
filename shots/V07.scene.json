@@ -1,0 +1,327 @@
+{
+ "dsl": 1,
+ "id": "V07",
+ "doc": "Baksan: un bloque de tanques de centelleador (aceite, no agua); cinco destellos amarillentos en 9,1 s reales, con su silencio de seis segundos (19 a 24).",
+ "camera": {
+  "move": "push",
+  "why": "approach",
+  "amount": 0.04
+ },
+ "transition": {
+  "out": "cut"
+ },
+ "objects": [
+  {
+   "type": "fondo",
+   "capas": [
+    {
+     "tipo": "degradado",
+     "id": "roca",
+     "modo": "lineal",
+     "angulo": 90,
+     "stops": [
+      "#0b0904",
+      "#1a130a",
+      "#080603"
+     ]
+    },
+    {
+     "tipo": "deformado",
+     "id": "aceite",
+     "modo": "nube",
+     "color": "#0e0a04",
+     "colorB": "#6a4a14",
+     "escala": 0.5,
+     "fuerza": 0.7,
+     "contraste": 1.4,
+     "alfa": 0.28,
+     "mezcla": "pantalla",
+     "deriva": [
+      0.004,
+      -0.002
+     ],
+     "paralaje": 0.15
+    },
+    {
+     "tipo": "niebla",
+     "id": "bruma",
+     "color": "#5a4012",
+     "horizonte": 0.5,
+     "altura": 0.6,
+     "densidad": 0.35,
+     "ruido": 0.8,
+     "velocidad": 0.01,
+     "mezcla": "pantalla",
+     "paralaje": 0.5
+    },
+    {
+     "tipo": "polvo",
+     "id": "particulas",
+     "n": 110,
+     "color": "#ffe39a",
+     "tamano": [
+      0.5,
+      2.4
+     ],
+     "viento": [
+      0.001,
+      -0.004
+     ],
+     "alfaMax": 0.35,
+     "titileo": 0.6,
+     "paralaje": 1.05
+    },
+    {
+     "tipo": "vineta",
+     "id": "vineta",
+     "color": "#030201",
+     "fuerza": 0.9,
+     "interior": 0.26,
+     "paralaje": 0
+    }
+   ]
+  },
+  {
+   "id": "tq",
+   "type": "repeat",
+   "n": 45,
+   "children": [
+    {
+     "type": "shape",
+     "shape": "rect",
+     "stroke": true,
+     "lineWidth": 1.4,
+     "x": {
+      "$expr": "78 + (i % 9) * 126"
+     },
+     "y": {
+      "$expr": "72 + floor(i / 9) * 102"
+     },
+     "w": 116,
+     "h": 92,
+     "color": "#6a5326",
+     "alpha": 0.5
+    },
+    {
+     "type": "shape",
+     "shape": "rect",
+     "x": {
+      "$expr": "78 + (i % 9) * 126"
+     },
+     "y": {
+      "$expr": "72 + floor(i / 9) * 102"
+     },
+     "w": 116,
+     "h": 92,
+     "color": "#2a1e0a",
+     "alpha": 0.28
+    }
+   ]
+  },
+  {
+   "id": "b",
+   "type": "repeat",
+   "items": [
+    [
+     0.6,
+     640,
+     220,
+     0.3,
+     0.219,
+     1
+    ],
+    [
+     1.035,
+     388,
+     424,
+     0.42,
+     0.403,
+     1
+    ],
+    [
+     2.31,
+     1018,
+     118,
+     0.54,
+     0.578,
+     1
+    ],
+    [
+     8.287,
+     892,
+     322,
+     0.66,
+     0.394,
+     1
+    ],
+    [
+     9.699,
+     640,
+     526,
+     0.78,
+     0.478,
+     1
+    ]
+   ],
+   "fields": [
+    "k",
+    "x",
+    "y",
+    "z",
+    "e",
+    "ok"
+   ],
+   "children": [
+    {
+     "id": "ageb",
+     "type": "let",
+     "value": {
+      "$expr": "lt - b_k"
+     }
+    },
+    {
+     "id": "decb",
+     "type": "let",
+     "value": {
+      "$expr": "exp(-ageb * 2.1)"
+     }
+    },
+    {
+     "type": "group",
+     "when": "ageb >= 0 && ageb < 3",
+     "children": [
+      {
+       "type": "glow",
+       "x": {
+        "$expr": "b_x"
+       },
+       "y": {
+        "$expr": "b_y"
+       },
+       "r": {
+        "$expr": "170 + 50 * b_e"
+       },
+       "color": "#f0d060",
+       "alpha": {
+        "$expr": "0.7 * decb"
+       }
+      },
+      {
+       "type": "shape",
+       "shape": "rect",
+       "x": {
+        "$expr": "b_x - 58"
+       },
+       "y": {
+        "$expr": "b_y - 46"
+       },
+       "w": 116,
+       "h": 92,
+       "color": "#f0d060",
+       "alpha": {
+        "$expr": "0.85 * decb"
+       }
+      },
+      {
+       "type": "shape",
+       "shape": "rect",
+       "stroke": true,
+       "lineWidth": 2.4,
+       "x": {
+        "$expr": "b_x - 58 - 8 * (1 - decb)"
+       },
+       "y": {
+        "$expr": "b_y - 46 - 8 * (1 - decb)"
+       },
+       "w": {
+        "$expr": "116 + 16 * (1 - decb)"
+       },
+       "h": {
+        "$expr": "92 + 16 * (1 - decb)"
+       },
+       "color": "#fff3c0",
+       "alpha": {
+        "$expr": "decb"
+       }
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "cont",
+   "type": "objeto",
+   "objeto": "contador",
+   "x": 150,
+   "y": 640,
+   "size": 240,
+   "alfa": {
+    "$expr": "1"
+   },
+   "params": {
+    "digitos": 2,
+    "tipo": "numerico"
+   },
+   "partes": {
+    "valor": {
+     "$expr": "19 + seg(lt, 0.6, 0.76) + seg(lt, 1.035, 1.195) + seg(lt, 2.31, 2.47) + seg(lt, 8.287, 8.447) + seg(lt, 9.699, 9.859)"
+    },
+    "brillo": 0.95
+   },
+   "color": "#07141c",
+   "relleno": "#0a1a24",
+   "acento": "#f0d060"
+  },
+  {
+   "id": "et",
+   "type": "text",
+   "text": "BAKSAN · CÁUCASO",
+   "x": {
+    "$expr": "150"
+   },
+   "y": {
+    "$expr": "566"
+   },
+   "role": "body",
+   "align": "center",
+   "color": "#f0d060",
+   "alpha": {
+    "$expr": "0.55 * seg(lt, 0.3, 1.1) * (1 - seg(lt, 98.2, 99))"
+   }
+  },
+  {
+   "id": "t0",
+   "type": "text",
+   "text": "En el Cáucaso, cinco.",
+   "x": {
+    "$expr": "S_cx"
+   },
+   "y": {
+    "$expr": "S_y1 - 46"
+   },
+   "role": "body",
+   "align": "center",
+   "color": "ink",
+   "alpha": {
+    "$expr": "1 * seg(lt, 0.9, 1.7000000000000002) * (1 - seg(lt, 3.2, 4))"
+   }
+  },
+  {
+   "id": "t1",
+   "type": "text",
+   "text": "Allí no es agua: es centelleador.",
+   "x": {
+    "$expr": "S_cx"
+   },
+   "y": {
+    "$expr": "S_y1 - 46"
+   },
+   "role": "body",
+   "align": "center",
+   "color": "ink",
+   "alpha": {
+    "$expr": "1 * seg(lt, 4.4, 5.2) * (1 - seg(lt, 9.6, 10.4))"
+   }
+  }
+ ]
+}

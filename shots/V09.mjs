@@ -1,0 +1,69 @@
+// GENERADO desde shots/V09.scene.json por `node engine/dsl.mjs build` (spec 006). No editar a mano: edita el .scene.json y regenera.
+import { shot } from '../engine/dsl-core.mjs';
+export default shot({
+ "dsl": 1,
+ "id": "V09",
+ "doc": "prueba",
+ "camera": {
+  "move": "static"
+ },
+ "transition": {
+  "out": "cut"
+ },
+ "objects": [
+  {
+   "type": "fondo",
+   "preset": "taller_madera"
+  },
+  {
+   "id": "papel",
+   "type": "objeto",
+   "objeto": "papel_continuo",
+   "x": 720,
+   "y": 390,
+   "size": 960,
+   "rot": 90,
+   "params": {
+    "pliegues": 6
+   },
+   "partes": {
+    "despliegue": 1,
+    "impreso": 0
+   },
+   "relleno": "#d9cdb0"
+  },
+  {
+   "id": "lamp",
+   "type": "objeto",
+   "objeto": "lampara_mesa",
+   "x": 200,
+   "y": 330,
+   "size": 520,
+   "relleno": "#b8801f",
+   "estado": "reposo",
+   "partes": {
+    "encendida": 1
+   }
+  },
+  {
+   "id": "lap",
+   "type": "objeto",
+   "objeto": "lapiz",
+   "x": 700,
+   "y": 300,
+   "size": 400,
+   "rot": -20,
+   "color": "#c9a24a"
+  },
+  {
+   "id": "mano",
+   "type": "objeto",
+   "objeto": "mano",
+   "x": 900,
+   "y": 300,
+   "size": 300,
+   "rot": 40,
+   "estado": "pinza"
+  }
+ ]
+}, {  });

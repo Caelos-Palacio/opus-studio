@@ -8,9 +8,20 @@
     "actitud": "sobria y asombrada sin decirlo; da cada número como un recibo",
     "persona": "nosotros",
     "tiempo": "presente",
-    "registro": ["recuento", "sobrio", "seco"],
+    "registro": [
+      "recuento",
+      "sobrio",
+      "seco"
+    ],
     "tic": "Contamos",
-    "prohibido": ["increíble", "asombroso", "fascinante", "imagina", "polvo de estrellas", "infinito"]
+    "prohibido": [
+      "increíble",
+      "asombroso",
+      "fascinante",
+      "imagina",
+      "polvo de estrellas",
+      "infinito"
+    ]
   },
   "punto_de_vista": {
     "tesis_discutible": "El asombro de la supernova 1987A no está en los 10^58 que salieron sino en los 24 que llegaron, y en que el silencio alrededor de esos 24 fue la prueba.",
@@ -57,37 +68,154 @@
     "contradiccion": "una cifra minúscula para un hecho inmenso"
   },
   "beats": [
-    { "id": "b1", "t": 0.5, "peso": "largo", "concreto": "agua negra; mil fotomultiplicadores alineados en la pared de la cuba como lunas muy lejanas, con niebla fría y paralaje; no ocurre nada", "text": "Kamioka, a mil metros bajo la roca. Una cuba de agua y mil fotomultiplicadores. Esperan." },
-    { "id": "b2", "t": 9, "peso": "corto", "concreto": "un destello azul (efecto Cherenkov) a media profundidad: un anillo de fotomultiplicadores se ilumina; el contador marca 1", "text": "Uno." },
-    { "id": "b3", "t": 11, "peso": "medio", "link": "por lo tanto", "concreto": "nueve destellos en 1,9 s al ritmo real, cada uno a una profundidad distinta; el contador sube del 2 al 9 con un clic de agua por destello", "text": "Nueve en menos de dos segundos." },
-    { "id": "b4", "t": 14.5, "peso": "pausa", "link": "pero", "concreto": "7,3 s reales de silencio: no se enciende nada; el contador queda en 9; solo el agua y la niebla se mueven", "text": "Pasan siete segundos. No llega ninguno." },
-    { "id": "b5", "t": 21.8, "peso": "corto", "concreto": "tres destellos más en 3,2 s; el contador llega a 11", "text": "Tres más. Contamos once." },
-    { "id": "b6", "t": 26, "peso": "corto", "link": "pero", "concreto": "un duodécimo destello aparece a media luz, el contador no lo acepta y queda parpadeando en 12 entre interrogaciones de grafito", "text": "Otras cuentas ponen doce." },
-    { "id": "b7", "t": 30, "peso": "largo", "concreto": "otra cuba, más fría y más azul, en una mina de sal de Ohio: ocho destellos en 6 s; el contador pasa de 11 a 19", "text": "En una mina de sal de Ohio, otra cuba: ocho." },
-    { "id": "b8", "t": 36, "peso": "medio", "link": "pero", "concreto": "un bloque de elementos de centelleador en la montaña del Cáucaso; cinco destellos amarillentos; el contador llega a 24", "text": "En el Cáucaso, cinco. Allí no es agua: es centelleador." },
-    { "id": "b9", "t": 41, "peso": "largo", "link": "por lo tanto", "concreto": "los tres contadores en una fila; la suma baja a un solo 24 con un 25 fantasma a su lado, a medio apagar", "text": "Contamos veinticuatro. Veinticinco, si vale el doce." },
-    { "id": "b10", "t": 48, "peso": "largo", "link": "pero", "concreto": "el agua se apaga de golpe; una lámpara de mesa ilumina una hoja de papel continuo de impresora que entra desde la oscuridad con los mismos 24 puntos impresos", "text": "Nadie los vio llegar. Los encontraron en un listado de impresora, dos días después." },
-    { "id": "b11", "t": 55, "peso": "corto", "link": "por lo tanto", "concreto": "la hoja avanza línea a línea; entre el punto 9 y el 10 hay un tramo de papel en blanco, y una mano con lápiz lo recorre sin marcar nada", "text": "En esos 13 segundos, ni un ruido ajeno." },
-    { "id": "b12", "t": 59, "peso": "medio", "concreto": "la lámpara se aleja en la oscuridad con paralaje; 24 puntos en la hoja, una flecha de trazo fino hacia un horizonte sin fin", "text": "Salieron unos 10^58. Hace 168 000 años. Aquí se contaron 24." },
-    { "id": "b13", "t": 65.2, "peso": "pausa", "concreto": "la mano marca el último punto con lápiz; el duodécimo queda sin marcar, con el lápiz apoyado a medias; la lámpara se apaga despacio; diez segundos de agua negra", "text": "Contamos." }
+    {
+      "id": "b1",
+      "t": 0.5,
+      "peso": "largo",
+      "concreto": "agua negra; mil fotomultiplicadores alineados en la pared de la cuba como lunas muy lejanas, con niebla fría y paralaje; no ocurre nada",
+      "text": "Kamioka, a mil metros bajo la roca. Una cuba de agua y mil fotomultiplicadores. Esperan."
+    },
+    {
+      "id": "b2",
+      "t": 9.0,
+      "peso": "corto",
+      "concreto": "el primer destello azul (efecto Cherenkov) a media profundidad: un anillo de fotomultiplicadores se ilumina; el contador marca 1",
+      "text": "Uno."
+    },
+    {
+      "id": "b3",
+      "t": 9.7,
+      "peso": "medio",
+      "link": "por lo tanto",
+      "concreto": "nueve destellos en 1,9 s al ritmo real (0; 0,11; 0,30; 0,32; 0,51; 0,69; 1,54; 1,73; 1,92 s), cada uno a una profundidad distinta; el contador sube del 2 al 9 con un clic de agua por destello",
+      "text": "Nueve en menos de dos segundos."
+    },
+    {
+      "id": "b4",
+      "t": 11.5,
+      "peso": "pausa",
+      "link": "pero",
+      "concreto": "7,304 s reales de silencio entre el 9.º y el 10.º destello: no se enciende nada; el contador queda en 9; solo el agua, la niebla y el polvo se mueven",
+      "text": "Pasan siete segundos. No llega ninguno."
+    },
+    {
+      "id": "b5",
+      "t": 18.2,
+      "peso": "corto",
+      "concreto": "dos destellos más (a 9,22 y 10,43 s del primero); el contador llega a 11",
+      "text": "Dos más. Contamos once."
+    },
+    {
+      "id": "b6",
+      "t": 21.4,
+      "peso": "corto",
+      "link": "pero",
+      "concreto": "un duodécimo destello (12,44 s) aparece a media luz, el contador no lo acepta y queda parpadeando en 12 entre interrogaciones de grafito",
+      "text": "Otras cuentas ponen doce."
+    },
+    {
+      "id": "b7",
+      "t": 26.0,
+      "peso": "largo",
+      "concreto": "otra cuba, más fría y más azul, en una mina de sal de Ohio: ocho destellos en 5,6 s reales; el contador pasa de 11 a 19",
+      "text": "En una mina de sal de Ohio, otra cuba: ocho."
+    },
+    {
+      "id": "b8",
+      "t": 33.0,
+      "peso": "medio",
+      "link": "pero",
+      "concreto": "un bloque de elementos de centelleador en la montaña del Cáucaso; cinco destellos amarillentos en 9,1 s reales (con su propio silencio de seis segundos); el contador llega a 24",
+      "text": "En el Cáucaso, cinco. Allí no es agua: es centelleador."
+    },
+    {
+      "id": "b9",
+      "t": 43.4,
+      "peso": "largo",
+      "link": "por lo tanto",
+      "concreto": "los tres contadores en una fila; la suma baja a un solo 24 con un 25 fantasma a su lado, a medio apagar",
+      "text": "Contamos veinticuatro. Veinticinco, si vale el doce."
+    },
+    {
+      "id": "b10",
+      "t": 48,
+      "peso": "largo",
+      "link": "pero",
+      "concreto": "el agua se apaga de golpe; una lámpara de mesa ilumina una hoja de papel continuo de impresora que entra desde la oscuridad con los mismos 24 puntos impresos",
+      "text": "Nadie los vio llegar. Los encontraron en un listado de impresora, dos días después."
+    },
+    {
+      "id": "b11",
+      "t": 55,
+      "peso": "corto",
+      "link": "por lo tanto",
+      "concreto": "la hoja avanza línea a línea; entre el punto 9 y el 10 hay un tramo de papel en blanco, y una mano con lápiz lo recorre sin marcar nada",
+      "text": "En esos 13 segundos, ni un ruido ajeno."
+    },
+    {
+      "id": "b12",
+      "t": 59,
+      "peso": "medio",
+      "concreto": "la lámpara se aleja en la oscuridad con paralaje; 24 puntos en la hoja, una flecha de trazo fino hacia un horizonte sin fin",
+      "text": "Salieron unos 10^58. Hace 168 000 años. Aquí se contaron 24."
+    },
+    {
+      "id": "b13",
+      "t": 65.2,
+      "peso": "pausa",
+      "concreto": "la mano marca el último punto con lápiz; el duodécimo queda sin marcar, con el lápiz apoyado a medias; la lámpara se apaga despacio; diez segundos de agua negra",
+      "text": "Contamos."
+    }
   ],
-  "accommodation": { "t": 48, "type": "creencia", "text": "los 24 destellos no eran una escasez sino una prueba, y se encontraron después, no en directo" },
+  "accommodation": {
+    "t": 48,
+    "type": "creencia",
+    "text": "los 24 destellos no eran una escasez sino una prueba, y se encontraron después, no en directo"
+  },
   "imperfeccion": [
-    { "t": 26, "que": "el duodécimo destello aparece a media luz y el contador no lo acepta; queda parpadeando hasta el final", "porque": "la duda 11/12 no se resuelve: 24 o 25 es un hecho de la historia, no un descuido" },
-    { "t": 14.5, "que": "7,3 s de silencio total, sin música, el beat más largo de la primera mitad en proporción a su contenido", "porque": "es el tiempo real de la pausa en los datos; la película se obliga a esperar lo mismo que ellos" }
+    {
+      "t": 21.4,
+      "que": "el duodécimo destello aparece a media luz y el contador no lo acepta; queda parpadeando hasta el final",
+      "porque": "la duda 11/12 no se resuelve: 24 o 25 es un hecho de la historia, no un descuido"
+    },
+    {
+      "t": 13,
+      "que": "7,3 s de silencio total, sin música, el beat más largo de la primera mitad en proporción a su contenido",
+      "porque": "es el tiempo real de la pausa en los datos; la película se obliga a esperar lo mismo que ellos"
+    }
   ],
-  "cierre": { "tipo": "silencio", "ultima_linea": "Contamos.", "sin_moraleja": true },
+  "cierre": {
+    "tipo": "silencio",
+    "ultima_linea": "Contamos.",
+    "sin_moraleja": true
+  },
   "medium": {
     "id": "cuba_oscura",
     "porque": "El tema es luz en el agua de un detector a mil metros bajo tierra: el oscuro es la cuba y el cosmos que no se ve. No es negro de relleno: mil fotomultiplicadores como lunas, niebla fría y paralaje dan profundidad, y cada destello nace de una distancia distinta. En la segunda mitad entra una única lámpara de mesa sobre papel de impresora."
   },
-  "accent": { "means": "el azul frío del destello Cherenkov: un evento contado; el ámbar tenue de la lámpara de mesa es solo el archivo" },
+  "accent": {
+    "means": "el azul frío del destello Cherenkov: un evento contado; el ámbar tenue de la lámpara de mesa es solo el archivo"
+  },
   "frescura": {
-    "puntos": { "ancla": 2, "pregunta": 1, "hecho_raro": 2, "giro_relee": 2, "apuesta": 1, "distancia_default": 2, "distancia_archivo": 1 },
+    "puntos": {
+      "ancla": 2,
+      "pregunta": 1,
+      "hecho_raro": 2,
+      "giro_relee": 2,
+      "apuesta": 1,
+      "distancia_default": 2,
+      "distancia_archivo": 1
+    },
     "version_por_defecto": "Una supernova libera 10^58 neutrinos y solo detectamos unos pocos; somos polvo de estrellas; nace la astronomía de neutrinos (viaje a escala cósmica, cierre grandioso)",
     "descartados": [
-      { "logline": "el asombro de lo enorme (diez elevado a 58, agujeros negros)", "razon": "es el por defecto; el asombro de este film viene de un número pequeño" },
-      { "logline": "la hora exacta: neutrinos tres horas antes que la luz, como thriller de cuenta atrás", "razon": "la ventaja de 3 h es dato conocido; lo raro es que se encontró después, no que llegó antes" }
+      {
+        "logline": "el asombro de lo enorme (diez elevado a 58, agujeros negros)",
+        "razon": "es el por defecto; el asombro de este film viene de un número pequeño"
+      },
+      {
+        "logline": "la hora exacta: neutrinos tres horas antes que la luz, como thriller de cuenta atrás",
+        "razon": "la ventaja de 3 h es dato conocido; lo raro es que se encontró después, no que llegó antes"
+      }
     ],
     "distancia": "tema y ángulo distintos del por defecto (escasez + hallazgo en archivo, no escala cósmica); cuidado: comparte oscuro y cosmos con el film de potencias, de ahí distancia_archivo = 1"
   }

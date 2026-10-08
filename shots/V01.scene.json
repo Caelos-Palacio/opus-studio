@@ -1,0 +1,82 @@
+{
+ "dsl": 1,
+ "id": "V01",
+ "doc": "La cuba antes del primer destello: agua negra, fotomultiplicadores como lunas, nada ocurre (8,2 s).",
+ "camera": {
+  "move": "push",
+  "why": "approach",
+  "amount": 0.03
+ },
+ "transition": {
+  "out": "cut"
+ },
+ "objects": [
+  {
+   "type": "fondo",
+   "preset": "cuba_oscura",
+   "ajustes": {
+    "haces": {
+     "intensidad": 0.05
+    },
+    "turbidez": {
+     "alfa": 0.16
+    },
+    "bruma": {
+     "densidad": 0.3
+    },
+    "pmtLejanos": {
+     "brillo": 0.3,
+     "alfa": 0.5
+    },
+    "pmtCercanos": {
+     "brillo": 0.4,
+     "alfa": 0.75
+    },
+    "vineta": {
+     "fuerza": 0.9
+    }
+   }
+  },
+  {
+   "id": "cont",
+   "type": "objeto",
+   "objeto": "contador",
+   "x": 150,
+   "y": 640,
+   "size": 240,
+   "alfa": {
+    "$expr": "seg(lt, 6.0, 7.4) * 0.5"
+   },
+   "params": {
+    "digitos": 2,
+    "tipo": "numerico"
+   },
+   "partes": {
+    "valor": {
+     "$expr": "0"
+    },
+    "brillo": 0.95
+   },
+   "color": "#07141c",
+   "relleno": "#0a1a24",
+   "acento": "accent2"
+  },
+  {
+   "id": "t0",
+   "type": "text",
+   "text": "Kamioka, mil metros bajo la roca. Una cuba de agua y mil fotomultiplicadores. Esperan.",
+   "x": {
+    "$expr": "S_cx"
+   },
+   "y": {
+    "$expr": "S_y1 - 46"
+   },
+   "role": "body",
+   "align": "center",
+   "color": "ink",
+   "alpha": {
+    "$expr": "1 * seg(lt, 1.6, 2.4000000000000004) * (1 - seg(lt, 7.2, 8))"
+   }
+  }
+ ]
+}

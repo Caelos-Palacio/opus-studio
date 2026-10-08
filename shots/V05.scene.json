@@ -1,0 +1,296 @@
+{
+ "dsl": 1,
+ "id": "V05",
+ "doc": "El duodécimo (12,439 s) llega a media luz: el contador no lo acepta y queda parpadeando en un 12 fantasma entre interrogaciones de grafito.",
+ "camera": {
+  "move": "push",
+  "why": "approach",
+  "amount": 0.03
+ },
+ "transition": {
+  "out": "cut"
+ },
+ "objects": [
+  {
+   "type": "fondo",
+   "preset": "cuba_oscura",
+   "ajustes": {
+    "haces": {
+     "intensidad": 0.05
+    },
+    "turbidez": {
+     "alfa": 0.16
+    },
+    "bruma": {
+     "densidad": 0.3
+    },
+    "pmtLejanos": {
+     "brillo": 0.3,
+     "alfa": 0.5
+    },
+    "pmtCercanos": {
+     "brillo": 0.4,
+     "alfa": 0.75
+    },
+    "vineta": {
+     "fuerza": 0.9
+    }
+   }
+  },
+  {
+   "id": "f",
+   "type": "repeat",
+   "items": [
+    [
+     0.439,
+     413.274,
+     206.861,
+     0.5,
+     0.041,
+     0.6
+    ]
+   ],
+   "fields": [
+    "k",
+    "x",
+    "y",
+    "z",
+    "e",
+    "ok"
+   ],
+   "children": [
+    {
+     "id": "age",
+     "type": "let",
+     "value": {
+      "$expr": "lt - f_k"
+     }
+    },
+    {
+     "id": "dec",
+     "type": "let",
+     "value": {
+      "$expr": "exp(-age * (2.6 + 3 * (1 - f_z)))"
+     }
+    },
+    {
+     "type": "group",
+     "when": "age >= 0 && age < 2.6",
+     "children": [
+      {
+       "type": "glow",
+       "x": {
+        "$expr": "f_x"
+       },
+       "y": {
+        "$expr": "f_y"
+       },
+       "r": {
+        "$expr": "(70 + 260 * f_z) * (0.7 + 0.5 * f_e)"
+       },
+       "color": "accent2",
+       "alpha": {
+        "$expr": "0.95 * dec * f_ok"
+       }
+      },
+      {
+       "type": "glow",
+       "x": {
+        "$expr": "f_x"
+       },
+       "y": {
+        "$expr": "f_y"
+       },
+       "r": {
+        "$expr": "(20 + 60 * f_z)"
+       },
+       "color": "ink",
+       "alpha": {
+        "$expr": "0.9 * exp(-age * 9) * f_ok"
+       }
+      },
+      {
+       "type": "shape",
+       "shape": "circle",
+       "stroke": true,
+       "lineWidth": {
+        "$expr": "2 + 5 * f_z"
+       },
+       "x": {
+        "$expr": "f_x"
+       },
+       "y": {
+        "$expr": "f_y"
+       },
+       "r": {
+        "$expr": "12 + (60 + 190 * f_z) * (1 - exp(-age * 3.4))"
+       },
+       "color": "accent2",
+       "alpha": {
+        "$expr": "1 * dec * f_ok"
+       }
+      },
+      {
+       "type": "shape",
+       "shape": "circle",
+       "stroke": true,
+       "lineWidth": {
+        "$expr": "0.8 + 1.5 * f_z"
+       },
+       "x": {
+        "$expr": "f_x"
+       },
+       "y": {
+        "$expr": "f_y"
+       },
+       "r": {
+        "$expr": "6 + (34 + 120 * f_z) * (1 - exp(-age * 3.4))"
+       },
+       "color": "ink",
+       "alpha": {
+        "$expr": "0.5 * dec * f_ok"
+       }
+      },
+      {
+       "type": "shape",
+       "shape": "circle",
+       "x": {
+        "$expr": "f_x"
+       },
+       "y": {
+        "$expr": "f_y"
+       },
+       "r": {
+        "$expr": "2 + 7 * f_z"
+       },
+       "color": "ink",
+       "alpha": {
+        "$expr": "exp(-age * 16) * f_ok"
+       }
+      },
+      {
+       "id": "p",
+       "type": "repeat",
+       "n": 9,
+       "children": [
+        {
+         "type": "glow",
+         "x": {
+          "$expr": "f_x + cos(i * 0.698 + f_k * 5) * (12 + (60 + 190 * f_z) * (1 - exp(-age * 3.4)))"
+         },
+         "y": {
+          "$expr": "f_y + sin(i * 0.698 + f_k * 5) * (12 + (60 + 190 * f_z) * (1 - exp(-age * 3.4))) * 0.92"
+         },
+         "r": {
+          "$expr": "7 + 9 * f_z"
+         },
+         "color": "accent2",
+         "alpha": {
+          "$expr": "0.8 * dec * f_ok * (0.4 + 0.6 * abs(sin(i * 2.1 + f_k)))"
+         }
+        }
+       ]
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "cont",
+   "type": "objeto",
+   "objeto": "contador",
+   "x": 150,
+   "y": 640,
+   "size": 240,
+   "alfa": {
+    "$expr": "1"
+   },
+   "params": {
+    "digitos": 2,
+    "tipo": "numerico"
+   },
+   "partes": {
+    "valor": {
+     "$expr": "11"
+    },
+    "brillo": 0.95
+   },
+   "color": "#07141c",
+   "relleno": "#0a1a24",
+   "acento": "accent2"
+  },
+  {
+   "id": "et",
+   "type": "text",
+   "text": "KAMIOKANDE-II",
+   "x": {
+    "$expr": "150"
+   },
+   "y": {
+    "$expr": "566"
+   },
+   "role": "body",
+   "align": "center",
+   "color": "accent2",
+   "alpha": {
+    "$expr": "0.55 * seg(lt, 0.3, 1.1) * (1 - seg(lt, 98.2, 99))"
+   }
+  },
+  {
+   "id": "t0",
+   "type": "text",
+   "text": "Otras cuentas ponen doce.",
+   "x": {
+    "$expr": "S_cx"
+   },
+   "y": {
+    "$expr": "S_y1 - 46"
+   },
+   "role": "body",
+   "align": "center",
+   "color": "ink",
+   "alpha": {
+    "$expr": "1 * seg(lt, 1.4, 2.2) * (1 - seg(lt, 3.4000000000000004, 4.2))"
+   }
+  },
+  {
+   "id": "fan",
+   "type": "text",
+   "text": "12",
+   "x": 322,
+   "y": 640,
+   "role": "h2",
+   "align": "center",
+   "color": "ink",
+   "alpha": {
+    "$expr": "seg(lt, 0.7, 1.0) * (0.3 + 0.25 * sin(lt * 7))"
+   }
+  },
+  {
+   "id": "q1",
+   "type": "text",
+   "text": "?",
+   "x": 392,
+   "y": 612,
+   "role": "h2",
+   "align": "center",
+   "color": "shade",
+   "alpha": {
+    "$expr": "seg(lt, 1.2, 1.8) * 0.6"
+   }
+  },
+  {
+   "id": "q2",
+   "type": "text",
+   "text": "?",
+   "x": 430,
+   "y": 660,
+   "role": "body",
+   "align": "center",
+   "color": "shade",
+   "alpha": {
+    "$expr": "seg(lt, 1.6, 2.2) * 0.5"
+   }
+  }
+ ]
+}

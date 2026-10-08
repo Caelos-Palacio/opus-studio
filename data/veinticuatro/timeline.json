@@ -1,0 +1,239 @@
+{
+ "title": "Veinticuatro",
+ "style": "cosmos",
+ "profile": "cinematic",
+ "fps": 30,
+ "width": 1280,
+ "height": 720,
+ "duration": 75,
+ "autoSfx": false,
+ "music": null,
+ "end_hold_ok": true,
+ "shots": [
+  {
+   "id": "V01",
+   "t": [
+    0,
+    8.2
+   ],
+   "transition_out": "cut",
+   "after": null,
+   "size": "EWS",
+   "action": "agua negra; mil fotomultiplicadores como lunas lejanas con niebla fría y paralaje; no ocurre nada",
+   "text": "Kamioka, mil metros bajo la roca. Una cuba de agua y mil fotomultiplicadores. Esperan.",
+   "cam": {
+    "move": "push",
+    "why": "approach",
+    "amount": 0.03
+   },
+   "premise": "la cuba antes del primer destello",
+   "hold_ok": [
+    [
+     0.5,
+     8.2
+    ]
+   ]
+  },
+  {
+   "id": "V02",
+   "t": [
+    8.2,
+    11.5
+   ],
+   "transition_out": "cut",
+   "after": "V01",
+   "size": "WS",
+   "action": "el primer destello Cherenkov; en 1,9 s reales nueve, cada uno a una profundidad; el contador sube 1 a 9",
+   "text": "Uno.",
+   "on_beat_at": [
+    0.8000000000000007
+   ],
+   "cam": {
+    "move": "static"
+   },
+   "premise": "nueve destellos al ritmo real"
+  },
+  {
+   "id": "V03",
+   "t": [
+    11.5,
+    18.15
+   ],
+   "transition_out": "cut",
+   "after": "V02",
+   "size": "WS",
+   "action": "no se enciende nada durante 7,304 s reales; el contador queda en 9; solo agua, niebla y polvo",
+   "text": "Pasan siete segundos. No llega ninguno.",
+   "cam": {
+    "move": "push",
+    "why": "approach",
+    "amount": 0.02
+   },
+   "premise": "la pausa real, sin música",
+   "hold_ok": [
+    [
+     0,
+     6.65
+    ]
+   ]
+  },
+  {
+   "id": "V04",
+   "t": [
+    18.15,
+    21
+   ],
+   "transition_out": "cut",
+   "after": "V03",
+   "size": "WS",
+   "action": "dos destellos más a 1,2 s uno de otro; el contador llega a 11",
+   "text": "Dos más. Contamos once.",
+   "cam": {
+    "move": "static"
+   },
+   "premise": "once"
+  },
+  {
+   "id": "V05",
+   "t": [
+    21,
+    25.4
+   ],
+   "transition_out": "cut",
+   "after": "V04",
+   "size": "MS",
+   "action": "un duodécimo destello a media luz; el contador no lo acepta y queda parpadeando",
+   "text": "Otras cuentas ponen doce.",
+   "cam": {
+    "move": "push",
+    "why": "approach",
+    "amount": 0.03
+   },
+   "premise": "la duda 11/12 queda abierta"
+  },
+  {
+   "id": "V06",
+   "t": [
+    25.4,
+    32.4
+   ],
+   "transition_out": "cut",
+   "after": "V05",
+   "size": "WS",
+   "action": "otra cuba, más fría, en una mina de sal de Ohio: ocho destellos en 5,6 s; el contador pasa de 11 a 19",
+   "text": "En una mina de sal de Ohio, otra cuba: ocho.",
+   "cam": {
+    "move": "static"
+   },
+   "premise": "IMB"
+  },
+  {
+   "id": "V07",
+   "t": [
+    32.4,
+    43.4
+   ],
+   "transition_out": "cut",
+   "after": "V06",
+   "size": "MS",
+   "action": "bloque de centelleador en el Cáucaso; cinco destellos amarillentos en 9,1 s; el contador llega a 24",
+   "text": "En el Cáucaso, cinco. Allí no es agua: es centelleador.",
+   "cam": {
+    "move": "push",
+    "why": "approach",
+    "amount": 0.04
+   },
+   "premise": "Baksan, otro medio"
+  },
+  {
+   "id": "V08",
+   "t": [
+    43.4,
+    48
+   ],
+   "transition_out": "cut",
+   "after": "V07",
+   "size": "MS",
+   "action": "los tres contadores en fila; la suma baja a un 24 con un 25 fantasma al lado",
+   "text": "Contamos veinticuatro. Veinticinco, si vale el doce.",
+   "cam": {
+    "move": "static"
+   },
+   "premise": "la cuenta y su duda"
+  },
+  {
+   "id": "V09",
+   "t": [
+    48,
+    55
+   ],
+   "transition_out": "cut",
+   "after": "V08",
+   "size": "MS",
+   "action": "el agua se apaga de golpe; entra una lámpara de mesa ámbar y una hoja de papel continuo con los mismos 24 puntos",
+   "text": "Nadie los vio llegar. Los encontraron en un listado de impresora, dos días después.",
+   "cam": {
+    "move": "push",
+    "why": "approach",
+    "amount": 0.03
+   },
+   "premise": "giro: eran filas de un archivo"
+  },
+  {
+   "id": "V10",
+   "t": [
+    55,
+    59
+   ],
+   "transition_out": "cut",
+   "after": "V09",
+   "size": "CU",
+   "action": "entre el punto 9 y el 10 hay un tramo de papel en blanco; una mano con lápiz lo recorre sin marcar",
+   "text": "En esos 13 segundos, ni un ruido ajeno.",
+   "cam": {
+    "move": "static"
+   },
+   "premise": "el hueco en el papel es la prueba"
+  },
+  {
+   "id": "V11",
+   "t": [
+    59,
+    65.2
+   ],
+   "transition_out": "cut",
+   "after": "V10",
+   "size": "WS",
+   "action": "la lámpara se aleja con paralaje; 24 puntos en la hoja y una flecha de trazo fino hacia un horizonte sin fin",
+   "text": "Salieron unos 10^58. Hace 168 000 años. Aquí se contaron 24.",
+   "cam": {
+    "move": "pull",
+    "why": "reveal",
+    "amount": 0.04
+   },
+   "premise": "la escala, en voz baja"
+  },
+  {
+   "id": "V12",
+   "t": [
+    65.2,
+    75
+   ],
+   "transition_out": "cut",
+   "after": "V11",
+   "size": "CU",
+   "action": "la mano marca el último punto; el duodécimo queda sin marcar con el lápiz a medias; la lámpara se apaga; agua negra",
+   "text": "Contamos.",
+   "cam": {
+    "move": "static"
+   },
+   "premise": "cierre en silencio",
+   "hold_ok": [
+    [
+     3,
+     9.8
+    ]
+   ]
+  }
+ ]
+}
