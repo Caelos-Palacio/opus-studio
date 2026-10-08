@@ -29,7 +29,27 @@
    "cam": {
     "move": "static"
    },
-   "sakuga": "simple"
+   "sakuga": "simple",
+   "sfx": [
+    {
+     "at": 0.5,
+     "type": "llave",
+     "gain": 0.22,
+     "dur": 0.4
+    },
+    {
+     "at": 1.5,
+     "type": "llave",
+     "gain": 0.22,
+     "dur": 0.4
+    },
+    {
+     "at": 2.5,
+     "type": "llave",
+     "gain": 0.22,
+     "dur": 0.4
+    }
+   ]
   },
   {
    "id": "C2",
@@ -45,7 +65,14 @@
    "cam": {
     "move": "static"
    },
-   "sakuga": "simple"
+   "sakuga": "simple",
+   "sfx": [
+    {
+     "at": 1.3,
+     "type": "click",
+     "gain": 0.25
+    }
+   ]
   },
   {
    "id": "C3",
@@ -63,7 +90,44 @@
     "why": "approach",
     "amount": 0.03
    },
-   "sakuga": "normal"
+   "sakuga": "normal",
+   "sfx": [
+    {
+     "at": 1.0,
+     "type": "pluma",
+     "gain": 0.5,
+     "dur": 1.0
+    },
+    {
+     "at": 2.4,
+     "type": "pluma",
+     "gain": 0.5,
+     "dur": 0.5
+    },
+    {
+     "at": 3.4,
+     "type": "pluma",
+     "gain": 0.5,
+     "dur": 1.0
+    },
+    {
+     "at": 4.8,
+     "type": "pluma",
+     "gain": 0.5,
+     "dur": 0.5
+    },
+    {
+     "at": 6.15,
+     "type": "sello",
+     "gain": 0.6
+    },
+    {
+     "at": 7.6,
+     "type": "secante",
+     "gain": 0.4,
+     "dur": 1.0
+    }
+   ]
   },
   {
    "id": "C4",
@@ -79,7 +143,39 @@
    "cam": {
     "move": "static"
    },
-   "sakuga": "normal"
+   "sakuga": "normal",
+   "sfx": [
+    {
+     "at": 0.55,
+     "type": "tick",
+     "gain": 0.35
+    },
+    {
+     "at": 1.417,
+     "type": "tick",
+     "gain": 0.35
+    },
+    {
+     "at": 2.284,
+     "type": "tick",
+     "gain": 0.35
+    },
+    {
+     "at": 3.151,
+     "type": "tick",
+     "gain": 0.35
+    },
+    {
+     "at": 4.018,
+     "type": "tick",
+     "gain": 0.35
+    },
+    {
+     "at": 4.885,
+     "type": "tick",
+     "gain": 0.35
+    }
+   ]
   },
   {
    "id": "C5",
@@ -95,7 +191,21 @@
    "cam": {
     "move": "static"
    },
-   "sakuga": "simple"
+   "sakuga": "simple",
+   "sfx": [
+    {
+     "at": 0.0,
+     "type": "reloj",
+     "gain": 0.14,
+     "dur": 4.9
+    },
+    {
+     "at": 0.3,
+     "type": "mosca",
+     "gain": 0.07,
+     "dur": 4.2
+    }
+   ]
   },
   {
    "id": "C6",
@@ -113,7 +223,27 @@
     "why": "approach",
     "amount": 0.03
    },
-   "sakuga": "normal"
+   "sakuga": "normal",
+   "sfx": [
+    {
+     "at": 1.2,
+     "type": "llave",
+     "gain": 0.25,
+     "dur": 1.0
+    },
+    {
+     "at": 2.2,
+     "type": "llave",
+     "gain": 0.25,
+     "dur": 1.0
+    },
+    {
+     "at": 3.2,
+     "type": "llave",
+     "gain": 0.25,
+     "dur": 1.0
+    }
+   ]
   },
   {
    "id": "C7",
@@ -131,7 +261,14 @@
     "why": "unease",
     "amount": 0.05
    },
-   "sakuga": "hero"
+   "sakuga": "hero",
+   "sfx": [
+    {
+     "at": 1.02,
+     "type": "sello",
+     "gain": 1.3
+    }
+   ]
   },
   {
    "id": "C8",
@@ -147,7 +284,26 @@
    "cam": {
     "move": "static"
    },
-   "sakuga": "normal"
+   "sakuga": "normal",
+   "sfx": [
+    {
+     "at": 1.0,
+     "type": "pluma",
+     "gain": 0.5,
+     "dur": 1.0
+    },
+    {
+     "at": 2.2,
+     "type": "pluma",
+     "gain": 0.5,
+     "dur": 0.5
+    },
+    {
+     "at": 5.1,
+     "type": "sello_seco",
+     "gain": 1.5
+    }
+   ]
   }
  ]
 }

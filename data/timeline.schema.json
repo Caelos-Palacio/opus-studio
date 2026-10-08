@@ -39,7 +39,7 @@
   "$defs": {
     "num2": { "type": "array", "items": { "type": "number" }, "minItems": 2, "maxItems": 2 },
     "unit2": { "type": "array", "items": { "type": "number", "minimum": 0, "maximum": 1 }, "minItems": 2, "maxItems": 2 },
-    "voice": { "enum": ["click", "tick", "pop", "whoosh", "impact", "riser", "shimmer", "drone", "rev", "anom"] },
+    "voice": { "enum": ["click", "tick", "pop", "whoosh", "impact", "riser", "shimmer", "drone", "rev", "anom", "llave", "sello", "sello_seco", "pluma", "secante", "reloj", "mosca"] },
     "shot": {
       "type": "object",
       "additionalProperties": false,

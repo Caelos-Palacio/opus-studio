@@ -80,7 +80,7 @@ export default shot({
    "role": "h2",
    "align": "left",
    "alpha": {
-    "$expr": "seg(lt,2.0,2.3)"
+    "$expr": "seg(lt,1.0,1.3)"
    }
   },
   {
@@ -88,10 +88,10 @@ export default shot({
    "type": "objeto",
    "objeto": "pluma",
    "x": {
-    "$expr": "S_cx - 250 + 14*min(0.95, 0.15*floor(max(0,lt-2.0)*6)) + 55 + 400*seg(lt,3.0,3.8)"
+    "$expr": "S_cx - 250 + 14*min(0.95, 0.15*floor(max(0,lt-1.0)*6)) + 55 + 400*seg(lt,2.2,3.0)"
    },
    "y": {
-    "$expr": "S_cy - 140 - 250*seg(lt,3.0,3.8)"
+    "$expr": "S_cy - 140 - 250*seg(lt,2.2,3.0)"
    },
    "size": 230,
    "estado": "escribiendo",
@@ -105,7 +105,7 @@ export default shot({
     "$expr": "S_cx - 120"
    },
    "y": {
-    "$expr": "S_cy + 10 - 240*(1-seg(lt,6.0,6.5))*step(6.0,lt)"
+    "$expr": "S_cy + 10 - 240*(1-seg(lt,4.6,5.1))*step(4.6,lt)"
    },
    "size": 250,
    "params": {
@@ -113,7 +113,7 @@ export default shot({
    },
    "estado": "sin_tinta",
    "alfa": {
-    "$expr": "step(6.0,lt)"
+    "$expr": "step(4.6,lt)"
    },
    "focus": false
   },
@@ -147,7 +147,7 @@ export default shot({
    "role": "body",
    "align": "left",
    "alpha": {
-    "$expr": "seg(lt,0.4,0.7)"
+    "$expr": "seg(lt,0.2,0.5)"
    }
   },
   {
@@ -163,7 +163,7 @@ export default shot({
    "role": "body",
    "align": "left",
    "alpha": {
-    "$expr": "seg(lt,2.2,2.5)"
+    "$expr": "seg(lt,1.3,1.6)"
    }
   },
   {
@@ -179,7 +179,7 @@ export default shot({
    "role": "body",
    "align": "left",
    "alpha": {
-    "$expr": "seg(lt,3.0,3.3)"
+    "$expr": "seg(lt,2.0,2.3)"
    }
   }
  ]
