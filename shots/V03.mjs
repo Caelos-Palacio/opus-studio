@@ -3,7 +3,7 @@ import { shot } from '../engine/dsl-core.mjs';
 export default shot({
  "dsl": 1,
  "id": "V03",
- "doc": "La pausa real: 7,304 s entre el 9.º y el 10.º destello. No ocurre nada; solo agua, niebla y polvo. El contador queda en 9.",
+ "doc": "La pausa real: 7,304 s entre el 9.º y el 10.º destello. No ocurre nada; solo agua, niebla y polvo. El contador queda en 8.",
  "camera": {
   "move": "push",
   "why": "approach",
@@ -62,7 +62,7 @@ export default shot({
    },
    "partes": {
     "valor": {
-     "$expr": "9"
+     "$expr": "8"
     },
     "brillo": 0.95
    },

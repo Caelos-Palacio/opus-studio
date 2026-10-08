@@ -3,7 +3,7 @@ import { shot } from '../engine/dsl-core.mjs';
 export default shot({
  "dsl": 1,
  "id": "V05",
- "doc": "El duodécimo (12,439 s) llega a media luz: el contador no lo acepta y queda parpadeando en un 12 fantasma entre interrogaciones de grafito.",
+ "doc": "El sexto destello de la primera ráfaga (0,686 s, 6,3 MeV), bajo el umbral de 7,5 MeV, vuelve a media luz: el contador no lo acepta y queda parpadeando en un 12 fantasma entre interrogaciones de grafito.",
  "camera": {
   "move": "push",
   "why": "approach",
@@ -51,7 +51,7 @@ export default shot({
    "type": "repeat",
    "items": [
     [
-     0.439,
+     0.9,
      413.274,
      206.861,
      0.5,
@@ -253,13 +253,30 @@ export default shot({
     "$expr": "S_cx"
    },
    "y": {
-    "$expr": "S_y1 - 46"
+    "$expr": "S_y1 - 74"
    },
    "role": "body",
    "align": "center",
    "color": "ink",
    "alpha": {
-    "$expr": "1 * seg(lt, 1.4, 2.2) * (1 - seg(lt, 3.4000000000000004, 4.2))"
+    "$expr": "1 * seg(lt, 0.9, 1.7000000000000002) * (1 - seg(lt, 2.0999999999999996, 2.9))"
+   }
+  },
+  {
+   "id": "t1",
+   "type": "text",
+   "text": "Uno muy débil, el sexto, cayó dentro de la primera ráfaga.",
+   "x": {
+    "$expr": "S_cx"
+   },
+   "y": {
+    "$expr": "S_y1 - 34"
+   },
+   "role": "label",
+   "align": "center",
+   "color": "ink",
+   "alpha": {
+    "$expr": "1 * seg(lt, 1.2, 2) * (1 - seg(lt, 2.0999999999999996, 2.9))"
    }
   },
   {
@@ -272,7 +289,7 @@ export default shot({
    "align": "center",
    "color": "ink",
    "alpha": {
-    "$expr": "seg(lt, 0.7, 1.0) * (0.3 + 0.25 * sin(lt * 7))"
+    "$expr": "seg(lt, 0.5, 0.8) * (0.3 + 0.25 * sin(lt * 7))"
    }
   },
   {
@@ -285,7 +302,7 @@ export default shot({
    "align": "center",
    "color": "shade",
    "alpha": {
-    "$expr": "seg(lt, 1.2, 1.8) * 0.6"
+    "$expr": "seg(lt, 0.9, 1.4) * 0.6"
    }
   },
   {
@@ -298,7 +315,7 @@ export default shot({
    "align": "center",
    "color": "shade",
    "alpha": {
-    "$expr": "seg(lt, 1.6, 2.2) * 0.5"
+    "$expr": "seg(lt, 1.2, 1.7) * 0.5"
    }
   }
  ]

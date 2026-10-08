@@ -1,7 +1,7 @@
 {
  "dsl": 1,
  "id": "V02",
- "doc": "Primer destello y los nueve de la primera ráfaga, al ritmo real de Kamiokande-II (1,915 s).",
+ "doc": "Primer destello y los nueve de la primera ráfaga, al ritmo real de Kamiokande-II (1,915 s); el 6.º (0,686 s, 6,3 MeV) llega a media luz y el contador no lo acepta: ocho aceptados.",
  "camera": {
   "move": "static"
  },
@@ -92,7 +92,7 @@
      270.316,
      0.15,
      0.041,
-     1
+     0.45
     ],
     [
      2.341,
@@ -115,7 +115,7 @@
      543.186,
      308.588,
      0.7,
-     0.097,
+     0.463,
      1
     ]
    ],
@@ -280,7 +280,7 @@
    },
    "partes": {
     "valor": {
-     "$expr": "0 + seg(lt, 0.8, 0.96) + seg(lt, 0.907, 1.067) + seg(lt, 1.103, 1.263) + seg(lt, 1.124, 1.284) + seg(lt, 1.307, 1.467) + seg(lt, 1.486, 1.646) + seg(lt, 2.341, 2.501) + seg(lt, 2.528, 2.688) + seg(lt, 2.715, 2.875)"
+     "$expr": "0 + seg(lt, 0.8, 0.96) + seg(lt, 0.907, 1.067) + seg(lt, 1.103, 1.263) + seg(lt, 1.124, 1.284) + seg(lt, 1.307, 1.467) + seg(lt, 2.341, 2.501) + seg(lt, 2.528, 2.688) + seg(lt, 2.715, 2.875)"
     },
     "brillo": 0.95
    },
@@ -325,7 +325,7 @@
   {
    "id": "t1",
    "type": "text",
-   "text": "Nueve en menos de dos segundos.",
+   "text": "Ocho en menos de dos segundos.",
    "x": {
     "$expr": "S_cx"
    },

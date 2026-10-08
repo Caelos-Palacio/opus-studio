@@ -3,7 +3,7 @@
 //   V1  la voz `gota` (clic de agua) sube de altura con la energía del evento y la voz `nota` existe (v1, v2 y esquema)
 //   V2  el ritmo es REAL: 9.º→10.º destello de Kamiokande-II = 7,304 s; IMB 8 en < 6 s; Baksan 5 en 9,1 s
 //   V3  la pausa es silencio REAL: ningún evento sonoro entre el 9.º destello (+reverb) y el 10.º; sin música (bus ≤ −60 dB)
-//   V4  el 12.º destello es dudoso (gota débil) y el total contado es 11+8+5 = 24
+//   V4  el 6.º destello (0,686 s, excluido de los 11 oficiales) es dudoso (gota débil) y el total contado es 11+8+5 = 24
 //   V5  el timeline y el story del film son válidos; el story es v2 con medio y fondo declarados
 // Uso: node test/veinticuatro.mjs
 import fs from 'node:fs';
@@ -35,10 +35,10 @@ const zcr = (x, a, b) => { let z = 0; for (let i = Math.floor(a) + 1; i < Math.f
 // V2 ── ritmo real (tiempos de la tabla publicada; los de los extremos vienen de docs/guiones/veinticuatro.md)
 const gotas = tl.shots.flatMap((s) => (s.sfx ?? []).filter((e) => e.type === 'gota').map((e) => ({ t: s.t[0] + e.at, shot: s.id, e })));
 const by = (ids) => gotas.filter((g) => ids.includes(g.shot)).sort((a, b) => a.t - b.t);
-const kam = by(['V02', 'V04', 'V05']), imb = by(['V06']), bak = by(['V07']);
-ok('V2 Kamiokande-II: 12 filas; 9 en 1,915 s', kam.length === 12 && Math.abs(kam[8].t - kam[0].t - 1.915) < 0.003, `${kam.length} filas, ${(kam[8]?.t - kam[0]?.t).toFixed(3)} s`);
+const kam = by(['V02', 'V04']), repite = by(['V05']), imb = by(['V06']), bak = by(['V07']);
+ok('V2 Kamiokande-II: 12 filas (11 oficiales + la 6.ª excluida); 9 en 1,915 s', kam.length === 12 && Math.abs(kam[8].t - kam[0].t - 1.915) < 0.003, `${kam.length} filas, ${(kam[8]?.t - kam[0]?.t).toFixed(3)} s`);
 ok('V2 la pausa REAL entre el 9.º y el 10.º destello es 7,304 s', Math.abs(kam[9].t - kam[8].t - 7.304) < 0.003, `${(kam[9].t - kam[8].t).toFixed(3)} s`);
-ok('V2 el 12.º cae a 12,439 s del primero', Math.abs(kam[11].t - kam[0].t - 12.439) < 0.003);
+ok('V2 el último (12.º destello, 11.º oficial) cae a 12,439 s del primero; la 6.ª fila a 0,686 s', Math.abs(kam[11].t - kam[0].t - 12.439) < 0.003 && Math.abs(kam[5].t - kam[0].t - 0.686) < 0.003);
 ok('V2 IMB: 8 eventos en menos de 6 s', imb.length === 8 && imb[7].t - imb[0].t < 6 && imb[7].t - imb[0].t > 5.5);
 ok('V2 Baksan: 5 eventos en 9,1 s', bak.length === 5 && Math.abs(bak[4].t - bak[0].t - 9.099) < 0.003);
 
@@ -49,9 +49,9 @@ ok('V3 ningún evento sonoro (ni drone) dentro de la pausa', dentro.length === 0
 ok('V3 sin música: bus de música ≤ −60 dB y sin pista', tl.music == null && tl.sound.overrides.mix.bus.music <= -60);
 ok('V3 el audio analizado ve la pausa como silencio ≥ 6 s', (() => { try { const a = rd('data/veinticuatro/audio.json'); return a.silences.some(([x, y]) => x <= t9 + 0.7 && y >= t10 - 0.2 && y - x >= 6); } catch { return false; } })());
 
-// V4 ── el 12.º es dudoso y la cuenta es 24
-ok('V4 el 12.º destello suena débil (gain < 0,3) y los demás no', kam[11].e.gain < 0.3 && kam.slice(0, 11).every((g) => g.e.gain >= 0.3));
-ok('V4 11 + 8 + 5 = 24 aceptados', kam.length - 1 + imb.length + bak.length === 24);
+// V4 ── el 6.º (0,686 s, excluido de los 11 oficiales) es dudoso y la cuenta es 24
+ok('V4 el 6.º destello (el excluido) suena débil (gain < 0,3), también al repetirse en V05, y los demás no', kam[5].e.gain < 0.3 && kam.filter((_, i) => i !== 5).every((g) => g.e.gain >= 0.3) && repite.length === 1 && repite[0].e.gain < 0.3);
+ok('V4 11 + 8 + 5 = 24 aceptados', kam.length - 1 + imb.length + bak.length === 24 && kam.filter((g) => g.e.gain >= 0.3).length === 11);
 
 // V5 ── datos válidos
 const r = validateTimeline(tl), fixes = r.filter((i) => i.level === 'FIX');

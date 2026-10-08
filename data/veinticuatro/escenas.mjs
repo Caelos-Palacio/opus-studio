@@ -10,18 +10,19 @@ const R = (n) => +n.toFixed(3);
 // PRNG sembrado (solo para repartir posiciones en el cuadro al generar; los datos quedan fijos en el JSON)
 const prng = (s) => () => ((s = (Math.imul(s, 1664525) + 1013904223) >>> 0) / 4294967296);
 
-// energías (MeV) de las tablas publicadas, solo para dar altura al clic y tamaño al destello (de memoria: a verificar)
-export const EK = [20.0, 13.5, 7.5, 9.2, 12.8, 6.3, 35.4, 21.0, 8.1, 12.2, 8.9, 6.3];
+// energías (MeV) de las tablas publicadas (verificadas, docs/guiones/veinticuatro.fuentes.md); dan altura al clic y tamaño al destello.
+// Kamiokande-II: la 6.ª fila (0,686 s, 6,3 MeV) es la EXCLUIDA de los 11 oficiales (por debajo del umbral de 7,5 MeV).
+export const EK = [20.0, 13.5, 7.5, 9.2, 12.8, 6.3, 35.4, 21.0, 19.8, 8.6, 13.0, 8.9];
 export const EI = [38, 37, 28, 39, 36, 36, 19, 22];
 export const EB = [12.0, 17.9, 23.5, 17.6, 20.3];
 
 // filas de destello: [k (s locales), x, y, z (0 lejos..1 cerca), energía 0..1, ok (1 aceptado, .45 dudoso)]
-export function filas(times, energias, t0shot, t0film, { seed, okFrom = 99, zOverride = null, box = [190, 1090, 150, 480] }) {
+export function filas(times, energias, t0shot, t0film, { seed, dudosos = [], zOverride = null, box = [190, 1090, 150, 480] }) {
   const rnd = prng(seed);
   return times.map((t, i) => {
     const z = zOverride ? zOverride[i] : R(0.12 + 0.88 * rnd());
     const x = R(box[0] + (box[1] - box[0]) * rnd()), y = R(box[2] + (box[3] - box[2]) * (0.5 + (rnd() - 0.5) * (0.5 + 0.6 * z)));
-    return [R(t0film + t - t0shot), x, y, z, R((energias[i] - 5) / 32), i >= okFrom ? 0.45 : 1];
+    return [R(t0film + t - t0shot), x, y, z, R((energias[i] - 5) / 32), dudosos.includes(i) ? 0.45 : 1];
   });
 }
 const sfxGota = (r) => ({ at: r[0], type: 'gota', gain: R(r[5] < 1 ? 0.22 : 0.5 + 0.45 * r[3]), pan: R(Math.max(-1, Math.min(1, (r[1] - 640) / 640)) * 0.7), energia: R(Math.max(0, Math.min(1, r[4]))) });
@@ -81,27 +82,28 @@ gen.V01 = () => cuba('V01', 'La cuba antes del primer destello: agua negra, foto
   rows: [], base: 0, contAlpha: 'seg(lt, 6.0, 7.4) * 0.5', camera: { move: 'push', why: 'approach', amount: 0.03 },
   textos: [['Kamioka, mil metros bajo la roca.', 0.9, 8.1, { role: 'body', y: 'S_y1 - 74' }], ['Una cuba de agua, mil fotomultiplicadores. Esperan.', 2.6, 8.1, { role: 'body', y: 'S_y1 - 34' }]],
 });
-gen.V02 = () => cuba('V02', 'Primer destello y los nueve de la primera ráfaga, al ritmo real de Kamiokande-II (1,915 s).', {
-  rows: filas(KAM.slice(0, 9), EK.slice(0, 9), 8.2, F1, { seed: 11, zOverride: [0.5, 0.2, 0.85, 0.35, 0.65, 0.15, 0.95, 0.4, 0.7] }), base: 0, contAlpha: '0.5 + 0.5 * seg(lt, 0.6, 0.8)',
-  camera: { move: 'static' }, etiqueta: 'KAMIOKANDE-II', textos: [['Uno.', 0.8, 1.9, { role: 'h2', y: 'S_y1 - 96' }], ['Nueve en menos de dos segundos.', 1.3, 4.4, { role: 'body', y: 'S_y1 - 34' }]],
+gen.V02 = () => cuba('V02', 'Primer destello y los nueve de la primera ráfaga, al ritmo real de Kamiokande-II (1,915 s); el 6.º (0,686 s, 6,3 MeV) llega a media luz y el contador no lo acepta: ocho aceptados.', {
+  rows: filas(KAM.slice(0, 9), EK.slice(0, 9), 8.2, F1, { seed: 11, dudosos: [5], zOverride: [0.5, 0.2, 0.85, 0.35, 0.65, 0.15, 0.95, 0.4, 0.7] }), base: 0, contAlpha: '0.5 + 0.5 * seg(lt, 0.6, 0.8)',
+  camera: { move: 'static' }, etiqueta: 'KAMIOKANDE-II', textos: [['Uno.', 0.8, 1.9, { role: 'h2', y: 'S_y1 - 96' }], ['Ocho en menos de dos segundos.', 1.3, 4.4, { role: 'body', y: 'S_y1 - 34' }]],
 });
-gen.V03 = () => cuba('V03', 'La pausa real: 7,304 s entre el 9.º y el 10.º destello. No ocurre nada; solo agua, niebla y polvo. El contador queda en 9.', {
-  rows: [], base: 9, camera: { move: 'push', why: 'approach', amount: 0.025 }, etiqueta: 'KAMIOKANDE-II',
+gen.V03 = () => cuba('V03', 'La pausa real: 7,304 s entre el 9.º y el 10.º destello. No ocurre nada; solo agua, niebla y polvo. El contador queda en 8.', {
+  rows: [], base: 8, camera: { move: 'push', why: 'approach', amount: 0.025 }, etiqueta: 'KAMIOKANDE-II',
   textos: [['Pasan siete segundos. No llega ninguno.', 1.0, 5.4, { role: 'body' }]],
 });
-// V04: el 10.º destello a F1+9,219 s y el 11.º a +10,433 s. El shot empieza a 18,15 s
-gen.V04 = () => cuba('V04', 'Dos destellos más (9,219 y 10,433 s tras el primero): el contador llega a 11.', {
-  rows: filas(KAM.slice(9, 11), EK.slice(9, 11), 18.15, F1, { seed: 21, zOverride: [0.6, 0.3] }), base: 9, camera: { move: 'static' }, etiqueta: 'KAMIOKANDE-II',
-  textos: [['Dos más. Contamos once.', 0.5, 2.85, { role: 'body' }]],
+// V04: tres destellos (9,219; 10,433 y 12,439 s tras el primero). El shot empieza a 18,15 s
+gen.V04 = () => cuba('V04', 'Tres destellos más (9,219, 10,433 y 12,439 s tras el primero): el contador llega a 11.', {
+  rows: filas(KAM.slice(9, 12), EK.slice(9, 12), 18.15, F1, { seed: 21, zOverride: [0.6, 0.3, 0.5] }), base: 8, camera: { move: 'static' }, etiqueta: 'KAMIOKANDE-II',
+  textos: [['Tres más. Contamos once.', 2.2, 4.1, { role: 'body' }]],
 });
-gen.V05 = () => cuba('V05', 'El duodécimo (12,439 s) llega a media luz: el contador no lo acepta y queda parpadeando en un 12 fantasma entre interrogaciones de grafito.', {
-  rows: filas(KAM.slice(11, 12), EK.slice(11, 12), 21.0, F1, { seed: 31, zOverride: [0.5], okFrom: 0 }).map((r) => { r[5] = 0.6; return r; }), base: 11, camera: { move: 'push', why: 'approach', amount: 0.03 }, etiqueta: 'KAMIOKANDE-II',
+// V05: el sexto (el excluido, 0,686 s, 6,3 MeV) se repite a media luz con su 12 fantasma: la cuenta que no entró
+gen.V05 = () => cuba('V05', 'El sexto destello de la primera ráfaga (0,686 s, 6,3 MeV), bajo el umbral de 7,5 MeV, vuelve a media luz: el contador no lo acepta y queda parpadeando en un 12 fantasma entre interrogaciones de grafito.', {
+  rows: filas([0.9], [6.3], 0, 0, { seed: 31, zOverride: [0.5], dudosos: [0] }).map((r) => { r[5] = 0.6; return r; }), base: 11, camera: { move: 'push', why: 'approach', amount: 0.03 }, etiqueta: 'KAMIOKANDE-II',
   extra: [
-    { id: 'fan', type: 'text', text: '12', x: 400, y: 112, role: 'h2', align: 'center', color: 'ink', alpha: X('seg(lt, 0.7, 1.0) * (0.3 + 0.25 * sin(lt * 7))') },
-    { id: 'q1', type: 'text', text: '?', x: 470, y: 90, role: 'h2', align: 'center', color: 'shade', alpha: X('seg(lt, 1.2, 1.8) * 0.6') },
-    { id: 'q2', type: 'text', text: '?', x: 510, y: 135, role: 'body', align: 'center', color: 'shade', alpha: X('seg(lt, 1.6, 2.2) * 0.5') },
+    { id: 'fan', type: 'text', text: '12', x: 400, y: 112, role: 'h2', align: 'center', color: 'ink', alpha: X('seg(lt, 0.5, 0.8) * (0.3 + 0.25 * sin(lt * 7))') },
+    { id: 'q1', type: 'text', text: '?', x: 470, y: 90, role: 'h2', align: 'center', color: 'shade', alpha: X('seg(lt, 0.9, 1.4) * 0.6') },
+    { id: 'q2', type: 'text', text: '?', x: 510, y: 135, role: 'body', align: 'center', color: 'shade', alpha: X('seg(lt, 1.2, 1.7) * 0.5') },
   ],
-  textos: [['Otras cuentas ponen doce.', 1.4, 4.2, { role: 'body' }]],
+  textos: [['Otras cuentas ponen doce.', 0.9, 2.9, { role: 'body', y: 'S_y1 - 74' }], ['Uno muy débil, el sexto, cayó dentro de la primera ráfaga.', 1.2, 2.9, { role: 'label', y: 'S_y1 - 34' }]],
 });
 // IMB: otra cuba, más fría y más azul
 const AJ_IMB = { haces: { intensidad: 0.07, color: '#9fb0ff' }, turbidez: { alfa: 0.2, colorB: '#2b3a9a' }, bruma: { color: '#1b2a7e', densidad: 0.34 }, pmtLejanos: { brillo: 0.3, alfa: 0.5, color: '#a8b8ff', cristal: '#0b1230' }, pmtCercanos: { brillo: 0.4, alfa: 0.75, color: '#b9c6ff', cristal: '#0c1536' }, nieveMarina: { color: '#c8d2ff' }, vineta: { fuerza: 0.9 } };
@@ -159,7 +161,7 @@ gen.V08 = () => ({
     { id: 'tot', type: 'objeto', when: 'lt > 2.5', objeto: 'contador', x: 640, y: 300, size: 480, alfa: X('seg(lt, 2.7, 3.2)'), params: { digitos: 2, tipo: 'numerico' }, partes: { valor: 24, brillo: 1 }, color: '#07141c', relleno: '#0a1a24', acento: '#e9e6ef' },
     { id: 'fan', type: 'text', when: 'lt > 3.2', text: '25', x: 1020, y: 300, role: 'display', align: 'center', color: 'ink', alpha: X('seg(lt, 3.2, 3.8) * (0.36 + 0.14 * sin(lt * 5.5))') },
     texto('t0', 'Contamos veinticuatro.', 0.6, 4.6, { role: 'body', y: 'S_y1 - 74' }),
-    texto('t1', 'Veinticinco, si vale el doce.', 1.4, 4.6, { role: 'label', y: 'S_y1 - 34', max: 0.85 }),
+    texto('t1', 'Veinticinco, si vale el sexto.', 1.4, 4.6, { role: 'label', y: 'S_y1 - 34', max: 0.85 }),
   ],
 });
 
@@ -175,7 +177,7 @@ const PX = 64, PX0 = -392, FILA = [-130, 0, 130];
 const wx = (t) => R(PX0 + PX * t);
 // puntos del listado: [wx, wy, hueco(0|1), orden de conteo (0..23, -1 el dudoso), índice global]
 const PUNTOS = (() => { const r = []; let ord = 0, g = 0;
-  KAM.forEach((t, i) => { r.push(i === 11 ? [wx(t), FILA[0], 1, -1, g++] : [wx(t), FILA[0], 0, ord++, g++]); });
+  KAM.forEach((t, i) => { r.push(i === 5 ? [wx(t), FILA[0], 1, -1, g++] : [wx(t), FILA[0], 0, ord++, g++]); });
   IMB.forEach((t) => r.push([wx(t), FILA[1], 0, ord++, g++])); BAK.forEach((t) => r.push([wx(t), FILA[2], 0, ord++, g++])); return r; })();
 const GRAFITO = '#34343a', TINTA = '#1f160d';
 
@@ -247,10 +249,10 @@ gen.V11 = () => mesa('V11', 'La lámpara se aleja con paralaje; 24 puntos, una f
   textos: [['Salieron unos 10⁵⁸. Hace 168 000 años.', 1.2, 6.1, { role: 'body', y: 'S_y1 - 74' }], ['Aquí se contaron 24.', 3.0, 6.1, { role: 'label', y: 'S_y1 - 34' }]],
 });
 
-// V12: la mano marca el último punto (el 24); el duodécimo (el dudoso) queda sin marcar, con el lápiz a medias; la lámpara se apaga y vuelve el agua negra
-const U = FILA[2], L24 = PUNTOS[PUNTOS.length - 1], D12 = PUNTOS[11];
-gen.V12 = () => mesa('V12', 'La mano marca el último punto con lápiz; el duodécimo queda sin marcar, con el lápiz a medias; la lámpara se apaga despacio y vuelve el agua negra.', {
-  Z: '0.95 + 0.1 * smooth(seg(lt, 0, 5))', FX: '300', FY: '150', formas: true, glowOn: '(1 - smooth(seg(lt, 5.8, 8.4)))', lamp: { x: '120', y: '300', size: '440', on: '(1 - smooth(seg(lt, 5.8, 8.4)))' },
+// V12: la mano marca el último punto (el 24); el sexto (el dudoso, 0,686 s) queda sin marcar, con el lápiz a medias; la lámpara se apaga y vuelve el agua negra
+const U = FILA[2], L24 = PUNTOS[PUNTOS.length - 1], D12 = PUNTOS[5];   // D12: el dudoso (el 6.º de Kamiokande-II, a mitad de la primera ráfaga)
+gen.V12 = () => mesa('V12', 'La mano marca el último punto con lápiz; el sexto (el dudoso, al principio de la fila) queda sin marcar, con el lápiz a medias; la lámpara se apaga despacio y vuelve el agua negra.', {
+  Z: '0.95 + 0.1 * smooth(seg(lt, 0, 5))', FX: '-80', FY: '150', formas: true, glowOn: '(1 - smooth(seg(lt, 5.8, 8.4)))', lamp: { x: '120', y: '300', size: '440', on: '(1 - smooth(seg(lt, 5.8, 8.4)))' },
   marks: `(d_o == 23 ? seg(lt, 1.7, 2.7) : seg(lt, -9, -8.9))`, camera: { move: 'static' },
   pencil: {
     x: `lt < 1.7 ? 60 + ${R(L24[0] + 13 - 60)} * smooth(seg(lt, 0.2, 1.7)) : lt < 2.9 ? ${L24[0]} + 13 * cos(6.2832 * seg(lt, 1.7, 2.7)) : lt < 4.4 ? ${R(L24[0] + 13)} + ${R(D12[0] + 13 - L24[0] - 13)} * smooth(seg(lt, 2.9, 4.3)) : ${D12[0]} + 13 * cos(3.1416 * seg(lt, 4.4, 5.6))`,

@@ -1,7 +1,7 @@
 {
  "dsl": 1,
  "id": "V12",
- "doc": "La mano marca el último punto con lápiz; el duodécimo queda sin marcar, con el lápiz a medias; la lámpara se apaga despacio y vuelve el agua negra.",
+ "doc": "La mano marca el último punto con lápiz; el sexto (el dudoso, al principio de la fila) queda sin marcar, con el lápiz a medias; la lámpara se apaga despacio y vuelve el agua negra.",
  "camera": {
   "move": "static"
  },
@@ -87,7 +87,7 @@
    "id": "FX",
    "type": "let",
    "value": {
-    "$expr": "300"
+    "$expr": "-80"
    }
   },
   {
@@ -274,50 +274,50 @@
     [
      -348.096,
      -130,
-     0,
-     5,
+     1,
+     -1,
      5
     ],
     [
      -293.376,
      -130,
      0,
-     6,
+     5,
      6
     ],
     [
      -281.408,
      -130,
      0,
-     7,
+     6,
      7
     ],
     [
      -269.44,
      -130,
      0,
-     8,
+     7,
      8
     ],
     [
      198.016,
      -130,
      0,
-     9,
+     8,
      9
     ],
     [
      275.712,
      -130,
      0,
-     10,
+     9,
      10
     ],
     [
      404.096,
      -130,
-     1,
-     -1,
+     0,
+     10,
      11
     ],
     [
@@ -554,7 +554,7 @@
    "id": "tx",
    "type": "let",
    "value": {
-    "$expr": "640 + ((lt < 1.7 ? 60 + 143.336 * smooth(seg(lt, 0.2, 1.7)) : lt < 2.9 ? 190.336 + 13 * cos(6.2832 * seg(lt, 1.7, 2.7)) : lt < 4.4 ? 203.336 + 213.76 * smooth(seg(lt, 2.9, 4.3)) : 404.096 + 13 * cos(3.1416 * seg(lt, 4.4, 5.6))) - FX) * Z"
+    "$expr": "640 + ((lt < 1.7 ? 60 + 143.336 * smooth(seg(lt, 0.2, 1.7)) : lt < 2.9 ? 190.336 + 13 * cos(6.2832 * seg(lt, 1.7, 2.7)) : lt < 4.4 ? 203.336 + -538.432 * smooth(seg(lt, 2.9, 4.3)) : -348.096 + 13 * cos(3.1416 * seg(lt, 4.4, 5.6))) - FX) * Z"
    }
   },
   {
@@ -621,7 +621,7 @@
     "$expr": "max(1.2, 2.2 * Z)"
    },
    "x": {
-    "$expr": "640 + (404.096 - FX) * Z"
+    "$expr": "640 + (-348.096 - FX) * Z"
    },
    "y": {
     "$expr": "360 + (-130 - FY) * Z"

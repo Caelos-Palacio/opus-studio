@@ -81,7 +81,7 @@
    "transition_out": "cut",
    "after": "V01",
    "size": "WS",
-   "action": "el primer destello Cherenkov; en 1,9 s reales nueve, cada uno a una profundidad; el contador sube 1 a 9",
+   "action": "el primer destello Cherenkov; en 1,9 s reales nueve (el sexto a media luz, no aceptado); el contador sube de 1 a 8",
    "text": "Uno.",
    "on_beat_at": [
     0.8000000000000007
@@ -130,7 +130,7 @@
     {
      "at": 1.486,
      "type": "gota",
-     "gain": 0.568,
+     "gain": 0.22,
      "pan": 0.283,
      "energia": 0.041
     },
@@ -153,7 +153,7 @@
      "type": "gota",
      "gain": 0.815,
      "pan": -0.106,
-     "energia": 0.097
+     "energia": 0.463
     }
    ]
   },
@@ -166,7 +166,7 @@
    "transition_out": "cut",
    "after": "V02",
    "size": "WS",
-   "action": "no se enciende nada durante 7,304 s reales; el contador queda en 9; solo agua, niebla y polvo",
+   "action": "no se enciende nada durante 7,304 s reales; el contador queda en 8; solo agua, niebla y polvo",
    "text": "Pasan siete segundos. No llega ninguno.",
    "cam": {
     "move": "push",
@@ -186,13 +186,13 @@
    "id": "V04",
    "t": [
     18.15,
-    21
+    22.4
    ],
    "transition_out": "cut",
    "after": "V03",
    "size": "WS",
-   "action": "dos destellos más a 1,2 s uno de otro; el contador llega a 11",
-   "text": "Dos más. Contamos once.",
+   "action": "tres destellos más (9,2; 10,4 y 12,4 s); el contador llega a 11",
+   "text": "Tres más. Contamos once.",
    "cam": {
     "move": "static"
    },
@@ -203,13 +203,20 @@
      "type": "gota",
      "gain": 0.77,
      "pan": -0.252,
-     "energia": 0.225
+     "energia": 0.112
     },
     {
      "at": 1.283,
      "type": "gota",
      "gain": 0.635,
      "pan": -0.297,
+     "energia": 0.25
+    },
+    {
+     "at": 3.289,
+     "type": "gota",
+     "gain": 0.725,
+     "pan": -0.118,
      "energia": 0.122
     }
    ]
@@ -217,14 +224,14 @@
   {
    "id": "V05",
    "t": [
-    21,
+    22.4,
     25.4
    ],
    "transition_out": "cut",
    "after": "V04",
    "size": "MS",
-   "action": "un duodécimo destello a media luz; el contador no lo acepta y queda parpadeando",
-   "text": "Otras cuentas ponen doce.",
+   "action": "el sexto destello (el excluido, 6,3 MeV) vuelve a media luz; el contador no lo acepta y queda parpadeando en un 12 fantasma",
+   "text": "Otras cuentas ponen doce. Uno muy débil, el sexto, cayó dentro de la primera ráfaga.",
    "cam": {
     "move": "push",
     "why": "approach",
@@ -233,7 +240,7 @@
    "premise": "la duda 11/12 queda abierta",
    "sfx": [
     {
-     "at": 0.439,
+     "at": 0.9,
      "type": "gota",
      "gain": 0.22,
      "pan": -0.248,
@@ -380,7 +387,7 @@
    "after": "V07",
    "size": "MS",
    "action": "los tres contadores en fila; la suma baja a un 24 con un 25 fantasma al lado",
-   "text": "Contamos veinticuatro. Veinticinco, si vale el doce.",
+   "text": "Contamos veinticuatro. Veinticinco, si vale el sexto.",
    "cam": {
     "move": "static"
    },
@@ -624,7 +631,7 @@
    "transition_out": "cut",
    "after": "V11",
    "size": "CU",
-   "action": "la mano marca el último punto; el duodécimo queda sin marcar con el lápiz a medias; la lámpara se apaga; agua negra",
+   "action": "la mano marca el último punto; el sexto (el dudoso) queda sin marcar con el lápiz a medias; la lámpara se apaga; agua negra",
    "text": "Contamos.",
    "cam": {
     "move": "static"

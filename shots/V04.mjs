@@ -3,7 +3,7 @@ import { shot } from '../engine/dsl-core.mjs';
 export default shot({
  "dsl": 1,
  "id": "V04",
- "doc": "Dos destellos más (9,219 y 10,433 s tras el primero): el contador llega a 11.",
+ "doc": "Tres destellos más (9,219, 10,433 y 12,439 s tras el primero): el contador llega a 11.",
  "camera": {
   "move": "static"
  },
@@ -53,7 +53,7 @@ export default shot({
      409.786,
      225.134,
      0.6,
-     0.225,
+     0.112,
      1
     ],
     [
@@ -61,6 +61,14 @@ export default shot({
      368.567,
      302.705,
      0.3,
+     0.25,
+     1
+    ],
+    [
+     3.289,
+     531.882,
+     268.466,
+     0.5,
      0.122,
      1
     ]
@@ -226,7 +234,7 @@ export default shot({
    },
    "partes": {
     "valor": {
-     "$expr": "9 + seg(lt, 0.069, 0.229) + seg(lt, 1.283, 1.443)"
+     "$expr": "8 + seg(lt, 0.069, 0.229) + seg(lt, 1.283, 1.443) + seg(lt, 3.289, 3.449)"
     },
     "brillo": 0.95
    },
@@ -254,7 +262,7 @@ export default shot({
   {
    "id": "t0",
    "type": "text",
-   "text": "Dos más. Contamos once.",
+   "text": "Tres más. Contamos once.",
    "x": {
     "$expr": "S_cx"
    },
@@ -265,7 +273,7 @@ export default shot({
    "align": "center",
    "color": "ink",
    "alpha": {
-    "$expr": "1 * seg(lt, 0.5, 1.3) * (1 - seg(lt, 2.05, 2.85))"
+    "$expr": "1 * seg(lt, 2.2, 3) * (1 - seg(lt, 3.3, 4.1))"
    }
   }
  ]

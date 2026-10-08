@@ -218,7 +218,7 @@ export default shot({
   {
    "id": "t1",
    "type": "text",
-   "text": "Veinticinco, si vale el doce.",
+   "text": "Veinticinco, si vale el sexto.",
    "x": {
     "$expr": "S_cx"
    },
