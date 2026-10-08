@@ -9,7 +9,7 @@
 - Films ≠ demo: fija el film con `npm run use -- <film>` (out/.film; prioridad --timeline > OPUS_TIMELINE > use > demo). Toda CLI imprime en su
   1.ª línea `film: <clave> (<ruta>, fuente: …)`: léela. story/memoria se derivan de la carpeta del film. `npm run peek -- [film]` = hoja de contacto en segundos: míralo antes de entregar.
 - Audio: master con techo ≈ −3 dBTP (el AAC sube el pico); verifica ebur128 sobre el mp4 final (TP ≤ −1).
-- Tests: `npm test -- --fast` mientras iteras; `npm test` completo antes de integrar. `master` sin --force.
+- Tests: `npm test -- --fast` mientras iteras; `npm test` (rápido, < 240 s, todas las suites con fixtures reducidas); `npm test -- --full` (= `test:nightly`) OBLIGATORIO verde antes de integrar a main (qué pierde el rápido: docs/handoff/deuda2.md). La suite ignora `out/.film`. `master` sin --force.
 - Agentes: Sonnet por defecto; ≤3 en paralelo; worktree desde main actualizado; commits WIP + docs/handoff/<tarea>.md.
 - Empieza por `node engine/tools.mjs brief --role <rol>` y `tools plan "<objetivo>"`; usa `tools find "<intención>"` / `show <id>` en vez de leer el catálogo (spec 015).
 - Eficiencia: docs/current/EFICIENCIA.md. Mapa de docs: docs/current/README.md; decisiones: docs/adr/.

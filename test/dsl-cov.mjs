@@ -7,7 +7,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import crypto from 'node:crypto';
 import { pathToFileURL } from 'node:url';
-import { ROOT, FONTS_CONF, run } from './lib.mjs';
+import { ROOT, FONTS_CONF, run, FULL, PROFILE } from './lib.mjs';
 
 export const FRACS = [0.02, 0.25, 0.4, 0.5, 0.75, 0.98];
 export const FILMS = { demo: 'data/timeline.json', mate: 'data/mate/timeline.json', regla: 'data/regla/regla.json', potencias: 'data/stress/potencias.json', reel: 'data/reel/timeline.json' };
@@ -20,8 +20,8 @@ if (argv[0] === '--worker') {
   const perf = process.env.DSL_PERF ? Number(process.env.DSL_PERF) : 0;
   for (const s of R.film.shots) {
     if (only && !only.includes(s.id)) continue;
-    const [a, b] = s.t; out[s.id] = {};
-    for (const f of FRACS) { const t = a + (b - a) * f; R.frame(t); out[s.id][f] = crypto.createHash('sha256').update(R.ctx.getImageData(0, 0, R.W, R.H).data).digest('hex').slice(0, 20); }
+    const [a, b] = s.t; out[s.id] = {};   // en modo perf (C9) solo se cronometra: los hashes ya los comprueba C3
+    if (!perf) for (const f of FRACS) { const t = a + (b - a) * f; R.frame(t); out[s.id][f] = crypto.createHash('sha256').update(R.ctx.getImageData(0, 0, R.W, R.H).data).digest('hex').slice(0, 20); }
     if (perf) { const ts = []; for (let r = 0; r < perf; r++) { const t0 = process.hrtime.bigint(); for (const f of FRACS) R.frame(a + (b - a) * f); ts.push(Number(process.hrtime.bigint() - t0) / 1e6 / FRACS.length); } ts.sort((x, y) => x - y); tm[s.id] = ts[Math.floor(ts.length / 2)]; }
   }
   process.stdout.write(JSON.stringify(perf ? { hashes: out, ms: tm } : out)); process.exit(0);
@@ -119,18 +119,18 @@ const NEW = ['curve', 'lines', 'repeat', 'formula', 'layer', 'smear', 'word', 'b
 
 // ── C3: píxeles idénticos al JS legado (in/mid/out + 3 instantes) en TODOS los shots convertidos ──
 {
-  const mine = dslShots(), H = refHashes(), fix = fs.readdirSync(path.join(ROOT, 'test/fixtures/dsl-legacy')).filter((f) => f.endsWith('.mjs')).map((f) => f.slice(0, -4));
+  const mine = dslShots(), H = refHashes(), sample = (ids) => (FULL ? ids : ids.filter((_, i) => i % 3 === 0)), fix = fs.readdirSync(path.join(ROOT, 'test/fixtures/dsl-legacy')).filter((f) => f.endsWith('.mjs')).map((f) => f.slice(0, -4));
   ok('C3a todo shot convertido (que existía en JS) tiene su JS legado en test/fixtures/dsl-legacy y sus hashes de referencia', mine.every((id) => fix.includes(id) && H[id] && Object.keys(H[id]).length === FRACS.length), mine.filter((id) => !fix.includes(id)).join(' '));
   const bad = [], t0 = Date.now();
-  const films = await Promise.all(Object.keys(FILMS).map(async (film) => { const tl = JSON.parse(fs.readFileSync(path.join(ROOT, FILMS[film]), 'utf8')).shots.map((s) => s.id); const ids = tl.filter((i) => mine.includes(i)); return ids.length ? [film, ids, await renderFilm(film)] : null; }));
+  const films = await Promise.all(Object.keys(FILMS).map(async (film) => { const tl = JSON.parse(fs.readFileSync(path.join(ROOT, FILMS[film]), 'utf8')).shots.map((s) => s.id); const ids = sample(tl.filter((i) => mine.includes(i))); return ids.length ? [film, ids, await renderFilm(film, { ids })] : null; }));   // solo los shots DSL (antes se renderizaba el film entero); perfil quick: 1 de cada 3, full: todos
   let n = 0; for (const f of films.filter(Boolean)) for (const id of f[1]) { n++; if (JSON.stringify(f[2][id]) !== JSON.stringify(H[id])) bad.push(id); }
-  ok(`C3 ${n} shots DSL: sha256 de píxeles == JS legado en 6 instantes (${((Date.now() - t0) / 1000).toFixed(0)} s)`, !bad.length && n > 0, 'difieren: ' + bad.join(' '));
+  ok(`C3 ${n} shots DSL${FULL ? '' : ' (muestra 1/3, perfil ' + PROFILE + ')'}: sha256 de píxeles == JS legado en 6 instantes (${((Date.now() - t0) / 1000).toFixed(0)} s)`, !bad.length && n > 0, 'difieren: ' + bad.join(' '));
   if (!fast) {   // el JS legado de los fixtures reproduce los mismos hashes (los hashes no se han contaminado)
     const { copyRepo, rmrf } = await import('./lib.mjs'), badL = [];
     await Promise.all(Object.keys(FILMS).map(async (film) => {
-      const tl = JSON.parse(fs.readFileSync(path.join(ROOT, FILMS[film]), 'utf8')).shots.map((s) => s.id), ids = tl.filter((i) => mine.includes(i)); if (!ids.length) return;
+      const tl = JSON.parse(fs.readFileSync(path.join(ROOT, FILMS[film]), 'utf8')).shots.map((s) => s.id), ids = sample(tl.filter((i) => mine.includes(i))); if (!ids.length) return;
       const d = copyRepo(); try { for (const id of ids) { fs.copyFileSync(path.join(ROOT, 'test/fixtures/dsl-legacy', id + '.mjs'), path.join(d, 'shots', id + '.mjs')); fs.rmSync(path.join(d, 'shots', id + '.scene.json'), { force: true }); }
-        const g = await renderFilm(film, { cwd: d }); for (const id of ids) if (JSON.stringify(g[id]) !== JSON.stringify(H[id])) badL.push(id); } finally { rmrf(d); } }));
+        const g = await renderFilm(film, { cwd: d, ids }); for (const id of ids) if (JSON.stringify(g[id]) !== JSON.stringify(H[id])) badL.push(id); } finally { rmrf(d); } }));
     ok('C3b el JS legado (fixtures) renderiza exactamente los hashes de referencia', !badL.length, badL.join(' '));
   }
 }
@@ -151,15 +151,17 @@ if (!fast) {
   ok('C8 lint --only validate: sin FIX en los 5 films con sus shots DSL', !errs.length, errs.slice(0, 3).join('; '));
   const { spawnSync } = await import('node:child_process'), g = (spawnSync('git', ['diff', '--stat', '4373007', '--', 'engine/sandbox.mjs', 'engine/guard.mjs'], { cwd: ROOT, encoding: 'utf8' }).stdout ?? '');
   ok('C8b el sandbox y la guardia no cambian por el DSL (git diff vs el punto de partida vacío)', g.trim() === '', g);
-  // ── C9: rendimiento ──
+  // ── C9: rendimiento ── (solo perfil full: 3 pasadas por film con cronómetro; es lo más caro de la suite)
+  if (FULL) {
   const { copyRepo: cp2, rmrf: rm2 } = await import('./lib.mjs'), slow = [];
-  for (const film of Object.keys(FILMS)) {
-    const tl = JSON.parse(fs.readFileSync(path.join(ROOT, FILMS[film]), 'utf8')).shots.map((s) => s.id), ids = tl.filter((i) => dslShots().includes(i)); if (!ids.length) continue;
+  await Promise.all(Object.keys(FILMS).map(async (film) => {   // films en paralelo: el cociente DSL/JS compara dos renders bajo la misma carga
+    const tl = JSON.parse(fs.readFileSync(path.join(ROOT, FILMS[film]), 'utf8')).shots.map((s) => s.id), ids = tl.filter((i) => dslShots().includes(i)); if (!ids.length) return;
     const dd = cp2(); try { for (const id of ids) { fs.copyFileSync(path.join(ROOT, 'test/fixtures/dsl-legacy', id + '.mjs'), path.join(dd, 'shots', id + '.mjs')); fs.rmSync(path.join(dd, 'shots', id + '.scene.json'), { force: true }); }
-      let best = 9; for (let tries = 0; tries < 3 && best > 1.1; tries++) { const a = await renderFilm(film, { perf: 3 }), b = await renderFilm(film, { cwd: dd, perf: 3 }); const sa = ids.reduce((s, i) => s + a.ms[i], 0), sb = ids.reduce((s, i) => s + b.ms[i], 0); best = Math.min(best, sa / sb); }
+      let best = 9; for (let tries = 0; tries < 3 && best > 1.1; tries++) { const a = await renderFilm(film, { perf: 3, ids }), b = await renderFilm(film, { cwd: dd, perf: 3, ids }); const sa = ids.reduce((s, i) => s + a.ms[i], 0), sb = ids.reduce((s, i) => s + b.ms[i], 0); best = Math.min(best, sa / sb); }
       if (best > 1.1) slow.push(`${film} ×${best.toFixed(3)}`); console.log(`  perf ${film}: DSL/JS = ×${best.toFixed(3)} (${ids.length} shots)`); } finally { rm2(dd); }
-  }
+  }));
   ok('C9 rendimiento: un shot DSL no es más de 10 % más lento que su JS legado (tiempo por fotograma, por film)', !slow.length, slow.join(' '));
+  }
 }
 function glob(d, film) { const dir = path.join(d, 'out/lint'); if (!fs.existsSync(dir)) return null; const sub = fs.readdirSync(dir).filter((x) => fs.existsSync(path.join(dir, x, '_only-validate.json'))); return sub.length ? path.join(dir, sub[sub.length - 1], '_only-validate.json') : null; }
 console.log(fail ? `\ndsl-cov: ${fail} fallos` : '\ndsl-cov: todo verde');

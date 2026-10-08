@@ -56,7 +56,7 @@ export async function livePart() {
     o.push(br.length ? br.slice(0, 30).map((b) => `- \`${b}\` (+${git(['rev-list', '--count', `${base}..${b}`]).stdout.trim()} commits)`).join('\n') + (br.length > 30 ? `\n- … y ${br.length - 30} más` : '') : '- ninguna');
   }
   o.push('', '## Último run de tests', '');
-  const T = rj('out/tests.json'); o.push(T ? `- ${T.ts}: ${T.fail ? `${T.fail} fallos` : 'todo verde'}${T.fast ? ' (--fast)' : ''}` : '- sin out/tests.json (lo escribe `npm test`)');
+  const T = rj('out/tests.json'); o.push(T ? `- ${T.ts}: ${T.fail ? `${T.fail} fallos` : 'todo verde'}${T.profile ? ` (perfil ${T.profile})` : T.fast ? ' (--fast)' : ''}` : '- sin out/tests.json (lo escribe `npm test`)');
   o.push('', '## Ledger', '');
   const v = verify(), s = stats(); o.push(`- cadena: ${v.ok ? 'íntegra' : `ROTA (${v.problems.length} problemas)`} · ${v.n} entradas (${v.chained} encadenadas, ${v.legacy} heredadas, ${v.signed} firmadas) · códigos ${s.total ? (100 * s.coded / s.total).toFixed(0) : 0} %`);
   o.push('', '## Presupuestos', '');

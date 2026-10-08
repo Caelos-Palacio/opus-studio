@@ -8,8 +8,10 @@ timeline ─► compile ─► seek(t) ─► shots: draw(ctx,t,api) · scene(t)
                           │         api = texto/foco + prims + scene + layer(fx)
                           ├─ cámara: move | auto (horneada) | track(nodo)
                           └─ grade: post (bloom, aberración) → viñeta/grano → LUT+dither → letterbox
-herramientas: lint(+guard) · autocam · cut(fragmentos, EDL) · sound · index/q · critic · assets · doc
+herramientas: lint(+guard) · autocam · cut(fragmentos, EDL; --prores/--alpha: ProRes 4444 con alfa) · sound · index/q · critic · assets · doc
 ```
+
+**Export con alfa (F6)**: `node engine/cut.mjs --prores [--alpha [--alpha-grain]] [--shot ID]` → `.mov` ProRes 4444 (`yuva444p10le`). `--alpha` quita fondo (papel/soporte, parallax, capas en primer plano del medio) y post de pantalla; deja sujeto, texto y tinta del medio. Detalle en docs/API.md.
 
 ## Algoritmos (y por qué estos)
 | pieza | método | razón |

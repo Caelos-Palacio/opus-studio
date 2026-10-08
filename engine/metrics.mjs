@@ -2,7 +2,7 @@
 // Métricas con sentido y estandarizables (spec 005). Unidades reales (s, °/s, ΔE00, LUFS, WPM…), no estadísticas de píxeles.
 //   npm run metrics -- [film] [--json] [--fps N (por defecto auto: ≤400 muestras, 2–8 Hz)] [--no-audio]   mide el film → out/metrics/<film>.json + ficha out/metrics/<film>.md
 //   npm run metrics -- compare a b [--json]                     diferencias normalizadas (z con IC, rango típico) + distancia entre curvas (L2, DTW)
-//   npm run metrics -- calibrate [--json]                       correlación nota del usuario ↔ métricas (data/notas.json; ADVERTENCIA: n pequeño)
+//   npm run metrics -- calibrate [--json] [--dry]                       correlación nota del usuario ↔ métricas (data/notas.json; ADVERTENCIA: n pequeño)
 //   npm run metrics -- units [film]                             parámetros promovidos de los shots con su unidad con sentido y conversión
 //   npm run metrics -- table k1 k2 …                            tabla comparativa (markdown) desde out/metrics/<clave>.json
 //   npm run metrics -- doc                                      regenera docs/METRICAS.md desde engine/metrics/registry.mjs
@@ -86,6 +86,7 @@ else if (cmd === 'calibrate') {
   const nf = path.join(ROOT, 'data/notas.json'), N = assertNotas(JSON.parse(fs.readFileSync(nf, 'utf8'))), use = N.notas.filter((n) => n.medible && typeof n.nota === 'number'), byFilm = {};
   console.log(`calibración nota ↔ métricas — ${use.length} notas medibles de ${N.notas.length}  (data/notas.json)`);
   console.log('ADVERTENCIA: n pequeño. Con n < 8 una correlación de Spearman no es evidencia (IC95 de ρ cubre casi [−1,1]); úsese solo para generar hipótesis.');
+  if (has('--dry')) process.exit(0);   // solo cabecera y advertencia: sin medir los films (los tests del perfil quick; medir mate/potencias/world3d enteros es lo más caro de la suite)
   for (const n of use) { byFilm[n.film] ??= await measureFilm(n.film, { fresh: false }).then((x) => x.res); delete globalThis.__opusFilmAnnounced; process.argv.splice(process.argv.indexOf('--timeline'), 2); }
   const rows = []; if (use.length >= 4) for (const r of REGISTRY.filter((m) => m.kind === 'scalar')) { const pairs = use.map((n) => [byFilm[n.film].metrics.find((m) => m.id === r.id)?.value, n.nota]).filter(([v]) => typeof v === 'number'); if (pairs.length >= 4) rows.push({ id: r.id, n: pairs.length, rho: X.spearman(pairs.map((p) => p[0]), pairs.map((p) => p[1])) }); }
   rows.sort((a, b) => Math.abs(b.rho) - Math.abs(a.rho));
