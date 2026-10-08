@@ -452,6 +452,16 @@ export default shot({
      }
     }
    ]
+  },
+  {
+   "type": "focus",
+   "x": 115,
+   "y": 245,
+   "w": 1690,
+   "h": 730,
+   "label": "pipeline",
+   "weight": 1,
+   "hollow": true
   }
  ]
 }, {  });

@@ -106,7 +106,7 @@ export default shot({
     [
      778,
      392,
-     300,
+     270,
      "accent2",
      "04",
      "tests en rojo",
@@ -115,7 +115,7 @@ export default shot({
     [
      1122,
      392,
-     300,
+     270,
      "ink",
      "05",
      "código",
@@ -124,7 +124,7 @@ export default shot({
     [
      1295,
      600,
-     300,
+     270,
      "ink",
      "06",
      "render",
@@ -133,7 +133,7 @@ export default shot({
     [
      1122,
      808,
-     300,
+     270,
      "accent",
      "07",
      "nota humana",
@@ -142,7 +142,7 @@ export default shot({
     [
      778,
      808,
-     300,
+     270,
      "accent2",
      "08",
      "lección",
@@ -319,9 +319,9 @@ export default shot({
      "accent2"
     ],
     [
-     938,
+     922,
      392,
-     962,
+     978,
      392,
      "accent2"
     ],
@@ -340,9 +340,9 @@ export default shot({
      "ink"
     ],
     [
-     962,
+     978,
      808,
-     938,
+     922,
      808,
      "accent"
     ],
@@ -673,6 +673,16 @@ export default shot({
     "$expr": "0.8 * seg(lt, 4.9, 5.4)"
    },
    "align": "left"
+  },
+  {
+   "type": "focus",
+   "x": 115,
+   "y": 310,
+   "w": 1700,
+   "h": 600,
+   "label": "ciclo 3DD",
+   "weight": 1,
+   "hollow": true
   }
  ]
 }, {  });

@@ -40,8 +40,11 @@ if (argv[0] === '--gen') {
 }
 export const refHashes = () => JSON.parse(fs.readFileSync(HASHES, 'utf8'));
 export const dslShots = () => fs.readdirSync(path.join(ROOT, 'shots')).filter((f) => f.endsWith('.scene.json')).map((f) => f.replace('.scene.json', '')).filter((id) => /^\/\/ GENERADO/.test(fs.readFileSync(path.join(ROOT, 'shots', id + '.mjs'), 'utf8'))).sort();
+// shots nacidos en DSL (data/dsl-coverage.json «nativo»): cuentan en la cobertura pero no tienen JS legado con el que comparar píxeles
+export const nativos = () => JSON.parse(fs.readFileSync(path.join(ROOT, 'data/dsl-coverage.json'), 'utf8')).nativo ?? {};
+export const convertidos = () => dslShots().filter((id) => !(id in nativos()));
 if (argv[0] === '--check') {   // node test/dsl-cov.mjs --check [film|all] [id,id]  → compara los shots DSL con los hashes del JS legado
-  const films = !argv[1] || argv[1] === 'all' ? Object.keys(FILMS) : [argv[1]], mine = dslShots(), H = refHashes(); let bad = 0, n = 0;
+  const films = !argv[1] || argv[1] === 'all' ? Object.keys(FILMS) : [argv[1]], mine = convertidos(), H = refHashes(); let bad = 0, n = 0;
   for (const film of films) {
     const ids = (argv[2] ? argv[2].split(',') : mine), tl = JSON.parse(fs.readFileSync(path.join(ROOT, FILMS[film]), 'utf8')).shots.map((s) => s.id), want = ids.filter((i) => mine.includes(i) && tl.includes(i)); if (!want.length) continue;
     const got = await renderFilm(film, { ids: want });
@@ -124,8 +127,10 @@ const NEW = ['curve', 'lines', 'repeat', 'formula', 'layer', 'smear', 'word', 'b
 
 // ── C3: píxeles idénticos al JS legado (in/mid/out + 3 instantes) en TODOS los shots convertidos ──
 {
-  const mine = dslShots(), H = refHashes(), sample = (ids) => (FULL ? ids : ids.filter((_, i) => i % 3 === 0)), fix = fs.readdirSync(path.join(ROOT, 'test/fixtures/dsl-legacy')).filter((f) => f.endsWith('.mjs')).map((f) => f.slice(0, -4));
+  const mine = convertidos(), H = refHashes(), sample = (ids) => (FULL ? ids : ids.filter((_, i) => i % 3 === 0)), fix = fs.readdirSync(path.join(ROOT, 'test/fixtures/dsl-legacy')).filter((f) => f.endsWith('.mjs')).map((f) => f.slice(0, -4));
   ok('C3a todo shot convertido (que existía en JS) tiene su JS legado en test/fixtures/dsl-legacy y sus hashes de referencia', mine.every((id) => fix.includes(id) && H[id] && Object.keys(H[id]).length === FRACS.length), mine.filter((id) => !fix.includes(id)).join(' '));
+  { const nat = nativos(), NS = Object.keys(nat); // C3c (spec 017): «nativo» no es una puerta trasera
+    ok('C3c shots nativos: nacieron en DSL (sin JS legado), son generados desde su .scene.json, llevan razón y cuentan en la cobertura', NS.every((id) => !fix.includes(id) && dslShots().includes(id) && typeof nat[id] === 'string' && nat[id].length > 8 && CV.coverage(ROOT).rows.find((r) => r.id === id)?.counts), NS.filter((id) => fix.includes(id) || !dslShots().includes(id)).join(' ')); }
   const bad = [], t0 = Date.now();
   const films = await Promise.all(Object.keys(FILMS).map(async (film) => { const tl = JSON.parse(fs.readFileSync(path.join(ROOT, FILMS[film]), 'utf8')).shots.map((s) => s.id); const ids = sample(tl.filter((i) => mine.includes(i))); return ids.length ? [film, ids, await renderFilm(film, { ids })] : null; }));   // solo los shots DSL (antes se renderizaba el film entero); perfil quick: 1 de cada 3, full: todos
   let n = 0; for (const f of films.filter(Boolean)) for (const id of f[1]) { n++; if (JSON.stringify(f[2][id]) !== JSON.stringify(H[id])) bad.push(id); }
@@ -160,7 +165,7 @@ if (!fast) {
   if (FULL) {
   const { copyRepo: cp2, rmrf: rm2 } = await import('./lib.mjs'), slow = [];
   await Promise.all(Object.keys(FILMS).map(async (film) => {   // films en paralelo: el cociente DSL/JS compara dos renders bajo la misma carga
-    const tl = JSON.parse(fs.readFileSync(path.join(ROOT, FILMS[film]), 'utf8')).shots.map((s) => s.id), ids = tl.filter((i) => dslShots().includes(i)); if (!ids.length) return;
+    const tl = JSON.parse(fs.readFileSync(path.join(ROOT, FILMS[film]), 'utf8')).shots.map((s) => s.id), ids = tl.filter((i) => convertidos().includes(i)); if (!ids.length) return;
     const dd = cp2(); try { for (const id of ids) { fs.copyFileSync(path.join(ROOT, 'test/fixtures/dsl-legacy', id + '.mjs'), path.join(dd, 'shots', id + '.mjs')); fs.rmSync(path.join(dd, 'shots', id + '.scene.json'), { force: true }); }
       let best = 9; for (let tries = 0; tries < 3 && best > 1.1; tries++) { const a = await renderFilm(film, { perf: 3, ids }), b = await renderFilm(film, { cwd: dd, perf: 3, ids }); const sa = ids.reduce((s, i) => s + a.ms[i], 0), sb = ids.reduce((s, i) => s + b.ms[i], 0); best = Math.min(best, sa / sb); }
       if (best > 1.1) slow.push(`${film} ×${best.toFixed(3)}`); console.log(`  perf ${film}: DSL/JS = ×${best.toFixed(3)} (${ids.length} shots)`); } finally { rm2(dd); }

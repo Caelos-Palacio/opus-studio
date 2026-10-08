@@ -1,0 +1,326 @@
+// GENERADO desde shots/S05.scene.json por `node engine/dsl.mjs build` (spec 006). No editar a mano: edita el .scene.json y regenera.
+import { shot } from '../engine/dsl-core.mjs';
+export default shot({
+ "dsl": 1,
+ "id": "S05",
+ "doc": "Diagrama 5 · eficiencia medida: seis métricas, barra de antes y de después (cada fila a su propia escala).",
+ "objects": [
+  {
+   "type": "text",
+   "text": {
+    "$shot": "text"
+   },
+   "x": {
+    "$expr": "W / 2"
+   },
+   "y": 100,
+   "role": "h2",
+   "color": "ink",
+   "id": "titulo"
+  },
+  {
+   "type": "shape",
+   "shape": "rect",
+   "x": 470,
+   "y": 162,
+   "w": 22,
+   "h": 22,
+   "color": "ink"
+  },
+  {
+   "type": "text",
+   "text": "antes",
+   "x": 506,
+   "y": 173,
+   "role": "label",
+   "color": "ink",
+   "align": "left"
+  },
+  {
+   "type": "shape",
+   "shape": "rect",
+   "x": 900,
+   "y": 162,
+   "w": 22,
+   "h": 22,
+   "color": "accent2"
+  },
+  {
+   "type": "text",
+   "text": "después",
+   "x": 936,
+   "y": 173,
+   "role": "label",
+   "color": "ink",
+   "align": "left"
+  },
+  {
+   "type": "shape",
+   "shape": "rect",
+   "x": 1330,
+   "y": 162,
+   "w": 22,
+   "h": 22,
+   "color": "accent"
+  },
+  {
+   "type": "text",
+   "text": "mejora",
+   "x": 1366,
+   "y": 173,
+   "role": "label",
+   "color": "ink",
+   "align": "left"
+  },
+  {
+   "id": "r",
+   "type": "repeat",
+   "items": [
+    [
+     255,
+     "master en frío",
+     "reloj de pared",
+     700,
+     352,
+     "167 s",
+     "84 s",
+     "−50 %",
+     0.2
+    ],
+    [
+     377,
+     "lint en caliente",
+     "todo el film",
+     700,
+     15,
+     "70 s",
+     "1,5 s",
+     "÷ 47",
+     0.7
+    ],
+    [
+     499,
+     "contexto de arranque",
+     "tokens para empezar",
+     700,
+     64,
+     "≈ 15 300",
+     "≈ 1 400",
+     "−91 %",
+     1.2
+    ],
+    [
+     621,
+     "mp4 de Mate (5 s)",
+     "papel crf 16 → grano crf 24",
+     700,
+     167,
+     "15,9 MB",
+     "3,8 MB",
+     "−76 %",
+     1.7
+    ],
+    [
+     743,
+     "cobertura DSL",
+     "shots en DSL nativo",
+     24,
+     700,
+     "3,2 %",
+     "95,2 %",
+     "× 30",
+     2.2
+    ],
+    [
+     865,
+     "npm test (quick)",
+     "suite completa reducida",
+     700,
+     148,
+     "≈ 890 s",
+     "188 s",
+     "−79 %",
+     2.7
+    ]
+   ],
+   "fields": [
+    "y",
+    "n",
+    "s",
+    "wa",
+    "wd",
+    "ta",
+    "td",
+    "f",
+    "d"
+   ],
+   "children": [
+    {
+     "type": "text",
+     "text": {
+      "$expr": "r_n"
+     },
+     "x": 125,
+     "y": {
+      "$expr": "r_y + 26"
+     },
+     "role": "body",
+     "color": "ink",
+     "alpha": {
+      "$expr": "seg(lt, r_d, r_d + 0.4)"
+     },
+     "align": "left"
+    },
+    {
+     "type": "text",
+     "text": {
+      "$expr": "r_s"
+     },
+     "x": 125,
+     "y": {
+      "$expr": "r_y + 64"
+     },
+     "role": "label",
+     "color": "ink",
+     "alpha": {
+      "$expr": "0.8 * seg(lt, r_d, r_d + 0.4)"
+     },
+     "align": "left"
+    },
+    {
+     "type": "text",
+     "text": "antes",
+     "x": 684,
+     "y": {
+      "$expr": "r_y + 18"
+     },
+     "role": "label",
+     "color": "ink",
+     "alpha": {
+      "$expr": "0.8 * seg(lt, r_d, r_d + 0.4)"
+     },
+     "align": "right"
+    },
+    {
+     "type": "text",
+     "text": "después",
+     "x": 684,
+     "y": {
+      "$expr": "r_y + 70"
+     },
+     "role": "label",
+     "color": "ink",
+     "alpha": {
+      "$expr": "0.8 * seg(lt, r_d, r_d + 0.4)"
+     },
+     "align": "right"
+    },
+    {
+     "type": "shape",
+     "shape": "rect",
+     "x": 700,
+     "y": {
+      "$expr": "r_y"
+     },
+     "w": {
+      "$expr": "r_wa * seg(lt, r_d, r_d + 0.8)"
+     },
+     "h": 36,
+     "color": "shade",
+     "alpha": 0.8
+    },
+    {
+     "type": "shape",
+     "shape": "rect",
+     "x": 700,
+     "y": {
+      "$expr": "r_y"
+     },
+     "w": {
+      "$expr": "r_wa * seg(lt, r_d, r_d + 0.8)"
+     },
+     "h": 36,
+     "color": "ink",
+     "stroke": true,
+     "lineWidth": 2,
+     "alpha": 0.9
+    },
+    {
+     "type": "shape",
+     "shape": "rect",
+     "x": 700,
+     "y": {
+      "$expr": "r_y + 52"
+     },
+     "w": {
+      "$expr": "r_wd * seg(lt, r_d, r_d + 0.8)"
+     },
+     "h": 36,
+     "color": "accent2",
+     "alpha": 0.95
+    },
+    {
+     "type": "text",
+     "text": {
+      "$expr": "r_ta"
+     },
+     "x": {
+      "$expr": "700 + r_wa * seg(lt, r_d, r_d + 0.8) + 14"
+     },
+     "y": {
+      "$expr": "r_y + 18"
+     },
+     "role": "label",
+     "color": "ink",
+     "alpha": {
+      "$expr": "seg(lt, r_d + 0.6, r_d + 1.0)"
+     },
+     "align": "left"
+    },
+    {
+     "type": "text",
+     "text": {
+      "$expr": "r_td"
+     },
+     "x": {
+      "$expr": "700 + r_wd * seg(lt, r_d, r_d + 0.8) + 14"
+     },
+     "y": {
+      "$expr": "r_y + 70"
+     },
+     "role": "label",
+     "color": "accent2",
+     "alpha": {
+      "$expr": "seg(lt, r_d + 0.6, r_d + 1.0)"
+     },
+     "align": "left"
+    },
+    {
+     "type": "text",
+     "text": {
+      "$expr": "r_f"
+     },
+     "x": 1715,
+     "y": {
+      "$expr": "r_y + 44"
+     },
+     "role": "h2",
+     "color": "accent",
+     "alpha": {
+      "$expr": "seg(lt, r_d + 0.7, r_d + 1.2)"
+     }
+    }
+   ]
+  },
+  {
+   "type": "focus",
+   "x": 125,
+   "y": 245,
+   "w": 1470,
+   "h": 740,
+   "label": "eficiencia",
+   "weight": 1,
+   "hollow": true
+  }
+ ]
+}, {  });

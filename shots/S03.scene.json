@@ -539,6 +539,16 @@
     "$expr": "0.8 * seg(lt, 3.85, 4.35)"
    },
    "align": "left"
+  },
+  {
+   "type": "focus",
+   "x": 115,
+   "y": 205,
+   "w": 1450,
+   "h": 780,
+   "label": "capas",
+   "weight": 1,
+   "hollow": true
   }
  ]
 }

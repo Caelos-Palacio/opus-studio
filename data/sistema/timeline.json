@@ -86,6 +86,52 @@
      8
     ]
    ]
+  },
+  {
+   "id": "S04",
+   "t": [
+    24,
+    32
+   ],
+   "size": "WS",
+   "action": "orquestación: director, tres agentes Sonnet en worktrees, handoff e integración a main",
+   "text": "Orquestación de agentes",
+   "transition_out": "cut",
+   "after": "S03",
+   "cam": {
+    "move": "static",
+    "why": "reveal",
+    "amount": 0
+   },
+   "hold_ok": [
+    [
+     5,
+     8
+    ]
+   ]
+  },
+  {
+   "id": "S05",
+   "t": [
+    32,
+    40
+   ],
+   "size": "WS",
+   "action": "eficiencia medida: seis barras antes y después",
+   "text": "Eficiencia medida: antes y después",
+   "transition_out": "cut",
+   "after": "S04",
+   "cam": {
+    "move": "static",
+    "why": "reveal",
+    "amount": 0
+   },
+   "hold_ok": [
+    [
+     5,
+     8
+    ]
+   ]
   }
  ]
 }

@@ -671,6 +671,16 @@
     "$expr": "0.8 * seg(lt, 4.9, 5.4)"
    },
    "align": "left"
+  },
+  {
+   "type": "focus",
+   "x": 115,
+   "y": 310,
+   "w": 1700,
+   "h": 600,
+   "label": "ciclo 3DD",
+   "weight": 1,
+   "hollow": true
   }
  ]
 }
