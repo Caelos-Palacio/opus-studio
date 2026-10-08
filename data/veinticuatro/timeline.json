@@ -8,6 +8,36 @@
  "duration": 75,
  "autoSfx": false,
  "music": null,
+ "sound": {
+  "style": "contemplativo",
+  "memoria": "data/veinticuatro/memoria.json",
+  "overrides": {
+   "mix": {
+    "bus": {
+     "music": -90,
+     "sfx": 1.5,
+     "amb": -3
+    },
+    "macro": {
+     "floorDb": -6,
+     "pow": 0.9
+    }
+   },
+   "sfx": {
+    "air": false
+   },
+   "master": {
+    "lufs": -19,
+    "tp": -3
+   },
+   "sections": {
+    "peakFallback": 0.64
+   },
+   "impact": {
+    "tailKeep": 999
+   }
+  }
+ },
  "end_hold_ok": true,
  "shots": [
   {
@@ -20,7 +50,7 @@
    "after": null,
    "size": "EWS",
    "action": "agua negra; mil fotomultiplicadores como lunas lejanas con niebla fría y paralaje; no ocurre nada",
-   "text": "Kamioka, mil metros bajo la roca. Una cuba de agua y mil fotomultiplicadores. Esperan.",
+   "text": "Kamioka, mil metros bajo la roca. Una cuba de agua, mil fotomultiplicadores. Esperan.",
    "cam": {
     "move": "push",
     "why": "approach",
@@ -32,13 +62,21 @@
      0.5,
      8.2
     ]
+   ],
+   "sfx": [
+    {
+     "at": 0.4,
+     "type": "drone",
+     "dur": 10.8,
+     "gain": 0.5
+    }
    ]
   },
   {
    "id": "V02",
    "t": [
     8.2,
-    11.5
+    12.6
    ],
    "transition_out": "cut",
    "after": "V01",
@@ -51,12 +89,78 @@
    "cam": {
     "move": "static"
    },
-   "premise": "nueve destellos al ritmo real"
+   "premise": "nueve destellos al ritmo real",
+   "sakuga": "normal",
+   "sfx": [
+    {
+     "at": 0.8,
+     "type": "gota",
+     "gain": 0.725,
+     "pan": -0.256,
+     "energia": 0.469
+    },
+    {
+     "at": 0.907,
+     "type": "gota",
+     "gain": 0.59,
+     "pan": -0.146,
+     "energia": 0.266
+    },
+    {
+     "at": 1.103,
+     "type": "gota",
+     "gain": 0.883,
+     "pan": 0.212,
+     "energia": 0.078
+    },
+    {
+     "at": 1.124,
+     "type": "gota",
+     "gain": 0.657,
+     "pan": -0.408,
+     "energia": 0.131
+    },
+    {
+     "at": 1.307,
+     "type": "gota",
+     "gain": 0.792,
+     "pan": -0.39,
+     "energia": 0.244
+    },
+    {
+     "at": 1.486,
+     "type": "gota",
+     "gain": 0.568,
+     "pan": 0.283,
+     "energia": 0.041
+    },
+    {
+     "at": 2.341,
+     "type": "gota",
+     "gain": 0.927,
+     "pan": -0.138,
+     "energia": 0.95
+    },
+    {
+     "at": 2.528,
+     "type": "gota",
+     "gain": 0.68,
+     "pan": 0.018,
+     "energia": 0.5
+    },
+    {
+     "at": 2.715,
+     "type": "gota",
+     "gain": 0.815,
+     "pan": -0.106,
+     "energia": 0.097
+    }
+   ]
   },
   {
    "id": "V03",
    "t": [
-    11.5,
+    12.6,
     18.15
    ],
    "transition_out": "cut",
@@ -73,9 +177,10 @@
    "hold_ok": [
     [
      0,
-     6.65
+     5.55
     ]
-   ]
+   ],
+   "sakuga": "simple"
   },
   {
    "id": "V04",
@@ -91,7 +196,23 @@
    "cam": {
     "move": "static"
    },
-   "premise": "once"
+   "premise": "once",
+   "sfx": [
+    {
+     "at": 0.069,
+     "type": "gota",
+     "gain": 0.77,
+     "pan": -0.252,
+     "energia": 0.225
+    },
+    {
+     "at": 1.283,
+     "type": "gota",
+     "gain": 0.635,
+     "pan": -0.297,
+     "energia": 0.122
+    }
+   ]
   },
   {
    "id": "V05",
@@ -109,7 +230,16 @@
     "why": "approach",
     "amount": 0.03
    },
-   "premise": "la duda 11/12 queda abierta"
+   "premise": "la duda 11/12 queda abierta",
+   "sfx": [
+    {
+     "at": 0.439,
+     "type": "gota",
+     "gain": 0.22,
+     "pan": -0.248,
+     "energia": 0.041
+    }
+   ]
   },
   {
    "id": "V06",
@@ -125,7 +255,65 @@
    "cam": {
     "move": "static"
    },
-   "premise": "IMB"
+   "premise": "IMB",
+   "sfx": [
+    {
+     "at": 0.6,
+     "type": "gota",
+     "gain": 0.654,
+     "pan": 0.457,
+     "energia": 1
+    },
+    {
+     "at": 1.012,
+     "type": "gota",
+     "gain": 0.627,
+     "pan": 0.192,
+     "energia": 1
+    },
+    {
+     "at": 1.25,
+     "type": "gota",
+     "gain": 0.56,
+     "pan": -0.274,
+     "energia": 0.719
+    },
+    {
+     "at": 1.741,
+     "type": "gota",
+     "gain": 0.925,
+     "pan": -0.092,
+     "energia": 1
+    },
+    {
+     "at": 2.162,
+     "type": "gota",
+     "gain": 0.817,
+     "pan": 0.376,
+     "energia": 0.969
+    },
+    {
+     "at": 3.284,
+     "type": "gota",
+     "gain": 0.802,
+     "pan": 0.447,
+     "energia": 0.969
+    },
+    {
+     "at": 5.61,
+     "type": "gota",
+     "gain": 0.802,
+     "pan": -0.457,
+     "energia": 0.438
+    },
+    {
+     "at": 6.182,
+     "type": "gota",
+     "gain": 0.799,
+     "pan": 0.349,
+     "energia": 0.531
+    }
+   ]
   },
   {
    "id": "V07",
@@ -143,7 +331,44 @@
     "why": "approach",
     "amount": 0.04
    },
-   "premise": "Baksan, otro medio"
+   "premise": "Baksan, otro medio",
+   "sfx": [
+    {
+     "at": 0.6,
+     "type": "gota",
+     "gain": 0.635,
+     "pan": 0,
+     "energia": 0.219
+    },
+    {
+     "at": 1.035,
+     "type": "gota",
+     "gain": 0.689,
+     "pan": -0.276,
+     "energia": 0.403
+    },
+    {
+     "at": 2.31,
+     "type": "gota",
+     "gain": 0.743,
+     "pan": 0.413,
+     "energia": 0.578
+    },
+    {
+     "at": 8.287,
+     "type": "gota",
+     "gain": 0.797,
+     "pan": 0.276,
+     "energia": 0.394
+    },
+    {
+     "at": 9.699,
+     "type": "gota",
+     "gain": 0.851,
+     "pan": 0,
+     "energia": 0.478
+    }
+   ]
   },
   {
    "id": "V08",
@@ -159,7 +384,29 @@
    "cam": {
     "move": "static"
    },
-   "premise": "la cuenta y su duda"
+   "premise": "la cuenta y su duda",
+   "hold_ok": [
+    [
+     3.4,
+     4.6
+    ]
+   ],
+   "sakuga": "simple",
+   "sfx": [
+    {
+     "at": 2.5,
+     "type": "gota",
+     "gain": 0.7,
+     "energia": 0.05
+    },
+    {
+     "at": 3.3,
+     "type": "gota",
+     "gain": 0.16,
+     "energia": 0.95,
+     "pan": 0.5
+    }
+   ]
   },
   {
    "id": "V09",
@@ -177,7 +424,22 @@
     "why": "approach",
     "amount": 0.03
    },
-   "premise": "giro: eran filas de un archivo"
+   "premise": "giro: eran filas de un archivo",
+   "sakuga": "hero",
+   "sfx": [
+    {
+     "at": 0.45,
+     "type": "click",
+     "gain": 0.5,
+     "pan": -0.3
+    },
+    {
+     "at": 1,
+     "type": "nota",
+     "dur": 19.5,
+     "gain": 0.5
+    }
+   ]
   },
   {
    "id": "V10",
@@ -211,7 +473,147 @@
     "why": "reveal",
     "amount": 0.04
    },
-   "premise": "la escala, en voz baja"
+   "premise": "la escala, en voz baja",
+   "sfx": [
+    {
+     "at": 1.15,
+     "type": "click",
+     "gain": 0.11,
+     "pan": -0.2
+    },
+    {
+     "at": 1.27,
+     "type": "click",
+     "gain": 0.11,
+     "pan": 0
+    },
+    {
+     "at": 1.39,
+     "type": "click",
+     "gain": 0.11,
+     "pan": 0.2
+    },
+    {
+     "at": 1.51,
+     "type": "click",
+     "gain": 0.11,
+     "pan": -0.2
+    },
+    {
+     "at": 1.63,
+     "type": "click",
+     "gain": 0.11,
+     "pan": 0
+    },
+    {
+     "at": 1.75,
+     "type": "click",
+     "gain": 0.11,
+     "pan": 0.2
+    },
+    {
+     "at": 1.87,
+     "type": "click",
+     "gain": 0.11,
+     "pan": -0.2
+    },
+    {
+     "at": 1.99,
+     "type": "click",
+     "gain": 0.11,
+     "pan": 0
+    },
+    {
+     "at": 2.11,
+     "type": "click",
+     "gain": 0.11,
+     "pan": 0.2
+    },
+    {
+     "at": 2.23,
+     "type": "click",
+     "gain": 0.11,
+     "pan": -0.2
+    },
+    {
+     "at": 2.35,
+     "type": "click",
+     "gain": 0.11,
+     "pan": 0
+    },
+    {
+     "at": 2.47,
+     "type": "click",
+     "gain": 0.11,
+     "pan": 0.2
+    },
+    {
+     "at": 2.59,
+     "type": "click",
+     "gain": 0.11,
+     "pan": -0.2
+    },
+    {
+     "at": 2.71,
+     "type": "click",
+     "gain": 0.11,
+     "pan": 0
+    },
+    {
+     "at": 2.83,
+     "type": "click",
+     "gain": 0.11,
+     "pan": 0.2
+    },
+    {
+     "at": 2.95,
+     "type": "click",
+     "gain": 0.11,
+     "pan": -0.2
+    },
+    {
+     "at": 3.07,
+     "type": "click",
+     "gain": 0.11,
+     "pan": 0
+    },
+    {
+     "at": 3.19,
+     "type": "click",
+     "gain": 0.11,
+     "pan": 0.2
+    },
+    {
+     "at": 3.31,
+     "type": "click",
+     "gain": 0.11,
+     "pan": -0.2
+    },
+    {
+     "at": 3.43,
+     "type": "click",
+     "gain": 0.11,
+     "pan": 0
+    },
+    {
+     "at": 3.55,
+     "type": "click",
+     "gain": 0.11,
+     "pan": 0.2
+    },
+    {
+     "at": 3.67,
+     "type": "click",
+     "gain": 0.11,
+     "pan": -0.2
+    },
+    {
+     "at": 3.79,
+     "type": "click",
+     "gain": 0.11,
+     "pan": 0
+    }
+   ]
   },
   {
    "id": "V12",
@@ -230,9 +632,23 @@
    "premise": "cierre en silencio",
    "hold_ok": [
     [
-     3,
+     6.5,
      9.8
     ]
+   ],
+   "sakuga": "simple",
+   "sfx": [
+    {
+     "at": 2.6,
+     "type": "click",
+     "gain": 0.22
+    },
+    {
+     "at": 5.8,
+     "type": "click",
+     "gain": 0.4,
+     "pan": -0.4
+    }
    ]
   }
  ]

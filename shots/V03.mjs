@@ -50,9 +50,9 @@ export default shot({
    "id": "cont",
    "type": "objeto",
    "objeto": "contador",
-   "x": 150,
-   "y": 640,
-   "size": 240,
+   "x": 215,
+   "y": 112,
+   "size": 220,
    "alfa": {
     "$expr": "1"
    },
@@ -75,16 +75,16 @@ export default shot({
    "type": "text",
    "text": "KAMIOKANDE-II",
    "x": {
-    "$expr": "150"
+    "$expr": "215"
    },
    "y": {
-    "$expr": "566"
+    "$expr": "178"
    },
-   "role": "body",
+   "role": "label",
    "align": "center",
    "color": "accent2",
    "alpha": {
-    "$expr": "0.55 * seg(lt, 0.3, 1.1) * (1 - seg(lt, 98.2, 99))"
+    "$expr": "0.6 * seg(lt, 0.3, 1.1) * (1 - seg(lt, 98.2, 99))"
    }
   },
   {
@@ -101,7 +101,7 @@ export default shot({
    "align": "center",
    "color": "ink",
    "alpha": {
-    "$expr": "1 * seg(lt, 1.2, 2) * (1 - seg(lt, 4.8, 5.6))"
+    "$expr": "1 * seg(lt, 1, 1.8) * (1 - seg(lt, 4.6000000000000005, 5.4))"
    }
   }
  ]

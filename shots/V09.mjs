@@ -84,7 +84,7 @@ export default shot({
    "id": "Z",
    "type": "let",
    "value": {
-    "$expr": "0.9"
+    "$expr": "0.8"
    }
   },
   {
@@ -98,14 +98,14 @@ export default shot({
    "id": "FY",
    "type": "let",
    "value": {
-    "$expr": "45"
+    "$expr": "119"
    }
   },
   {
    "id": "sl",
    "type": "let",
    "value": {
-    "$expr": "(1 - smooth(seg(lt, 0.9, 3.0))) * 1100"
+    "$expr": "(1 - smooth(seg(lt, 0.5, 1.7))) * 1100"
    }
   },
   {
@@ -133,9 +133,24 @@ export default shot({
    "r": {
     "$expr": "560 * Z"
    },
-   "color": "#ffcf8a",
+   "color": "accent",
    "alpha": {
-    "$expr": "0.16 * seg(lt, 0.5, 1.6)"
+    "$expr": "0.16 * seg(lt, 0.45, 1.2)"
+   }
+  },
+  {
+   "type": "glow",
+   "when": "lt > 0.4 && lt < 1.6",
+   "x": {
+    "$expr": "ox"
+   },
+   "y": {
+    "$expr": "oy"
+   },
+   "r": 900,
+   "color": "accent",
+   "alpha": {
+    "$expr": "0.55 * exp(-(lt - 0.45) * 4.5)"
    }
   },
   {
@@ -163,7 +178,7 @@ export default shot({
    "color": "#3a2a18",
    "acento": "#b99a68",
    "alfa": {
-    "$expr": "0.2 + 0.5 * seg(lt, 0.5, 1.6)"
+    "$expr": "0.2 + 0.5 * seg(lt, 0.45, 1.2)"
    }
   },
   {
@@ -193,7 +208,7 @@ export default shot({
     }
    ],
    "alfa": {
-    "$expr": "seg(lt, 0.5, 1.6)"
+    "$expr": "seg(lt, 0.45, 1.2)"
    }
   },
   {
@@ -416,7 +431,7 @@ export default shot({
        },
        "color": "#1f160d",
        "alpha": {
-        "$expr": "(1) * seg(lt, 1.2 + d_g * 0.05, 1.5 + d_g * 0.05) * seg(lt, 0.5, 1.6)"
+        "$expr": "(1) * seg(lt, 1.2 + d_g * 0.05, 1.5 + d_g * 0.05) * seg(lt, 0.45, 1.2)"
        }
       }
      ]
@@ -443,7 +458,7 @@ export default shot({
        },
        "color": "#1f160d",
        "alpha": {
-        "$expr": "0.7 * (1) * seg(lt, 1.2 + d_g * 0.05, 1.5 + d_g * 0.05) * seg(lt, 0.5, 1.6)"
+        "$expr": "0.7 * (1) * seg(lt, 1.2 + d_g * 0.05, 1.5 + d_g * 0.05) * seg(lt, 0.45, 1.2)"
        }
       }
      ]
@@ -493,10 +508,10 @@ export default shot({
     "$expr": "200"
    },
    "y": {
-    "$expr": "380"
+    "$expr": "300"
    },
    "size": {
-    "$expr": "520"
+    "$expr": "480"
    },
    "relleno": "#9a6b22",
    "color": "#f1d9a0",
@@ -505,30 +520,47 @@ export default shot({
    },
    "partes": {
     "encendida": {
-     "$expr": "seg(lt, 0.4, 1.4)"
+     "$expr": "seg(lt, 0.4, 1.0)"
     },
     "brazo1": 0.7,
     "brazo2": 0.8
    },
    "alfa": {
-    "$expr": "seg(lt, 0.3, 0.8)"
+    "$expr": "seg(lt, 0.3, 0.6)"
    }
   },
   {
    "id": "t0",
    "type": "text",
-   "text": "Nadie los vio llegar. Los encontraron en un listado de impresora, dos días después.",
+   "text": "Nadie los vio llegar.",
    "x": {
     "$expr": "S_cx"
    },
    "y": {
-    "$expr": "S_y1 - 36"
+    "$expr": "S_y1 - 74"
    },
    "role": "body",
    "align": "center",
    "color": "ink",
    "alpha": {
-    "$expr": "1 * seg(lt, 2.3, 3.0999999999999996) * (1 - seg(lt, 6.1000000000000005, 6.9))"
+    "$expr": "1 * seg(lt, 0.9, 1.7000000000000002) * (1 - seg(lt, 6.1000000000000005, 6.9))"
+   }
+  },
+  {
+   "id": "t1",
+   "type": "text",
+   "text": "Los encontraron en un listado de impresora, dos días después.",
+   "x": {
+    "$expr": "S_cx"
+   },
+   "y": {
+    "$expr": "S_y1 - 34"
+   },
+   "role": "label",
+   "align": "center",
+   "color": "ink",
+   "alpha": {
+    "$expr": "1 * seg(lt, 1.7, 2.5) * (1 - seg(lt, 6.1000000000000005, 6.9))"
    }
   }
  ]

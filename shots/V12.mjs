@@ -96,7 +96,7 @@ export default shot({
    "id": "FY",
    "type": "let",
    "value": {
-    "$expr": "0"
+    "$expr": "150"
    }
   },
   {
@@ -124,38 +124,85 @@ export default shot({
    "r": {
     "$expr": "560 * Z"
    },
-   "color": "#ffcf8a",
+   "color": "accent",
    "alpha": {
     "$expr": "0.16 * (1 - smooth(seg(lt, 5.8, 8.4)))"
    }
   },
   {
-   "id": "papel",
-   "type": "objeto",
-   "objeto": "papel_continuo",
-   "x": {
-    "$expr": "ox"
-   },
-   "y": {
-    "$expr": "oy"
-   },
-   "size": {
-    "$expr": "1000 * Z"
-   },
-   "rot": 1.5708,
-   "params": {
-    "pliegues": 9
-   },
-   "partes": {
-    "despliegue": 1,
-    "impreso": 0
-   },
-   "relleno": "#d8c9a4",
-   "color": "#3a2a18",
-   "acento": "#b99a68",
-   "alfa": {
-    "$expr": "0.2 + 0.5 * (1 - smooth(seg(lt, 5.8, 8.4)))"
-   }
+   "id": "pg",
+   "type": "repeat",
+   "n": 9,
+   "children": [
+    {
+     "type": "shape",
+     "shape": "rect",
+     "x": {
+      "$expr": "640 + ((-450 + i * 100) - FX) * Z"
+     },
+     "y": {
+      "$expr": "360 + ((-290) - FY) * Z"
+     },
+     "w": {
+      "$expr": "100 * Z + 1"
+     },
+     "h": {
+      "$expr": "580 * Z"
+     },
+     "color": {
+      "$expr": "i % 2 == 0 ? \"#cdbf9b\" : \"#bfb08a\""
+     },
+     "alpha": {
+      "$expr": "0.2 + 0.5 * (1 - smooth(seg(lt, 5.8, 8.4)))"
+     }
+    },
+    {
+     "type": "shape",
+     "shape": "rect",
+     "stroke": true,
+     "lineWidth": 1.2,
+     "x": {
+      "$expr": "640 + ((-450 + i * 100) - FX) * Z"
+     },
+     "y": {
+      "$expr": "360 + ((-290) - FY) * Z"
+     },
+     "w": {
+      "$expr": "100 * Z + 1"
+     },
+     "h": {
+      "$expr": "580 * Z"
+     },
+     "color": "#3a2a18",
+     "alpha": {
+      "$expr": "0.25 * (1 - smooth(seg(lt, 5.8, 8.4)))"
+     }
+    }
+   ]
+  },
+  {
+   "id": "pp",
+   "type": "repeat",
+   "n": 36,
+   "children": [
+    {
+     "type": "shape",
+     "shape": "circle",
+     "x": {
+      "$expr": "640 + ((-440 + (i % 18) * 51) - FX) * Z"
+     },
+     "y": {
+      "$expr": "360 + ((i < 18 ? -268 : 268) - FY) * Z"
+     },
+     "r": {
+      "$expr": "max(2, 5 * Z)"
+     },
+     "color": "#1a1008",
+     "alpha": {
+      "$expr": "0.28 * (1 - smooth(seg(lt, 5.8, 8.4)))"
+     }
+    }
+   ]
   },
   {
    "type": "fondo",
@@ -484,10 +531,10 @@ export default shot({
     "$expr": "120"
    },
    "y": {
-    "$expr": "380"
+    "$expr": "300"
    },
    "size": {
-    "$expr": "470"
+    "$expr": "440"
    },
    "relleno": "#9a6b22",
    "color": "#f1d9a0",
@@ -522,6 +569,7 @@ export default shot({
   {
    "id": "lap",
    "type": "objeto",
+   "when": "true",
    "objeto": "lapiz",
    "x": {
     "$expr": "tx - 0.375 * (330 * Z) * -0.666"
@@ -547,6 +595,7 @@ export default shot({
   {
    "id": "mano",
    "type": "objeto",
+   "when": "true",
    "objeto": "mano",
    "x": {
     "$expr": "tx - 0.65 * (330 * Z) * -0.666"
@@ -632,7 +681,7 @@ export default shot({
     "$expr": "S_cx"
    },
    "y": {
-    "$expr": "S_cy + 8"
+    "$expr": "S_y1 - 40"
    },
    "role": "h2",
    "align": "center",

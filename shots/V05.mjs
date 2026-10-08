@@ -95,11 +95,11 @@ export default shot({
         "$expr": "f_y"
        },
        "r": {
-        "$expr": "(70 + 260 * f_z) * (0.7 + 0.5 * f_e)"
+        "$expr": "(60 + 200 * f_z) * (0.6 + 0.4 * f_e)"
        },
        "color": "accent2",
        "alpha": {
-        "$expr": "0.95 * dec * f_ok"
+        "$expr": "0.42 * dec * f_ok"
        }
       },
       {
@@ -111,11 +111,11 @@ export default shot({
         "$expr": "f_y"
        },
        "r": {
-        "$expr": "(20 + 60 * f_z)"
+        "$expr": "(20 + 50 * f_z)"
        },
        "color": "ink",
        "alpha": {
-        "$expr": "0.9 * exp(-age * 9) * f_ok"
+        "$expr": "0.35 * exp(-age * 9) * f_ok"
        }
       },
       {
@@ -136,7 +136,7 @@ export default shot({
        },
        "color": "accent2",
        "alpha": {
-        "$expr": "1 * dec * f_ok"
+        "$expr": "0.85 * dec * f_ok"
        }
       },
       {
@@ -208,9 +208,9 @@ export default shot({
    "id": "cont",
    "type": "objeto",
    "objeto": "contador",
-   "x": 150,
-   "y": 640,
-   "size": 240,
+   "x": 215,
+   "y": 112,
+   "size": 220,
    "alfa": {
     "$expr": "1"
    },
@@ -233,16 +233,16 @@ export default shot({
    "type": "text",
    "text": "KAMIOKANDE-II",
    "x": {
-    "$expr": "150"
+    "$expr": "215"
    },
    "y": {
-    "$expr": "566"
+    "$expr": "178"
    },
-   "role": "body",
+   "role": "label",
    "align": "center",
    "color": "accent2",
    "alpha": {
-    "$expr": "0.55 * seg(lt, 0.3, 1.1) * (1 - seg(lt, 98.2, 99))"
+    "$expr": "0.6 * seg(lt, 0.3, 1.1) * (1 - seg(lt, 98.2, 99))"
    }
   },
   {
@@ -266,8 +266,8 @@ export default shot({
    "id": "fan",
    "type": "text",
    "text": "12",
-   "x": 322,
-   "y": 640,
+   "x": 400,
+   "y": 112,
    "role": "h2",
    "align": "center",
    "color": "ink",
@@ -279,8 +279,8 @@ export default shot({
    "id": "q1",
    "type": "text",
    "text": "?",
-   "x": 392,
-   "y": 612,
+   "x": 470,
+   "y": 90,
    "role": "h2",
    "align": "center",
    "color": "shade",
@@ -292,8 +292,8 @@ export default shot({
    "id": "q2",
    "type": "text",
    "text": "?",
-   "x": 430,
-   "y": 660,
+   "x": 510,
+   "y": 135,
    "role": "body",
    "align": "center",
    "color": "shade",

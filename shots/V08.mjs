@@ -47,14 +47,15 @@ export default shot({
   {
    "id": "c0",
    "type": "objeto",
+   "when": "lt < 3.2",
    "objeto": "contador",
    "x": {
-    "$expr": "300 + (640 - 300) * ease('inOut', seg(lt, 1.6, 2.8))"
+    "$expr": "300 + (640 - 300) * ease('inOut', seg(lt, 1.9, 3.0))"
    },
-   "y": 330,
+   "y": 290,
    "size": 260,
    "alfa": {
-    "$expr": "seg(lt, 0.1, 0.6) * (1 - seg(lt, 2.3, 2.9))"
+    "$expr": "seg(lt, 0.1, 0.6) * (1 - seg(lt, 2.5, 3.1))"
    },
    "params": {
     "digitos": 2,
@@ -71,29 +72,29 @@ export default shot({
   {
    "id": "l0",
    "type": "text",
+   "when": "lt < 2.0",
    "text": "KAMIOKANDE-II",
-   "x": {
-    "$expr": "300 + (640 - 300) * ease('inOut', seg(lt, 1.6, 2.8))"
-   },
-   "y": 410,
+   "x": 300,
+   "y": 372,
    "role": "label",
    "align": "center",
    "color": "#5FA8CF",
    "alpha": {
-    "$expr": "0.7 * seg(lt, 0.3, 0.8) * (1 - seg(lt, 2.1, 2.6))"
+    "$expr": "0.75 * seg(lt, 0.2, 0.6) * (1 - seg(lt, 1.6, 1.95))"
    }
   },
   {
    "id": "c1",
    "type": "objeto",
+   "when": "lt < 3.2",
    "objeto": "contador",
    "x": {
-    "$expr": "640 + (640 - 640) * ease('inOut', seg(lt, 1.6, 2.8))"
+    "$expr": "640 + (640 - 640) * ease('inOut', seg(lt, 1.9, 3.0))"
    },
-   "y": 330,
+   "y": 290,
    "size": 260,
    "alfa": {
-    "$expr": "seg(lt, 0.1, 0.6) * (1 - seg(lt, 2.3, 2.9))"
+    "$expr": "seg(lt, 0.1, 0.6) * (1 - seg(lt, 2.5, 3.1))"
    },
    "params": {
     "digitos": 2,
@@ -110,29 +111,29 @@ export default shot({
   {
    "id": "l1",
    "type": "text",
+   "when": "lt < 2.0",
    "text": "IMB",
-   "x": {
-    "$expr": "640 + (640 - 640) * ease('inOut', seg(lt, 1.6, 2.8))"
-   },
-   "y": 410,
+   "x": 640,
+   "y": 372,
    "role": "label",
    "align": "center",
    "color": "#7f9bff",
    "alpha": {
-    "$expr": "0.7 * seg(lt, 0.3, 0.8) * (1 - seg(lt, 2.1, 2.6))"
+    "$expr": "0.75 * seg(lt, 0.2, 0.6) * (1 - seg(lt, 1.6, 1.95))"
    }
   },
   {
    "id": "c2",
    "type": "objeto",
+   "when": "lt < 3.2",
    "objeto": "contador",
    "x": {
-    "$expr": "980 + (640 - 980) * ease('inOut', seg(lt, 1.6, 2.8))"
+    "$expr": "980 + (640 - 980) * ease('inOut', seg(lt, 1.9, 3.0))"
    },
-   "y": 330,
+   "y": 290,
    "size": 260,
    "alfa": {
-    "$expr": "seg(lt, 0.1, 0.6) * (1 - seg(lt, 2.3, 2.9))"
+    "$expr": "seg(lt, 0.1, 0.6) * (1 - seg(lt, 2.5, 3.1))"
    },
    "params": {
     "digitos": 2,
@@ -149,27 +150,27 @@ export default shot({
   {
    "id": "l2",
    "type": "text",
+   "when": "lt < 2.0",
    "text": "BAKSAN",
-   "x": {
-    "$expr": "980 + (640 - 980) * ease('inOut', seg(lt, 1.6, 2.8))"
-   },
-   "y": 410,
+   "x": 980,
+   "y": 372,
    "role": "label",
    "align": "center",
    "color": "#f0d060",
    "alpha": {
-    "$expr": "0.7 * seg(lt, 0.3, 0.8) * (1 - seg(lt, 2.1, 2.6))"
+    "$expr": "0.75 * seg(lt, 0.2, 0.6) * (1 - seg(lt, 1.6, 1.95))"
    }
   },
   {
    "id": "tot",
    "type": "objeto",
+   "when": "lt > 2.5",
    "objeto": "contador",
    "x": 640,
-   "y": 330,
+   "y": 300,
    "size": 480,
    "alfa": {
-    "$expr": "seg(lt, 2.5, 3.1)"
+    "$expr": "seg(lt, 2.7, 3.2)"
    },
    "params": {
     "digitos": 2,
@@ -186,14 +187,15 @@ export default shot({
   {
    "id": "fan",
    "type": "text",
+   "when": "lt > 3.2",
    "text": "25",
-   "x": 1010,
-   "y": 330,
+   "x": 1020,
+   "y": 300,
    "role": "display",
    "align": "center",
    "color": "ink",
    "alpha": {
-    "$expr": "seg(lt, 3.2, 3.8) * (0.14 + 0.1 * sin(lt * 5.5))"
+    "$expr": "seg(lt, 3.2, 3.8) * (0.36 + 0.14 * sin(lt * 5.5))"
    }
   },
   {
@@ -210,7 +212,7 @@ export default shot({
    "align": "center",
    "color": "ink",
    "alpha": {
-    "$expr": "1 * seg(lt, 0.7, 1.5) * (1 - seg(lt, 3.8, 4.6))"
+    "$expr": "1 * seg(lt, 0.6, 1.4) * (1 - seg(lt, 3.8, 4.6))"
    }
   },
   {
@@ -227,7 +229,7 @@ export default shot({
    "align": "center",
    "color": "ink",
    "alpha": {
-    "$expr": "0.85 * seg(lt, 2.9, 3.7) * (1 - seg(lt, 3.8, 4.6))"
+    "$expr": "0.85 * seg(lt, 1.4, 2.2) * (1 - seg(lt, 3.8, 4.6))"
    }
   }
  ]

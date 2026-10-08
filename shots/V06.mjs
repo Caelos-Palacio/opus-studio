@@ -153,11 +153,11 @@ export default shot({
         "$expr": "f_y"
        },
        "r": {
-        "$expr": "(70 + 260 * f_z) * (0.7 + 0.5 * f_e)"
+        "$expr": "(60 + 200 * f_z) * (0.6 + 0.4 * f_e)"
        },
        "color": "#7f9bff",
        "alpha": {
-        "$expr": "0.95 * dec * f_ok"
+        "$expr": "0.42 * dec * f_ok"
        }
       },
       {
@@ -169,11 +169,11 @@ export default shot({
         "$expr": "f_y"
        },
        "r": {
-        "$expr": "(20 + 60 * f_z)"
+        "$expr": "(20 + 50 * f_z)"
        },
        "color": "ink",
        "alpha": {
-        "$expr": "0.9 * exp(-age * 9) * f_ok"
+        "$expr": "0.35 * exp(-age * 9) * f_ok"
        }
       },
       {
@@ -194,7 +194,7 @@ export default shot({
        },
        "color": "#7f9bff",
        "alpha": {
-        "$expr": "1 * dec * f_ok"
+        "$expr": "0.85 * dec * f_ok"
        }
       },
       {
@@ -266,9 +266,9 @@ export default shot({
    "id": "cont",
    "type": "objeto",
    "objeto": "contador",
-   "x": 150,
-   "y": 640,
-   "size": 240,
+   "x": 215,
+   "y": 112,
+   "size": 220,
    "alfa": {
     "$expr": "1"
    },
@@ -291,16 +291,16 @@ export default shot({
    "type": "text",
    "text": "IMB · OHIO",
    "x": {
-    "$expr": "150"
+    "$expr": "215"
    },
    "y": {
-    "$expr": "566"
+    "$expr": "178"
    },
-   "role": "body",
+   "role": "label",
    "align": "center",
    "color": "#7f9bff",
    "alpha": {
-    "$expr": "0.55 * seg(lt, 0.3, 1.1) * (1 - seg(lt, 98.2, 99))"
+    "$expr": "0.6 * seg(lt, 0.3, 1.1) * (1 - seg(lt, 98.2, 99))"
    }
   },
   {

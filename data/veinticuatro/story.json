@@ -73,7 +73,7 @@
       "t": 0.5,
       "peso": "largo",
       "concreto": "agua negra; mil fotomultiplicadores alineados en la pared de la cuba como lunas muy lejanas, con niebla fría y paralaje; no ocurre nada",
-      "text": "Kamioka, a mil metros bajo la roca. Una cuba de agua y mil fotomultiplicadores. Esperan."
+      "text": "Kamioka, mil metros bajo la roca. Una cuba de agua, mil fotomultiplicadores. Esperan."
     },
     {
       "id": "b2",
@@ -92,7 +92,7 @@
     },
     {
       "id": "b4",
-      "t": 11.5,
+      "t": 12.6,
       "peso": "pausa",
       "link": "pero",
       "concreto": "7,304 s reales de silencio entre el 9.º y el 10.º destello: no se enciende nada; el contador queda en 9; solo el agua, la niebla y el polvo se mueven",
@@ -179,7 +179,7 @@
       "porque": "la duda 11/12 no se resuelve: 24 o 25 es un hecho de la historia, no un descuido"
     },
     {
-      "t": 13,
+      "t": 13.5,
       "que": "7,3 s de silencio total, sin música, el beat más largo de la primera mitad en proporción a su contenido",
       "porque": "es el tiempo real de la pausa en los datos; la película se obliga a esperar lo mismo que ellos"
     }

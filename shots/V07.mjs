@@ -205,7 +205,7 @@ export default shot({
        },
        "color": "#f0d060",
        "alpha": {
-        "$expr": "0.7 * decb"
+        "$expr": "0.5 * decb"
        }
       },
       {
@@ -221,7 +221,7 @@ export default shot({
        "h": 92,
        "color": "#f0d060",
        "alpha": {
-        "$expr": "0.85 * decb"
+        "$expr": "0.6 * decb"
        }
       },
       {
@@ -254,9 +254,9 @@ export default shot({
    "id": "cont",
    "type": "objeto",
    "objeto": "contador",
-   "x": 150,
-   "y": 640,
-   "size": 240,
+   "x": 215,
+   "y": 112,
+   "size": 220,
    "alfa": {
     "$expr": "1"
    },
@@ -279,16 +279,16 @@ export default shot({
    "type": "text",
    "text": "BAKSAN · CÁUCASO",
    "x": {
-    "$expr": "150"
+    "$expr": "215"
    },
    "y": {
-    "$expr": "566"
+    "$expr": "178"
    },
-   "role": "body",
+   "role": "label",
    "align": "center",
    "color": "#f0d060",
    "alpha": {
-    "$expr": "0.55 * seg(lt, 0.3, 1.1) * (1 - seg(lt, 98.2, 99))"
+    "$expr": "0.6 * seg(lt, 0.3, 1.1) * (1 - seg(lt, 98.2, 99))"
    }
   },
   {

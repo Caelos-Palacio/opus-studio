@@ -84,21 +84,21 @@ export default shot({
    "id": "Z",
    "type": "let",
    "value": {
-    "$expr": "1.55 - 1.15 * smooth(seg(lt, 0.2, 5.4))"
+    "$expr": "1.25 - 0.85 * smooth(seg(lt, 0, 2.4))"
    }
   },
   {
    "id": "FX",
    "type": "let",
    "value": {
-    "$expr": "-35.712 * (1 - smooth(seg(lt, 0.2, 5.4)))"
+    "$expr": "-35.712 * (1 - smooth(seg(lt, 0, 2.4)))"
    }
   },
   {
    "id": "FY",
    "type": "let",
    "value": {
-    "$expr": "-90 * (1 - smooth(seg(lt, 0.2, 5.4)))"
+    "$expr": "-70 * (1 - smooth(seg(lt, 0, 2.4))) + 20 * smooth(seg(lt, 0, 2.4))"
    }
   },
   {
@@ -126,38 +126,85 @@ export default shot({
    "r": {
     "$expr": "560 * Z"
    },
-   "color": "#ffcf8a",
+   "color": "accent",
    "alpha": {
     "$expr": "0.16 * 1"
    }
   },
   {
-   "id": "papel",
-   "type": "objeto",
-   "objeto": "papel_continuo",
-   "x": {
-    "$expr": "ox"
-   },
-   "y": {
-    "$expr": "oy"
-   },
-   "size": {
-    "$expr": "1000 * Z"
-   },
-   "rot": 1.5708,
-   "params": {
-    "pliegues": 9
-   },
-   "partes": {
-    "despliegue": 1,
-    "impreso": 0
-   },
-   "relleno": "#d8c9a4",
-   "color": "#3a2a18",
-   "acento": "#b99a68",
-   "alfa": {
-    "$expr": "0.2 + 0.5 * 1"
-   }
+   "id": "pg",
+   "type": "repeat",
+   "n": 9,
+   "children": [
+    {
+     "type": "shape",
+     "shape": "rect",
+     "x": {
+      "$expr": "640 + ((-450 + i * 100) - FX) * Z"
+     },
+     "y": {
+      "$expr": "360 + ((-290) - FY) * Z"
+     },
+     "w": {
+      "$expr": "100 * Z + 1"
+     },
+     "h": {
+      "$expr": "580 * Z"
+     },
+     "color": {
+      "$expr": "i % 2 == 0 ? \"#cdbf9b\" : \"#bfb08a\""
+     },
+     "alpha": {
+      "$expr": "0.2 + 0.5 * 1"
+     }
+    },
+    {
+     "type": "shape",
+     "shape": "rect",
+     "stroke": true,
+     "lineWidth": 1.2,
+     "x": {
+      "$expr": "640 + ((-450 + i * 100) - FX) * Z"
+     },
+     "y": {
+      "$expr": "360 + ((-290) - FY) * Z"
+     },
+     "w": {
+      "$expr": "100 * Z + 1"
+     },
+     "h": {
+      "$expr": "580 * Z"
+     },
+     "color": "#3a2a18",
+     "alpha": {
+      "$expr": "0.25 * 1"
+     }
+    }
+   ]
+  },
+  {
+   "id": "pp",
+   "type": "repeat",
+   "n": 36,
+   "children": [
+    {
+     "type": "shape",
+     "shape": "circle",
+     "x": {
+      "$expr": "640 + ((-440 + (i % 18) * 51) - FX) * Z"
+     },
+     "y": {
+      "$expr": "360 + ((i < 18 ? -268 : 268) - FY) * Z"
+     },
+     "r": {
+      "$expr": "max(2, 5 * Z)"
+     },
+     "color": "#1a1008",
+     "alpha": {
+      "$expr": "0.28 * 1"
+     }
+    }
+   ]
   },
   {
    "type": "fondo",
@@ -449,7 +496,7 @@ export default shot({
        "id": "mk",
        "type": "let",
        "value": {
-        "$expr": "seg(lt, 1.0 + d_o * 0.12, 1.3 + d_o * 0.12)"
+        "$expr": "(d_o == 23 ? 0 : seg(lt, 1.0 + d_o * 0.12, 1.3 + d_o * 0.12))"
        }
       },
       {
@@ -483,13 +530,13 @@ export default shot({
    "type": "objeto",
    "objeto": "lampara_mesa",
    "x": {
-    "$expr": "90 - 40 * smooth(seg(lt, 0.2, 5.4))"
+    "$expr": "-130 + 150 * smooth(seg(lt, 0.2, 5.4))"
    },
    "y": {
-    "$expr": "420 - 90 * smooth(seg(lt, 0.2, 5.4))"
+    "$expr": "250 - 40 * smooth(seg(lt, 0.2, 5.4))"
    },
    "size": {
-    "$expr": "640 - 330 * smooth(seg(lt, 0.2, 5.4))"
+    "$expr": "520 - 150 * smooth(seg(lt, 0.2, 5.4))"
    },
    "relleno": "#9a6b22",
    "color": "#f1d9a0",
@@ -561,18 +608,35 @@ export default shot({
   {
    "id": "t0",
    "type": "text",
-   "text": "Salieron unos 10⁵⁸. Hace 168 000 años. Aquí se contaron 24.",
+   "text": "Salieron unos 10⁵⁸. Hace 168 000 años.",
    "x": {
     "$expr": "S_cx"
    },
    "y": {
-    "$expr": "S_y1 - 30"
+    "$expr": "S_y1 - 74"
    },
    "role": "body",
    "align": "center",
    "color": "ink",
    "alpha": {
-    "$expr": "1 * seg(lt, 1, 1.8) * (1 - seg(lt, 5.2, 6))"
+    "$expr": "1 * seg(lt, 1.2, 2) * (1 - seg(lt, 5.3, 6.1))"
+   }
+  },
+  {
+   "id": "t1",
+   "type": "text",
+   "text": "Aquí se contaron 24.",
+   "x": {
+    "$expr": "S_cx"
+   },
+   "y": {
+    "$expr": "S_y1 - 34"
+   },
+   "role": "label",
+   "align": "center",
+   "color": "ink",
+   "alpha": {
+    "$expr": "1 * seg(lt, 3, 3.8) * (1 - seg(lt, 5.3, 6.1))"
    }
   }
  ]

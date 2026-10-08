@@ -157,11 +157,11 @@ export default shot({
         "$expr": "f_y"
        },
        "r": {
-        "$expr": "(70 + 260 * f_z) * (0.7 + 0.5 * f_e)"
+        "$expr": "(60 + 200 * f_z) * (0.6 + 0.4 * f_e)"
        },
        "color": "accent2",
        "alpha": {
-        "$expr": "0.95 * dec * f_ok"
+        "$expr": "0.42 * dec * f_ok"
        }
       },
       {
@@ -173,11 +173,11 @@ export default shot({
         "$expr": "f_y"
        },
        "r": {
-        "$expr": "(20 + 60 * f_z)"
+        "$expr": "(20 + 50 * f_z)"
        },
        "color": "ink",
        "alpha": {
-        "$expr": "0.9 * exp(-age * 9) * f_ok"
+        "$expr": "0.35 * exp(-age * 9) * f_ok"
        }
       },
       {
@@ -198,7 +198,7 @@ export default shot({
        },
        "color": "accent2",
        "alpha": {
-        "$expr": "1 * dec * f_ok"
+        "$expr": "0.85 * dec * f_ok"
        }
       },
       {
@@ -270,9 +270,9 @@ export default shot({
    "id": "cont",
    "type": "objeto",
    "objeto": "contador",
-   "x": 150,
-   "y": 640,
-   "size": 240,
+   "x": 215,
+   "y": 112,
+   "size": 220,
    "alfa": {
     "$expr": "0.5 + 0.5 * seg(lt, 0.6, 0.8)"
    },
@@ -295,16 +295,16 @@ export default shot({
    "type": "text",
    "text": "KAMIOKANDE-II",
    "x": {
-    "$expr": "150"
+    "$expr": "215"
    },
    "y": {
-    "$expr": "566"
+    "$expr": "178"
    },
-   "role": "body",
+   "role": "label",
    "align": "center",
    "color": "accent2",
    "alpha": {
-    "$expr": "0.55 * seg(lt, 0.3, 1.1) * (1 - seg(lt, 98.2, 99))"
+    "$expr": "0.6 * seg(lt, 0.3, 1.1) * (1 - seg(lt, 98.2, 99))"
    }
   },
   {
@@ -315,13 +315,13 @@ export default shot({
     "$expr": "S_cx"
    },
    "y": {
-    "$expr": "S_y1 - 46"
+    "$expr": "S_y1 - 96"
    },
    "role": "h2",
    "align": "center",
    "color": "ink",
    "alpha": {
-    "$expr": "1 * seg(lt, 0.95, 1.75) * (1 - seg(lt, 1.2, 2))"
+    "$expr": "1 * seg(lt, 0.8, 1.6) * (1 - seg(lt, 1.0999999999999999, 1.9))"
    }
   },
   {
@@ -332,13 +332,13 @@ export default shot({
     "$expr": "S_cx"
    },
    "y": {
-    "$expr": "S_y1 - 46"
+    "$expr": "S_y1 - 34"
    },
    "role": "body",
    "align": "center",
    "color": "ink",
    "alpha": {
-    "$expr": "1 * seg(lt, 2.15, 2.95) * (1 - seg(lt, 2.5, 3.3))"
+    "$expr": "1 * seg(lt, 1.3, 2.1) * (1 - seg(lt, 3.6000000000000005, 4.4))"
    }
   }
  ]

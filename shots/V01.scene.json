@@ -48,9 +48,9 @@
    "id": "cont",
    "type": "objeto",
    "objeto": "contador",
-   "x": 150,
-   "y": 640,
-   "size": 240,
+   "x": 215,
+   "y": 112,
+   "size": 220,
    "alfa": {
     "$expr": "seg(lt, 6.0, 7.4) * 0.5"
    },
@@ -71,18 +71,35 @@
   {
    "id": "t0",
    "type": "text",
-   "text": "Kamioka, mil metros bajo la roca. Una cuba de agua y mil fotomultiplicadores. Esperan.",
+   "text": "Kamioka, mil metros bajo la roca.",
    "x": {
     "$expr": "S_cx"
    },
    "y": {
-    "$expr": "S_y1 - 46"
+    "$expr": "S_y1 - 74"
    },
    "role": "body",
    "align": "center",
    "color": "ink",
    "alpha": {
-    "$expr": "1 * seg(lt, 1.6, 2.4000000000000004) * (1 - seg(lt, 7.2, 8))"
+    "$expr": "1 * seg(lt, 0.9, 1.7000000000000002) * (1 - seg(lt, 7.3, 8.1))"
+   }
+  },
+  {
+   "id": "t1",
+   "type": "text",
+   "text": "Una cuba de agua, mil fotomultiplicadores. Esperan.",
+   "x": {
+    "$expr": "S_cx"
+   },
+   "y": {
+    "$expr": "S_y1 - 34"
+   },
+   "role": "body",
+   "align": "center",
+   "color": "ink",
+   "alpha": {
+    "$expr": "1 * seg(lt, 2.6, 3.4000000000000004) * (1 - seg(lt, 7.3, 8.1))"
    }
   }
  ]
