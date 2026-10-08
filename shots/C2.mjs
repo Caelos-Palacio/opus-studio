@@ -42,7 +42,18 @@ export default shot({
   {
    "id": "fondo",
    "type": "fondo",
-   "preset": "expediente_kraft"
+   "preset": "expediente_kraft",
+   "ajustes": {
+    "vineta": {
+     "fuerza": 0.1
+    },
+    "soporte": {
+     "alfa": 0.15
+    },
+    "mota": {
+     "alfa": 0.2
+    }
+   }
   },
   {
    "id": "ancla",
@@ -113,13 +124,13 @@ export default shot({
    "type": "text",
    "text": "Consta una diferencia con sus copias:",
    "x": {
-    "$expr": "S_cx - 330"
+    "$expr": "S_cx"
    },
    "y": {
     "$expr": "S_cy + 270-26"
    },
-   "role": "body",
-   "align": "left",
+   "role": "h2",
+   "align": "center",
    "alpha": {
     "$expr": "seg(lt,0.3,0.6)"
    }
@@ -129,15 +140,15 @@ export default shot({
    "type": "text",
    "text": "50 microgramos en cien años.",
    "x": {
-    "$expr": "S_cx - 330"
+    "$expr": "S_cx"
    },
    "y": {
     "$expr": "S_cy + 270+14"
    },
-   "role": "body",
-   "align": "left",
+   "role": "h2",
+   "align": "center",
    "alpha": {
-    "$expr": "seg(lt,1.3,1.6)"
+    "$expr": "seg(lt,1.1,1.4000000000000001)"
    }
   }
  ]

@@ -47,7 +47,18 @@ export default shot({
   {
    "id": "fondo",
    "type": "fondo",
-   "preset": "expediente_kraft"
+   "preset": "expediente_kraft",
+   "ajustes": {
+    "vineta": {
+     "fuerza": 0.1
+    },
+    "soporte": {
+     "alfa": 0.15
+    },
+    "mota": {
+     "alfa": 0.2
+    }
+   }
   },
   {
    "id": "c",
@@ -352,13 +363,13 @@ export default shot({
    "type": "text",
    "text": "Han engordado, entonces, las copias.",
    "x": {
-    "$expr": "S_cx - 330"
+    "$expr": "S_cx"
    },
    "y": {
     "$expr": "S_cy + 270+10"
    },
-   "role": "body",
-   "align": "left",
+   "role": "h2",
+   "align": "center",
    "alpha": {
     "$expr": "seg(lt,3.6,3.9)"
    }

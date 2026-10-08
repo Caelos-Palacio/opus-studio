@@ -28,7 +28,18 @@ export default shot({
   {
    "id": "fondo",
    "type": "fondo",
-   "preset": "expediente_kraft"
+   "preset": "expediente_kraft",
+   "ajustes": {
+    "vineta": {
+     "fuerza": 0.1
+    },
+    "soporte": {
+     "alfa": 0.15
+    },
+    "mota": {
+     "alfa": 0.2
+    }
+   }
   },
   {
    "id": "ancla",
@@ -105,7 +116,7 @@ export default shot({
     "$expr": "S_cx - 120"
    },
    "y": {
-    "$expr": "S_cy + 10 - 240*(1-seg(lt,4.6,5.1))*step(4.6,lt)"
+    "$expr": "S_cy + 60 - 240*(1-seg(lt,4.6,5.1))*step(4.6,lt)"
    },
    "size": 250,
    "params": {
@@ -139,13 +150,13 @@ export default shot({
    "type": "text",
    "text": "Desde hoy consta su incertidumbre.",
    "x": {
-    "$expr": "S_cx - 330"
+    "$expr": "S_cx"
    },
    "y": {
-    "$expr": "S_cy + 270-42"
+    "$expr": "S_cy + 270-72"
    },
-   "role": "body",
-   "align": "left",
+   "role": "h2",
+   "align": "center",
    "alpha": {
     "$expr": "seg(lt,0.2,0.5)"
    }
@@ -155,13 +166,13 @@ export default shot({
    "type": "text",
    "text": "Por primera vez,",
    "x": {
-    "$expr": "S_cx - 330"
+    "$expr": "S_cx"
    },
    "y": {
-    "$expr": "S_cy + 270-10"
+    "$expr": "S_cy + 270-28"
    },
-   "role": "body",
-   "align": "left",
+   "role": "h2",
+   "align": "center",
    "alpha": {
     "$expr": "seg(lt,1.3,1.6)"
    }
@@ -171,13 +182,13 @@ export default shot({
    "type": "text",
    "text": "consta que puede equivocarse.",
    "x": {
-    "$expr": "S_cx - 330"
+    "$expr": "S_cx"
    },
    "y": {
-    "$expr": "S_cy + 270+22"
+    "$expr": "S_cy + 270+16"
    },
-   "role": "body",
-   "align": "left",
+   "role": "h2",
+   "align": "center",
    "alpha": {
     "$expr": "seg(lt,2.0,2.3)"
    }

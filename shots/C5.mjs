@@ -28,7 +28,18 @@ export default shot({
   {
    "id": "fondo",
    "type": "fondo",
-   "preset": "expediente_kraft"
+   "preset": "expediente_kraft",
+   "ajustes": {
+    "vineta": {
+     "fuerza": 0.1
+    },
+    "soporte": {
+     "alfa": 0.15
+    },
+    "mota": {
+     "alfa": 0.2
+    }
+   }
   },
   {
    "id": "hoja",
@@ -190,7 +201,7 @@ export default shot({
    "y": {
     "$expr": "S_cy + -150"
    },
-   "role": "body",
+   "role": "label",
    "align": "left",
    "alpha": {
     "$expr": "seg(lt,0.2,0.5)"
@@ -206,7 +217,7 @@ export default shot({
    "y": {
     "$expr": "S_cy + -70"
    },
-   "role": "body",
+   "role": "label",
    "align": "left",
    "alpha": {
     "$expr": "seg(lt,0.5,0.8)"
@@ -222,7 +233,7 @@ export default shot({
    "y": {
     "$expr": "S_cy + 10"
    },
-   "role": "body",
+   "role": "label",
    "align": "left",
    "alpha": {
     "$expr": "seg(lt,0.8,1.1)"
@@ -238,7 +249,7 @@ export default shot({
    "y": {
     "$expr": "S_cy + 92"
    },
-   "role": "body",
+   "role": "label",
    "align": "left",
    "alpha": {
     "$expr": "seg(lt,1.0999999999999999,1.4)"
@@ -254,7 +265,7 @@ export default shot({
    "y": {
     "$expr": "S_cy + -150"
    },
-   "role": "body",
+   "role": "label",
    "align": "left",
    "alpha": {
     "$expr": "seg(lt,0.6,0.8999999999999999)"
@@ -270,7 +281,7 @@ export default shot({
    "y": {
     "$expr": "S_cy + -70"
    },
-   "role": "body",
+   "role": "label",
    "align": "left",
    "alpha": {
     "$expr": "seg(lt,0.8999999999999999,1.2)"
@@ -286,7 +297,7 @@ export default shot({
    "y": {
     "$expr": "S_cy + 10"
    },
-   "role": "body",
+   "role": "label",
    "align": "left",
    "alpha": {
     "$expr": "seg(lt,1.2,1.5)"
@@ -302,7 +313,7 @@ export default shot({
    "y": {
     "$expr": "S_cy + 92"
    },
-   "role": "body",
+   "role": "label",
    "align": "left",
    "alpha": {
     "$expr": "seg(lt,1.5,1.8)"
@@ -318,7 +329,7 @@ export default shot({
    "y": {
     "$expr": "S_cy - 150"
    },
-   "role": "body",
+   "role": "label",
    "align": "left",
    "alpha": {
     "$expr": "seg(lt,0.9,1.2)"
@@ -397,13 +408,13 @@ export default shot({
    "type": "text",
    "text": "No consta.",
    "x": {
-    "$expr": "S_cx - 330"
+    "$expr": "S_cx"
    },
    "y": {
     "$expr": "S_cy + 270"
    },
    "role": "h2",
-   "align": "left",
+   "align": "center",
    "alpha": {
     "$expr": "seg(lt,1.0,1.3)"
    }

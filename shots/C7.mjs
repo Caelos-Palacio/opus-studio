@@ -46,7 +46,18 @@ export default shot({
   {
    "id": "fondo",
    "type": "fondo",
-   "preset": "expediente_kraft"
+   "preset": "expediente_kraft",
+   "ajustes": {
+    "vineta": {
+     "fuerza": 0.1
+    },
+    "soporte": {
+     "alfa": 0.15
+    },
+    "mota": {
+     "alfa": 0.2
+    }
+   }
   },
   {
    "id": "acta",
@@ -162,15 +173,15 @@ export default shot({
   {
    "id": "l1",
    "type": "text",
-   "text": "2019: ya no es un cilindro.",
+   "text": "Ya no es el kilo.",
    "x": {
-    "$expr": "S_cx - 330"
+    "$expr": "S_cx"
    },
    "y": {
     "$expr": "S_cy + 270"
    },
-   "role": "body",
-   "align": "left",
+   "role": "h2",
+   "align": "center",
    "alpha": {
     "$expr": "seg(lt,0.1,0.4)"
    }

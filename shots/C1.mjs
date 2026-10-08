@@ -37,7 +37,18 @@ export default shot({
   {
    "id": "fondo",
    "type": "fondo",
-   "preset": "expediente_kraft"
+   "preset": "expediente_kraft",
+   "ajustes": {
+    "vineta": {
+     "fuerza": 0.1
+    },
+    "soporte": {
+     "alfa": 0.15
+    },
+    "mota": {
+     "alfa": 0.2
+    }
+   }
   },
   {
    "id": "cil",
@@ -187,13 +198,13 @@ export default shot({
    "type": "text",
    "text": "Consta: bajo tres campanas de cristal,",
    "x": {
-    "$expr": "S_cx - 330"
+    "$expr": "S_cx"
    },
    "y": {
     "$expr": "S_cy + 270-26"
    },
-   "role": "body",
-   "align": "left",
+   "role": "h2",
+   "align": "center",
    "alpha": {
     "$expr": "seg(lt,0.6,0.8999999999999999)"
    }
@@ -203,13 +214,13 @@ export default shot({
    "type": "text",
    "text": "un cilindro es el kilo.",
    "x": {
-    "$expr": "S_cx - 330"
+    "$expr": "S_cx"
    },
    "y": {
     "$expr": "S_cy + 270+14"
    },
-   "role": "body",
-   "align": "left",
+   "role": "h2",
+   "align": "center",
    "alpha": {
     "$expr": "seg(lt,2.0,2.3)"
    }

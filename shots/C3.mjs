@@ -28,7 +28,18 @@ export default shot({
   {
    "id": "fondo",
    "type": "fondo",
-   "preset": "expediente_kraft"
+   "preset": "expediente_kraft",
+   "ajustes": {
+    "vineta": {
+     "fuerza": 0.1
+    },
+    "soporte": {
+     "alfa": 0.15
+    },
+    "mota": {
+     "alfa": 0.2
+    }
+   }
   },
   {
    "id": "ancla",
@@ -178,13 +189,13 @@ export default shot({
    "type": "text",
    "text": "Consta que no puede perder peso.",
    "x": {
-    "$expr": "S_cx - 330"
+    "$expr": "S_cx"
    },
    "y": {
     "$expr": "S_cy + 270-26"
    },
-   "role": "body",
-   "align": "left",
+   "role": "h2",
+   "align": "center",
    "alpha": {
     "$expr": "seg(lt,6.4,6.7)"
    }
@@ -194,15 +205,15 @@ export default shot({
    "type": "text",
    "text": "Lo que él pesa, eso es un kilo.",
    "x": {
-    "$expr": "S_cx - 330"
+    "$expr": "S_cx"
    },
    "y": {
     "$expr": "S_cy + 270+14"
    },
-   "role": "body",
-   "align": "left",
+   "role": "h2",
+   "align": "center",
    "alpha": {
-    "$expr": "seg(lt,7.3,7.6)"
+    "$expr": "seg(lt,6.9,7.2)"
    }
   }
  ]
