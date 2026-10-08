@@ -13,3 +13,4 @@
 - Agentes: Sonnet por defecto; ≤3 en paralelo; worktree desde main actualizado; commits WIP + docs/handoff/<tarea>.md.
 - Empieza por `node engine/tools.mjs brief --role <rol>` y `tools plan "<objetivo>"`; usa `tools find "<intención>"` / `show <id>` en vez de leer el catálogo (spec 015).
 - Eficiencia: docs/current/EFICIENCIA.md. Mapa de docs: docs/current/README.md; decisiones: docs/adr/.
+- Shots nuevos: no los escribas enteros; `node engine/opus.mjs new shot <id> --receta <r> [--param k=v] [--llenar objeto.prop=texto]` (spec 016; `tools find "…" --kind receta`) y llena los `$hueco`.

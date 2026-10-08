@@ -27,6 +27,7 @@
     "review": "node engine/cut.mjs --review",
     "master": "node engine/cut.mjs",
     "use": "node engine/opus.mjs use",
+    "new": "node engine/opus.mjs new",
     "peek": "node engine/peek.mjs",
     "ab": "node engine/ab.mjs",
     "plan": "node engine/cut.mjs --plan",

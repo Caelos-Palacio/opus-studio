@@ -1,0 +1,7 @@
+{
+"meta": {"id":"temblor","grupo":"movimiento","resumen":"sacudida breve que se amortigua tras el golpe","tags":["temblor","sacudida","vibración","golpe","tensión"],"params":{"temblorAmp":"number","temblorDecay":"number"},"cuando":"un golpe o una amenaza debe sentirse en el cuerpo del objeto"},
+"mod": {
+ "params": {"temblorAmp":{"type":"number","range":[0,40],"unit":"px","default":7,"semantic":"amplitud inicial"},"temblorDecay":{"type":"number","range":[0.2,12],"unit":"1/s","default":3,"semantic":"rapidez con que se amortigua"}},
+ "objects": [{"id":"temblorX","type":"let","value":{"$expr":"temblorAmp * exp(-temblorDecay * lt) * sin(61 * lt)"}},{"id":"temblorY","type":"let","value":{"$expr":"temblorAmp * exp(-temblorDecay * lt) * cos(53 * lt)"}}],
+ "aplica": {"x":"+temblorX","y":"+temblorY"}, "acompana": true}
+}

@@ -1,0 +1,7 @@
+{
+"meta": {"id":"deriva","grupo":"movimiento","resumen":"el objeto se desplaza muy despacio en línea recta, a la deriva","tags":["deriva","flotar","lento","desplazar","a la deriva"],"params":{"derivaVx":"number","derivaVy":"number"},"cuando":"quietud viva: nada se detiene del todo, pero nada tiene prisa"},
+"mod": {
+ "params": {"derivaVx":{"type":"number","range":[-60,60],"unit":"px/s","default":9,"semantic":"velocidad horizontal"},"derivaVy":{"type":"number","range":[-60,60],"unit":"px/s","default":-3,"semantic":"velocidad vertical"}},
+ "objects": [{"id":"derivaX","type":"let","value":{"$expr":"derivaVx * lt"}},{"id":"derivaY","type":"let","value":{"$expr":"derivaVy * lt"}}],
+ "aplica": {"x":"+derivaX","y":"+derivaY"}, "acompana": true}
+}

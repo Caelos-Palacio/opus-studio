@@ -1,0 +1,16 @@
+{
+"meta": {"id":"contar","grupo":"plano","resumen":"un contador sube con un latido por cada evento","tags":["contar","contador","eventos","ritmo","número","cuenta"],"params":{"final":"integer","inicio":"number","tarda":"number"},"cuando":"la idea es una cantidad que se ve acumularse al ritmo real"},
+"scene": {"dsl":1,"id":"$ID","doc":"[receta:contar] el número sube; cada unidad lanza un latido del ancla.",
+ "params": {"final":{"type":"integer","range":[1,1000],"default":24,"semantic":"valor final del contador"},
+  "inicio":{"type":"number","range":[0,3],"unit":"s","default":0.4,"semantic":"cuándo empieza a contar"},
+  "tarda":{"type":"number","range":[0.5,10],"unit":"s","default":4,"semantic":"duración de la cuenta"}},
+ "camera": {"move":"push","why":"approach"}, "transition": {"out":"cut"},
+ "objects": [
+  {"id":"fondo","type":"ground","fy":0.86,"alpha":0.22},
+  {"id":"c","type":"let","value":{"$expr":"final * seg(lt, inicio, inicio + tarda)"}},
+  {"id":"ancla","type":"shape","shape":"circle","x":{"$expr":"S_cx"},"y":{"$expr":"S_cy - 30"},"r":{"$expr":"70 + 22 * exp(-9 * fract(c)) * step(0.01, c)"},"color":"accent","semantic":"$hueco: lo que late en cada evento"},
+  {"id":"foco","type":"focus","x":{"$expr":"S_cx - 90"},"y":{"$expr":"S_cy - 120"},"w":180,"h":180,"label":"cuenta"},
+  {"id":"n","type":"text","text":{"$expr":"str(floor(c))"},"x":{"$expr":"S_cx"},"y":{"$expr":"S_cy - 30"},"role":"h1","align":"center","color":"paper"},
+  {"id":"que","type":"text","text":"$hueco: lo que se cuenta","x":{"$expr":"S_cx"},"y":{"$expr":"S_cy + 110"},"role":"body","align":"center"}
+ ]}
+}

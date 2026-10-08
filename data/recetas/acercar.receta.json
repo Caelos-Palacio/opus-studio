@@ -1,0 +1,7 @@
+{
+"meta": {"id":"acercar","grupo":"movimiento","resumen":"el objeto crece despacio hacia el espectador durante el plano","tags":["acercar","acercamiento","crecer","aproximación","empuje"],"params":{"acercarK":"number"},"cuando":"se quiere atención creciente sobre un objeto sin mover la cámara"},
+"mod": {
+ "params": {"acercarK":{"type":"number","range":[0,0.6],"unit":"×","default":0.12,"semantic":"crecimiento total del objeto"}},
+ "objects": [{"id":"acercarS","type":"let","value":{"$expr":"1 + acercarK * ease('inOut', u)"}}],
+ "aplica": {"r":"*acercarS","w":"*acercarS","h":"*acercarS","size":"*acercarS"}}
+}

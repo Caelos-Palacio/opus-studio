@@ -1,0 +1,15 @@
+{
+"meta": {"id":"documento","grupo":"plano","resumen":"un acta o tarjeta donde se escribe línea a línea y se sella","tags":["documento","acta","tarjeta","sello","escribir","listado"],"params":{"sellaEn":"number","linea":"number"},"cuando":"la idea es un papel oficial: lo que consta y quién lo avala"},
+"scene": {"dsl":1,"id":"$ID","doc":"[receta:documento] la hoja recibe dos líneas escritas y, al final, un sello.",
+ "params": {"sellaEn":{"type":"number","range":[1,8],"unit":"s","default":3.2,"semantic":"cuándo cae el sello"},
+  "linea":{"type":"number","range":[0.2,2],"unit":"s","default":0.9,"semantic":"retardo entre líneas"}},
+ "camera": {"move":"push","why":"approach","amount":0.04}, "transition": {"out":"cut"},
+ "objects": [
+  {"id":"fondo","type":"ground","fy":0.9,"alpha":0.18},
+  {"id":"hoja","type":"shape","shape":"rect","x":{"$expr":"S_cx - 280"},"y":{"$expr":"S_cy - 170"},"w":560,"h":340,"color":"ink","alpha":0.92,"semantic":"$hueco: el documento (acta, tarjeta, listado)"},
+  {"id":"foco","type":"focus","x":{"$expr":"S_cx - 280"},"y":{"$expr":"S_cy - 170"},"w":560,"h":340,"label":"documento"},
+  {"id":"l1","type":"text","text":"$hueco: primera línea del documento","x":{"$expr":"S_cx - 240"},"y":{"$expr":"S_cy - 90"},"role":"body","color":"paper","alpha":{"$expr":"seg(lt, 0.4, 0.4 + linea)"}},
+  {"id":"l2","type":"text","text":"$hueco: segunda línea: lo que consta","x":{"$expr":"S_cx - 240"},"y":{"$expr":"S_cy"},"role":"body","color":"paper","alpha":{"$expr":"seg(lt, 0.4 + linea, 0.4 + 2 * linea)"}},
+  {"id":"sello","type":"shape","shape":"circle","stroke":true,"lineWidth":6,"x":{"$expr":"S_cx + 170"},"y":{"$expr":"S_cy + 90"},"r":{"$expr":"46 * spring(lt - sellaEn)"},"color":"anom"}
+ ]}
+}

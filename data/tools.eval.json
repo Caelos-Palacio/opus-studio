@@ -63,5 +63,15 @@
 {"q": "botella de vidrio con mensaje flotando", "esperado": ["objeto:botella_vidrio"]},
 {"q": "tarjeta postal o sobre con sello de correos", "esperado": ["objeto:tarjeta_postal", "objeto:sobre_sello"]},
 {"q": "contador de cifras con valor animado", "esperado": ["objeto:contador"]},
-{"q": "tubo fotomultiplicador de cristal", "esperado": ["objeto:fotomultiplicador", "objeto:cuba"]}
+{"q": "tubo fotomultiplicador de cristal", "esperado": ["objeto:fotomultiplicador", "objeto:cuba"]},
+{"q": "un contador que suba al ritmo real", "esperado": ["receta:contar"]},
+{"q": "un acta o tarjeta que se sella", "esperado": ["receta:documento"]},
+{"q": "presentar un objeto que entra y se asienta", "esperado": ["receta:presentar_objeto"]},
+{"q": "comparar dos cosas lado a lado y marcar la diferencia", "esperado": ["receta:comparar"]},
+{"q": "revelar el todo desde un detalle", "esperado": ["receta:revelar"]},
+{"q": "zoom entre órdenes de magnitud", "esperado": ["receta:escala"]},
+{"q": "que el objeto caiga con peso y rebote", "esperado": ["receta:caida_con_peso"]},
+{"q": "una pausa donde nada ocurre y se sostiene el silencio", "esperado": ["receta:pausa_sostenida"]},
+{"q": "transición por barrido de un objeto que cruza", "esperado": ["receta:barrido_por_objeto"]},
+{"q": "empezar un shot desde una plantilla", "esperado": ["cli:new", "receta:presentar_objeto"]}
 ]

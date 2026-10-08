@@ -22,6 +22,7 @@ import { writeAtomic } from './lock.mjs';
 import { record } from './ledger.mjs';
 import { contractIssues } from './contract.mjs';
 import { secPair } from './core.mjs';
+import { incidencias as recetaIssues } from './recetas.mjs';
 import { frameCache, frameKey, noCache, stats as FCS, pruneFrames } from './framecache.mjs';
 
 // R3 (spec 009): lint corre con fxFast por defecto (−45 % ms/fotograma; PSNR ≈ 70 dB); OPUS_FXFAST=0 lo apaga. El master NO lo usa.
@@ -77,6 +78,7 @@ function validate(film) {
   }
   transitionsStatic(film);
   motifCheck(film);
+  for (const x of recetaIssues(film.shots, ROOT)) warn(x.shot, x.t, x.problem, x.remedy);   // spec 016: receta.hueco / receta.repeticion (WARN; las recetas son opcionales)
   const violent = film.shots.filter((s) => { const sp = specOf(s, film); return sp.whip || sp.move === 'rotate' || sp.why === 'unease'; });
   if (violent.length > Math.max(1, Math.ceil(film.shots.length / 8))) warn(violent[1].id, violent[1].t[0], `${violent.length} planos violentos (whip/rotate/unease): "si todos gritan, ninguno"`, 'máximo 1 por acto (~8 shots)');
   const fp = path.join(ROOT, 'data/facts.json'), facts = fs.existsSync(fp) ? JSON.parse(fs.readFileSync(fp, 'utf8')) : {};

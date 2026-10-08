@@ -1,0 +1,7 @@
+{
+"meta": {"id":"parpadeo","grupo":"movimiento","resumen":"la opacidad del objeto late entre un mínimo y plena","tags":["parpadeo","latido","pulso","opacidad","luz","intermitente"],"params":{"parpadeoHz":"number","parpadeoMin":"number"},"cuando":"algo debe llamar la atención como una luz que insiste, sin moverse"},
+"mod": {
+ "params": {"parpadeoHz":{"type":"number","range":[0.2,8],"unit":"Hz","default":2,"semantic":"latidos por segundo"},"parpadeoMin":{"type":"number","range":[0,1],"default":0.35,"semantic":"opacidad mínima"}},
+ "objects": [{"id":"parpadeoA","type":"let","value":{"$expr":"parpadeoMin + (1 - parpadeoMin) * (0.5 + 0.5 * sin(tau * parpadeoHz * lt))"}}],
+ "aplica": {"alpha":"*parpadeoA"}}
+}

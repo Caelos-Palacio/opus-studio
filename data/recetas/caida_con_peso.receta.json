@@ -1,0 +1,7 @@
+{
+"meta": {"id":"caida_con_peso","grupo":"movimiento","resumen":"el objeto cae desde arriba, golpea y rebota con peso","tags":["caída","peso","gravedad","rebote","golpe","caer"],"params":{"caidaAlto":"number","caidaEn":"number"},"cuando":"algo debe llegar con peso y quedarse; el golpe marca el plano"},
+"mod": {
+ "params": {"caidaAlto":{"type":"number","range":[0,600],"unit":"px","default":260,"semantic":"altura de la que cae"},"caidaEn":{"type":"number","range":[0,3],"unit":"s","default":0.2,"semantic":"instante en que suelta"}},
+ "objects": [{"id":"caidaY","type":"let","value":{"$expr":"-caidaAlto * (1 - spring(lt - caidaEn, 'snap'))"}}],
+ "aplica": {"y":"+caidaY"}, "acompana": true}
+}
