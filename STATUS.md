@@ -50,15 +50,15 @@ Definición (gates.json); el estado de cierre está en la parte viva.
 
 ## Tests
 
-Archivos (test/*.mjs): `arc.mjs` `bench-skia.mjs` `critic.mjs` `cut-render.mjs` `dsl-cov.mjs` `film.mjs` `fondo.mjs` `fondos.mjs` `fuzz.mjs` `golden.mjs` `gov.mjs` `guard.mjs` `harness.mjs` `hash.mjs` `lib.mjs` `medios.mjs` `memoria.mjs` `metrics.mjs` `motor.mjs` `narr.mjs` `orch.mjs` `orquestacion.mjs` `params.mjs` `perf.mjs` `prores.mjs` `recetas.mjs` `run.mjs` `schema.mjs` `semantica.mjs` `sound.mjs` `suites.mjs` `tools.mjs` `unit.mjs` `world3d.mjs`
+Archivos (test/*.mjs): `arc.mjs` `bench-skia.mjs` `critic.mjs` `cut-render.mjs` `diagramas.mjs` `dsl-cov.mjs` `film.mjs` `fondo.mjs` `fondos.mjs` `fuzz.mjs` `golden.mjs` `gov.mjs` `guard.mjs` `harness.mjs` `hash.mjs` `lib.mjs` `medios.mjs` `memoria.mjs` `metrics.mjs` `motor.mjs` `narr.mjs` `orch.mjs` `orquestacion.mjs` `params.mjs` `perf.mjs` `prores.mjs` `recetas.mjs` `run.mjs` `schema.mjs` `semantica.mjs` `sound.mjs` `suites.mjs` `tools.mjs` `unit.mjs` `world3d.mjs`
 <!-- estatico:fin -->
 
 ---
-## Estado vivo (2026-10-08T00:37Z, no verificado)
+## Estado vivo (2026-10-08T00:45Z, no verificado)
 
 ## Veredictos
 
-Film activo: `sistema` · engineHash `a3f2e0380af866955a2ced396812420ac797293398729c23f79c595ba75c947b` · filmHash `69a33c8be1eae6eb`
+Film activo: `sistema` · engineHash `a3f2e0380af866955a2ced396812420ac797293398729c23f79c595ba75c947b` · filmHash `139b523f0f033735`
 
 - out/lint.json: SHIP · CADUCADO
 - out/critic.json: no existe
@@ -71,9 +71,9 @@ Film activo: `sistema` · engineHash `a3f2e0380af866955a2ced396812420ac797293398
 ## Ramas sin integrar
 
 - `backup/pre-limpieza` (+136 commits)
-- `diagramas` (+3 commits)
-- `film-consta` (+1 commits)
-- `film-veinticuatro` (+1 commits)
+- `diagramas` (+4 commits)
+- `film-consta` (+2 commits)
+- `film-veinticuatro` (+3 commits)
 - `gobernanza` (+96 commits)
 - `harness` (+101 commits)
 - `medios` (+57 commits)
