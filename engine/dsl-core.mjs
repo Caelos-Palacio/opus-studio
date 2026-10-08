@@ -10,6 +10,8 @@
 import { compile as compileExpr, FUNCS, ExprError } from './expr.mjs';
 import { seg, ease, lerp, clamp, rng } from './core.mjs';
 import { rgba } from './color.mjs';
+import { validateFondo, FONDO_KEYS } from './fondos.mjs';
+import { validateObjeto } from './objetos.mjs';
 
 export const DSL_VERSION = 1;
 const BUILTIN_TIME = ['t', 'lt', 'u', 'dur', 't0', 't1'], BUILTIN_FRAME = ['W', 'H', 'k', 'dt', 'S_x0', 'S_x1', 'S_y0', 'S_y1', 'S_w', 'S_h', 'S_cx', 'S_cy', 'boxes'], BUILTIN = [...BUILTIN_TIME, ...BUILTIN_FRAME];
@@ -44,6 +46,8 @@ export const TYPES = {
   plot: { props: LIBP, req: ['lib', 'fn'] }, axis: { props: LIBP, req: ['lib', 'fn'] }, world: { props: LIBP, req: ['lib', 'fn'] },
   hud: { props: LIBP, req: ['lib', 'fn'] }, caption: { props: LIBP, req: ['lib', 'fn'] },
   world3d: { props: [...LIBP, 'scene', 'cam', 'opts', 'time'], req: [] },
+  fondo: { props: [...FONDO_KEYS, 'alfa'], req: [] },
+  objeto: { props: ['objeto', 'x', 'y', 'size', 'rot', 'estado', 'partes', 'params', 'color', 'relleno', 'acento', 'flip', 'alfa', 'label', 'fields'], req: ['objeto', 'x', 'y', 'size'], out: ['x', 'y', 'w', 'h'] },
   particles: { props: ['n', 'seed', 'x', 'y', 'r', 'color', 'alpha'], req: ['n', 'seed', 'x', 'y', 'r'] }, custom: { props: LIBP, req: ['lib', 'fn'] },
 };
 const LIBBACKED = ['focusOf', 'ring', 'dot', 'shatter', 'cracks', 'gridlines', 'playhead', 'plot', 'axis', 'world', 'hud', 'caption', 'world3d', 'custom'];
@@ -137,10 +141,14 @@ export function validateScene(sc) {
       if (o.type === 'repeat' && (o.fields ?? []).length && !o.id) E(p, 'repeat con fields necesita id');
       if (o.id != null) { if (!ID_RE.test(o.id) || CONST_NAMES.includes(o.id)) E(`${p}/id`, `id "${o.id}" no válido (letras y dígitos, sin "_"; ni constantes: ${CONST_NAMES.join(' ')})`); else if (ids.has(o.id)) E(`${p}/id`, `id duplicado "${o.id}"`); else ids.add(o.id); }
       if (o.cue != null && !cues.has(o.cue)) E(`${p}/cue`, `cue "${o.cue}" no existe`, hint(o.cue, [...cues.keys()]));
+      if (o.type === 'fondo') validateFondo(Object.fromEntries(FONDO_KEYS.filter((k) => k in o).map((k) => [k, o[k]])), p, E);
+      if (o.type === 'objeto') validateObjeto(o, p, E);
       for (const r of o.reads ?? []) if (!(r in params)) E(`${p}/reads`, `param "${r}" no existe`, hint(r, Object.keys(params)));
       if (o.when != null) exprCheck({ $expr: o.when }, `${p}/when`, scope, E, false, undefined, funcs);
       for (const k of spec.props) { if (!(k in o)) continue; const v = o[k];
         if (k === 'children') { const inner = o.type === 'repeat' ? new Set([...scope, ...repVars(o)]) : scope; check(v, `${p}/children`, inner); }
+        else if (o.type === 'fondo' && FONDO_KEYS.includes(k)) { /* datos literales: los valida validateFondo */ }
+        else if (o.type === 'objeto' && ['partes', 'params', 'estado'].includes(k)) structCheck(v, `${p}/${k}`, scope, E, funcs);
         else if (k === 'steps') { if (!Array.isArray(v) && !(v && v.lib in libs && v.export)) E(`${p}/steps`, 'steps: lista de {t,d,tex,x,y,s} o {lib, export}'); }
         else if (k === 'lib') { if (!(v in libs)) E(`${p}/lib`, `lib "${v}" no declarada en libs`, hint(v, Object.keys(libs))); }
         else if (k === 'fn' || k === 'fields') { /* literal */ }
@@ -200,6 +208,8 @@ export function depsOf(sc) {
     for (const k of ['text', 'x', 'y', 'alpha']) if (isShotV(o[k])) d.shot.add(o[k].$shot);
     if (d.entities.size) for (const e of d.entities) { d.libs.add(ents[e].lib); for (const r of ents[e].reads ?? []) d.params.add(r); if (!ents[e].reads) d.opaque = true; d.time = true; }
     if (o.lib) { d.libs.add(o.lib); const toks = (o.args ?? (o.type === 'let' ? [] : ['ctx', 'api', 'film', 't'])).filter((a) => typeof a === 'string'), pureCall = !toks.some((a) => ['film', 'shot', 'P'].includes(a)); if (toks.includes('t') || toks.includes('u') || o.type !== 'let') d.time = true; if (o.reads) o.reads.forEach((r) => d.params.add(r)); else if (!pureCall) d.opaque = true; }
+    if (o.type === 'fondo') { d.time = true; d.frame = true; }
+    if (o.type === 'objeto') d.time = true;
     if (o.type === 'equation') { d.time = true; d.frame = true; if (o.steps?.lib) d.libs.add(o.steps.lib); }
     if (o.type === 'text' || o.type === 'let') d.time ||= false;
     for (const x of o.reads ?? []) d.params.add(x);
@@ -312,6 +322,8 @@ export function shot(scene, libs = {}) {
         case 'lines': { ctx.save(); ctx.strokeStyle = api.color(val(o.color ?? 'ink')); ctx.globalAlpha = val(o.alpha ?? 1); ctx.lineWidth = val(o.lineWidth ?? 1); ctx.beginPath(); for (const sg of o.segs) { const [x0, y0, x1, y1] = val(sg); ctx.moveTo(x0, y0); ctx.lineTo(x1, y1); } ctx.stroke(); ctx.restore(); break; }
         case 'repeat': { const sI = env.i, sN = env.n, rows = isExprV(o.items) ? val(o.items) : o.items ?? null, n = rows ? rows.length : val(o.n); env.n = n;
           for (let i = 0; i < n; i++) { env.i = i; if (rows) (o.fields ?? []).forEach((f, j) => { env[`${o.id}_${f}`] = (Array.isArray(rows[i]) ? rows[i][j] : rows[i][f]); }); run(o.children); } env.i = sI; env.n = sN; break; }
+        case 'fondo': api.fondo(pick(o, FONDO_KEYS, (x) => x), { ...(o.alfa != null ? { alfa: val(o.alfa) } : {}), lt: env.lt }); break;
+        case 'objeto': { const r = api.objeto(o.objeto, pick(o, ['x', 'y', 'size', 'rot', 'estado', 'partes', 'params', 'color', 'relleno', 'acento', 'flip', 'alfa', 'label'], val)); if (o.id) { for (const f of TYPES.objeto.out) env[`${o.id}_${f}`] = r[f]; publish(o, r); } break; }
         case 'world3d': if (o.scene) { const camSpec = o.cam, opts = val(o.opts ?? {}), tt0 = o.time != null ? val(o.time) : Math.max(0, env.lt);
           api.world3d(o.scene, { t: tt0, u, ...(camSpec ? { cam: (tt) => { const s3 = env.t3; env.t3 = tt; try { return val(camSpec); } finally { env.t3 = s3; } } } : {}), ...opts }); break; }
           // eslint-disable-next-line no-fallthrough

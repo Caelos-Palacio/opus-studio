@@ -1347,6 +1347,311 @@
           "forbid": []
         }
       ]
+    },
+    "fondo.capa": {
+      "doc": "Tipo de capa de fondo generativo (spec 014: fondo.capas[].tipo).",
+      "terms": [
+        {
+          "id": "relleno",
+          "def": "Color liso que cubre todo el cuadro.",
+          "forbid": []
+        },
+        {
+          "id": "degradado",
+          "def": "Degradado lineal, radial o por bandas; puede muestrear la paleta del medio.",
+          "forbid": []
+        },
+        {
+          "id": "fbm",
+          "def": "Campo de ruido fractal suave: nubes, manchas, textura de soporte.",
+          "forbid": []
+        },
+        {
+          "id": "deformado",
+          "def": "Ruido con dominio deformado: humo, mármol, vetas fluidas.",
+          "forbid": []
+        },
+        {
+          "id": "celular",
+          "def": "Ruido celular tipo Voronoi: celdas, grietas, membranas, fotocélulas.",
+          "forbid": []
+        },
+        {
+          "id": "flujo",
+          "def": "Líneas de flujo que siguen un campo de ruido, con trazo que avanza.",
+          "forbid": []
+        },
+        {
+          "id": "niebla",
+          "def": "Niebla por profundidad: velo que espesa hacia el horizonte y deriva.",
+          "forbid": []
+        },
+        {
+          "id": "polvo",
+          "def": "Partículas en suspensión que derivan y titilan, con tamaños en profundidad.",
+          "forbid": []
+        },
+        {
+          "id": "rayos",
+          "def": "Rayos de luz volumétricos (godrays) desde un punto, con vaivén lento.",
+          "forbid": []
+        },
+        {
+          "id": "bokeh",
+          "def": "Discos de luz desenfocada con borde vivo, que respiran y derivan.",
+          "forbid": []
+        },
+        {
+          "id": "estrellas",
+          "def": "Campo de estrellas con titileo y algunas destellos en cruz.",
+          "forbid": []
+        },
+        {
+          "id": "orbes",
+          "def": "Esferas luminosas de cristal, como lunas o fotomultiplicadores, con parpadeo propio.",
+          "forbid": []
+        },
+        {
+          "id": "reticula",
+          "def": "Retícula de líneas, puntos o cruces, como papel milimetrado o plano técnico.",
+          "forbid": []
+        },
+        {
+          "id": "trama",
+          "def": "Rayado cruzado a mano: líneas paralelas irregulares, simple o en cruz.",
+          "forbid": []
+        },
+        {
+          "id": "rayado",
+          "def": "Renglones de papel de carta o cuaderno, con línea de margen opcional.",
+          "forbid": []
+        },
+        {
+          "id": "semitono",
+          "def": "Puntos de semitono cuyo tamaño sigue un campo radial, lineal o de ruido.",
+          "forbid": []
+        },
+        {
+          "id": "motivo",
+          "def": "Motivo repetido (cruz, hoja, estrella…) con variación de posición, giro y tamaño.",
+          "forbid": []
+        },
+        {
+          "id": "vineta",
+          "def": "Viñeta que oscurece los bordes y concentra la mirada en el centro.",
+          "forbid": []
+        },
+        {
+          "id": "foco",
+          "def": "Charco de luz o cono sobre un punto, como una lámpara sobre la mesa.",
+          "forbid": []
+        },
+        {
+          "id": "terminador",
+          "def": "Línea de día y noche: franja de sombra con borde suave, recta o curva.",
+          "forbid": []
+        },
+        {
+          "id": "olas",
+          "def": "Mar en franjas de olas con espuma y deriva, del horizonte a la orilla.",
+          "forbid": []
+        },
+        {
+          "id": "acuarela",
+          "def": "Lavados de acuarela: manchas con borde más oscuro, sangrado y pigmento disperso.",
+          "forbid": []
+        },
+        {
+          "id": "perfil",
+          "def": "Silueta de horizonte: montañas, ciudad con ventanas, dunas o bosque.",
+          "forbid": []
+        }
+      ]
+    },
+    "fondo.preset": {
+      "doc": "Fondo temático de referencia (spec 014: fondo.preset).",
+      "terms": [
+        {
+          "id": "cosmos_profundo",
+          "def": "Cosmos con nebulosa, dos campos de estrellas y polvo: oscuridad inmensa con profundidad.",
+          "forbid": []
+        },
+        {
+          "id": "cuba_oscura",
+          "def": "Agua negra con fotomultiplicadores como lunas, niebla fría, haces de luz y paralaje.",
+          "forbid": []
+        },
+        {
+          "id": "expediente_kraft",
+          "def": "Cartón de archivo con renglones, marcas de registro, rayado a lápiz y viñeta de tinta.",
+          "forbid": []
+        },
+        {
+          "id": "papel_carta_acuarela",
+          "def": "Papel de carta con renglones azules, lavados de acuarela, ondas y polvo suave.",
+          "forbid": []
+        },
+        {
+          "id": "mar_acuarela",
+          "def": "Mar de acuarela: lavados azules, franjas de olas con espuma y bruma.",
+          "forbid": []
+        },
+        {
+          "id": "noche_ciudad",
+          "def": "Noche urbana: cielo violeta, montañas, rascacielos con ventanas, bokeh y bruma.",
+          "forbid": []
+        },
+        {
+          "id": "laboratorio",
+          "def": "Laboratorio claro: retícula de puntos, cono de luz de lámpara, semitono y viñeta.",
+          "forbid": []
+        },
+        {
+          "id": "taller_madera",
+          "def": "Banco de taller: vetas de madera, cono de lámpara cálida, polvo dorado y rayado.",
+          "forbid": []
+        },
+        {
+          "id": "amanecer_niebla",
+          "def": "Amanecer con niebla: degradado cálido, sierras en bandas, rayos de sol y polvo.",
+          "forbid": []
+        },
+        {
+          "id": "plano_tecnico",
+          "def": "Plano técnico: retícula milimetrada con líneas mayores, marcas de registro y viñeta.",
+          "forbid": []
+        }
+      ]
+    },
+    "objeto": {
+      "doc": "Objeto de la biblioteca (spec 014: api.objeto / tipo DSL objeto).",
+      "terms": [
+        {
+          "id": "cilindro_metalico",
+          "def": "Cilindro de metal pulido, alto igual que ancho, con brillo que recorre su flanco.",
+          "forbid": []
+        },
+        {
+          "id": "campana_cristal",
+          "def": "Campana de cristal sobre peana, con condensación; admite hasta tres campanas anidadas.",
+          "forbid": []
+        },
+        {
+          "id": "llave_laton",
+          "def": "Llave de latón con aro, caña y paletón dentado; gira en la cerradura.",
+          "forbid": []
+        },
+        {
+          "id": "balanza_cruz",
+          "def": "Balanza de brazos iguales con platos colgados; la aguja puede quedar ladeada.",
+          "forbid": []
+        },
+        {
+          "id": "sello_tampon",
+          "def": "Sello de goma con mango de madera; baja, estampa (o no, sin tinta) y sube.",
+          "forbid": []
+        },
+        {
+          "id": "acta_cuaderno",
+          "def": "Hoja de acta con título, renglones escritos y líneas de firma.",
+          "forbid": []
+        },
+        {
+          "id": "pluma",
+          "def": "Pluma de ave o estilográfica con plumín; deja un trazo de tinta al escribir.",
+          "forbid": []
+        },
+        {
+          "id": "fotomultiplicador",
+          "def": "Tubo fotomultiplicador de bulbo grande: cúpula de vidrio, cuello y base con patillas.",
+          "forbid": []
+        },
+        {
+          "id": "cuba",
+          "def": "Corte de una cuba cilíndrica de agua con fotomultiplicadores en las paredes y destello.",
+          "forbid": []
+        },
+        {
+          "id": "contador",
+          "def": "Contador de dígitos mecánico (rodillos) o numérico (siete segmentos) con valor animable.",
+          "forbid": []
+        },
+        {
+          "id": "papel_continuo",
+          "def": "Hoja de papel continuo de impresora: bandas, perforaciones laterales y líneas impresas.",
+          "forbid": []
+        },
+        {
+          "id": "lapiz",
+          "def": "Lápiz hexagonal con virola y goma; se desgasta y puede escribir una línea.",
+          "forbid": []
+        },
+        {
+          "id": "lampara_mesa",
+          "def": "Lámpara de mesa articulada con pantalla y cono de luz que se enciende.",
+          "forbid": []
+        },
+        {
+          "id": "botella_vidrio",
+          "def": "Botella de vidrio con lastre de arena, tapón y mensaje enrollado; flota inclinada.",
+          "forbid": []
+        },
+        {
+          "id": "tarjeta_postal",
+          "def": "Tarjeta postal con costa por delante y renglones, sello y dirección por detrás.",
+          "forbid": []
+        },
+        {
+          "id": "moneda",
+          "def": "Moneda con canto, orla y emblema; gira sobre su eje y refleja la luz.",
+          "forbid": []
+        },
+        {
+          "id": "sobre_sello",
+          "def": "Sobre con solapa que se abre, sello de correos con matasellos y dirección.",
+          "forbid": []
+        },
+        {
+          "id": "red_pesca",
+          "def": "Red de malla en rombos que cuelga de una soga con flotadores y se tensa.",
+          "forbid": []
+        },
+        {
+          "id": "mapa_costero",
+          "def": "Mapa de costa con mar rayado, rosa de los vientos, ruta punteada y cruz.",
+          "forbid": []
+        },
+        {
+          "id": "reloj",
+          "def": "Reloj de pared redondo con números, agujas de hora, minuto y segundero.",
+          "forbid": []
+        },
+        {
+          "id": "mano",
+          "def": "Mano esquemática de dedos articulados: abierta, puño, señalando o en pinza.",
+          "forbid": []
+        },
+        {
+          "id": "puerta",
+          "def": "Puerta con marco, paneles y picaporte que gira sobre sus bisagras dejando pasar luz.",
+          "forbid": []
+        },
+        {
+          "id": "ventana",
+          "def": "Ventana de cuarterones con alféizar, hojas que se abren y luz de fuera.",
+          "forbid": []
+        },
+        {
+          "id": "mesa",
+          "def": "Mesa de tablero grueso y cuatro patas en alzado frontal, con mantel opcional.",
+          "forbid": []
+        },
+        {
+          "id": "libro",
+          "def": "Libro cerrado o abierto con tapas, lomo, páginas con texto y página que pasa.",
+          "forbid": []
+        }
+      ]
     }
   },
   "groups": {

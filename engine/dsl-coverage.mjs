@@ -10,7 +10,7 @@ import { TYPES } from './dsl-core.mjs';
 
 const SPEC = JSON.parse(fs.readFileSync(new URL('../data/dsl-coverage.json', import.meta.url), 'utf8'));
 // rasgo del JS → tipo DSL que lo cubre (si falta en TYPES, el rasgo cuenta como "falta:<tipo>")
-const API_TYPE = { text: 'text', focus: 'focus', glow: 'glow', morph: 'morph', ground: 'ground', depth: 'group', tex: 'equation', gradient: 'gradient', world3d: 'world3d', layer: 'layer', impact: 'impact', color: null, spring: null, ease: null, at: null, safe: null, sizes: null, params: null, k: null, S: null, _box: null, tilt: 'camera', cam: 'camera' };
+const API_TYPE = { text: 'text', focus: 'focus', glow: 'glow', morph: 'morph', ground: 'ground', depth: 'group', tex: 'equation', gradient: 'gradient', world3d: 'world3d', layer: 'layer', impact: 'impact', fondo: 'fondo', objeto: 'objeto', color: null, spring: null, ease: null, at: null, safe: null, sizes: null, params: null, k: null, S: null, _box: null, tilt: 'camera', cam: 'camera' };
 const CTX_TYPE = { fillRect: 'rect', rect: 'rect', strokeRect: 'rect', arc: 'path', ellipse: 'path', moveTo: 'path', lineTo: 'path', bezierCurveTo: 'path', quadraticCurveTo: 'path', stroke: 'path', beginPath: 'path', closePath: 'path', fill: 'path', clip: 'mask', save: 'transform', restore: 'transform', translate: 'transform', rotate: 'transform', scale: 'transform', setTransform: 'transform', createLinearGradient: 'gradient', createRadialGradient: 'gradient', fillText: 'text', strokeText: 'text', drawImage: 'image', setLineDash: 'path' };
 
 export function analyzeSource(src) {

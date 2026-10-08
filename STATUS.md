@@ -31,12 +31,13 @@ Definición (gates.json); el estado de cierre está en la parte viva.
 | [011-motor.md](docs/specs/011-motor.md) | 011 — Motor: renderizar una vez, analizar muchas, recalcular solo lo afectado | sin nota |
 | [012-produccion-v2.md](docs/specs/012-produccion-v2.md) | 012 — Producción v2: Regla, Reel y Potencias | mate_papel · terracota · — (2026-10-06) · "está muy bien" |
 | [013-storytelling.md](docs/specs/013-storytelling.md) | 013 — Storytelling auténtico: voz, ancla, frescura | (pendiente) ·  ·  ·  · |
+| [014-fondos-objetos.md](docs/specs/014-fondos-objetos.md) | 014 — Fondos generativos y biblioteca de objetos | sin nota |
 | [015-toolbox.md](docs/specs/015-toolbox.md) | Spec 015 — toolbox: descubrimiento progresivo de herramientas | sin nota |
 | [016-recetas.md](docs/specs/016-recetas.md) | 016 — Recetas: el agente no escribe todo el código | sin nota |
 
 ## Motor
 
-- versión: 5.0.0 (package.json) · módulos engine/: 82
+- versión: 5.0.0 (package.json) · módulos engine/: 87
 - roles: modo `enforce` (*, director, dp, investigador, td, productor, animator, review) · digest `35a737817acffefa`
 - presupuestos: data/budgets.json digest `5290bbde06ea538a`
 
@@ -49,7 +50,7 @@ Definición (gates.json); el estado de cierre está en la parte viva.
 
 ## Tests
 
-Archivos (test/*.mjs): `arc.mjs` `bench-skia.mjs` `critic.mjs` `cut-render.mjs` `dsl-cov.mjs` `film.mjs` `fondo.mjs` `fuzz.mjs` `golden.mjs` `gov.mjs` `guard.mjs` `harness.mjs` `hash.mjs` `lib.mjs` `medios.mjs` `memoria.mjs` `metrics.mjs` `motor.mjs` `narr.mjs` `orch.mjs` `orquestacion.mjs` `params.mjs` `perf.mjs` `prores.mjs` `run.mjs` `schema.mjs` `semantica.mjs` `sound.mjs` `suites.mjs` `tools.mjs` `unit.mjs` `world3d.mjs`
+Archivos (test/*.mjs): `arc.mjs` `bench-skia.mjs` `critic.mjs` `cut-render.mjs` `dsl-cov.mjs` `film.mjs` `fondo.mjs` `fondos.mjs` `fuzz.mjs` `golden.mjs` `gov.mjs` `guard.mjs` `harness.mjs` `hash.mjs` `lib.mjs` `medios.mjs` `memoria.mjs` `metrics.mjs` `motor.mjs` `narr.mjs` `orch.mjs` `orquestacion.mjs` `params.mjs` `perf.mjs` `prores.mjs` `run.mjs` `schema.mjs` `semantica.mjs` `sound.mjs` `suites.mjs` `tools.mjs` `unit.mjs` `world3d.mjs`
 <!-- estatico:fin -->
 
 ---
@@ -57,7 +58,7 @@ Archivos (test/*.mjs): `arc.mjs` `bench-skia.mjs` `critic.mjs` `cut-render.mjs` 
 
 ## Veredictos
 
-Film activo: `main` · engineHash `ef231535ac88b4be816238e65d1706031d3da7fa6f1d7442ac17f40e96643f14` · filmHash `a3f15e847f29bf4d`
+Film activo: `main` · engineHash `1c244bfd994296d6ec684766372f133b16904d6559021eb3c6cec62f5e45ee79` · filmHash `461f7b53818359ba`
 
 - out/lint.json: SHIP · CADUCADO
 - out/critic.json: SHIP · CADUCADO
@@ -70,7 +71,6 @@ Film activo: `main` · engineHash `ef231535ac88b4be816238e65d1706031d3da7fa6f1d7
 ## Ramas sin integrar
 
 - `backup/pre-limpieza` (+136 commits)
-- `deuda2` (+9 commits)
 - `diagramas` (+1 commits)
 - `fondos` (+6 commits)
 - `gobernanza` (+96 commits)
