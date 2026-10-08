@@ -35,7 +35,7 @@ const J = (f) => JSON.parse(fs.readFileSync(path.join(ROOT, f), 'utf8'));
 // ── recetas: enganche con el tipo DSL genérico objeto/fondo (spec 014 + 016) ──
 {
   const R = await imp('engine/recetas.mjs'), { TYPES } = await imp('engine/dsl-core.mjs');
-  const entries = [{ id: 'objeto:cilindro_metalico', kind: 'objeto', resumen: 'cilindro' }, { id: 'fondo:expediente_kraft', kind: 'fondo', resumen: 'cartón de archivo' }];
+  const entries = [{ id: 'objeto:cilindro_metalico', kind: 'objeto', resumen: 'cilindro' }, { id: 'fondo:expediente_kraft', kind: 'fondo', resumen: 'cartón de archivo', uso: '{"type":"fondo","preset":"expediente_kraft"}' }];
   const sc = R.scaffold('presentar_objeto', { id: 'T1', objeto: 'cilindro_metalico', fondo: 'expediente_kraft', entries, types: TYPES }).scene;
   const a = sc.objects.find((o) => o.id === 'ancla'), f = sc.objects.find((o) => o.id === 'fondo');
   ok('R1 --objeto/--fondo del catálogo producen {type:"objeto", objeto} y {type:"fondo", preset}', a.type === 'objeto' && a.objeto === 'cilindro_metalico' && f.type === 'fondo' && f.preset === 'expediente_kraft', JSON.stringify([a.type, a.objeto, f.type, f.preset]));

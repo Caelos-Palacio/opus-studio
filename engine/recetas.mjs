@@ -91,7 +91,7 @@ function aplicarMov(sc, mov, { targets, types }) {
 function instanciar(kind, name, slot, { entries, types }) {
   const e = (entries ?? []).find((x) => x.id === `${kind}:${name}`);
   // spec 014: objetos y fondos son UN tipo DSL genérico (`objeto`/`fondo`) parametrizado por nombre/preset, no un tipo por nombre
-  if (e && !types[name] && types[kind]) {
+  if (e && !types[name] && types[kind] && (kind === 'objeto' || /"preset"/.test(`${e.uso ?? ''}${e.ejemplo ?? ''}`))) {
     const nuevo = kind === 'objeto' ? { id: slot.id, type: 'objeto', objeto: name, x: slot.x ?? { $expr: 'S_cx' }, y: slot.y ?? { $expr: 'S_cy' }, size: 300 } : { id: slot.id, type: 'fondo', preset: name };
     nuevo.semantic = e.resumen; for (const k of Object.keys(slot)) delete slot[k]; Object.assign(slot, nuevo);
     return `${kind} «${name}»: ${e.resumen}`;
