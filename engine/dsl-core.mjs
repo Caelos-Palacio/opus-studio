@@ -47,7 +47,7 @@ export const TYPES = {
   hud: { props: LIBP, req: ['lib', 'fn'] }, caption: { props: LIBP, req: ['lib', 'fn'] },
   world3d: { props: [...LIBP, 'scene', 'cam', 'opts', 'time'], req: [] },
   fondo: { props: [...FONDO_KEYS, 'alfa'], req: [] },
-  objeto: { props: ['objeto', 'x', 'y', 'size', 'rot', 'estado', 'partes', 'params', 'color', 'relleno', 'acento', 'flip', 'alfa', 'label', 'fields'], req: ['objeto', 'x', 'y', 'size'], out: ['x', 'y', 'w', 'h'] },
+  objeto: { props: ['objeto', 'x', 'y', 'size', 'rot', 'estado', 'partes', 'params', 'color', 'relleno', 'acento', 'flip', 'alfa', 'label', 'hollow', 'focus', 'fields'], req: ['objeto', 'x', 'y', 'size'], out: ['x', 'y', 'w', 'h'] },
   particles: { props: ['n', 'seed', 'x', 'y', 'r', 'color', 'alpha'], req: ['n', 'seed', 'x', 'y', 'r'] }, custom: { props: LIBP, req: ['lib', 'fn'] },
 };
 const LIBBACKED = ['focusOf', 'ring', 'dot', 'shatter', 'cracks', 'gridlines', 'playhead', 'plot', 'axis', 'world', 'hud', 'caption', 'world3d', 'custom'];
@@ -323,7 +323,7 @@ export function shot(scene, libs = {}) {
         case 'repeat': { const sI = env.i, sN = env.n, rows = isExprV(o.items) ? val(o.items) : o.items ?? null, n = rows ? rows.length : val(o.n); env.n = n;
           for (let i = 0; i < n; i++) { env.i = i; if (rows) (o.fields ?? []).forEach((f, j) => { env[`${o.id}_${f}`] = (Array.isArray(rows[i]) ? rows[i][j] : rows[i][f]); }); run(o.children); } env.i = sI; env.n = sN; break; }
         case 'fondo': api.fondo(pick(o, FONDO_KEYS, (x) => x), { ...(o.alfa != null ? { alfa: val(o.alfa) } : {}), lt: env.lt }); break;
-        case 'objeto': { const r = api.objeto(o.objeto, pick(o, ['x', 'y', 'size', 'rot', 'estado', 'partes', 'params', 'color', 'relleno', 'acento', 'flip', 'alfa', 'label'], val)); if (o.id) { for (const f of TYPES.objeto.out) env[`${o.id}_${f}`] = r[f]; publish(o, r); } break; }
+        case 'objeto': { const r = api.objeto(o.objeto, pick(o, ['x', 'y', 'size', 'rot', 'estado', 'partes', 'params', 'color', 'relleno', 'acento', 'flip', 'alfa', 'label', 'hollow', 'focus'], val)); if (o.id) { for (const f of TYPES.objeto.out) env[`${o.id}_${f}`] = r[f]; publish(o, r); } break; }
         case 'world3d': if (o.scene) { const camSpec = o.cam, opts = val(o.opts ?? {}), tt0 = o.time != null ? val(o.time) : Math.max(0, env.lt);
           api.world3d(o.scene, { t: tt0, u, ...(camSpec ? { cam: (tt) => { const s3 = env.t3; env.t3 = tt; try { return val(camSpec); } finally { env.t3 = s3; } } } : {}), ...opts }); break; }
           // eslint-disable-next-line no-fallthrough

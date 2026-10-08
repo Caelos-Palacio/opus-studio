@@ -19,7 +19,7 @@
    "id": "C1",
    "t": [
     0,
-    7.4
+    4.4
    ],
    "size": "WS",
    "action": "tres llaves de latón sobre el expediente; tres manos las recogen una a una; el cilindro bajo tres campanas; el tampón sin tinta aguarda",
@@ -27,16 +27,15 @@
    "transition_out": "cut",
    "premise": "presentar",
    "cam": {
-    "move": "push",
-    "why": "approach",
-    "amount": 0.03
-   }
+    "move": "static"
+   },
+   "sakuga": "simple"
   },
   {
    "id": "C2",
    "t": [
-    7.4,
-    11.4
+    4.4,
+    8.4
    ],
    "size": "MS",
    "action": "la balanza de cruz con el cilindro y una copia; la aguja no vuelve al cero",
@@ -45,13 +44,14 @@
    "premise": "comparar",
    "cam": {
     "move": "static"
-   }
+   },
+   "sakuga": "simple"
   },
   {
    "id": "C3",
    "t": [
-    11.4,
-    21
+    8.4,
+    18.4
    ],
    "size": "CU",
    "action": "la pluma escribe «ha perdido» y lo tacha dos veces; sello rojo SIN VARIACIÓN; papel secante",
@@ -62,12 +62,13 @@
     "move": "push",
     "why": "approach",
     "amount": 0.03
-   }
+   },
+   "sakuga": "normal"
   },
   {
    "id": "C4",
    "t": [
-    21,
+    18.4,
     26
    ],
    "size": "WS",
@@ -77,28 +78,30 @@
    "premise": "contar",
    "cam": {
     "move": "static"
-   }
+   },
+   "sakuga": "normal"
   },
   {
    "id": "C5",
    "t": [
     26,
-    30.5
+    31
    ],
    "size": "MS",
    "action": "el cuaderno de verificaciones: 1889, 1948, 1989; la casilla «quién se movió» en blanco; una mosca; el reloj de pared",
-   "text": "No consta cuál se movió.",
+   "text": "No consta.",
    "transition_out": "cut",
    "premise": "pausa",
    "cam": {
     "move": "static"
-   }
+   },
+   "sakuga": "simple"
   },
   {
    "id": "C6",
    "t": [
-    30.5,
-    36.5
+    31,
+    36.4
    ],
    "size": "CU",
    "action": "tres llaves giran en tres cerraduras, una tras otra; el cilindro bajo el vidrio no hace nada",
@@ -109,27 +112,31 @@
     "move": "push",
     "why": "approach",
     "amount": 0.03
-   }
+   },
+   "sakuga": "normal"
   },
   {
    "id": "C7",
    "t": [
-    36.5,
-    39.1
+    36.4,
+    39
    ],
    "size": "MS",
    "action": "el sello baja sobre el acta junto a h = 6,62607015 × 10⁻³⁴ J·s; casi un trámite",
-   "text": "20 de mayo de 2019. El kilo deja de ser un cilindro.",
+   "text": "2019: ya no es un cilindro.",
    "transition_out": "cut",
    "premise": "caida",
    "cam": {
-    "move": "static"
-   }
+    "move": "push",
+    "why": "unease",
+    "amount": 0.05
+   },
+   "sakuga": "hero"
   },
   {
    "id": "C8",
    "t": [
-    39.1,
+    39,
     45
    ],
    "size": "MS",
@@ -139,7 +146,8 @@
    "premise": "final",
    "cam": {
     "move": "static"
-   }
+   },
+   "sakuga": "normal"
   }
  ]
 }

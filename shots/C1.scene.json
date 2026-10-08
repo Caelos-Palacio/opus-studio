@@ -45,7 +45,7 @@
     "$expr": "S_cx"
    },
    "y": {
-    "$expr": "S_cy + 70 + 50*(1-spring(lt - entra))"
+    "$expr": "S_cy + 70"
    },
    "size": 230,
    "partes": {
@@ -54,7 +54,7 @@
     }
    },
    "alfa": {
-    "$expr": "clamp((lt-0.2)*3)"
+    "$expr": "1"
    }
   },
   {
@@ -65,14 +65,14 @@
     "$expr": "S_cx"
    },
    "y": {
-    "$expr": "S_cy - 10 + 50*(1-spring(lt - entra))"
+    "$expr": "S_cy - 10"
    },
    "size": 430,
    "params": {
     "anidadas": 3
    },
    "alfa": {
-    "$expr": "clamp((lt-0.2)*3)"
+    "$expr": "1"
    }
   },
   {
@@ -86,7 +86,8 @@
     "$expr": "S_cy + 150"
    },
    "size": 190,
-   "estado": "sin_tinta"
+   "estado": "sin_tinta",
+   "focus": false
   },
   {
    "id": "llave0",
@@ -96,9 +97,10 @@
     "$expr": "S_cx - 400"
    },
    "y": {
-    "$expr": "S_cy + -170 - 620*seg(lt, 1.0+0.5, 1.0+1.3)"
+    "$expr": "S_cy + -170 - 620*seg(lt, 0.0+0.5, 0.0+2.1)"
    },
-   "size": 170
+   "size": 170,
+   "focus": false
   },
   {
    "id": "mano0",
@@ -108,9 +110,10 @@
     "$expr": "S_cx - 355"
    },
    "y": {
-    "$expr": "S_cy + -130 - 620*(1-seg(lt,1.0-0.4,1.0+0.1)) - 620*seg(lt, 1.0+0.5, 1.0+1.3)"
+    "$expr": "S_cy + -130 - 620*(1-seg(lt,0.0-0.1,0.0+0.5)) - 620*seg(lt, 0.0+0.5, 0.0+2.1)"
    },
-   "size": 170
+   "size": 170,
+   "focus": false
   },
   {
    "id": "llave1",
@@ -120,9 +123,10 @@
     "$expr": "S_cx - 400"
    },
    "y": {
-    "$expr": "S_cy + -35 - 620*seg(lt, 1.9+0.5, 1.9+1.3)"
+    "$expr": "S_cy + -35 - 620*seg(lt, 1.0+0.5, 1.0+2.1)"
    },
-   "size": 170
+   "size": 170,
+   "focus": false
   },
   {
    "id": "mano1",
@@ -132,9 +136,10 @@
     "$expr": "S_cx - 355"
    },
    "y": {
-    "$expr": "S_cy + 5 - 620*(1-seg(lt,1.9-0.4,1.9+0.1)) - 620*seg(lt, 1.9+0.5, 1.9+1.3)"
+    "$expr": "S_cy + 5 - 620*(1-seg(lt,1.0-0.1,1.0+0.5)) - 620*seg(lt, 1.0+0.5, 1.0+2.1)"
    },
-   "size": 170
+   "size": 170,
+   "focus": false
   },
   {
    "id": "llave2",
@@ -144,9 +149,10 @@
     "$expr": "S_cx - 400"
    },
    "y": {
-    "$expr": "S_cy + 100 - 620*seg(lt, 2.8+0.5, 2.8+1.3)"
+    "$expr": "S_cy + 100 - 620*seg(lt, 2.0+0.5, 2.0+2.1)"
    },
-   "size": 170
+   "size": 170,
+   "focus": false
   },
   {
    "id": "mano2",
@@ -156,9 +162,10 @@
     "$expr": "S_cx - 355"
    },
    "y": {
-    "$expr": "S_cy + 140 - 620*(1-seg(lt,2.8-0.4,2.8+0.1)) - 620*seg(lt, 2.8+0.5, 2.8+1.3)"
+    "$expr": "S_cy + 140 - 620*(1-seg(lt,2.0-0.1,2.0+0.5)) - 620*seg(lt, 2.0+0.5, 2.0+2.1)"
    },
-   "size": 170
+   "size": 170,
+   "focus": false
   },
   {
    "id": "foco",
@@ -176,9 +183,7 @@
   {
    "id": "l1",
    "type": "text",
-   "text": {
-    "$expr": "item(vec(\"\", \"C\", \"Co\", \"Con\", \"Cons\", \"Const\", \"Consta\", \"Consta:\", \"Consta: \", \"Consta: b\", \"Consta: ba\", \"Consta: baj\", \"Consta: bajo\", \"Consta: bajo \", \"Consta: bajo t\", \"Consta: bajo tr\", \"Consta: bajo tre\", \"Consta: bajo tres\", \"Consta: bajo tres \", \"Consta: bajo tres c\", \"Consta: bajo tres ca\", \"Consta: bajo tres cam\", \"Consta: bajo tres camp\", \"Consta: bajo tres campa\", \"Consta: bajo tres campan\", \"Consta: bajo tres campana\", \"Consta: bajo tres campanas\", \"Consta: bajo tres campanas \", \"Consta: bajo tres campanas d\", \"Consta: bajo tres campanas de\", \"Consta: bajo tres campanas de \", \"Consta: bajo tres campanas de c\", \"Consta: bajo tres campanas de cr\", \"Consta: bajo tres campanas de cri\", \"Consta: bajo tres campanas de cris\", \"Consta: bajo tres campanas de crist\", \"Consta: bajo tres campanas de crista\", \"Consta: bajo tres campanas de cristal\", \"Consta: bajo tres campanas de cristal,\"), min(38, floor(max(0, lt - 3.4) * 22)))"
-   },
+   "text": "Consta: bajo tres campanas de cristal,",
    "x": {
     "$expr": "S_cx - 330"
    },
@@ -186,14 +191,15 @@
     "$expr": "S_cy + 270-26"
    },
    "role": "body",
-   "align": "left"
+   "align": "left",
+   "alpha": {
+    "$expr": "seg(lt,0.6,0.8999999999999999)"
+   }
   },
   {
    "id": "l2",
    "type": "text",
-   "text": {
-    "$expr": "item(vec(\"\", \"u\", \"un\", \"un \", \"un c\", \"un ci\", \"un cil\", \"un cili\", \"un cilin\", \"un cilind\", \"un cilindr\", \"un cilindro\", \"un cilindro \", \"un cilindro e\", \"un cilindro es\", \"un cilindro es \", \"un cilindro es e\", \"un cilindro es el\", \"un cilindro es el \", \"un cilindro es el k\", \"un cilindro es el ki\", \"un cilindro es el kil\", \"un cilindro es el kilo\", \"un cilindro es el kilo.\"), min(23, floor(max(0, lt - 5.0) * 20)))"
-   },
+   "text": "un cilindro es el kilo.",
    "x": {
     "$expr": "S_cx - 330"
    },
@@ -201,7 +207,10 @@
     "$expr": "S_cy + 270+14"
    },
    "role": "body",
-   "align": "left"
+   "align": "left",
+   "alpha": {
+    "$expr": "seg(lt,2.0,2.3)"
+   }
   }
  ]
 }

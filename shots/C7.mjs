@@ -3,7 +3,7 @@ import { shot } from '../engine/dsl-core.mjs';
 export default shot({
  "dsl": 1,
  "id": "C7",
- "doc": "[receta:caida_con_peso+temblor] ancla quieta con foco y rótulo.",
+ "doc": "[receta:caida_con_peso] ancla quieta con foco y rótulo.",
  "params": {
   "tam": {
    "type": "number",
@@ -34,26 +34,6 @@ export default shot({
    "unit": "s",
    "default": 0.2,
    "semantic": "instante en que suelta"
-  },
-  "temblorAmp": {
-   "type": "number",
-   "range": [
-    0,
-    40
-   ],
-   "unit": "px",
-   "default": 7,
-   "semantic": "amplitud inicial"
-  },
-  "temblorDecay": {
-   "type": "number",
-   "range": [
-    0.2,
-    12
-   ],
-   "unit": "1/s",
-   "default": 3,
-   "semantic": "rapidez con que se amortigua"
   }
  },
  "camera": {
@@ -79,6 +59,7 @@ export default shot({
     "$expr": "S_cy - 20"
    },
    "size": 460,
+   "hollow": 0.92,
    "partes": {
     "escrito": {
      "$expr": "0"
@@ -95,10 +76,10 @@ export default shot({
    "y": {
     "$expr": "S_cy - 110"
    },
-   "size": 21,
+   "size": 24,
    "align": "center",
    "write": {
-    "$expr": "seg(lt,0.1,0.8)"
+    "$expr": "1"
    }
   },
   {
@@ -109,7 +90,7 @@ export default shot({
     "$expr": "S_cx - 120"
    },
    "y": {
-    "$expr": "S_cy + 50 - 260*(1-spring(lt-0.9,\"snap\"))*step(0.3,lt)"
+    "$expr": "S_cy + 50 - 330*(1-spring(lt-0.9,\"snap\"))"
    },
    "size": 240,
    "params": {
@@ -126,6 +107,39 @@ export default shot({
     "huella": {
      "$expr": "step(1.0,lt)"
     }
+   },
+   "focus": false
+  },
+  {
+   "id": "marco",
+   "type": "shape",
+   "shape": "rect",
+   "stroke": true,
+   "lineWidth": 12,
+   "x": {
+    "$expr": "S_cx - 350"
+   },
+   "y": {
+    "$expr": "S_cy - 245"
+   },
+   "w": 460,
+   "h": 450,
+   "color": "accent",
+   "alpha": {
+    "$expr": "step(1.0,lt)"
+   }
+  },
+  {
+   "id": "golpe",
+   "type": "shape",
+   "shape": "rect",
+   "x": 0,
+   "y": 0,
+   "w": 1280,
+   "h": 720,
+   "color": "ink",
+   "alpha": {
+    "$expr": "0.3*step(0.9,lt)*exp(-9*(lt-0.9))"
    }
   },
   {
@@ -146,24 +160,9 @@ export default shot({
    }
   },
   {
-   "id": "foco",
-   "type": "focus",
-   "x": {
-    "$expr": "S_cx - 350"
-   },
-   "y": {
-    "$expr": "S_cy - 245"
-   },
-   "w": 460,
-   "h": 470,
-   "label": "el acta"
-  },
-  {
    "id": "l1",
    "type": "text",
-   "text": {
-    "$expr": "item(vec(\"\", \"2\", \"20\", \"201\", \"2019\", \"2019:\", \"2019: \", \"2019: e\", \"2019: el\", \"2019: el \", \"2019: el k\", \"2019: el ki\", \"2019: el kil\", \"2019: el kilo\", \"2019: el kilo \", \"2019: el kilo d\", \"2019: el kilo de\", \"2019: el kilo dej\", \"2019: el kilo deja\", \"2019: el kilo deja \", \"2019: el kilo deja d\", \"2019: el kilo deja de\", \"2019: el kilo deja de \", \"2019: el kilo deja de s\", \"2019: el kilo deja de se\", \"2019: el kilo deja de ser\", \"2019: el kilo deja de ser \", \"2019: el kilo deja de ser u\", \"2019: el kilo deja de ser un\", \"2019: el kilo deja de ser un \", \"2019: el kilo deja de ser un c\", \"2019: el kilo deja de ser un ci\", \"2019: el kilo deja de ser un cil\", \"2019: el kilo deja de ser un cili\", \"2019: el kilo deja de ser un cilin\", \"2019: el kilo deja de ser un cilind\", \"2019: el kilo deja de ser un cilindr\", \"2019: el kilo deja de ser un cilindro\", \"2019: el kilo deja de ser un cilindro.\"), min(38, floor(max(0, lt - 0.2) * 34)))"
-   },
+   "text": "2019: ya no es un cilindro.",
    "x": {
     "$expr": "S_cx - 330"
    },
@@ -171,7 +170,10 @@ export default shot({
     "$expr": "S_cy + 270"
    },
    "role": "body",
-   "align": "left"
+   "align": "left",
+   "alpha": {
+    "$expr": "seg(lt,0.1,0.4)"
+   }
   }
  ]
 }, {  });

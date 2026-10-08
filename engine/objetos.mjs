@@ -414,7 +414,7 @@ export const META = Object.values(OBJETOS).map((o) => ({ id: o.id, resumen: o.re
 export const META_OBJETOS = Object.values(OBJETOS).map(metaObjeto);
 
 // ── validación de los literales de un objeto (los {$expr} del DSL se comprueban aparte) ──
-export const OBJ_KEYS = ['objeto', 'x', 'y', 'size', 'rot', 'estado', 'partes', 'params', 'color', 'relleno', 'acento', 'flip', 'alfa', 'label'];
+export const OBJ_KEYS = ['objeto', 'x', 'y', 'size', 'rot', 'estado', 'partes', 'params', 'color', 'relleno', 'acento', 'flip', 'alfa', 'label', 'hollow', 'focus'];
 const isExpr = (v) => v && typeof v === 'object' && !Array.isArray(v) && '$expr' in v;
 export function validateObjeto(o, path, E) {
   const def = OBJETOS[o.objeto]; if (!def) { E(`${path}/objeto`, `objeto desconocido "${o.objeto}"`, hint(String(o.objeto), Object.keys(OBJETOS))); return; }

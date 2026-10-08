@@ -41,6 +41,7 @@ export default shot({
     "$expr": "S_cy - 10"
    },
    "size": 470,
+   "hollow": 0.92,
    "partes": {
     "escrito": {
      "$expr": "0"
@@ -50,9 +51,7 @@ export default shot({
   {
    "id": "r1",
    "type": "text",
-   "text": {
-    "$expr": "item(vec(\"\", \"h\", \"ha\", \"ha \", \"ha p\", \"ha pe\", \"ha per\", \"ha perd\", \"ha perdi\", \"ha perdid\", \"ha perdido\"), min(10, floor(max(0, lt - 1.0) * 10)))"
-   },
+   "text": "ha perdido",
    "x": {
     "$expr": "S_cx - 85"
    },
@@ -60,7 +59,10 @@ export default shot({
     "$expr": "S_cy - 80"
    },
    "role": "body",
-   "align": "left"
+   "align": "left",
+   "alpha": {
+    "$expr": "seg(lt,1.0,1.3)"
+   }
   },
   {
    "id": "tach1",
@@ -81,9 +83,7 @@ export default shot({
   {
    "id": "r2",
    "type": "text",
-   "text": {
-    "$expr": "item(vec(\"\", \"h\", \"ha\", \"ha \", \"ha p\", \"ha pe\", \"ha per\", \"ha perd\", \"ha perdi\", \"ha perdid\", \"ha perdido\"), min(10, floor(max(0, lt - 3.4) * 10)))"
-   },
+   "text": "ha perdido",
    "x": {
     "$expr": "S_cx - 85"
    },
@@ -91,7 +91,10 @@ export default shot({
     "$expr": "S_cy - 30"
    },
    "role": "body",
-   "align": "left"
+   "align": "left",
+   "alpha": {
+    "$expr": "seg(lt,3.4,3.6999999999999997)"
+   }
   },
   {
    "id": "tach2",
@@ -120,7 +123,8 @@ export default shot({
     "$expr": "(S_cy - 50 + 50*step(3.3,lt)) - 125 - 200*seg(lt,5.5,6.2)"
    },
    "size": 230,
-   "estado": "escribiendo"
+   "estado": "escribiendo",
+   "focus": false
   },
   {
    "id": "sello",
@@ -130,7 +134,7 @@ export default shot({
     "$expr": "S_cx"
    },
    "y": {
-    "$expr": "S_cy + 10 - 230*(1-spring(lt-6.2,\"snap\"))*step(5.9,lt)*(1-step(6.2,lt)) - 230*step(6.2,lt)*0"
+    "$expr": "S_cy + 10 - 150*(1-spring(lt-6.0))*step(5.9,lt)"
    },
    "size": 270,
    "params": {
@@ -138,7 +142,7 @@ export default shot({
    },
    "partes": {
     "altura": {
-     "$expr": "1-spring(lt-6.2,\"snap\")"
+     "$expr": "1-spring(lt-6.0)"
     },
     "tinta": {
      "$expr": "1"
@@ -149,7 +153,8 @@ export default shot({
    },
    "alfa": {
     "$expr": "step(5.9,lt)"
-   }
+   },
+   "focus": false
   },
   {
    "id": "secante",
@@ -169,24 +174,9 @@ export default shot({
    }
   },
   {
-   "id": "foco",
-   "type": "focus",
-   "x": {
-    "$expr": "S_cx - 235"
-   },
-   "y": {
-    "$expr": "S_cy - 245"
-   },
-   "w": 470,
-   "h": 470,
-   "label": "el acta"
-  },
-  {
    "id": "l1",
    "type": "text",
-   "text": {
-    "$expr": "item(vec(\"\", \"C\", \"Co\", \"Con\", \"Cons\", \"Const\", \"Consta\", \"Consta \", \"Consta q\", \"Consta qu\", \"Consta que\", \"Consta que \", \"Consta que n\", \"Consta que no\", \"Consta que no \", \"Consta que no p\", \"Consta que no pu\", \"Consta que no pue\", \"Consta que no pued\", \"Consta que no puede\", \"Consta que no puede \", \"Consta que no puede p\", \"Consta que no puede pe\", \"Consta que no puede per\", \"Consta que no puede perd\", \"Consta que no puede perde\", \"Consta que no puede perder\", \"Consta que no puede perder \", \"Consta que no puede perder p\", \"Consta que no puede perder pe\", \"Consta que no puede perder pes\", \"Consta que no puede perder peso\", \"Consta que no puede perder peso.\"), min(32, floor(max(0, lt - 6.4) * 22)))"
-   },
+   "text": "Consta que no puede perder peso.",
    "x": {
     "$expr": "S_cx - 330"
    },
@@ -194,14 +184,15 @@ export default shot({
     "$expr": "S_cy + 270-26"
    },
    "role": "body",
-   "align": "left"
+   "align": "left",
+   "alpha": {
+    "$expr": "seg(lt,6.4,6.7)"
+   }
   },
   {
    "id": "l2",
    "type": "text",
-   "text": {
-    "$expr": "item(vec(\"\", \"L\", \"Lo\", \"Lo \", \"Lo q\", \"Lo qu\", \"Lo que\", \"Lo que \", \"Lo que é\", \"Lo que él\", \"Lo que él \", \"Lo que él p\", \"Lo que él pe\", \"Lo que él pes\", \"Lo que él pesa\", \"Lo que él pesa,\", \"Lo que él pesa, \", \"Lo que él pesa, e\", \"Lo que él pesa, es\", \"Lo que él pesa, eso\", \"Lo que él pesa, eso \", \"Lo que él pesa, eso e\", \"Lo que él pesa, eso es\", \"Lo que él pesa, eso es \", \"Lo que él pesa, eso es u\", \"Lo que él pesa, eso es un\", \"Lo que él pesa, eso es un \", \"Lo que él pesa, eso es un k\", \"Lo que él pesa, eso es un ki\", \"Lo que él pesa, eso es un kil\", \"Lo que él pesa, eso es un kilo\", \"Lo que él pesa, eso es un kilo.\"), min(31, floor(max(0, lt - 8.0) * 20)))"
-   },
+   "text": "Lo que él pesa, eso es un kilo.",
    "x": {
     "$expr": "S_cx - 330"
    },
@@ -209,7 +200,10 @@ export default shot({
     "$expr": "S_cy + 270+14"
    },
    "role": "body",
-   "align": "left"
+   "align": "left",
+   "alpha": {
+    "$expr": "seg(lt,7.3,7.6)"
+   }
   }
  ]
 }, {  });

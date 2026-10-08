@@ -133,7 +133,8 @@
     "brillo": {
      "$expr": "0.6"
     }
-   }
+   },
+   "focus": false
   },
   {
    "id": "cer1",
@@ -181,7 +182,8 @@
     "brillo": {
      "$expr": "0.6"
     }
-   }
+   },
+   "focus": false
   },
   {
    "id": "cer2",
@@ -229,14 +231,13 @@
     "brillo": {
      "$expr": "0.6"
     }
-   }
+   },
+   "focus": false
   },
   {
    "id": "l1",
    "type": "text",
-   "text": {
-    "$expr": "item(vec(\"\", \"T\", \"Tr\", \"Tre\", \"Tres\", \"Tres \", \"Tres l\", \"Tres ll\", \"Tres lla\", \"Tres llav\", \"Tres llave\", \"Tres llaves\", \"Tres llaves:\", \"Tres llaves: \", \"Tres llaves: q\", \"Tres llaves: qu\", \"Tres llaves: que\", \"Tres llaves: que \", \"Tres llaves: que n\", \"Tres llaves: que na\", \"Tres llaves: que nad\", \"Tres llaves: que nadi\", \"Tres llaves: que nadie\", \"Tres llaves: que nadie \", \"Tres llaves: que nadie l\", \"Tres llaves: que nadie lo\", \"Tres llaves: que nadie lo \", \"Tres llaves: que nadie lo t\", \"Tres llaves: que nadie lo to\", \"Tres llaves: que nadie lo toc\", \"Tres llaves: que nadie lo toca\", \"Tres llaves: que nadie lo tocas\", \"Tres llaves: que nadie lo tocase\", \"Tres llaves: que nadie lo tocase.\"), min(33, floor(max(0, lt - 3.6) * 22)))"
-   },
+   "text": "Tres llaves: que nadie lo tocase.",
    "x": {
     "$expr": "S_cx - 330"
    },
@@ -244,14 +245,15 @@
     "$expr": "S_cy + 270-26"
    },
    "role": "body",
-   "align": "left"
+   "align": "left",
+   "alpha": {
+    "$expr": "seg(lt,0.6,0.8999999999999999)"
+   }
   },
   {
    "id": "l2",
    "type": "text",
-   "text": {
-    "$expr": "item(vec(\"\", \"N\", \"No\", \"No \", \"No q\", \"No qu\", \"No que\", \"No que \", \"No que n\", \"No que no\", \"No que no \", \"No que no c\", \"No que no ca\", \"No que no cam\", \"No que no camb\", \"No que no cambi\", \"No que no cambia\", \"No que no cambiar\", \"No que no cambiara\", \"No que no cambiara.\"), min(19, floor(max(0, lt - 5.0) * 16)))"
-   },
+   "text": "No que no cambiara.",
    "x": {
     "$expr": "S_cx - 330"
    },
@@ -259,7 +261,10 @@
     "$expr": "S_cy + 270+14"
    },
    "role": "body",
-   "align": "left"
+   "align": "left",
+   "alpha": {
+    "$expr": "seg(lt,2.8,3.0999999999999996)"
+   }
   }
  ]
 }

@@ -39,14 +39,14 @@
   },
   "question": {
     "text": "Si el patrón del kilo pierde 50 microgramos, respecto a qué los pierde.",
-    "posed_at": 8,
-    "answered_at": 26,
+    "posed_at": 4.4,
+    "answered_at": 27.2,
     "on_screen": false,
     "creencia_previa": "que el kilo es una cantidad fija de la naturaleza, y que un patrón que se desgasta se nota en la balanza",
     "por_que_no_sabia": "nadie piensa en qué cosa concreta se pesó para decidir cuánto es un kilo, ni en contra qué se pesaría esa cosa"
   },
   "giro": {
-    "t": 26,
+    "t": 27.2,
     "de": "el cilindro adelgaza (o las copias engordan: alguien tiene que haber cambiado)",
     "a": "no se puede saber cuál de los dos se movió: por definición el cilindro no pierde, y no existe un tercer kilo contra el que comprobarlo",
     "cambia_lo_visto": "las tres llaves y las campanas parecían proteger la verdad del kilo; protegían su custodia: garantizaban que nadie lo tocara, no que no cambiara"
@@ -76,7 +76,7 @@
     },
     {
       "id": "b2",
-      "t": 7.4,
+      "t": 4.4,
       "peso": "corto",
       "link": "pero",
       "concreto": "balanza de cruz de latón: el cilindro y una copia gemela, cada uno bajo su campana; la aguja no vuelve al cero",
@@ -84,7 +84,7 @@
     },
     {
       "id": "b3",
-      "t": 11.4,
+      "t": 8.4,
       "peso": "largo",
       "link": "por lo tanto",
       "concreto": "una pluma escribe «ha perdido» en el acta y lo tacha dos veces; sello rojo SIN VARIACIÓN; el funcionario seca la tinta con papel secante",
@@ -92,7 +92,7 @@
     },
     {
       "id": "b4",
-      "t": 21,
+      "t": 18.4,
       "peso": "corto",
       "link": "por lo tanto",
       "concreto": "seis copias en fila, cada una bajo dos campanas; un plato de balanza baja un pelo con cada una",
@@ -100,15 +100,15 @@
     },
     {
       "id": "b5",
-      "t": 26,
+      "t": 27.2,
       "peso": "pausa",
       "link": "pero",
       "concreto": "el cuaderno de verificaciones: tres filas, 1889, 1948, 1989; la columna «quién se movió» está en blanco; una mosca camina por la casilla; un reloj de pared",
-      "text": "No consta cuál se movió."
+      "text": "No consta."
     },
     {
       "id": "b6",
-      "t": 30.5,
+      "t": 31.0,
       "peso": "medio",
       "link": "por lo tanto",
       "concreto": "tres llaves giran en tres cerraduras, una tras otra; la cámara se cierra; el cilindro bajo el vidrio no hace nada",
@@ -116,15 +116,15 @@
     },
     {
       "id": "b7",
-      "t": 36.5,
+      "t": 36.4,
       "peso": "corto",
       "link": "pero",
       "concreto": "el sello baja sobre el acta junto a «h = 6,62607015 × 10⁻³⁴ J·s»; casi un trámite; el cilindro sigue en su sitio, sin guardia",
-      "text": "20 de mayo de 2019. El kilo deja de ser un cilindro."
+      "text": "2019: ya no es un cilindro."
     },
     {
       "id": "b8",
-      "t": 39.1,
+      "t": 39.0,
       "peso": "largo",
       "link": "por lo tanto",
       "concreto": "en el acta se abre una casilla nueva, «incertidumbre», y la pluma escribe «10 µg» junto al cilindro; la cámara aguarda tres segundos de más; el sello baja sin tinta",
@@ -132,7 +132,7 @@
     }
   ],
   "accommodation": {
-    "t": 26,
+    "t": 27.2,
     "type": "creencia",
     "text": "lo que parecía un patrón que adelgaza era una diferencia sin culpable: no hay tercer kilo con que comprobarlo"
   },
@@ -143,7 +143,7 @@
       "porque": "la burocracia registra, no resuelve; el hueco en la firma es el dato"
     },
     {
-      "t": 26,
+      "t": 27.2,
       "que": "cuatro segundos de pausa en blanco, sin música, con una mosca recorriendo la casilla vacía",
       "porque": "el film se detiene donde la respuesta no existe, y pesa más que una frase"
     }

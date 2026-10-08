@@ -38,9 +38,10 @@ export default shot({
     "$expr": "S_cx - 120"
    },
    "y": {
-    "$expr": "S_cy - 20"
+    "$expr": "S_cy - 50"
    },
-   "size": 470,
+   "size": 430,
+   "hollow": 0.92,
    "partes": {
     "escrito": {
      "$expr": "0"
@@ -53,32 +54,34 @@ export default shot({
   {
    "id": "c1",
    "type": "text",
-   "text": {
-    "$expr": "item(vec(\"\", \"i\", \"in\", \"inc\", \"ince\", \"incer\", \"incert\", \"incerti\", \"incertid\", \"incertidu\", \"incertidum\", \"incertidumb\", \"incertidumbr\", \"incertidumbre\"), min(13, floor(max(0, lt - 0.6) * 16)))"
-   },
+   "text": "incertidumbre",
    "x": {
     "$expr": "S_cx - 250"
    },
    "y": {
-    "$expr": "S_cy - 90"
+    "$expr": "S_cy - 115"
    },
    "role": "body",
-   "align": "left"
+   "align": "left",
+   "alpha": {
+    "$expr": "seg(lt,0.6,0.8999999999999999)"
+   }
   },
   {
    "id": "c2",
    "type": "text",
-   "text": {
-    "$expr": "item(vec(\"\", \"1\", \"10\", \"10 \", \"10 µ\", \"10 µg\"), min(5, floor(max(0, lt - 2.0) * 6)))"
-   },
+   "text": "10 µg",
    "x": {
     "$expr": "S_cx - 250"
    },
    "y": {
-    "$expr": "S_cy - 30"
+    "$expr": "S_cy - 60"
    },
    "role": "h2",
-   "align": "left"
+   "align": "left",
+   "alpha": {
+    "$expr": "seg(lt,2.0,2.3)"
+   }
   },
   {
    "id": "pluma",
@@ -88,10 +91,11 @@ export default shot({
     "$expr": "S_cx - 250 + 14*min(0.95, 0.15*floor(max(0,lt-2.0)*6)) + 55 + 400*seg(lt,3.0,3.8)"
    },
    "y": {
-    "$expr": "S_cy - 110 - 250*seg(lt,3.0,3.8)"
+    "$expr": "S_cy - 140 - 250*seg(lt,3.0,3.8)"
    },
    "size": 230,
-   "estado": "escribiendo"
+   "estado": "escribiendo",
+   "focus": false
   },
   {
    "id": "sello",
@@ -101,7 +105,7 @@ export default shot({
     "$expr": "S_cx - 120"
    },
    "y": {
-    "$expr": "S_cy + 40 - 240*(1-seg(lt,4.6,5.4))*step(4.6,lt)*(1-step(5.4,lt)) - 240*step(5.4,lt)*seg(lt,5.4,5.8)"
+    "$expr": "S_cy + 10 - 240*(1-seg(lt,6.0,6.5))*step(6.0,lt)"
    },
    "size": 250,
    "params": {
@@ -109,8 +113,9 @@ export default shot({
    },
    "estado": "sin_tinta",
    "alfa": {
-    "$expr": "step(4.6,lt)*(1-seg(lt,5.5,5.9))"
-   }
+    "$expr": "step(6.0,lt)"
+   },
+   "focus": false
   },
   {
    "id": "cil",
@@ -130,62 +135,52 @@ export default shot({
    }
   },
   {
-   "id": "foco",
-   "type": "focus",
-   "x": {
-    "$expr": "S_cx - 355"
-   },
-   "y": {
-    "$expr": "S_cy - 255"
-   },
-   "w": 470,
-   "h": 470,
-   "label": "el acta"
-  },
-  {
    "id": "l1",
    "type": "text",
-   "text": {
-    "$expr": "item(vec(\"\", \"D\", \"De\", \"Des\", \"Desd\", \"Desde\", \"Desde \", \"Desde h\", \"Desde ho\", \"Desde hoy\", \"Desde hoy \", \"Desde hoy c\", \"Desde hoy co\", \"Desde hoy con\", \"Desde hoy cons\", \"Desde hoy const\", \"Desde hoy consta\", \"Desde hoy consta \", \"Desde hoy consta s\", \"Desde hoy consta su\", \"Desde hoy consta su \", \"Desde hoy consta su i\", \"Desde hoy consta su in\", \"Desde hoy consta su inc\", \"Desde hoy consta su ince\", \"Desde hoy consta su incer\", \"Desde hoy consta su incert\", \"Desde hoy consta su incerti\", \"Desde hoy consta su incertid\", \"Desde hoy consta su incertidu\", \"Desde hoy consta su incertidum\", \"Desde hoy consta su incertidumb\", \"Desde hoy consta su incertidumbr\", \"Desde hoy consta su incertidumbre\", \"Desde hoy consta su incertidumbre.\"), min(34, floor(max(0, lt - 0.4) * 22)))"
-   },
+   "text": "Desde hoy consta su incertidumbre.",
    "x": {
     "$expr": "S_cx - 330"
    },
    "y": {
-    "$expr": "S_cy + 270-40"
+    "$expr": "S_cy + 270-42"
    },
    "role": "body",
-   "align": "left"
+   "align": "left",
+   "alpha": {
+    "$expr": "seg(lt,0.4,0.7)"
+   }
   },
   {
    "id": "l2",
    "type": "text",
-   "text": {
-    "$expr": "item(vec(\"\", \"P\", \"Po\", \"Por\", \"Por \", \"Por p\", \"Por pr\", \"Por pri\", \"Por prim\", \"Por prime\", \"Por primer\", \"Por primera\", \"Por primera \", \"Por primera v\", \"Por primera ve\", \"Por primera vez\", \"Por primera vez,\"), min(16, floor(max(0, lt - 2.4) * 20)))"
-   },
+   "text": "Por primera vez,",
    "x": {
     "$expr": "S_cx - 330"
    },
    "y": {
-    "$expr": "S_cy + 270-2"
+    "$expr": "S_cy + 270-10"
    },
    "role": "body",
-   "align": "left"
+   "align": "left",
+   "alpha": {
+    "$expr": "seg(lt,2.2,2.5)"
+   }
   },
   {
    "id": "l3",
    "type": "text",
-   "text": {
-    "$expr": "item(vec(\"\", \"c\", \"co\", \"con\", \"cons\", \"const\", \"consta\", \"consta \", \"consta q\", \"consta qu\", \"consta que\", \"consta que \", \"consta que p\", \"consta que pu\", \"consta que pue\", \"consta que pued\", \"consta que puede\", \"consta que puede \", \"consta que puede e\", \"consta que puede eq\", \"consta que puede equ\", \"consta que puede equi\", \"consta que puede equiv\", \"consta que puede equivo\", \"consta que puede equivoc\", \"consta que puede equivoca\", \"consta que puede equivocar\", \"consta que puede equivocars\", \"consta que puede equivocarse\", \"consta que puede equivocarse.\"), min(29, floor(max(0, lt - 3.3) * 20)))"
-   },
+   "text": "consta que puede equivocarse.",
    "x": {
     "$expr": "S_cx - 330"
    },
    "y": {
-    "$expr": "S_cy + 270+36"
+    "$expr": "S_cy + 270+22"
    },
    "role": "body",
-   "align": "left"
+   "align": "left",
+   "alpha": {
+    "$expr": "seg(lt,3.0,3.3)"
+   }
   }
  ]
 }, {  });

@@ -181,9 +181,7 @@
   {
    "id": "a0",
    "type": "text",
-   "text": {
-    "$expr": "item(vec(\"\", \"a\", \"añ\", \"año\"), min(3, floor(max(0, lt - 0.2) * 12)))"
-   },
+   "text": "año",
    "x": {
     "$expr": "S_cx - 450"
    },
@@ -191,14 +189,15 @@
     "$expr": "S_cy + -150"
    },
    "role": "body",
-   "align": "left"
+   "align": "left",
+   "alpha": {
+    "$expr": "seg(lt,0.2,0.5)"
+   }
   },
   {
    "id": "a1",
    "type": "text",
-   "text": {
-    "$expr": "item(vec(\"\", \"1\", \"18\", \"188\", \"1889\"), min(4, floor(max(0, lt - 0.5) * 12)))"
-   },
+   "text": "1889",
    "x": {
     "$expr": "S_cx - 450"
    },
@@ -206,14 +205,15 @@
     "$expr": "S_cy + -70"
    },
    "role": "body",
-   "align": "left"
+   "align": "left",
+   "alpha": {
+    "$expr": "seg(lt,0.5,0.8)"
+   }
   },
   {
    "id": "a2",
    "type": "text",
-   "text": {
-    "$expr": "item(vec(\"\", \"1\", \"19\", \"194\", \"1948\"), min(4, floor(max(0, lt - 0.8) * 12)))"
-   },
+   "text": "1948",
    "x": {
     "$expr": "S_cx - 450"
    },
@@ -221,14 +221,15 @@
     "$expr": "S_cy + 10"
    },
    "role": "body",
-   "align": "left"
+   "align": "left",
+   "alpha": {
+    "$expr": "seg(lt,0.8,1.1)"
+   }
   },
   {
    "id": "a3",
    "type": "text",
-   "text": {
-    "$expr": "item(vec(\"\", \"1\", \"19\", \"198\", \"1989\"), min(4, floor(max(0, lt - 1.0999999999999999) * 12)))"
-   },
+   "text": "1989",
    "x": {
     "$expr": "S_cx - 450"
    },
@@ -236,14 +237,15 @@
     "$expr": "S_cy + 92"
    },
    "role": "body",
-   "align": "left"
+   "align": "left",
+   "alpha": {
+    "$expr": "seg(lt,1.0999999999999999,1.4)"
+   }
   },
   {
    "id": "b0",
    "type": "text",
-   "text": {
-    "$expr": "item(vec(\"\", \"c\", \"co\", \"cop\", \"copi\", \"copia\", \"copias\"), min(6, floor(max(0, lt - 0.6) * 16)))"
-   },
+   "text": "copias",
    "x": {
     "$expr": "S_cx - 232"
    },
@@ -251,14 +253,15 @@
     "$expr": "S_cy + -150"
    },
    "role": "body",
-   "align": "left"
+   "align": "left",
+   "alpha": {
+    "$expr": "seg(lt,0.6,0.8999999999999999)"
+   }
   },
   {
    "id": "b1",
    "type": "text",
-   "text": {
-    "$expr": "item(vec(\"\", \"c\", \"co\", \"com\", \"comp\", \"compa\", \"compar\", \"compara\", \"comparad\", \"comparado\", \"comparados\"), min(10, floor(max(0, lt - 0.8999999999999999) * 16)))"
-   },
+   "text": "comparados",
    "x": {
     "$expr": "S_cx - 232"
    },
@@ -266,14 +269,15 @@
     "$expr": "S_cy + -70"
    },
    "role": "body",
-   "align": "left"
+   "align": "left",
+   "alpha": {
+    "$expr": "seg(lt,0.8999999999999999,1.2)"
+   }
   },
   {
    "id": "b2",
    "type": "text",
-   "text": {
-    "$expr": "item(vec(\"\", \"c\", \"co\", \"com\", \"comp\", \"compa\", \"compar\", \"compara\", \"comparad\", \"comparado\", \"comparados\"), min(10, floor(max(0, lt - 1.2) * 16)))"
-   },
+   "text": "comparados",
    "x": {
     "$expr": "S_cx - 232"
    },
@@ -281,14 +285,15 @@
     "$expr": "S_cy + 10"
    },
    "role": "body",
-   "align": "left"
+   "align": "left",
+   "alpha": {
+    "$expr": "seg(lt,1.2,1.5)"
+   }
   },
   {
    "id": "b3",
    "type": "text",
-   "text": {
-    "$expr": "item(vec(\"\", \"c\", \"co\", \"com\", \"comp\", \"compa\", \"compar\", \"compara\", \"comparad\", \"comparado\", \"comparados\"), min(10, floor(max(0, lt - 1.5) * 16)))"
-   },
+   "text": "comparados",
    "x": {
     "$expr": "S_cx - 232"
    },
@@ -296,14 +301,15 @@
     "$expr": "S_cy + 92"
    },
    "role": "body",
-   "align": "left"
+   "align": "left",
+   "alpha": {
+    "$expr": "seg(lt,1.5,1.8)"
+   }
   },
   {
    "id": "q0",
    "type": "text",
-   "text": {
-    "$expr": "item(vec(\"\", \"q\", \"qu\", \"qui\", \"quié\", \"quién\", \"quién \", \"quién s\", \"quién se\", \"quién se \", \"quién se m\", \"quién se mo\", \"quién se mov\", \"quién se movi\", \"quién se movió\"), min(14, floor(max(0, lt - 0.9) * 16)))"
-   },
+   "text": "quién se movió",
    "x": {
     "$expr": "S_cx - 75"
    },
@@ -311,7 +317,10 @@
     "$expr": "S_cy - 150"
    },
    "role": "body",
-   "align": "left"
+   "align": "left",
+   "alpha": {
+    "$expr": "seg(lt,0.9,1.2)"
+   }
   },
   {
    "id": "casilla",
@@ -384,17 +393,18 @@
   {
    "id": "l1",
    "type": "text",
-   "text": {
-    "$expr": "item(vec(\"\", \"N\", \"No\", \"No \", \"No c\", \"No co\", \"No con\", \"No cons\", \"No const\", \"No consta\", \"No consta \", \"No consta c\", \"No consta cu\", \"No consta cuá\", \"No consta cuál\", \"No consta cuál \", \"No consta cuál s\", \"No consta cuál se\", \"No consta cuál se \", \"No consta cuál se m\", \"No consta cuál se mo\", \"No consta cuál se mov\", \"No consta cuál se movi\", \"No consta cuál se movió\", \"No consta cuál se movió.\"), min(24, floor(max(0, lt - 1.4) * 12)))"
-   },
+   "text": "No consta.",
    "x": {
     "$expr": "S_cx - 330"
    },
    "y": {
     "$expr": "S_cy + 270"
    },
-   "role": "body",
-   "align": "left"
+   "role": "h2",
+   "align": "left",
+   "alpha": {
+    "$expr": "seg(lt,1.0,1.3)"
+   }
   }
  ]
 }

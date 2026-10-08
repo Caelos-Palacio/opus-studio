@@ -30,7 +30,7 @@
     10
    ],
    "unit": "s",
-   "default": 3.6,
+   "default": 5.2,
    "semantic": "duración de la cuenta"
   }
  },
@@ -320,9 +320,9 @@
     "$expr": "S_cx"
    },
    "y": {
-    "$expr": "S_cy + 110"
+    "$expr": "S_cy + 85"
    },
-   "size": 300,
+   "size": 250,
    "partes": {
     "inclinacion": {
      "$expr": "-0.05*floor(c) - 0.02*fract(c)*step(0.01,c)*exp(-9*fract(c))*0"
@@ -348,17 +348,18 @@
   {
    "id": "l1",
    "type": "text",
-   "text": {
-    "$expr": "item(vec(\"\", \"H\", \"Ha\", \"Han\", \"Han \", \"Han e\", \"Han en\", \"Han eng\", \"Han engo\", \"Han engor\", \"Han engord\", \"Han engorda\", \"Han engordad\", \"Han engordado\", \"Han engordado,\", \"Han engordado, \", \"Han engordado, e\", \"Han engordado, en\", \"Han engordado, ent\", \"Han engordado, ento\", \"Han engordado, enton\", \"Han engordado, entonc\", \"Han engordado, entonce\", \"Han engordado, entonces\", \"Han engordado, entonces,\", \"Han engordado, entonces, \", \"Han engordado, entonces, l\", \"Han engordado, entonces, la\", \"Han engordado, entonces, las\", \"Han engordado, entonces, las \", \"Han engordado, entonces, las c\", \"Han engordado, entonces, las co\", \"Han engordado, entonces, las cop\", \"Han engordado, entonces, las copi\", \"Han engordado, entonces, las copia\", \"Han engordado, entonces, las copias\", \"Han engordado, entonces, las copias.\"), min(36, floor(max(0, lt - 2.3) * 22)))"
-   },
+   "text": "Han engordado, entonces, las copias.",
    "x": {
     "$expr": "S_cx - 330"
    },
    "y": {
-    "$expr": "S_cy + 270"
+    "$expr": "S_cy + 270+10"
    },
    "role": "body",
-   "align": "left"
+   "align": "left",
+   "alpha": {
+    "$expr": "seg(lt,3.6,3.9)"
+   }
   }
  ]
 }
