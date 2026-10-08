@@ -17,14 +17,21 @@ export default shot({
    "type": "fondo",
    "preset": "cuba_oscura",
    "ajustes": {
+    "agua": {
+     "stops": [
+      "#01070c",
+      "#03141d",
+      "#010305"
+     ]
+    },
     "haces": {
-     "intensidad": 0.05
+     "intensidad": 0.045
     },
     "turbidez": {
-     "alfa": 0.16
+     "alfa": 0.1
     },
     "bruma": {
-     "densidad": 0.3
+     "densidad": 0.2
     },
     "pmtLejanos": {
      "brillo": 0.3,

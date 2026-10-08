@@ -58,7 +58,7 @@ export function contador(valor, color, alpha = 1, { x = 150, y = 640, size = 240
 }
 
 // cuba_oscura más hundida: menos haz, menos turbidez, fotomultiplicadores lejanos casi apagados (el oscuro es el tema)
-const AJ = { haces: { intensidad: 0.05 }, turbidez: { alfa: 0.16 }, bruma: { densidad: 0.3 }, pmtLejanos: { brillo: 0.3, alfa: 0.5 }, pmtCercanos: { brillo: 0.4, alfa: 0.75 }, vineta: { fuerza: 0.9 } };
+const AJ = { agua: { stops: ['#01070c', '#03141d', '#010305'] }, haces: { intensidad: 0.045 }, turbidez: { alfa: 0.1 }, bruma: { densidad: 0.2 }, pmtLejanos: { brillo: 0.3, alfa: 0.5 }, pmtCercanos: { brillo: 0.4, alfa: 0.75 }, vineta: { fuerza: 0.9 } };
 const CUBA_K = (extra = {}) => ({ type: 'fondo', preset: 'cuba_oscura', ajustes: AJ, ...extra });
 
 function cuba(id, doc, { rows, base = 0, color = 'accent2', fondo = CUBA_K(), textos = [], camera = { move: 'push', why: 'approach', amount: 0.02 }, contAlpha = '1', extra = [], etiqueta = null }) {
@@ -159,6 +159,91 @@ gen.V08 = () => ({
     texto('t0', 'Contamos veinticuatro.', 0.7, 4.6, { role: 'body', y: 'S_y1 - 74' }),
     texto('t1', 'Veinticinco, si vale el doce.', 2.9, 4.6, { role: 'label', y: 'S_y1 - 34', max: 0.85 }),
   ],
+});
+
+// ───────────────── mitad 2: el archivo (mesa, lámpara, papel continuo) ─────────────────
+const MESA = { type: 'fondo', capas: [
+  { tipo: 'degradado', id: 'mesa', modo: 'lineal', angulo: 90, stops: ['#0d0805', '#1d130a', '#090604'] },
+  { tipo: 'deformado', id: 'vetas', color: '#120a05', colorB: '#4a3018', escala: 0.14, estira: 7, fuerza: 0.5, contraste: 1.5, alfa: 0.35, mezcla: 'superponer', paralaje: 0.18 },
+  { tipo: 'foco', id: 'pozo', color: '#ffcf8a', centro: [0.55, 0.55], radio: 0.55, achatado: 0.7, intensidad: 0.28, mezcla: 'pantalla', paralaje: 0.4 },
+  { tipo: 'polvo', id: 'serrin', n: 80, color: '#ffe2b0', alfaMax: 0.45, tamano: [0.5, 2.2], viento: [0.003, -0.004], paralaje: 1 },
+  { tipo: 'vineta', id: 'vineta', color: '#050302', fuerza: 0.92, interior: 0.22, paralaje: 0 },
+] };
+const PX = 64, PX0 = -392, FILA = [-130, 0, 130];
+const wx = (t) => R(PX0 + PX * t);
+// puntos del listado: [wx, wy, hueco(0|1), orden de conteo (0..23, -1 el dudoso), índice global]
+const PUNTOS = (() => { const r = []; let ord = 0, g = 0;
+  KAM.forEach((t, i) => { r.push(i === 11 ? [wx(t), FILA[0], 1, -1, g++] : [wx(t), FILA[0], 0, ord++, g++]); });
+  IMB.forEach((t) => r.push([wx(t), FILA[1], 0, ord++, g++])); BAK.forEach((t) => r.push([wx(t), FILA[2], 0, ord++, g++])); return r; })();
+const GRAFITO = '#34343a', TINTA = '#1f160d';
+
+function mesa(id, doc, { Z, FX = '0', FY = '0', slide = null, lamp, glowOn = '1', marks = '0', pencil = null, hand = false, camera = { move: 'static' }, textos = [], extra = [], agua = null, dots = '1', fan = null, aparece = false }) {
+  const sl = slide ? 'sl' : null, SX = (w) => `640 + ((${w}) - FX) * Z${sl ? ' + sl' : ''}`, SY = (w) => `360 + ((${w}) - FY) * Z`;
+  const AP = aparece ? 'seg(lt, 1.2 + d_g * 0.05, 1.5 + d_g * 0.05)' : '1', o = [{ ...MESA }];
+  o.push({ id: 'Z', type: 'let', value: X(Z) }, { id: 'FX', type: 'let', value: X(FX) }, { id: 'FY', type: 'let', value: X(FY) });
+  if (slide) o.push({ id: 'sl', type: 'let', value: X(slide) });
+  o.push({ id: 'ox', type: 'let', value: X(SX('0')) }, { id: 'oy', type: 'let', value: X(SY('0')) });
+  o.push({ type: 'glow', x: X('ox'), y: X('oy'), r: X('560 * Z'), color: '#ffcf8a', alpha: X(`0.16 * ${glowOn}`) });
+  o.push({ id: 'papel', type: 'objeto', objeto: 'papel_continuo', x: X('ox'), y: X('oy'), size: X('1000 * Z'), rot: 1.5708, params: { pliegues: 9 }, partes: { despliegue: 1, impreso: 0 }, relleno: '#d8c9a4', color: '#3a2a18', acento: '#b99a68', alfa: X(`0.2 + 0.5 * ${glowOn}`) });
+  // la luz de la lámpara: charco ámbar sobre el papel y oscuridad en los bordes (ilumina lo que hay debajo: hoja y puntos)
+  o.push({ type: 'fondo', capas: [{ tipo: 'foco', id: 'charco', color: '#ffcf8a', centro: [0.5, 0.52], radio: 0.42, achatado: 0.8, intensidad: 0.22, mezcla: 'pantalla', paralaje: 0 }, { tipo: 'vineta', id: 'borde', color: '#030201', fuerza: 0.96, interior: 0.1, paralaje: 0 }], alfa: X(`${glowOn}`) });
+  o.push({ id: 'd', type: 'repeat', items: PUNTOS, fields: ['x', 'y', 'h', 'o', 'g'], children: [
+    { id: 'dx', type: 'let', value: X(SX('d_x')) }, { id: 'dy', type: 'let', value: X(SY('d_y')) },
+    { type: 'group', when: 'd_h == 0', children: [{ type: 'shape', shape: 'circle', x: X('dx'), y: X('dy'), r: X('max(2, 6.5 * Z)'), color: TINTA, alpha: X(`(${dots}) * ${AP} * ${glowOn}`) }] },
+    { type: 'group', when: 'd_h == 1', children: [{ type: 'shape', shape: 'circle', stroke: true, lineWidth: X('max(1, 1.6 * Z)'), x: X('dx'), y: X('dy'), r: X('max(3, 7.5 * Z)'), color: TINTA, alpha: X(`0.7 * (${dots}) * ${AP} * ${glowOn}`) }] },
+    { type: 'group', when: 'd_o >= 0', children: [
+      { id: 'mk', type: 'let', value: X(marks) },
+      { type: 'shape', shape: 'circle', stroke: true, lineWidth: X('max(1.2, 2.2 * Z)'), x: X('dx'), y: X('dy'), r: X('max(5, 13 * Z)'), color: GRAFITO, alpha: 0.85, sweep: X('6.2832 * mk') },
+    ] },
+  ] });
+  if (fan) o.push(...fan(SX, SY));
+  // lámpara: se enciende y, en V11, se aleja con paralaje
+  o.push({ id: 'lamp', type: 'objeto', objeto: 'lampara_mesa', x: X(lamp.x), y: X(lamp.y), size: X(lamp.size), relleno: '#9a6b22', color: '#f1d9a0', params: { cono: false }, partes: { encendida: X(lamp.on), brazo1: 0.7, brazo2: 0.8 }, alfa: X(lamp.alfa ?? '1') });
+  if (pencil) {
+    o.push({ id: 'tx', type: 'let', value: X(SX(pencil.x)) }, { id: 'ty', type: 'let', value: X(SY(pencil.y)) });
+    const ps = `${pencil.size ?? 330} * Z`, dx = Math.cos(2.3), dy = Math.sin(2.3);
+    o.push({ id: 'lap', type: 'objeto', objeto: 'lapiz', x: X(`tx - 0.375 * (${ps}) * ${R(dx)}`), y: X(`ty - 0.375 * (${ps}) * ${R(dy)}`), size: X(ps), rot: 2.3, color: '#1a1008', params: { color: '#c79a4a' }, partes: { desgaste: 0.3 }, alfa: X(pencil.alpha ?? '1') });
+    if (hand) o.push({ id: 'mano', type: 'objeto', objeto: 'mano', x: X(`tx - 0.65 * (${ps}) * ${R(dx)}`), y: X(`ty - 0.65 * (${ps}) * ${R(dy)}`), size: X(`${(pencil.size ?? 330) * 0.95} * Z`), rot: 3.87, estado: 'pinza', relleno: '#2b1b0e', color: '#caa66a', alfa: X(pencil.alpha ?? '1') });
+  }
+  o.push(...extra);
+  if (agua) o.push({ type: 'fondo', preset: 'cuba_oscura', ajustes: AJ, alfa: X(agua) });
+  for (const [i, t] of textos.entries()) o.push(texto('t' + i, ...t));
+  return { dsl: 1, id, doc, camera, transition: { out: 'cut' }, objects: o };
+}
+
+gen.V09 = () => mesa('V09', 'El agua se apaga de golpe; entra una lámpara de mesa ámbar y una hoja de papel continuo con los mismos 24 puntos (más el dudoso, hueco).', {
+  Z: '0.9', FY: '45', aparece: true, slide: '(1 - smooth(seg(lt, 0.9, 3.0))) * 1100', glowOn: 'seg(lt, 0.5, 1.6)', lamp: { x: '200', y: '380', size: '520', on: 'seg(lt, 0.4, 1.4)', alfa: 'seg(lt, 0.3, 0.8)' },
+  camera: { move: 'push', why: 'approach', amount: 0.03 }, textos: [['Nadie los vio llegar. Los encontraron en un listado de impresora, dos días después.', 2.3, 6.9, { role: 'body', y: 'S_y1 - 36' }]],
+});
+const GAP_X = R((wx(KAM[8]) + wx(KAM[9])) / 2);
+gen.V10 = () => mesa('V10', 'El tramo en blanco entre el 9.º y el 10.º punto (los 7,3 s): una mano con lápiz lo recorre sin marcar nada.', {
+  Z: '1.25', FX: String(GAP_X), FY: String(FILA[0] + 60), lamp: { x: '-30', y: '330', size: '640', on: '1' },
+  camera: { move: 'static' }, pencil: { x: `${R(wx(KAM[8]) - 40)} + ${R(wx(KAM[9]) - wx(KAM[8]) + 80)} * smooth(seg(lt, 0.5, 3.4))`, y: `${FILA[0]} + 4 + 1.5 * sin(lt * 4)`, alpha: 'seg(lt, 0.1, 0.5)' }, hand: true,
+  textos: [['En esos 13 segundos, ni un ruido ajeno.', 0.6, 3.9, { role: 'body', y: 'S_y1 - 30' }]],
+});
+gen.V11 = () => mesa('V11', 'La lámpara se aleja con paralaje; 24 puntos, una flecha fina hacia un horizonte sin fin, el listado marcado a lápiz salvo el dudoso.', {
+  Z: '1.55 - 1.15 * smooth(seg(lt, 0.2, 5.4))', FX: String(GAP_X) + ' * (1 - smooth(seg(lt, 0.2, 5.4)))', FY: String(FILA[0] + 40) + ' * (1 - smooth(seg(lt, 0.2, 5.4)))',
+  lamp: { x: '90 - 40 * smooth(seg(lt, 0.2, 5.4))', y: '420 - 90 * smooth(seg(lt, 0.2, 5.4))', size: '640 - 330 * smooth(seg(lt, 0.2, 5.4))', on: '1' },
+  marks: 'seg(lt, 1.0 + d_o * 0.12, 1.3 + d_o * 0.12)', camera: { move: 'pull', why: 'reveal', amount: 0.04 },
+  extra: [
+    { id: 'fl', type: 'lines', segs: [[X('ox + 410 * Z'), X('oy'), 1900, X('oy')], [X('1900'), X('oy'), X('1900 - 14'), X('oy - 6')], [X('1900'), X('oy'), X('1900 - 14'), X('oy + 6')]], color: 'ink', lineWidth: 1.2, alpha: X('0.55 * seg(lt, 3.5, 4.8)') },
+  ],
+  textos: [['Salieron unos 10⁵⁸. Hace 168 000 años. Aquí se contaron 24.', 1.0, 6.0, { role: 'body', y: 'S_y1 - 30' }]],
+});
+
+// V12: la mano marca el último punto (el 24); el duodécimo (el dudoso) queda sin marcar, con el lápiz a medias; la lámpara se apaga y vuelve el agua negra
+const U = FILA[2], L24 = PUNTOS[PUNTOS.length - 1], D12 = PUNTOS[11];
+gen.V12 = () => mesa('V12', 'La mano marca el último punto con lápiz; el duodécimo queda sin marcar, con el lápiz a medias; la lámpara se apaga despacio y vuelve el agua negra.', {
+  Z: '0.95 + 0.1 * smooth(seg(lt, 0, 5))', FX: '300', FY: '0', glowOn: '(1 - smooth(seg(lt, 5.8, 8.4)))', lamp: { x: '120', y: '380', size: '470', on: '(1 - smooth(seg(lt, 5.8, 8.4)))' },
+  marks: `(d_o == 23 ? seg(lt, 1.7, 2.7) : seg(lt, -9, -8.9))`, camera: { move: 'static' },
+  pencil: {
+    x: `lt < 1.7 ? 60 + ${R(L24[0] + 13 - 60)} * smooth(seg(lt, 0.2, 1.7)) : lt < 2.9 ? ${L24[0]} + 13 * cos(6.2832 * seg(lt, 1.7, 2.7)) : lt < 4.4 ? ${R(L24[0] + 13)} + ${R(D12[0] + 13 - L24[0] - 13)} * smooth(seg(lt, 2.9, 4.3)) : ${D12[0]} + 13 * cos(3.1416 * seg(lt, 4.4, 5.6))`,
+    y: `lt < 1.7 ? 20 + ${R(L24[1] - 20)} * smooth(seg(lt, 0.2, 1.7)) : lt < 2.9 ? ${L24[1]} + 13 * sin(6.2832 * seg(lt, 1.7, 2.7)) : lt < 4.4 ? ${L24[1]} + ${R(D12[1] - L24[1])} * smooth(seg(lt, 2.9, 4.3)) : ${D12[1]} + 13 * sin(3.1416 * seg(lt, 4.4, 5.6))`,
+    alpha: '1 - smooth(seg(lt, 6.4, 8.2))',
+  }, hand: true,
+  extra: [{ id: 'med', type: 'shape', shape: 'circle', stroke: true, lineWidth: X('max(1.2, 2.2 * Z)'), x: X(`640 + (${D12[0]} - FX) * Z`), y: X(`360 + (${D12[1]} - FY) * Z`), r: X('max(5, 13 * Z)'), color: GRAFITO, alpha: 0.85, sweep: X('3.1416 * seg(lt, 4.4, 5.6)') }],
+  agua: 'smooth(seg(lt, 6.8, 9.0)) * 0.97',
+  textos: [['Contamos.', 6.4, 9.6, { role: 'h2', y: 'S_cy + 8', color: 'ink' }]],
 });
 
 for (const [k, f] of Object.entries(gen)) { w(k, f()); }
