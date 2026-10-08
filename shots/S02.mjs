@@ -1,0 +1,688 @@
+// GENERADO desde shots/S02.scene.json por `node engine/dsl.mjs build` (spec 006). No editar a mano: edita el .scene.json y regenera.
+import { shot } from '../engine/dsl-core.mjs';
+export default shot({
+ "dsl": 1,
+ "id": "S02",
+ "doc": "Diagrama 2 · ciclo 3DD: intención → spec → escenarios → tests en rojo → código → render → nota humana → lección → nuevo escenario; con dos lecciones reales.",
+ "objects": [
+  {
+   "type": "text",
+   "text": {
+    "$shot": "text"
+   },
+   "x": {
+    "$expr": "W / 2"
+   },
+   "y": 100,
+   "role": "h2",
+   "color": "ink",
+   "id": "titulo"
+  },
+  {
+   "type": "shape",
+   "shape": "rect",
+   "x": 470,
+   "y": 154,
+   "w": 22,
+   "h": 22,
+   "color": "accent"
+  },
+  {
+   "type": "text",
+   "text": "juzga el usuario",
+   "x": 506,
+   "y": 165,
+   "role": "label",
+   "color": "ink",
+   "align": "left"
+  },
+  {
+   "type": "shape",
+   "shape": "rect",
+   "x": 840,
+   "y": 154,
+   "w": 22,
+   "h": 22,
+   "color": "accent2"
+  },
+  {
+   "type": "text",
+   "text": "lo escribe Claude",
+   "x": 876,
+   "y": 165,
+   "role": "label",
+   "color": "ink",
+   "align": "left"
+  },
+  {
+   "type": "shape",
+   "shape": "rect",
+   "x": 1210,
+   "y": 154,
+   "w": 22,
+   "h": 22,
+   "color": "ink"
+  },
+  {
+   "type": "text",
+   "text": "lo hacen agentes y código",
+   "x": 1246,
+   "y": 165,
+   "role": "label",
+   "color": "ink",
+   "align": "left"
+  },
+  {
+   "id": "n",
+   "type": "repeat",
+   "items": [
+    [
+     250,
+     400,
+     270,
+     "accent",
+     "01",
+     "intención",
+     "palabras del usuario"
+    ],
+    [
+     250,
+     600,
+     270,
+     "accent2",
+     "02",
+     "spec (SDD)",
+     "medibles · límites"
+    ],
+    [
+     605,
+     600,
+     300,
+     "accent2",
+     "03",
+     "escenarios BDD",
+     "Dado · Cuando · Entonces"
+    ],
+    [
+     778,
+     392,
+     270,
+     "accent2",
+     "04",
+     "tests en rojo",
+     "TDD: fallan primero"
+    ],
+    [
+     1122,
+     392,
+     270,
+     "ink",
+     "05",
+     "código",
+     "hasta que pasan"
+    ],
+    [
+     1295,
+     600,
+     270,
+     "ink",
+     "06",
+     "render",
+     "peek · lint · crítico"
+    ],
+    [
+     1122,
+     808,
+     270,
+     "accent",
+     "07",
+     "nota humana",
+     "1–10 + comentario"
+    ],
+    [
+     778,
+     808,
+     270,
+     "accent2",
+     "08",
+     "lección",
+     "lo que ningún test vio"
+    ]
+   ],
+   "fields": [
+    "x",
+    "y",
+    "w",
+    "c",
+    "n",
+    "t",
+    "s"
+   ],
+   "children": [
+    {
+     "type": "shape",
+     "shape": "rect",
+     "x": {
+      "$expr": "n_x - n_w / 2"
+     },
+     "y": {
+      "$expr": "n_y - 65"
+     },
+     "w": {
+      "$expr": "n_w"
+     },
+     "h": 130,
+     "color": "paper",
+     "alpha": {
+      "$expr": "0.92 * seg(lt, 0.2 + i * 0.42, 0.2 + i * 0.42 + 0.45)"
+     }
+    },
+    {
+     "type": "shape",
+     "shape": "rect",
+     "x": {
+      "$expr": "n_x - n_w / 2"
+     },
+     "y": {
+      "$expr": "n_y - 65"
+     },
+     "w": {
+      "$expr": "n_w"
+     },
+     "h": 130,
+     "color": "shade",
+     "alpha": {
+      "$expr": "0.22 * seg(lt, 0.2 + i * 0.42, 0.2 + i * 0.42 + 0.45)"
+     }
+    },
+    {
+     "type": "shape",
+     "shape": "rect",
+     "x": {
+      "$expr": "n_x - n_w / 2"
+     },
+     "y": {
+      "$expr": "n_y - 65"
+     },
+     "w": {
+      "$expr": "n_w"
+     },
+     "h": 130,
+     "color": {
+      "$expr": "n_c"
+     },
+     "stroke": true,
+     "lineWidth": 3,
+     "alpha": {
+      "$expr": "seg(lt, 0.2 + i * 0.42, 0.2 + i * 0.42 + 0.45)"
+     }
+    },
+    {
+     "type": "shape",
+     "shape": "rect",
+     "x": {
+      "$expr": "n_x - n_w / 2"
+     },
+     "y": {
+      "$expr": "n_y - 65"
+     },
+     "w": {
+      "$expr": "n_w"
+     },
+     "h": 9,
+     "color": {
+      "$expr": "n_c"
+     },
+     "alpha": {
+      "$expr": "seg(lt, 0.2 + i * 0.42, 0.2 + i * 0.42 + 0.45)"
+     }
+    },
+    {
+     "type": "text",
+     "text": {
+      "$expr": "n_n"
+     },
+     "x": {
+      "$expr": "n_x - n_w / 2 + 24"
+     },
+     "y": {
+      "$expr": "n_y - 31"
+     },
+     "role": "label",
+     "color": {
+      "$expr": "n_c"
+     },
+     "alpha": {
+      "$expr": "seg(lt, 0.2 + i * 0.42, 0.2 + i * 0.42 + 0.45)"
+     },
+     "align": "left"
+    },
+    {
+     "type": "text",
+     "text": {
+      "$expr": "n_t"
+     },
+     "x": {
+      "$expr": "n_x"
+     },
+     "y": {
+      "$expr": "n_y + 8"
+     },
+     "role": "body",
+     "color": "ink",
+     "alpha": {
+      "$expr": "seg(lt, 0.2 + i * 0.42, 0.2 + i * 0.42 + 0.45)"
+     }
+    },
+    {
+     "type": "text",
+     "text": {
+      "$expr": "n_s"
+     },
+     "x": {
+      "$expr": "n_x"
+     },
+     "y": {
+      "$expr": "n_y + 41"
+     },
+     "role": "label",
+     "color": "ink",
+     "alpha": {
+      "$expr": "0.85 * seg(lt, 0.2 + i * 0.42, 0.2 + i * 0.42 + 0.45)"
+     }
+    }
+   ]
+  },
+  {
+   "id": "f",
+   "type": "repeat",
+   "items": [
+    [
+     250,
+     475,
+     250,
+     525,
+     "accent"
+    ],
+    [
+     395,
+     600,
+     445,
+     600,
+     "accent2"
+    ],
+    [
+     665,
+     527,
+     717,
+     465,
+     "accent2"
+    ],
+    [
+     922,
+     392,
+     978,
+     392,
+     "accent2"
+    ],
+    [
+     1183,
+     465,
+     1235,
+     527,
+     "ink"
+    ],
+    [
+     1235,
+     673,
+     1183,
+     735,
+     "ink"
+    ],
+    [
+     978,
+     808,
+     922,
+     808,
+     "accent"
+    ],
+    [
+     717,
+     735,
+     665,
+     673,
+     "accent2"
+    ]
+   ],
+   "fields": [
+    "x0",
+    "y0",
+    "x1",
+    "y1",
+    "c"
+   ],
+   "children": [
+    {
+     "type": "arrow",
+     "x0": {
+      "$expr": "f_x0"
+     },
+     "y0": {
+      "$expr": "f_y0"
+     },
+     "x1": {
+      "$expr": "f_x1"
+     },
+     "y1": {
+      "$expr": "f_y1"
+     },
+     "color": {
+      "$expr": "f_c"
+     },
+     "lw": 3,
+     "head": 20,
+     "u": {
+      "$expr": "seg(lt, 0.55 + i * 0.42, 0.55 + i * 0.42 + 0.4)"
+     }
+    }
+   ]
+  },
+  {
+   "type": "text",
+   "text": "3DD",
+   "x": 950,
+   "y": 548,
+   "role": "h1",
+   "color": "accent",
+   "alpha": {
+    "$expr": "seg(lt, 3.6, 4.4)"
+   }
+  },
+  {
+   "type": "text",
+   "text": "el usuario es el juez",
+   "x": 950,
+   "y": 610,
+   "role": "label",
+   "color": "ink",
+   "alpha": {
+    "$expr": "seg(lt, 3.8, 4.6)"
+   }
+  },
+  {
+   "type": "text",
+   "text": "de gusto: nada está hecho",
+   "x": 950,
+   "y": 640,
+   "role": "label",
+   "color": "ink",
+   "alpha": {
+    "$expr": "seg(lt, 3.8, 4.6)"
+   }
+  },
+  {
+   "type": "text",
+   "text": "sin su nota",
+   "x": 950,
+   "y": 670,
+   "role": "label",
+   "color": "ink",
+   "alpha": {
+    "$expr": "seg(lt, 3.8, 4.6)"
+   }
+  },
+  {
+   "type": "text",
+   "text": "nuevo escenario",
+   "x": 520,
+   "y": 712,
+   "role": "label",
+   "color": "accent2",
+   "alpha": {
+    "$expr": "seg(lt, 3.6, 4.2)"
+   },
+   "align": "center"
+  },
+  {
+   "type": "text",
+   "text": "así se cierra el bucle",
+   "x": 1648,
+   "y": 262,
+   "role": "label",
+   "color": "accent2",
+   "alpha": {
+    "$expr": "seg(lt, 4.2, 4.8)"
+   }
+  },
+  {
+   "type": "shape",
+   "shape": "rect",
+   "x": 1488,
+   "y": 310,
+   "w": 320,
+   "h": 280,
+   "color": "paper",
+   "alpha": {
+    "$expr": "0.92 * seg(lt, 4.4, 4.9)"
+   }
+  },
+  {
+   "type": "shape",
+   "shape": "rect",
+   "x": 1488,
+   "y": 310,
+   "w": 320,
+   "h": 280,
+   "color": "shade",
+   "alpha": {
+    "$expr": "0.22 * seg(lt, 4.4, 4.9)"
+   }
+  },
+  {
+   "type": "shape",
+   "shape": "rect",
+   "x": 1488,
+   "y": 310,
+   "w": 320,
+   "h": 280,
+   "color": "accent",
+   "stroke": true,
+   "lineWidth": 3,
+   "alpha": {
+    "$expr": "seg(lt, 4.4, 4.9)"
+   }
+  },
+  {
+   "type": "shape",
+   "shape": "rect",
+   "x": 1488,
+   "y": 310,
+   "w": 320,
+   "h": 9,
+   "color": "accent",
+   "alpha": {
+    "$expr": "seg(lt, 4.4, 4.9)"
+   }
+  },
+  {
+   "type": "text",
+   "text": "EJEMPLO REAL 1",
+   "x": 1510,
+   "y": 350,
+   "role": "label",
+   "color": "accent",
+   "alpha": {
+    "$expr": "seg(lt, 4.4, 4.9)"
+   },
+   "align": "left"
+  },
+  {
+   "type": "text",
+   "text": "nota del usuario:",
+   "x": 1510,
+   "y": 402,
+   "role": "label",
+   "color": "ink",
+   "alpha": {
+    "$expr": "0.8 * seg(lt, 4.4, 4.9)"
+   },
+   "align": "left"
+  },
+  {
+   "type": "text",
+   "text": "«fondo negro vacío»",
+   "x": 1510,
+   "y": 442,
+   "role": "label",
+   "color": "ink",
+   "alpha": {
+    "$expr": "seg(lt, 4.4, 4.9)"
+   },
+   "align": "left"
+  },
+  {
+   "type": "text",
+   "text": "→ lint fondo.vacio",
+   "x": 1510,
+   "y": 494,
+   "role": "label",
+   "color": "accent2",
+   "alpha": {
+    "$expr": "seg(lt, 4.4, 4.9)"
+   },
+   "align": "left"
+  },
+  {
+   "type": "text",
+   "text": "(el negro elegido pasa)",
+   "x": 1510,
+   "y": 534,
+   "role": "label",
+   "color": "ink",
+   "alpha": {
+    "$expr": "0.8 * seg(lt, 4.4, 4.9)"
+   },
+   "align": "left"
+  },
+  {
+   "type": "shape",
+   "shape": "rect",
+   "x": 1488,
+   "y": 625,
+   "w": 320,
+   "h": 280,
+   "color": "paper",
+   "alpha": {
+    "$expr": "0.92 * seg(lt, 4.9, 5.4)"
+   }
+  },
+  {
+   "type": "shape",
+   "shape": "rect",
+   "x": 1488,
+   "y": 625,
+   "w": 320,
+   "h": 280,
+   "color": "shade",
+   "alpha": {
+    "$expr": "0.22 * seg(lt, 4.9, 5.4)"
+   }
+  },
+  {
+   "type": "shape",
+   "shape": "rect",
+   "x": 1488,
+   "y": 625,
+   "w": 320,
+   "h": 280,
+   "color": "accent",
+   "stroke": true,
+   "lineWidth": 3,
+   "alpha": {
+    "$expr": "seg(lt, 4.9, 5.4)"
+   }
+  },
+  {
+   "type": "shape",
+   "shape": "rect",
+   "x": 1488,
+   "y": 625,
+   "w": 320,
+   "h": 9,
+   "color": "accent",
+   "alpha": {
+    "$expr": "seg(lt, 4.9, 5.4)"
+   }
+  },
+  {
+   "type": "text",
+   "text": "EJEMPLO REAL 2",
+   "x": 1510,
+   "y": 665,
+   "role": "label",
+   "color": "accent",
+   "alpha": {
+    "$expr": "seg(lt, 4.9, 5.4)"
+   },
+   "align": "left"
+  },
+  {
+   "type": "text",
+   "text": "hallazgo: los 4 films",
+   "x": 1510,
+   "y": 717,
+   "role": "label",
+   "color": "ink",
+   "alpha": {
+    "$expr": "0.8 * seg(lt, 4.9, 5.4)"
+   },
+   "align": "left"
+  },
+  {
+   "type": "text",
+   "text": "comparten una plantilla",
+   "x": 1510,
+   "y": 757,
+   "role": "label",
+   "color": "ink",
+   "alpha": {
+    "$expr": "seg(lt, 4.9, 5.4)"
+   },
+   "align": "left"
+  },
+  {
+   "type": "text",
+   "text": "→ lint narrativo",
+   "x": 1510,
+   "y": 809,
+   "role": "label",
+   "color": "accent2",
+   "alpha": {
+    "$expr": "seg(lt, 4.9, 5.4)"
+   },
+   "align": "left"
+  },
+  {
+   "type": "text",
+   "text": "(npm run narr)",
+   "x": 1510,
+   "y": 849,
+   "role": "label",
+   "color": "ink",
+   "alpha": {
+    "$expr": "0.8 * seg(lt, 4.9, 5.4)"
+   },
+   "align": "left"
+  },
+  {
+   "type": "focus",
+   "x": 115,
+   "y": 310,
+   "w": 1700,
+   "h": 600,
+   "label": "ciclo 3DD",
+   "weight": 1,
+   "hollow": true
+  }
+ ]
+}, {  });

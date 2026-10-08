@@ -112,3 +112,12 @@ Medida (R7, `node engine/recetas.mjs medir`, tokens ≈ caracteres/4, 3 shots in
 | presentar_objeto · Botella (tarjeta de 1906) | 108 | 323 | −67 % | −53 % |
 Primer intento, descartado: llenar los huecos con una `Edit` por hueco daba solo −41…−45 % (cada edición paga old_string + new_string + overhead); lo que cruza el 50 % es poder pasar `--param` y `--llenar` en el mismo comando. No se mide el coste de LEER (`tools find` ≈ 150 tok + el comando imprime los huecos que quedan): es del mismo orden en ambos caminos.
 Límite honesto: la medida es de escritura, no de calidad. «Ningún output audiovisual está hecho sin la nota del usuario» (H1: que la oleada E2 no se sienta hecha con plantilla) sigue abierto; por eso `receta.repeticion` avisa si una receta es > 50 % de los shots de un film.
+
+## Diagramas del sistema (rama diagramas, 2026-10-07)
+Las cifras de la lámina 5 (`shots/S05.scene.json`, film `sistema`) salen de estas filas y de las tablas de arriba; el test `test/diagramas.mjs` (D5) comprueba que cada cifra pintada está en la documentación.
+| medida | antes | después | fuente |
+|---|---|---|---|
+| npm test (perfil quick) | ≈ 890 s (`docs/handoff/deuda2.md`) | 188 s (medido: 12 en paralelo, 12 CPUs, 2026-10-07) | esta tabla |
+| cobertura DSL honesta | 3,2 % | 95,2 % (`STATUS.md`) | `docs/handoff/dsl80.md` |
+| mp4 de Mate, 5 s a 1280×720 | 15,9 MB (papel crf 16) | 3,8 MB (tune grain crf 24) | `docs/current/MEDIOS.md` |
+No verificada y por eso NO pintada: «mp4 Mate papel 292 → 83 MB» (no aparece en docs/ ni en los handoffs).

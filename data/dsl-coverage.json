@@ -11,5 +11,12 @@
   "ratchet": {
     "_doc": "Umbral de cobertura honesta (% de shots en DSL sobre TODOS los shots, pendientes incluidos). Solo sube: test/dsl-cov.mjs C7 falla si baja; súbelo al convertir más.",
     "min": 95.0
+  },
+  "nativo": {
+    "S01": "diagrama del film sistema: nació en DSL (no hubo JS previo)",
+    "S02": "diagrama del film sistema: nació en DSL (no hubo JS previo)",
+    "S03": "diagrama del film sistema: nació en DSL (no hubo JS previo)",
+    "S04": "diagrama del film sistema: nació en DSL (no hubo JS previo)",
+    "S05": "diagrama del film sistema: nació en DSL (no hubo JS previo)"
   }
 }

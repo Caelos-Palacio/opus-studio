@@ -11,6 +11,10 @@
 - Audio: master con techo ≈ −3 dBTP (el AAC sube el pico); verifica ebur128 sobre el mp4 final (TP ≤ −1).
 - Tests: `npm test -- --fast` mientras iteras; `npm test` (rápido, < 240 s, todas las suites con fixtures reducidas); `npm test -- --full` (= `test:nightly`) OBLIGATORIO verde antes de integrar a main (qué pierde el rápido: docs/handoff/deuda2.md). La suite ignora `out/.film`. `master` sin --force.
 - Agentes: Sonnet por defecto; ≤3 en paralelo; worktree desde main actualizado; commits WIP + docs/handoff/<tarea>.md.
+  Subagentes de un agente (profundidad máx. 2, env en .claude/settings.json): SOLO con `model: "haiku"` (= Claude Haiku 5.5, fijado con ANTHROPIC_DEFAULT_HAIKU_MODEL), ≤2 a la vez, para
+  tareas acotadas y de lectura/juicio: escéptico ciego (sin contexto), verificar un hecho con fuente, resumir/comprimir mucho
+  material, revisar una hoja de contacto o un diff, buscar en el repo. Nunca para escribir código del motor, renderizar ni
+  hacer commits; el agente padre integra y responde de su resultado. Las hojas (subagentes) no delegan.
 - Empieza por `node engine/tools.mjs brief --role <rol>` y `tools plan "<objetivo>"`; usa `tools find "<intención>"` / `show <id>` en vez de leer el catálogo (spec 015).
 - Eficiencia: docs/current/EFICIENCIA.md. Mapa de docs: docs/current/README.md; decisiones: docs/adr/.
 - Shots nuevos: no los escribas enteros; `node engine/opus.mjs new shot <id> --receta <r> [--param k=v] [--llenar objeto.prop=texto]` (spec 016; `tools find "…" --kind receta`) y llena los `$hueco`.
