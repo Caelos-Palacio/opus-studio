@@ -93,7 +93,7 @@ gen.V03 = () => cuba('V03', 'La pausa real: 7,304 s entre el 9.º y el 10.º des
 // V04: tres destellos (9,219; 10,433 y 12,439 s tras el primero). El shot empieza a 18,15 s
 gen.V04 = () => cuba('V04', 'Tres destellos más (9,219, 10,433 y 12,439 s tras el primero): el contador llega a 11.', {
   rows: filas(KAM.slice(9, 12), EK.slice(9, 12), 18.15, F1, { seed: 21, zOverride: [0.6, 0.3, 0.5] }), base: 8, camera: { move: 'static' }, etiqueta: 'KAMIOKANDE-II',
-  textos: [['Tres más. Contamos once.', 2.2, 4.1, { role: 'body' }]],
+  textos: [['Tres más. Contamos once.', 1.4, 4.25, { role: 'body' }]],
 });
 // V05: el sexto (el excluido, 0,686 s, 6,3 MeV) se repite a media luz con su 12 fantasma: la cuenta que no entró
 gen.V05 = () => cuba('V05', 'El sexto destello de la primera ráfaga (0,686 s, 6,3 MeV), bajo el umbral de 7,5 MeV, vuelve a media luz: el contador no lo acepta y queda parpadeando en un 12 fantasma entre interrogaciones de grafito.', {
@@ -103,7 +103,7 @@ gen.V05 = () => cuba('V05', 'El sexto destello de la primera ráfaga (0,686 s, 6
     { id: 'q1', type: 'text', text: '?', x: 470, y: 90, role: 'h2', align: 'center', color: 'shade', alpha: X('seg(lt, 0.9, 1.4) * 0.6') },
     { id: 'q2', type: 'text', text: '?', x: 510, y: 135, role: 'body', align: 'center', color: 'shade', alpha: X('seg(lt, 1.2, 1.7) * 0.5') },
   ],
-  textos: [['Otras cuentas ponen doce.', 0.9, 2.9, { role: 'body', y: 'S_y1 - 74' }], ['Uno muy débil, el sexto, cayó dentro de la primera ráfaga.', 1.2, 2.9, { role: 'label', y: 'S_y1 - 34' }]],
+  textos: [['Otras cuentas ponen doce.', 0.3, 3.0, { role: 'body', y: 'S_y1 - 74' }], ['El sexto, el débil.', 0.9, 3.0, { role: 'label', y: 'S_y1 - 34' }]],
 });
 // IMB: otra cuba, más fría y más azul
 const AJ_IMB = { haces: { intensidad: 0.07, color: '#9fb0ff' }, turbidez: { alfa: 0.2, colorB: '#2b3a9a' }, bruma: { color: '#1b2a7e', densidad: 0.34 }, pmtLejanos: { brillo: 0.3, alfa: 0.5, color: '#a8b8ff', cristal: '#0b1230' }, pmtCercanos: { brillo: 0.4, alfa: 0.75, color: '#b9c6ff', cristal: '#0c1536' }, nieveMarina: { color: '#c8d2ff' }, vineta: { fuerza: 0.9 } };
@@ -252,7 +252,7 @@ gen.V11 = () => mesa('V11', 'La lámpara se aleja con paralaje; 24 puntos, una f
 // V12: la mano marca el último punto (el 24); el sexto (el dudoso, 0,686 s) queda sin marcar, con el lápiz a medias; la lámpara se apaga y vuelve el agua negra
 const U = FILA[2], L24 = PUNTOS[PUNTOS.length - 1], D12 = PUNTOS[5];   // D12: el dudoso (el 6.º de Kamiokande-II, a mitad de la primera ráfaga)
 gen.V12 = () => mesa('V12', 'La mano marca el último punto con lápiz; el sexto (el dudoso, al principio de la fila) queda sin marcar, con el lápiz a medias; la lámpara se apaga despacio y vuelve el agua negra.', {
-  Z: '0.95 + 0.1 * smooth(seg(lt, 0, 5))', FX: '-80', FY: '150', formas: true, glowOn: '(1 - smooth(seg(lt, 5.8, 8.4)))', lamp: { x: '120', y: '300', size: '440', on: '(1 - smooth(seg(lt, 5.8, 8.4)))' },
+  Z: '0.95 + 0.1 * smooth(seg(lt, 0, 5))', FX: '-80', FY: '0', formas: true, glowOn: '(1 - smooth(seg(lt, 5.8, 8.4)))', lamp: { x: '120', y: '300', size: '440', on: '(1 - smooth(seg(lt, 5.8, 8.4)))' },
   marks: `(d_o == 23 ? seg(lt, 1.7, 2.7) : seg(lt, -9, -8.9))`, camera: { move: 'static' },
   pencil: {
     x: `lt < 1.7 ? 60 + ${R(L24[0] + 13 - 60)} * smooth(seg(lt, 0.2, 1.7)) : lt < 2.9 ? ${L24[0]} + 13 * cos(6.2832 * seg(lt, 1.7, 2.7)) : lt < 4.4 ? ${R(L24[0] + 13)} + ${R(D12[0] + 13 - L24[0] - 13)} * smooth(seg(lt, 2.9, 4.3)) : ${D12[0]} + 13 * cos(3.1416 * seg(lt, 4.4, 5.6))`,

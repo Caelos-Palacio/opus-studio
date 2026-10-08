@@ -231,7 +231,7 @@
    "after": "V04",
    "size": "MS",
    "action": "el sexto destello (el excluido, 6,3 MeV) vuelve a media luz; el contador no lo acepta y queda parpadeando en un 12 fantasma",
-   "text": "Otras cuentas ponen doce. Uno muy débil, el sexto, cayó dentro de la primera ráfaga.",
+   "text": "Otras cuentas ponen doce. El sexto, el débil.",
    "cam": {
     "move": "push",
     "why": "approach",

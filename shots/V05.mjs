@@ -259,13 +259,13 @@ export default shot({
    "align": "center",
    "color": "ink",
    "alpha": {
-    "$expr": "1 * seg(lt, 0.9, 1.7000000000000002) * (1 - seg(lt, 2.0999999999999996, 2.9))"
+    "$expr": "1 * seg(lt, 0.3, 1.1) * (1 - seg(lt, 2.2, 3))"
    }
   },
   {
    "id": "t1",
    "type": "text",
-   "text": "Uno muy débil, el sexto, cayó dentro de la primera ráfaga.",
+   "text": "El sexto, el débil.",
    "x": {
     "$expr": "S_cx"
    },
@@ -276,7 +276,7 @@ export default shot({
    "align": "center",
    "color": "ink",
    "alpha": {
-    "$expr": "1 * seg(lt, 1.2, 2) * (1 - seg(lt, 2.0999999999999996, 2.9))"
+    "$expr": "1 * seg(lt, 0.9, 1.7000000000000002) * (1 - seg(lt, 2.2, 3))"
    }
   },
   {

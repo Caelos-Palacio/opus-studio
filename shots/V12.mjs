@@ -96,7 +96,7 @@ export default shot({
    "id": "FY",
    "type": "let",
    "value": {
-    "$expr": "150"
+    "$expr": "0"
    }
   },
   {

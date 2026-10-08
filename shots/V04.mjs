@@ -273,7 +273,7 @@ export default shot({
    "align": "center",
    "color": "ink",
    "alpha": {
-    "$expr": "1 * seg(lt, 2.2, 3) * (1 - seg(lt, 3.3, 4.1))"
+    "$expr": "1 * seg(lt, 1.4, 2.2) * (1 - seg(lt, 3.45, 4.25))"
    }
   }
  ]
