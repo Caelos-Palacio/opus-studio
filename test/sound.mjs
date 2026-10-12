@@ -294,6 +294,16 @@ T('determinismo: dos builds de un film corto dan el mismo audio', () => {
   const a = h(), b = h(); return { ok: a === b, detail: `${a} / ${b}` };
 });
 
+// 12) film de un solo plano (sin cortes ni impactos): la mezcla no puede contener NaN
+T('un film de un solo plano con timeline.sound da una mezcla finita (sin NaN)', () => {
+  if (S.mode !== 'v2') return { ok: false, detail: 'sin build()' };
+  const tl = { title: 'uno', duration: 4, fps: 30, width: 640, height: 360, autoSfx: false, music: null, sound: { style: 'epico' },
+    shots: [{ id: 'A', t: [0, 4], size: 'WS', action: 'plano único', transition_out: 'cut', after: null, cam: { move: 'static', why: 'reveal', amount: 0 } }] };
+  const b = soundMod.build(tl, {}); let nan = 0, pico = 0;
+  for (const ch of [b.master.L, b.master.R]) for (const v of ch) { if (!Number.isFinite(v)) nan++; else pico = Math.max(pico, Math.abs(v)); }
+  return { ok: nan === 0 && pico > 0, detail: `${nan} muestras no finitas, pico ${pico.toFixed(3)}` };
+});
+
 // ───────── ejecución ─────────
 let fail = 0;
 for (const t of R) {

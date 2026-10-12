@@ -24,7 +24,7 @@ export const soundStylePath = (name = 'epico') => path.join(ROOT, 'styles/sound'
 export function loadSoundStyle(name = 'epico', overrides = {}) { return deepMerge(assertSoundStyle(JSON.parse(fs.readFileSync(soundStylePath(name), 'utf8')), `styles/sound/${name}.json`), overrides); }
 
 // ───────── 1. estructura del film → plan ─────────
-const nearest = (arr, v) => arr.reduce((m, x) => (Math.abs(x - v) < Math.abs(m - v) ? x : m), arr[0]);
+const nearest = (arr, v) => arr.reduce((m, x) => (Math.abs(x - v) < Math.abs(m - v) ? x : m), arr[0] ?? v);   // sin candidatos (film de un solo plano: no hay inicios > 0) devuelve v, no undefined → NaN
 export function analyzeFilm(tl, mem, style, opts = {}) {
   const SE = style.sections, DUR = tl.duration, shots = [...tl.shots].sort((a, b) => a.t[0] - b.t[0]);
   const sfx = shots.flatMap((s) => (s.sfx ?? []).map((e) => ({ ...e, t: s.t[0] + e.at, shot: s.id })));
