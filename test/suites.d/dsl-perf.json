@@ -1,0 +1,1 @@
+{ "name": "dsl-perf", "w": 6, "file": "test/dsl-cov.mjs", "args": { "full": ["--solo-perf"] }, "skip": ["fast", "quick"], "timeout": 1500000 }
