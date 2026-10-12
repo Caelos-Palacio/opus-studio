@@ -54,7 +54,7 @@ Archivos (test/*.mjs): `arc.mjs` `bench-skia.mjs` `critic.mjs` `cut-render.mjs` 
 <!-- estatico:fin -->
 
 ---
-## Estado vivo (2026-10-08T21:47Z, no verificado)
+## Estado vivo (2026-10-12T15:32Z, no verificado)
 
 ## Veredictos
 
@@ -71,9 +71,11 @@ Film activo: `veinticuatro` · engineHash `5a8fa5c11a13c022f212005a9364ca0b09dc0
 ## Ramas sin integrar
 
 - `backup/pre-limpieza` (+136 commits)
-- `film-botella` (+2 commits)
+- `boceto` (+5 commits)
+- `film-botella` (+12 commits)
 - `film-consta` (+9 commits)
-- `film-veinticuatro` (+9 commits)
+- `film-veinticuatro` (+12 commits)
+- `fondos-libres` (+7 commits)
 - `gobernanza` (+96 commits)
 - `harness` (+101 commits)
 - `medios` (+57 commits)
@@ -81,10 +83,11 @@ Film activo: `veinticuatro` · engineHash `5a8fa5c11a13c022f212005a9364ca0b09dc0
 - `orquestacion` (+101 commits)
 - `perf` (+53 commits)
 - `semantica` (+101 commits)
+- `vectores` (+8 commits)
 - `video-mate` (+33 commits)
 - `video-reel` (+34 commits)
 - `video-regla` (+34 commits)
-- `voz` (+1 commits)
+- `voz` (+10 commits)
 - `webgl` (+54 commits)
 - `worktree-agent-a049889bf20ebb2cd` (+13 commits)
 - `worktree-agent-a1f3f4cce9534ba97` (+13 commits)
@@ -100,7 +103,7 @@ Film activo: `veinticuatro` · engineHash `5a8fa5c11a13c022f212005a9364ca0b09dc0
 
 ## Último run de tests
 
-- 2026-10-08T01:28:13.825Z: 3 fallos (perfil quick)
+- 2026-10-12T00:13:00.793Z: 1 fallos (perfil full)
 
 ## Ledger
 

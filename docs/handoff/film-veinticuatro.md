@@ -17,6 +17,7 @@ Datos: `data/veinticuatro/{story.json,build.mjs,escenas.mjs,timeline.json,audio.
 ## Verificación de datos (2026-10-08)
 Tabla con cita y URL: `docs/guiones/veinticuatro.fuentes.md`. Resultado: tiempos de KII, IMB y Baksan correctos; energías de KII 9.º–12.º estaban mal (ahora 19,8; 8,6; 13,0; 8,9 MeV); el excluido es el 6.º; la pausa de 7,304 s correcta (etiquetas 9 y 10 de Hirata). Pendiente sin comprobar: PRL originales de pago; energías de IMB con dos versiones en la literatura (se usan las de Loredo-Lamb/Vissani; solo fijan la altura del clic).
 Gates (2026-10-08): narr 0 FIX (1 WARN previo `imperfeccion.presente`), lint SHIP 0 FIX, critic SHIP (manual, láminas V05/V08/V12 + peek), master sin --force, −19,0 LUFS, pico −3,5 dBFS. Entrega reemplazada en `out/entregas/veinticuatro.{mp4,jpg}` del repo principal (jpg = peek 4×3).
+Tests (`npm test -- --full`, 2026-10-12): V01–V12 declarados `nativo` en `data/dsl-coverage.json` (nacen en DSL; sin eso fallaba dsl-cov C3a). Todas las suites en verde (orquestación 74/74 sola; flaky bajo carga con otros agentes: «el árbol cambió durante el lint»). Con la máquina cargada por otros worktrees, `dsl-cov` agota el tope de 900 s del runner justo antes de C9 (perf; sus líneas salen ×0,94–1,07 < 1,10): fallo de tiempo, no de datos; C3/C7/C8 en verde. Repetir en máquina ociosa antes de integrar.
 Rama al día con main (merge sin conflictos; STATUS.md y data/tools.index.json regenerados).
 
 ## Pendiente / dudas
