@@ -42,3 +42,23 @@ R7 audio cacheado, Skia tras capa film.canvas), y el siguiente subsistema SOLO s
 
 Pendiente técnico conocido: caché del crítico vs gate (key/hash); capa de memoria de regla no se carga;
 mp4 con grano pesa 10× (crf por medio); world3d sin sombras proyectadas/bloom/mallas; TeX dinámico bloqueado en sandbox.
+
+## 8. Plan vigente (2026-10-08): ola E — producción con voz y velocidad
+Contexto: comparación con Claude Code + Remotion Skills, Claude Design y Nyx Motion. Ellos ganan en velocidad y pulido
+inmediato (ecosistema web, vectores, retoque humano); nosotros en guion → gobernanza → nota humana, determinismo y sonido.
+Se adoptan sus ventajas sin perder el proceso.
+
+- **E2 films de prueba (spec 013 H1).** Consta y Veinticuatro renderizadas, esperan nota. Veinticuatro: verificar contra
+  Hirata et al. 1987 qué evento de Kamiokande‑II queda fuera de los 11 (¿6.º o 12.º?) y corregir guion/film. Botella: producir.
+- **E3 voz y sincronía (spec 018).** TTS congelada como asset con hash (determinismo) + **timeline sincronizado a
+  transcripción con tiempos** (palabra/frase → cue): la animación sigue el argumento hablado, como el flujo de Claude Design.
+  La narración es opcional por film (el guion decide, spec 012 P1).
+- **E4 boceto rápido (spec 019) ✓ implementado en rama `boceto` (falta nota del usuario, H1).** Modo `boceto`: previsualización baja (resolución/fps reducidos, sin gates) para decidir el
+  concepto en minutos antes de la producción gobernada; live preview con recarga al editar `.scene.json`.
+- **E5 vectores y diagramas (spec 020).** Importar SVG como objeto/elemento (paths a canvas, recoloreable por medio, con hash),
+  para no dibujar a mano objetos pobres (secante, mosca de Consta). Recetas `diagrama_flujo`, `diagrama_capas`,
+  `barras_antes_despues`, tipo `box` con rótulo y perfil de lint `lamina` (deuda del film `sistema`).
+- **Deuda viva.** Eval ciega del toolbox (intenciones escritas por un agente sin contexto); pulir presets cosmos_profundo,
+  papel_carta_acuarela, laboratorio; `npm test -- --full` en main; push a GitHub (solo con confirmación).
+- **Bugs vistos por E3 (sin arreglar):** un film de un solo plano con `timeline.sound` da NaN en toda la mezcla
+  (`analyzeFilm`/`score.mjs` sin impactos). Voz de calidad: piper + modelo es-ES (hoy espeak-ng, robótico).

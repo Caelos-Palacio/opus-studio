@@ -11,13 +11,14 @@ import { compile as compileExpr, FUNCS, ExprError } from './expr.mjs';
 import { seg, ease, lerp, clamp, rng } from './core.mjs';
 import { rgba } from './color.mjs';
 import { validateFondo, FONDO_KEYS } from './fondos.mjs';
+import { BOCETO_VALORES } from './boceto-degrada.mjs';
 import { validateObjeto } from './objetos.mjs';
 
 export const DSL_VERSION = 1;
 const BUILTIN_TIME = ['t', 'lt', 'u', 'dur', 't0', 't1'], BUILTIN_FRAME = ['W', 'H', 'k', 'dt', 'S_x0', 'S_x1', 'S_y0', 'S_y1', 'S_w', 'S_h', 'S_cx', 'S_cy', 'boxes'], BUILTIN = [...BUILTIN_TIME, ...BUILTIN_FRAME];
 const KIT = ['spring', 'seg', 'at', 'param', 'color', 'vec', 'str', 'cat', 'has', 'len', 'nil', 'inkA', 'box', 'set', 'item', 'take', 'pget', 'chr'];
 const ID_RE = /^[A-Za-z][A-Za-z0-9]*$/, CONST_NAMES = ['pi', 'tau', 'e', 'true', 'false'];
-const COMMON = ['id', 'type', 'when', 'cue', 'semantic', 'reads'];
+const COMMON = ['id', 'type', 'when', 'cue', 'semantic', 'reads', 'boceto'];
 const LIBP = ['lib', 'fn', 'args', 'fields'];
 // tipo → { props permitidas, requeridas, salidas (campos que publica como <id>_<campo>) }
 export const TYPES = {
@@ -42,6 +43,7 @@ export const TYPES = {
   cracks: { props: LIBP, req: ['lib', 'fn'] }, gridlines: { props: LIBP, req: ['lib', 'fn'] }, playhead: { props: LIBP, req: ['lib', 'fn'] },
   curve: { props: ['n', 'x', 'y', 'color', 'lineWidth', 'alpha', 'cap'], req: ['n', 'x', 'y'] },
   lines: { props: ['segs', 'color', 'lineWidth', 'alpha'], req: ['segs'] },
+  arrow: { props: ['x0', 'y0', 'x1', 'y1', 'u', 'color', 'lw', 'head'], req: ['x0', 'y0', 'x1', 'y1'] },
   repeat: { props: ['n', 'items', 'fields', 'children'], req: ['children'] },
   plot: { props: LIBP, req: ['lib', 'fn'] }, axis: { props: LIBP, req: ['lib', 'fn'] }, world: { props: LIBP, req: ['lib', 'fn'] },
   hud: { props: LIBP, req: ['lib', 'fn'] }, caption: { props: LIBP, req: ['lib', 'fn'] },
@@ -140,6 +142,7 @@ export function validateScene(sc) {
       if (o.fields && !Array.isArray(o.fields)) E(`${p}/fields`, 'fields: lista de nombres');
       if (o.type === 'repeat' && (o.fields ?? []).length && !o.id) E(p, 'repeat con fields necesita id');
       if (o.id != null) { if (!ID_RE.test(o.id) || CONST_NAMES.includes(o.id)) E(`${p}/id`, `id "${o.id}" no válido (letras y dígitos, sin "_"; ni constantes: ${CONST_NAMES.join(' ')})`); else if (ids.has(o.id)) E(`${p}/id`, `id duplicado "${o.id}"`); else ids.add(o.id); }
+      if (o.boceto != null && !BOCETO_VALORES.includes(o.boceto)) E(`${p}/boceto`, `boceto: "${o.boceto}" no válido`, `valores: ${BOCETO_VALORES.join(' | ')}`);
       if (o.cue != null && !cues.has(o.cue)) E(`${p}/cue`, `cue "${o.cue}" no existe`, hint(o.cue, [...cues.keys()]));
       if (o.type === 'fondo') validateFondo(Object.fromEntries(FONDO_KEYS.filter((k) => k in o).map((k) => [k, o[k]])), p, E);
       if (o.type === 'objeto') validateObjeto(o, p, E);
@@ -288,6 +291,8 @@ export function shot(scene, libs = {}) {
     const publish = (o, r) => { if (o.id) { if (TYPES[o.type].value || o.fields) env[o.id] = r; for (const f of o.fields ?? []) env[`${o.id}_${fieldVar(f)}`] = pathGet(r, f); } };
     const run = (list) => { const ctx = cur.ctx, api = cur.api; for (const o of list) {
       if (o.when != null && !ce(String(o.when)).fn(env)) continue; if (o.cue != null && !cueOn(o.cue)) continue;
+      if (film.P?.boceto && o.boceto === 'omitir') continue;                  // spec 019: degradación declarada (solo en boceto)
+      if (film.P?.boceto && o.boceto === 'sin_fx' && o.type === 'layer') { run(o.children); continue; }
       switch (o.type) {
         case 'ground': api.ground(val(o.fy), ...(o.alpha != null ? [val(o.alpha)] : [])); break;
         case 'marks': { const c = val(o.color ?? 'shade'), x0 = val(o.x0 ?? 0), dx = val(o.dx ?? 0.1), y0 = val(o.y0 ?? 0), dy = val(o.dy ?? 0.25), h = val(o.half ?? 7); ctx.strokeStyle = api.color(c); ctx.lineWidth = val(o.lineWidth ?? 2);
@@ -303,6 +308,7 @@ export function shot(scene, libs = {}) {
           else if (o.stroke) ctx.strokeRect(val(o.x), val(o.y), val(o.w), val(o.h)); else { ctx.beginPath(); ctx.rect(val(o.x), val(o.y), val(o.w), val(o.h)); ctx.fill(); }
           if (styled) ctx.restore(); break; }
         case 'glow': api.glow(val(o.x), val(o.y), val(o.r), ...(o.color != null ? [val(o.color)] : []), ...(o.alpha != null ? [val(o.alpha)] : [])); break;
+        case 'arrow': api.arrow(val(o.x0), val(o.y0), val(o.x1), val(o.y1), pick(o, ['u', 'color', 'lw', 'head'], val)); break;
         case 'text': api.text(val(o.text), val(o.x), val(o.y), pick(o, ['role', 'alpha', 'color', 'align'], val)); break;
         case 'equation': { const EQ = Array.isArray(o.steps) ? o.steps : pathGet(libs[o.steps.lib], o.steps.export), q = eqAt(EQ, t); if (q) api.tex(q.tex, q.x * film.width, q.y * film.height, { size: q.s * film.height, align: 'center', color: o.color ?? 'ink', write: q.write, morphTo: q.morphTo, u: q.u, stagger: o.stagger ?? 0.55 }); break; }
         case 'group': { const body = () => { if (o.translate) { const [tx, ty] = val(o.translate); ctx.save(); ctx.translate(tx, ty); try { run(o.children); } finally { ctx.restore(); } } else run(o.children); }; if (o.depth != null) api.depth(val(o.depth), body); else body(); break; }

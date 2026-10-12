@@ -1,0 +1,546 @@
+{
+ "dsl": 1,
+ "id": "S04",
+ "doc": "Diagrama 4 · orquestación de agentes: el director reparte a tres agentes Sonnet en worktrees; los commits WIP y el handoff llegan a la integración y a main.",
+ "objects": [
+  {
+   "type": "text",
+   "text": {
+    "$shot": "text"
+   },
+   "x": {
+    "$expr": "W / 2"
+   },
+   "y": 100,
+   "role": "h2",
+   "color": "ink",
+   "id": "titulo"
+  },
+  {
+   "type": "shape",
+   "shape": "rect",
+   "x": 470,
+   "y": 162,
+   "w": 22,
+   "h": 22,
+   "color": "accent2"
+  },
+  {
+   "type": "text",
+   "text": "decide Claude",
+   "x": 506,
+   "y": 173,
+   "role": "label",
+   "color": "ink",
+   "align": "left"
+  },
+  {
+   "type": "shape",
+   "shape": "rect",
+   "x": 900,
+   "y": 162,
+   "w": 22,
+   "h": 22,
+   "color": "ink"
+  },
+  {
+   "type": "text",
+   "text": "lo hace el código",
+   "x": 936,
+   "y": 173,
+   "role": "label",
+   "color": "ink",
+   "align": "left"
+  },
+  {
+   "type": "shape",
+   "shape": "rect",
+   "x": 1330,
+   "y": 162,
+   "w": 22,
+   "h": 22,
+   "color": "accent"
+  },
+  {
+   "type": "text",
+   "text": "juzga el usuario",
+   "x": 1366,
+   "y": 173,
+   "role": "label",
+   "color": "ink",
+   "align": "left"
+  },
+  {
+   "id": "b",
+   "type": "repeat",
+   "items": [
+    [
+     250,
+     282,
+     270,
+     160,
+     "00",
+     "escéptico ciego",
+     "juzga la idea",
+     "sin ver al autor",
+     "accent2",
+     0.0
+    ],
+    [
+     250,
+     490,
+     270,
+     200,
+     "01",
+     "director",
+     "Claude Opus · specs",
+     "reparte · integra",
+     "accent2",
+     0.4
+    ],
+    [
+     625,
+     300,
+     280,
+     170,
+     "02",
+     "agente Sonnet A",
+     "worktree propio",
+     "≤ 3 a la vez",
+     "accent2",
+     0.9
+    ],
+    [
+     945,
+     300,
+     220,
+     160,
+     "02+",
+     "commit WIP",
+     "hook al detenerse",
+     "guardado auto",
+     "ink",
+     1.8
+    ],
+    [
+     625,
+     490,
+     280,
+     170,
+     "03",
+     "agente Sonnet B",
+     "worktree propio",
+     "≤ 3 a la vez",
+     "accent2",
+     1.15
+    ],
+    [
+     945,
+     490,
+     220,
+     160,
+     "03+",
+     "commit WIP",
+     "hook al detenerse",
+     "guardado auto",
+     "ink",
+     2.05
+    ],
+    [
+     625,
+     680,
+     280,
+     170,
+     "04",
+     "agente Sonnet C",
+     "worktree propio",
+     "≤ 3 a la vez",
+     "accent2",
+     1.4
+    ],
+    [
+     945,
+     680,
+     220,
+     160,
+     "04+",
+     "commit WIP",
+     "hook al detenerse",
+     "guardado auto",
+     "ink",
+     2.3
+    ],
+    [
+     1285,
+     490,
+     300,
+     170,
+     "05",
+     "handoff",
+     "docs/handoff/<tarea>.md",
+     "retoma sin releer",
+     "ink",
+     2.7
+    ],
+    [
+     1625,
+     490,
+     240,
+     170,
+     "06",
+     "integración",
+     "merge + test full",
+     "verde o no entra",
+     "ink",
+     3.1
+    ],
+    [
+     1625,
+     770,
+     240,
+     160,
+     "07",
+     "main",
+     "solo con test verde",
+     "nunca push",
+     "accent",
+     3.5
+    ],
+    [
+     800,
+     885,
+     760,
+     150,
+     "★",
+     "toolbox · la interfaz de los agentes",
+     "brief → find → plan",
+     "contexto de arranque ≈ 1 400 tokens",
+     "ink",
+     2.3
+    ]
+   ],
+   "fields": [
+    "x",
+    "y",
+    "w",
+    "h",
+    "n",
+    "t",
+    "s1",
+    "s2",
+    "c",
+    "d"
+   ],
+   "children": [
+    {
+     "type": "shape",
+     "shape": "rect",
+     "x": {
+      "$expr": "b_x - b_w / 2"
+     },
+     "y": {
+      "$expr": "b_y - b_h / 2"
+     },
+     "w": {
+      "$expr": "b_w"
+     },
+     "h": {
+      "$expr": "b_h"
+     },
+     "color": "paper",
+     "alpha": {
+      "$expr": "0.92 * seg(lt, b_d, b_d + 0.45)"
+     }
+    },
+    {
+     "type": "shape",
+     "shape": "rect",
+     "x": {
+      "$expr": "b_x - b_w / 2"
+     },
+     "y": {
+      "$expr": "b_y - b_h / 2"
+     },
+     "w": {
+      "$expr": "b_w"
+     },
+     "h": {
+      "$expr": "b_h"
+     },
+     "color": "shade",
+     "alpha": {
+      "$expr": "0.22 * seg(lt, b_d, b_d + 0.45)"
+     }
+    },
+    {
+     "type": "shape",
+     "shape": "rect",
+     "x": {
+      "$expr": "b_x - b_w / 2"
+     },
+     "y": {
+      "$expr": "b_y - b_h / 2"
+     },
+     "w": {
+      "$expr": "b_w"
+     },
+     "h": {
+      "$expr": "b_h"
+     },
+     "color": {
+      "$expr": "b_c"
+     },
+     "stroke": true,
+     "lineWidth": 3,
+     "alpha": {
+      "$expr": "seg(lt, b_d, b_d + 0.45)"
+     }
+    },
+    {
+     "type": "shape",
+     "shape": "rect",
+     "x": {
+      "$expr": "b_x - b_w / 2"
+     },
+     "y": {
+      "$expr": "b_y - b_h / 2"
+     },
+     "w": {
+      "$expr": "b_w"
+     },
+     "h": 9,
+     "color": {
+      "$expr": "b_c"
+     },
+     "alpha": {
+      "$expr": "seg(lt, b_d, b_d + 0.45)"
+     }
+    },
+    {
+     "type": "text",
+     "text": {
+      "$expr": "b_n"
+     },
+     "x": {
+      "$expr": "b_x - b_w / 2 + 24"
+     },
+     "y": {
+      "$expr": "b_y - b_h / 2 + 30"
+     },
+     "role": "label",
+     "color": {
+      "$expr": "b_c"
+     },
+     "alpha": {
+      "$expr": "seg(lt, b_d, b_d + 0.45)"
+     },
+     "align": "left"
+    },
+    {
+     "type": "text",
+     "text": {
+      "$expr": "b_t"
+     },
+     "x": {
+      "$expr": "b_x"
+     },
+     "y": {
+      "$expr": "b_y - 6"
+     },
+     "role": "body",
+     "color": "ink",
+     "alpha": {
+      "$expr": "seg(lt, b_d, b_d + 0.45)"
+     }
+    },
+    {
+     "type": "text",
+     "text": {
+      "$expr": "b_s1"
+     },
+     "x": {
+      "$expr": "b_x"
+     },
+     "y": {
+      "$expr": "b_y + 32"
+     },
+     "role": "label",
+     "color": "ink",
+     "alpha": {
+      "$expr": "0.85 * seg(lt, b_d, b_d + 0.45)"
+     }
+    },
+    {
+     "type": "text",
+     "text": {
+      "$expr": "b_s2"
+     },
+     "x": {
+      "$expr": "b_x"
+     },
+     "y": {
+      "$expr": "b_y + 60"
+     },
+     "role": "label",
+     "color": "ink",
+     "alpha": {
+      "$expr": "0.85 * seg(lt, b_d, b_d + 0.45)"
+     }
+    }
+   ]
+  },
+  {
+   "id": "a",
+   "type": "repeat",
+   "items": [
+    [
+     250,
+     365,
+     250,
+     387,
+     "accent2",
+     0.35
+    ],
+    [
+     388,
+     404.5,
+     482,
+     300,
+     "accent2",
+     0.8
+    ],
+    [
+     768,
+     300,
+     832,
+     300,
+     "ink",
+     1.7
+    ],
+    [
+     388,
+     490.0,
+     482,
+     490,
+     "accent2",
+     0.8
+    ],
+    [
+     768,
+     490,
+     832,
+     490,
+     "ink",
+     1.7
+    ],
+    [
+     388,
+     575.5,
+     482,
+     680,
+     "accent2",
+     0.8
+    ],
+    [
+     768,
+     680,
+     832,
+     680,
+     "ink",
+     1.7
+    ],
+    [
+     1062,
+     300,
+     1132,
+     450,
+     "ink",
+     2.6
+    ],
+    [
+     1062,
+     490,
+     1132,
+     490,
+     "ink",
+     2.6
+    ],
+    [
+     1062,
+     680,
+     1132,
+     533,
+     "ink",
+     2.6
+    ],
+    [
+     1438,
+     490,
+     1502,
+     490,
+     "ink",
+     3.0
+    ],
+    [
+     1625,
+     578,
+     1625,
+     688,
+     "ink",
+     3.4
+    ],
+    [
+     625,
+     810,
+     625,
+     768,
+     "ink",
+     2.6
+    ]
+   ],
+   "fields": [
+    "x0",
+    "y0",
+    "x1",
+    "y1",
+    "c",
+    "d"
+   ],
+   "children": [
+    {
+     "type": "arrow",
+     "x0": {
+      "$expr": "a_x0"
+     },
+     "y0": {
+      "$expr": "a_y0"
+     },
+     "x1": {
+      "$expr": "a_x1"
+     },
+     "y1": {
+      "$expr": "a_y1"
+     },
+     "color": {
+      "$expr": "a_c"
+     },
+     "lw": 3,
+     "head": 20,
+     "u": {
+      "$expr": "seg(lt, a_d, a_d + 0.45)"
+     }
+    }
+   ]
+  },
+  {
+   "type": "focus",
+   "x": 115,
+   "y": 195,
+   "w": 1650,
+   "h": 770,
+   "label": "orquestación",
+   "weight": 1,
+   "hollow": true
+  }
+ ]
+}

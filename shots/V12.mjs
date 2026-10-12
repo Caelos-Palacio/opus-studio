@@ -1,0 +1,694 @@
+// GENERADO desde shots/V12.scene.json por `node engine/dsl.mjs build` (spec 006). No editar a mano: edita el .scene.json y regenera.
+import { shot } from '../engine/dsl-core.mjs';
+export default shot({
+ "dsl": 1,
+ "id": "V12",
+ "doc": "La mano marca el último punto con lápiz; el sexto (el dudoso, al principio de la fila) queda sin marcar, con el lápiz a medias; la lámpara se apaga despacio y vuelve el agua negra.",
+ "camera": {
+  "move": "static"
+ },
+ "transition": {
+  "out": "cut"
+ },
+ "objects": [
+  {
+   "type": "fondo",
+   "capas": [
+    {
+     "tipo": "degradado",
+     "id": "mesa",
+     "modo": "lineal",
+     "angulo": 90,
+     "stops": [
+      "#0d0805",
+      "#1d130a",
+      "#090604"
+     ]
+    },
+    {
+     "tipo": "deformado",
+     "id": "vetas",
+     "color": "#120a05",
+     "colorB": "#4a3018",
+     "escala": 0.14,
+     "estira": 7,
+     "fuerza": 0.5,
+     "contraste": 1.5,
+     "alfa": 0.35,
+     "mezcla": "superponer",
+     "paralaje": 0.18
+    },
+    {
+     "tipo": "foco",
+     "id": "pozo",
+     "color": "#ffcf8a",
+     "centro": [
+      0.55,
+      0.55
+     ],
+     "radio": 0.55,
+     "achatado": 0.7,
+     "intensidad": 0.28,
+     "mezcla": "pantalla",
+     "paralaje": 0.4
+    },
+    {
+     "tipo": "polvo",
+     "id": "serrin",
+     "n": 80,
+     "color": "#ffe2b0",
+     "alfaMax": 0.45,
+     "tamano": [
+      0.5,
+      2.2
+     ],
+     "viento": [
+      0.003,
+      -0.004
+     ],
+     "paralaje": 1
+    },
+    {
+     "tipo": "vineta",
+     "id": "vineta",
+     "color": "#050302",
+     "fuerza": 0.92,
+     "interior": 0.22,
+     "paralaje": 0
+    }
+   ]
+  },
+  {
+   "id": "Z",
+   "type": "let",
+   "value": {
+    "$expr": "0.95 + 0.1 * smooth(seg(lt, 0, 5))"
+   }
+  },
+  {
+   "id": "FX",
+   "type": "let",
+   "value": {
+    "$expr": "-80"
+   }
+  },
+  {
+   "id": "FY",
+   "type": "let",
+   "value": {
+    "$expr": "0"
+   }
+  },
+  {
+   "id": "ox",
+   "type": "let",
+   "value": {
+    "$expr": "640 + ((0) - FX) * Z"
+   }
+  },
+  {
+   "id": "oy",
+   "type": "let",
+   "value": {
+    "$expr": "360 + ((0) - FY) * Z"
+   }
+  },
+  {
+   "type": "glow",
+   "x": {
+    "$expr": "ox"
+   },
+   "y": {
+    "$expr": "oy"
+   },
+   "r": {
+    "$expr": "560 * Z"
+   },
+   "color": "accent",
+   "alpha": {
+    "$expr": "0.16 * (1 - smooth(seg(lt, 5.8, 8.4)))"
+   }
+  },
+  {
+   "id": "pg",
+   "type": "repeat",
+   "n": 9,
+   "children": [
+    {
+     "type": "shape",
+     "shape": "rect",
+     "x": {
+      "$expr": "640 + ((-450 + i * 100) - FX) * Z"
+     },
+     "y": {
+      "$expr": "360 + ((-290) - FY) * Z"
+     },
+     "w": {
+      "$expr": "100 * Z + 1"
+     },
+     "h": {
+      "$expr": "580 * Z"
+     },
+     "color": {
+      "$expr": "i % 2 == 0 ? \"#cdbf9b\" : \"#bfb08a\""
+     },
+     "alpha": {
+      "$expr": "0.2 + 0.5 * (1 - smooth(seg(lt, 5.8, 8.4)))"
+     }
+    },
+    {
+     "type": "shape",
+     "shape": "rect",
+     "stroke": true,
+     "lineWidth": 1.2,
+     "x": {
+      "$expr": "640 + ((-450 + i * 100) - FX) * Z"
+     },
+     "y": {
+      "$expr": "360 + ((-290) - FY) * Z"
+     },
+     "w": {
+      "$expr": "100 * Z + 1"
+     },
+     "h": {
+      "$expr": "580 * Z"
+     },
+     "color": "#3a2a18",
+     "alpha": {
+      "$expr": "0.25 * (1 - smooth(seg(lt, 5.8, 8.4)))"
+     }
+    }
+   ]
+  },
+  {
+   "id": "pp",
+   "type": "repeat",
+   "n": 36,
+   "children": [
+    {
+     "type": "shape",
+     "shape": "circle",
+     "x": {
+      "$expr": "640 + ((-440 + (i % 18) * 51) - FX) * Z"
+     },
+     "y": {
+      "$expr": "360 + ((i < 18 ? -268 : 268) - FY) * Z"
+     },
+     "r": {
+      "$expr": "max(2, 5 * Z)"
+     },
+     "color": "#1a1008",
+     "alpha": {
+      "$expr": "0.28 * (1 - smooth(seg(lt, 5.8, 8.4)))"
+     }
+    }
+   ]
+  },
+  {
+   "type": "fondo",
+   "capas": [
+    {
+     "tipo": "foco",
+     "id": "charco",
+     "color": "#ffcf8a",
+     "centro": [
+      0.5,
+      0.52
+     ],
+     "radio": 0.42,
+     "achatado": 0.8,
+     "intensidad": 0.22,
+     "mezcla": "pantalla",
+     "paralaje": 0
+    },
+    {
+     "tipo": "vineta",
+     "id": "borde",
+     "color": "#030201",
+     "fuerza": 0.96,
+     "interior": 0.1,
+     "paralaje": 0
+    }
+   ],
+   "alfa": {
+    "$expr": "(1 - smooth(seg(lt, 5.8, 8.4)))"
+   }
+  },
+  {
+   "id": "d",
+   "type": "repeat",
+   "items": [
+    [
+     -392,
+     -130,
+     0,
+     0,
+     0
+    ],
+    [
+     -385.152,
+     -130,
+     0,
+     1,
+     1
+    ],
+    [
+     -372.608,
+     -130,
+     0,
+     2,
+     2
+    ],
+    [
+     -371.264,
+     -130,
+     0,
+     3,
+     3
+    ],
+    [
+     -359.552,
+     -130,
+     0,
+     4,
+     4
+    ],
+    [
+     -348.096,
+     -130,
+     1,
+     -1,
+     5
+    ],
+    [
+     -293.376,
+     -130,
+     0,
+     5,
+     6
+    ],
+    [
+     -281.408,
+     -130,
+     0,
+     6,
+     7
+    ],
+    [
+     -269.44,
+     -130,
+     0,
+     7,
+     8
+    ],
+    [
+     198.016,
+     -130,
+     0,
+     8,
+     9
+    ],
+    [
+     275.712,
+     -130,
+     0,
+     9,
+     10
+    ],
+    [
+     404.096,
+     -130,
+     0,
+     10,
+     11
+    ],
+    [
+     -392,
+     0,
+     0,
+     11,
+     12
+    ],
+    [
+     -365.632,
+     0,
+     0,
+     12,
+     13
+    ],
+    [
+     -350.4,
+     0,
+     0,
+     13,
+     14
+    ],
+    [
+     -318.976,
+     0,
+     0,
+     14,
+     15
+    ],
+    [
+     -292.032,
+     0,
+     0,
+     15,
+     16
+    ],
+    [
+     -220.224,
+     0,
+     0,
+     16,
+     17
+    ],
+    [
+     -71.36,
+     0,
+     0,
+     17,
+     18
+    ],
+    [
+     -34.752,
+     0,
+     0,
+     18,
+     19
+    ],
+    [
+     -392,
+     130,
+     0,
+     19,
+     20
+    ],
+    [
+     -364.16,
+     130,
+     0,
+     20,
+     21
+    ],
+    [
+     -282.56,
+     130,
+     0,
+     21,
+     22
+    ],
+    [
+     99.968,
+     130,
+     0,
+     22,
+     23
+    ],
+    [
+     190.336,
+     130,
+     0,
+     23,
+     24
+    ]
+   ],
+   "fields": [
+    "x",
+    "y",
+    "h",
+    "o",
+    "g"
+   ],
+   "children": [
+    {
+     "id": "dx",
+     "type": "let",
+     "value": {
+      "$expr": "640 + ((d_x) - FX) * Z"
+     }
+    },
+    {
+     "id": "dy",
+     "type": "let",
+     "value": {
+      "$expr": "360 + ((d_y) - FY) * Z"
+     }
+    },
+    {
+     "type": "group",
+     "when": "d_h == 0",
+     "children": [
+      {
+       "type": "shape",
+       "shape": "circle",
+       "x": {
+        "$expr": "dx"
+       },
+       "y": {
+        "$expr": "dy"
+       },
+       "r": {
+        "$expr": "max(2, 6.5 * Z)"
+       },
+       "color": "#1f160d",
+       "alpha": {
+        "$expr": "(1) * 1 * (1 - smooth(seg(lt, 5.8, 8.4)))"
+       }
+      }
+     ]
+    },
+    {
+     "type": "group",
+     "when": "d_h == 1",
+     "children": [
+      {
+       "type": "shape",
+       "shape": "circle",
+       "stroke": true,
+       "lineWidth": {
+        "$expr": "max(1, 1.6 * Z)"
+       },
+       "x": {
+        "$expr": "dx"
+       },
+       "y": {
+        "$expr": "dy"
+       },
+       "r": {
+        "$expr": "max(3, 7.5 * Z)"
+       },
+       "color": "#1f160d",
+       "alpha": {
+        "$expr": "0.7 * (1) * 1 * (1 - smooth(seg(lt, 5.8, 8.4)))"
+       }
+      }
+     ]
+    },
+    {
+     "type": "group",
+     "when": "d_o >= 0",
+     "children": [
+      {
+       "id": "mk",
+       "type": "let",
+       "value": {
+        "$expr": "(d_o == 23 ? seg(lt, 1.7, 2.7) : seg(lt, -9, -8.9))"
+       }
+      },
+      {
+       "type": "shape",
+       "shape": "circle",
+       "stroke": true,
+       "lineWidth": {
+        "$expr": "max(1.2, 2.2 * Z)"
+       },
+       "x": {
+        "$expr": "dx"
+       },
+       "y": {
+        "$expr": "dy"
+       },
+       "r": {
+        "$expr": "max(5, 13 * Z)"
+       },
+       "color": "#34343a",
+       "alpha": 0.85,
+       "sweep": {
+        "$expr": "6.2832 * mk"
+       }
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "lamp",
+   "type": "objeto",
+   "objeto": "lampara_mesa",
+   "x": {
+    "$expr": "120"
+   },
+   "y": {
+    "$expr": "300"
+   },
+   "size": {
+    "$expr": "440"
+   },
+   "relleno": "#9a6b22",
+   "color": "#f1d9a0",
+   "params": {
+    "cono": false
+   },
+   "partes": {
+    "encendida": {
+     "$expr": "(1 - smooth(seg(lt, 5.8, 8.4)))"
+    },
+    "brazo1": 0.7,
+    "brazo2": 0.8
+   },
+   "alfa": {
+    "$expr": "1"
+   }
+  },
+  {
+   "id": "tx",
+   "type": "let",
+   "value": {
+    "$expr": "640 + ((lt < 1.7 ? 60 + 143.336 * smooth(seg(lt, 0.2, 1.7)) : lt < 2.9 ? 190.336 + 13 * cos(6.2832 * seg(lt, 1.7, 2.7)) : lt < 4.4 ? 203.336 + -538.432 * smooth(seg(lt, 2.9, 4.3)) : -348.096 + 13 * cos(3.1416 * seg(lt, 4.4, 5.6))) - FX) * Z"
+   }
+  },
+  {
+   "id": "ty",
+   "type": "let",
+   "value": {
+    "$expr": "360 + ((lt < 1.7 ? 20 + 110 * smooth(seg(lt, 0.2, 1.7)) : lt < 2.9 ? 130 + 13 * sin(6.2832 * seg(lt, 1.7, 2.7)) : lt < 4.4 ? 130 + -260 * smooth(seg(lt, 2.9, 4.3)) : -130 + 13 * sin(3.1416 * seg(lt, 4.4, 5.6))) - FY) * Z"
+   }
+  },
+  {
+   "id": "lap",
+   "type": "objeto",
+   "when": "true",
+   "objeto": "lapiz",
+   "x": {
+    "$expr": "tx - 0.375 * (330 * Z) * -0.666"
+   },
+   "y": {
+    "$expr": "ty - 0.375 * (330 * Z) * 0.746"
+   },
+   "size": {
+    "$expr": "330 * Z"
+   },
+   "rot": 2.3,
+   "color": "#1a1008",
+   "params": {
+    "color": "#c79a4a"
+   },
+   "partes": {
+    "desgaste": 0.3
+   },
+   "alfa": {
+    "$expr": "1 - smooth(seg(lt, 6.4, 8.2))"
+   }
+  },
+  {
+   "id": "mano",
+   "type": "objeto",
+   "when": "true",
+   "objeto": "mano",
+   "x": {
+    "$expr": "tx - 0.65 * (330 * Z) * -0.666"
+   },
+   "y": {
+    "$expr": "ty - 0.65 * (330 * Z) * 0.746"
+   },
+   "size": {
+    "$expr": "313.5 * Z"
+   },
+   "rot": 3.87,
+   "estado": "pinza",
+   "relleno": "#2b1b0e",
+   "color": "#caa66a",
+   "alfa": {
+    "$expr": "1 - smooth(seg(lt, 6.4, 8.2))"
+   }
+  },
+  {
+   "id": "med",
+   "type": "shape",
+   "shape": "circle",
+   "stroke": true,
+   "lineWidth": {
+    "$expr": "max(1.2, 2.2 * Z)"
+   },
+   "x": {
+    "$expr": "640 + (-348.096 - FX) * Z"
+   },
+   "y": {
+    "$expr": "360 + (-130 - FY) * Z"
+   },
+   "r": {
+    "$expr": "max(5, 13 * Z)"
+   },
+   "color": "#34343a",
+   "alpha": 0.85,
+   "sweep": {
+    "$expr": "3.1416 * seg(lt, 4.4, 5.6)"
+   }
+  },
+  {
+   "type": "fondo",
+   "preset": "cuba_oscura",
+   "ajustes": {
+    "agua": {
+     "stops": [
+      "#01070c",
+      "#03141d",
+      "#010305"
+     ]
+    },
+    "haces": {
+     "intensidad": 0.045
+    },
+    "turbidez": {
+     "alfa": 0.1
+    },
+    "bruma": {
+     "densidad": 0.2
+    },
+    "pmtLejanos": {
+     "brillo": 0.3,
+     "alfa": 0.5
+    },
+    "pmtCercanos": {
+     "brillo": 0.4,
+     "alfa": 0.75
+    },
+    "vineta": {
+     "fuerza": 0.9
+    }
+   },
+   "alfa": {
+    "$expr": "smooth(seg(lt, 6.8, 9.0)) * 0.97"
+   }
+  },
+  {
+   "id": "t0",
+   "type": "text",
+   "text": "Contamos.",
+   "x": {
+    "$expr": "S_cx"
+   },
+   "y": {
+    "$expr": "S_y1 - 40"
+   },
+   "role": "h2",
+   "align": "center",
+   "color": "ink",
+   "alpha": {
+    "$expr": "1 * seg(lt, 6.4, 7.2) * (1 - seg(lt, 8.799999999999999, 9.6))"
+   }
+  }
+ ]
+}, {  });

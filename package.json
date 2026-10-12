@@ -29,6 +29,8 @@
     "use": "node engine/opus.mjs use",
     "new": "node engine/opus.mjs new",
     "peek": "node engine/peek.mjs",
+    "boceto": "node engine/boceto.mjs",
+    "preview": "node engine/livepreview.mjs",
     "ab": "node engine/ab.mjs",
     "plan": "node engine/cut.mjs --plan",
     "index": "node engine/index.mjs",

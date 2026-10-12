@@ -11,9 +11,9 @@ import { FOLEY } from './foley.mjs';   // spec 017: foley de archivo (llave, sel
 const SIZE = { ECU: 0, CU: 0, MCU: 1, MS: 2, MWS: 2.5, WS: 3, EWS: 4 }, rank = (s) => SIZE[s?.size] ?? 2;
 const TRANS = ['morph', 'cut', 'scale-cut', 'hold-cut'];
 const BANDS = { impact: [1, 0.3, 0.3],   // el golpe cede solo los graves: el acorde del clímax canta por encima del sub
-   bloom: [0.8, 1, 0.8], riser: [0.5, 1, 1], whoosh: [0.5, 1, 1], shimmer: [0.7, 0.8, 1], anom: [0.9, 1, 0.8], resolve: [1, 0.8, 0.7], accent: [1, 0.6, 0.4], tick: [0, 0.5, 1], pop: [0.3, 1, 0.6], click: [0, 0.4, 1], buzz: [0.2, 0.7, 0.6], llave: [0.2, 1, 1], sello: [1, 1, 0.7], sello_seco: [1, 0.8, 0.5], pluma: [0, 0.4, 1], secante: [0.2, 1, 0.7], reloj: [0.2, 0.8, 1], mosca: [0, 0.8, 0.9] };
-const GAIN = { impact: 1.25, bloom: 1.1, riser: 1, shimmer: 1.4, anom: 1, pop: 1.5, click: 1, drone: 0.4, air: 0.5, buzz: 0.5, llave: 1, sello: 1, sello_seco: 1, pluma: 1, secante: 1, reloj: 1, mosca: 1 };   // escala sobre el gain declarado (calibra el banco propio frente al v1)
-const SEND = { impact: 0.45, bloom: 0.65, riser: 0.3, whoosh: 0.18, shimmer: 0.6, anom: 0.4, resolve: 0.4, accent: 0.25, tick: 0.14, pop: 0.2, click: 0.1, drone: 0.1, buzz: 0.05, air: 0.1, llave: 0.12, sello: 0.14, sello_seco: 0.1, pluma: 0.04, secante: 0.04, reloj: 0.08, mosca: 0.05 };
+   bloom: [0.8, 1, 0.8], riser: [0.5, 1, 1], whoosh: [0.5, 1, 1], shimmer: [0.7, 0.8, 1], anom: [0.9, 1, 0.8], resolve: [1, 0.8, 0.7], accent: [1, 0.6, 0.4], tick: [0, 0.5, 1], pop: [0.3, 1, 0.6], click: [0, 0.4, 1], buzz: [0.2, 0.7, 0.6], llave: [0.2, 1, 1], sello: [1, 1, 0.7], sello_seco: [1, 0.8, 0.5], pluma: [0, 0.4, 1], secante: [0.2, 1, 0.7], reloj: [0.2, 0.8, 1], mosca: [0, 0.8, 0.9], gota: [0.1, 0.8, 1], nota: [0.7, 1, 0.5] };
+const GAIN = { impact: 1.25, bloom: 1.1, riser: 1, shimmer: 1.4, anom: 1, pop: 1.5, click: 1, drone: 0.4, air: 0.5, buzz: 0.5, llave: 1, sello: 1, sello_seco: 1, pluma: 1, secante: 1, reloj: 1, mosca: 1, gota: 1.4, nota: 1 };   // escala sobre el gain declarado (calibra el banco propio frente al v1)
+const SEND = { impact: 0.45, bloom: 0.65, riser: 0.3, whoosh: 0.18, shimmer: 0.6, anom: 0.4, resolve: 0.4, accent: 0.25, tick: 0.14, pop: 0.2, click: 0.1, drone: 0.1, buzz: 0.05, air: 0.1, llave: 0.12, sello: 0.14, sello_seco: 0.1, pluma: 0.04, secante: 0.04, reloj: 0.08, mosca: 0.05, gota: 0.45, nota: 0.55 };
 const keyMidi = (k) => { const pc = ({ C: 0, D: 2, E: 4, F: 5, G: 7, A: 9, B: 11 })[k.root[0]] + (k.root[1] === '#' ? 1 : k.root[1] === 'b' ? -1 : 0); return (pc + 12) % 12; };   // clase de altura de la tónica
 
 // ───────── eventos ─────────
@@ -29,6 +29,8 @@ export function designEvents(tl, plan, style) {
     for (const e of s.sfx ?? []) {
       const t = s.t[0] + e.at, base = { t, gain: e.gain ?? 0.8, pan: [e.pan ?? 0, e.pan ?? 0], src: `${s.id}.sfx`, decl: true };
       if (e.type === 'drone') push({ ...base, type: 'drone', bus: 'amb', priority: 0, dur: e.dur ?? 4, lead: 0, gain: (e.gain ?? 0.3) * GAIN.drone });
+      else if (e.type === 'nota') push({ ...base, type: 'nota', bus: 'amb', priority: 0, dur: e.dur ?? 8, lead: 0, gain: base.gain * GAIN.nota });                  // nota larga y quieta (cuerda/sintetizador)
+      else if (e.type === 'gota') push({ ...base, type: 'gota', bus: 'sfx', en: e.energia ?? 0.4, gain: base.gain * GAIN.gota });                                // clic de agua: la altura sube con la energía del evento
       else if (e.type === 'whoosh') push({ ...base, type: 'whoosh', bus: 'sfx', dur: e.dur ?? 0.8, speed: speedOf(si), gain: (e.gain ?? 0.5) * 1.2 });
       else { const ty = e.type === 'rev' ? 'bloom' : e.type; push({ ...base, type: ty, bus: ty === 'impact' ? 'hit' : 'sfx', dur: e.dur, gain: base.gain * (GAIN[ty] ?? 1) }); }
     }
@@ -65,6 +67,7 @@ export function designEvents(tl, plan, style) {
     const R = rng(hashStr(`${e.src}:${e.type}:${e.t.toFixed(4)}`)); e.id = id; e.seed = hashStr(`${e.src}:${e.t.toFixed(4)}`);
     e.priority ??= e.type === 'whoosh' ? (e.speed >= 0.55 ? SX.priority.whoosh : 1) : SX.priority[e.type] ?? 1;
     e.bands = BANDS[e.type] ?? [0.5, 0.5, 0.5]; e.send = SEND[e.type] ?? 0.2; e.intensity = I(e.t);
+    if (e.type === 'gota') e.p = { f0: 380 + 1350 * clamp(e.en), rise: 0.9 + 0.8 * R(), decay: 0.026 + 0.03 * R(), ft: 2 * (380 + 1350 * clamp(e.en)) * (1 + 0.004 * (R() - 0.5)) };
     if (FOLEY[e.type]) { e.p = {}; e.dur ??= FOLEY[e.type].dur; }
     if (e.type === 'pop') e.p = { f0: 760 + 360 * R(), decay: 0.04 + 0.03 * R() };
     if (e.type === 'click') e.p = { f: 1800 + 900 * R(), decay: 0.004 + 0.004 * R() };
@@ -75,7 +78,7 @@ export function designEvents(tl, plan, style) {
     if (e.type === 'shimmer') e.p = { det: R(), oct: 0 };
     if (e.type === 'anom') e.p = { det: R() };
     if (e.type === 'bloom') e.p = { inten: 0.7 + 0.3 * e.intensity, chord: 0.16, thump: 0.5, ...(SX.bloom ?? {}) };
-    e.dur = e.type === 'riser' ? e.p.dur : e.type === 'impact' ? 4.5 : e.type === 'bloom' ? 5 : e.type === 'shimmer' ? 2.8 : e.type === 'anom' ? 2.4 : e.dur ?? (e.type === 'tick' ? 0.35 : e.type === 'resolve' ? 0.6 : e.type === 'accent' ? 0.35 : 0.3);
+    e.dur = e.type === 'riser' ? e.p.dur : e.type === 'impact' ? 4.5 : e.type === 'bloom' ? 5 : e.type === 'shimmer' ? 2.8 : e.type === 'anom' ? 2.4 : e.dur ?? (e.type === 'tick' ? 0.35 : e.type === 'gota' ? 0.55 : e.type === 'resolve' ? 0.6 : e.type === 'accent' ? 0.35 : 0.3);
   });
   return ev;
 }
@@ -87,6 +90,24 @@ const env = (t, a, d) => (t < a ? t / a : Math.exp(-(t - a) / d));
 const mk = (sec) => new Float32Array(Math.max(1, Math.round(sec * SR)));
 const VOICE = {
   tick(e) { const p = e.p, f = mtof(p.midi), x = mk(0.35); for (let i = 0; i < x.length; i++) { const t = i / SR; x[i] = e.gain * 0.6 * env(t, 0.0015, p.decay) * (Math.sin(TAU * f * t) + 0.35 * p.bright * Math.sin(TAU * f * 2.76 * t) * Math.exp(-t / (p.decay * 0.4)) + 0.2 * p.bright * Math.sin(TAU * f * 5.4 * t) * Math.exp(-t / (p.decay * 0.2))); } return { x, lead: 0 }; },
+  gota(e, R) { // clic de agua: chasquido + burbuja que sube de tono al romperse + un tono tenue que fija la altura (más agudo = más energía)
+    const p = e.p, x = mk(0.55); let ph = 0;
+    for (let i = 0; i < x.length; i++) {
+      const t = i / SR; ph += (TAU * p.f0 * (1 + p.rise * (1 - Math.exp(-t / 0.018)))) / SR;
+      x[i] = e.gain * (0.75 * Math.sin(ph) * env(t, 0.0008, p.decay) + 0.3 * Math.sin(TAU * p.ft * t) * env(t, 0.004, p.decay * 3.4) + 0.45 * (R() * 2 - 1) * Math.exp(-t / 0.0011));
+    }
+    return { x, lead: 0 };
+  },
+  nota(e, R, C) { // una sola nota larga, quieta: tónica a 220 Hz de sierras filtradas, entrada y salida lentas, vibrato que aparece despacio
+    const d = e.dur, x = mk(d), f = mtof(48 + keyMidi(C.style.key)), ph = [R(), R(), R()]; let lp = 0, lp2 = 0;
+    for (let i = 0; i < x.length; i++) {
+      const t = i / SR, a = Math.min(1, t / 3.2, (d - t) / 3.5) ** 1.6, vib = 1 + 0.0035 * Math.min(1, t / 5) * Math.sin(TAU * 4.7 * t); let s = 0;
+      [0.997, 1, 1.003].forEach((dt, k) => { ph[k] += (f * dt * vib) / SR; if (ph[k] >= 1) ph[k] -= 1; s += 2 * ph[k] - 1; });
+      const fc = 700 + 500 * a, al = 1 - Math.exp((-TAU * fc) / SR); lp += al * (s - lp); lp2 += al * (lp - lp2);
+      x[i] = e.gain * 0.5 * a * lp2;
+    }
+    return { x, lead: 0 };
+  },
   pop(e, R) { const p = e.p, x = mk(0.2); let ph = 0; for (let i = 0; i < x.length; i++) { const t = i / SR; ph += (TAU * (p.f0 * Math.exp(-t * 30) + 180)) / SR; x[i] = e.gain * Math.sin(ph) * env(t, 0.002, p.decay + 0.01); } void R; return { x, lead: 0 }; },
   click(e, R) { const p = e.p, x = mk(0.05); for (let i = 0; i < x.length; i++) { const t = i / SR; x[i] = e.gain * (0.6 * Math.sin(TAU * p.f * t) + 0.5 * (R() * 2 - 1)) * env(t, 0.0004, p.decay); } return { x, lead: 0 }; },
   accent(e, R) { const p = e.p, x = mk(0.4); let ph = 0, ph2 = 0; for (let i = 0; i < x.length; i++) { const t = i / SR; ph += (TAU * (p.f * (1 + 0.8 * Math.exp(-t * 25)))) / SR; ph2 += (TAU * p.pf * Math.exp(-t * 20)) / SR; x[i] = e.gain * (0.8 * Math.sin(ph) * env(t, 0.003, 0.12) + 0.5 * Math.sin(ph2) * env(t, 0.002, 0.04) + 0.1 * (R() * 2 - 1) * env(t, 0.001, 0.01)); } return { x, lead: 0 }; },
