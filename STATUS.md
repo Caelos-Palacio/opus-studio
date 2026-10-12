@@ -55,15 +55,15 @@ Archivos (test/*.mjs): `arc.mjs` `bench-skia.mjs` `critic.mjs` `cut-render.mjs` 
 <!-- estatico:fin -->
 
 ---
-## Estado vivo (2026-10-12T22:43Z, no verificado)
+## Estado vivo (2026-10-12T22:45Z, no verificado)
 
 ## Veredictos
 
 Film activo: `fondos_libres` · engineHash `98cde6689524a4b3a3fdd9a06697fe94b4f51960be43993420f99a6d07f574ed` · filmHash `c411b348c94f7bdd`
 
-- out/lint.json: SHIP · CADUCADO
-- out/critic.json: SHIP · CADUCADO
-- veredictos por shot: 0 vigentes, 1 caducados
+- out/lint.json: SHIP · VIGENTE
+- out/critic.json: SHIP · VIGENTE
+- veredictos por shot: 1 vigentes, 0 caducados
 
 ### Estado de gates (out/gates.json)
 
@@ -74,7 +74,7 @@ Film activo: `fondos_libres` · engineHash `98cde6689524a4b3a3fdd9a06697fe94b4f5
 - `backup/pre-limpieza` (+136 commits)
 - `film-botella` (+12 commits)
 - `film-consta` (+10 commits)
-- `fondos-libres` (+9 commits)
+- `fondos-libres` (+10 commits)
 - `gobernanza` (+96 commits)
 - `harness` (+101 commits)
 - `medios` (+57 commits)
@@ -106,7 +106,7 @@ Film activo: `fondos_libres` · engineHash `98cde6689524a4b3a3fdd9a06697fe94b4f5
 
 ## Ledger
 
-- cadena: íntegra · 5 entradas (5 encadenadas, 0 heredadas, 0 firmadas) · códigos 100 %
+- cadena: íntegra · 7 entradas (7 encadenadas, 0 heredadas, 0 firmadas) · códigos 100 %
 
 ## Presupuestos
 
