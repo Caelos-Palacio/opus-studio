@@ -44,8 +44,8 @@ Definición (gates.json); el estado de cierre está en la parte viva.
 
 ## DSL de escenas (spec 010)
 
-- cobertura: **94.2 %** (65/69 shots en DSL; honesta: los 1 pendientes de otra rama cuentan en contra; sin ellos 95.6 %) · umbral ratchet 95 %
-- clases: convertible 1 · dsl 65 · escape 2 · pendiente:world3d2 1 · shots 100 % nativos 6 · el resto usa objetos respaldados por una función de módulo (plot/axis/world/hud/word…) con semántica y deps declaradas
+- cobertura: **95.7 %** (66/69 shots en DSL; honesta: los 1 pendientes de otra rama cuentan en contra; sin ellos 97.1 %) · umbral ratchet 95 %
+- clases: dsl 66 · escape 2 · pendiente:world3d2 1 · shots 100 % nativos 7 · el resto usa objetos respaldados por una función de módulo (plot/axis/world/hud/word…) con semántica y deps declaradas
 - escapes: A1 (objetivo de las mutaciones de test/run.mjs, golden.mjs, gov.mjs y orch: esos tests editan su JS por texto); A2 (objetivo de las mutaciones de test/run.mjs, golden.mjs, gov.mjs y orch: esos tests editan su JS por texto)
 - pendientes: D01 (world3d2)
 
@@ -55,15 +55,15 @@ Archivos (test/*.mjs): `arc.mjs` `bench-skia.mjs` `critic.mjs` `cut-render.mjs` 
 <!-- estatico:fin -->
 
 ---
-## Estado vivo (2026-10-12T14:59Z, no verificado)
+## Estado vivo (2026-10-12T22:43Z, no verificado)
 
 ## Veredictos
 
-Film activo: `fondos_libres` · engineHash `6421147f1dadf98965e7e17e9325e81446b0d0901801d5669a07baae3311652b` · filmHash `812be5f69f74523f`
+Film activo: `fondos_libres` · engineHash `98cde6689524a4b3a3fdd9a06697fe94b4f51960be43993420f99a6d07f574ed` · filmHash `c411b348c94f7bdd`
 
-- out/lint.json: SHIP · VIGENTE
-- out/critic.json: SHIP · VIGENTE
-- veredictos por shot: 1 vigentes, 0 caducados
+- out/lint.json: SHIP · CADUCADO
+- out/critic.json: SHIP · CADUCADO
+- veredictos por shot: 0 vigentes, 1 caducados
 
 ### Estado de gates (out/gates.json)
 
@@ -72,11 +72,9 @@ Film activo: `fondos_libres` · engineHash `6421147f1dadf98965e7e17e9325e81446b0
 ## Ramas sin integrar
 
 - `backup/pre-limpieza` (+136 commits)
-- `boceto` (+3 commits)
 - `film-botella` (+12 commits)
-- `film-consta` (+9 commits)
-- `film-veinticuatro` (+12 commits)
-- `fondos-libres` (+4 commits)
+- `film-consta` (+10 commits)
+- `fondos-libres` (+9 commits)
 - `gobernanza` (+96 commits)
 - `harness` (+101 commits)
 - `medios` (+57 commits)
@@ -84,7 +82,7 @@ Film activo: `fondos_libres` · engineHash `6421147f1dadf98965e7e17e9325e81446b0
 - `orquestacion` (+101 commits)
 - `perf` (+53 commits)
 - `semantica` (+101 commits)
-- `vectores` (+5 commits)
+- `vectores` (+9 commits)
 - `video-mate` (+33 commits)
 - `video-reel` (+34 commits)
 - `video-regla` (+34 commits)
@@ -104,11 +102,11 @@ Film activo: `fondos_libres` · engineHash `6421147f1dadf98965e7e17e9325e81446b0
 
 ## Último run de tests
 
-- sin out/tests.json (lo escribe `npm test`)
+- 2026-10-12T22:38:17.007Z: 1 fallos (perfil full)
 
 ## Ledger
 
-- cadena: íntegra · 4 entradas (4 encadenadas, 0 heredadas, 0 firmadas) · códigos 100 %
+- cadena: íntegra · 5 entradas (5 encadenadas, 0 heredadas, 0 firmadas) · códigos 100 %
 
 ## Presupuestos
 
