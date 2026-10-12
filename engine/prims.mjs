@@ -75,9 +75,9 @@ export function prims(ctx, api, film, shot, cx) {
       if (o.banda) { ctx.globalAlpha = a; ctx.fillStyle = col(cc); ctx.fillRect(x, y, w, o.banda * k); }
       if (lw > 0) { ctx.globalAlpha = a; ctx.strokeStyle = col(cc); ctx.lineWidth = lw; path(); ctx.stroke(); }
       ctx.restore();
-      if (o.tag != null && o.tag !== '') api.text(String(o.tag), x + 24 * k, y + 38 * k, { role: 'label', color: cc, alpha: a, align: 'left' });
+      if (o.tag != null && o.tag !== '') api.text(String(o.tag), x + 24 * k, y + 28 * k, { role: 'label', color: cc, alpha: a, align: 'left' });
       const L = o.label == null ? [] : String(o.label).split('\n'), s1 = api.sizes[o.role ?? 'body'], s2 = api.sizes.label, gap = 1.45;
-      if (L.length) { const blk = s1 * 1.2 + (L.length - 1) * s2 * gap, y0 = y + h / 2 - blk / 2 + s1 * 0.6;
+      if (L.length) { const blk = s1 * 1.2 + (L.length - 1) * s2 * gap, y0 = y + h / 2 - blk / 2 + s1 * 0.6 + (o.tag ? 12 * k : 0);
         L.forEach((ln, i) => api.text(ln, x + w / 2, i ? y0 + s1 * 0.6 + (i - 0.5) * s2 * gap + s2 * 0.1 : y0, i ? { role: 'label', alpha: 0.85 * a } : { role: o.role ?? 'body', alpha: a })); }
       return { x, y, w, h };
     },
