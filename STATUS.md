@@ -55,7 +55,7 @@ Archivos (test/*.mjs): `arc.mjs` `bench-skia.mjs` `critic.mjs` `cut-render.mjs` 
 <!-- estatico:fin -->
 
 ---
-## Estado vivo (2026-10-12T22:45Z, no verificado)
+## Estado vivo (2026-10-12T23:09Z, no verificado)
 
 ## Veredictos
 
@@ -73,8 +73,8 @@ Film activo: `fondos_libres` · engineHash `98cde6689524a4b3a3fdd9a06697fe94b4f5
 
 - `backup/pre-limpieza` (+136 commits)
 - `film-botella` (+12 commits)
-- `film-consta` (+10 commits)
-- `fondos-libres` (+10 commits)
+- `film-consta` (+11 commits)
+- `fondos-libres` (+11 commits)
 - `gobernanza` (+96 commits)
 - `harness` (+101 commits)
 - `medios` (+57 commits)
@@ -82,7 +82,7 @@ Film activo: `fondos_libres` · engineHash `98cde6689524a4b3a3fdd9a06697fe94b4f5
 - `orquestacion` (+101 commits)
 - `perf` (+53 commits)
 - `semantica` (+101 commits)
-- `vectores` (+9 commits)
+- `vectores` (+12 commits)
 - `video-mate` (+33 commits)
 - `video-reel` (+34 commits)
 - `video-regla` (+34 commits)
@@ -102,7 +102,7 @@ Film activo: `fondos_libres` · engineHash `98cde6689524a4b3a3fdd9a06697fe94b4f5
 
 ## Último run de tests
 
-- 2026-10-12T22:38:17.007Z: 1 fallos (perfil full)
+- 2026-10-12T23:09:14.409Z: todo verde (perfil full)
 
 ## Ledger
 
