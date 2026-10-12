@@ -50,8 +50,8 @@ Contraste: un agente aislado que dibuja sus fondos con código libre. Esta spec 
 ### D. Anti-menú
 - Presets reescritos por TEMA; `resumen`/`porque` empiezan «Ejemplo de partida:» y no nombran films. `meta.derivar` y la ficha de `tools show` muestran 4 recetas de derivación.
 - Lint (paso `fondo`, film entero): familia de fondo por shot (preset, o hash de tipos de capa; sin `api.fondo` = soporte del medio). Variación animada = algún valor dinámico, `anim`, capa reactiva o `codigo`.
-  `fondo.estatico`: una familia sin variación en > 60 % de la duración. `fondo.preset_crudo`: preset sin `ajustes`/`sin`/`capas` en > 50 % de los shots con fondo.
-  `fondo_ok:{porque}` (≥ 20 caracteres) en el timeline justifica ambos (Mate papel: el soporte constante ES la metáfora).
+  `fondo.estatico`: una familia sin variación en > 80 % de la duración, SOLO si el film declaró un fondo (preset o capas; con el medio por defecto no aplica). `fondo.preset_crudo`: preset sin `ajustes`/`sin`/`capas` en > 50 % de los shots con fondo.
+  `fondo_ok:{porque}` (≥ 20 caracteres) en el timeline justifica ambos (Mate papel: el soporte constante ES la metáfora). **Ambos son SUGERENCIAS** (decisión del usuario: «no seas tan rígido con el fondo estático»): WARN suave, texto «considera animar el fondo con el relato…», nunca FIX ni bloquean gate, master u orquestación; un soporte constante que ES la metáfora (papel, pizarra) es válido sin justificar.
 
 ## Escenarios (BDD)
 [M] máquina (`test/fondos-libres.mjs`); [H] juicio humano.
@@ -66,7 +66,7 @@ Contraste: un agente aislado que dibuja sus fondos con código libre. Esta spec 
 9. [M] El hash del shot cambia al cambiar el contenido del fichero `codigo` referenciado.
 10. [M] El coste se mide y `maxMs` excedido produce el aviso.
 11. [M] Presets: sin nombres de films en `porque`/`resumen`; `resumen` ≤ 15 palabras; `tools show` enseña a derivar.
-12. [M] Lint `fondo.estatico` y `fondo.preset_crudo`: se disparan con un film estático/crudo, no con uno animado/ajustado, y `fondo_ok` los justifica (Mate papel).
+12. [M] Lint `fondo.estatico` y `fondo.preset_crudo`: se sugieren con un film estático (> 80 %)/crudo, no con uno animado/ajustado ni sin fondo declarado, y `fondo_ok` los silencia (Mate papel ya ni sugiere).
 13. [M] Compatibilidad: todos los fondos de la spec 014 siguen validando y pintando los mismos píxeles (suite fondos); cobertura DSL intacta.
 14. [H] El demo se lee como un fondo que VIVE con el relato (turbio→claro, golpes, código propio) y no como un menú.
 

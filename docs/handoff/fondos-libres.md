@@ -13,7 +13,7 @@ Rama `fondos-libres` (desde main). Spec: `docs/specs/021-fondos-libres.md`. Suit
   Hash: `shotDeps` incluye los ficheros `archivo:` referenciados (y el story si hay anclas/eventos). Guardia en lint: `scanFondoCodigo`. Coste: medido en ejecución (`film.codigoCoste`) y en lint (`fondo.codigo_lento`, mediana de 8 cuadros a resolución real).
 - **C. Reactivo**: capas `onda`, `mancha`, `pulso` + funciones de expresión sobre eventos. `film.eventos` (`engine/fondo-eventos.mjs`): sfx `impact`, nodos `impact` y cues numéricos de `.scene.json`, beats del story; `fondo.eventos` añade los suyos.
 - **D. Anti-menú**: presets reescritos por tema («Ejemplo de partida: …», sin films); `tools show <preset>` muestra `derivar:` (ajustes, keyframes con ancla, expr, sin, capas); guía `fondo_libre`;
-  lint WARN `fondo.estatico` (> 60 % de la duración) y `fondo.preset_crudo` (> 50 % de shots) en `engine/fondo-lint.mjs`; `fondo_ok:{porque ≥ 20 car.}` en el timeline (esquema actualizado). Mate papel avisa y se justifica con `fondo_ok`.
+  lint WARN suave `fondo.estatico` (> 80 % de la duración, solo si el film declaró fondo) y `fondo.preset_crudo` (> 50 % de shots) en `engine/fondo-lint.mjs`; `fondo_ok:{porque ≥ 20 car.}` en el timeline (esquema actualizado). Mate papel avisa y se justifica con `fondo_ok`.
 - **E. Demo**: film `data/fondos_libres/` (shot DSL `shots/FL01.scene.json` → FL01.mjs, nativo en dsl-coverage; código `shots/fondos/burbujas.mjs`). Entrega `out/entregas/fondos_libres.mp4` (12 s, TP −1,9 dBFS) + `fondos_libres.jpg`. Lint SHIP; crítico escrito por el agente (sin nota del usuario).
 
 ## Arreglos tras `--full` (4 fallos)
@@ -23,11 +23,18 @@ Rama `fondos-libres` (desde main). Spec: `docs/specs/021-fondos-libres.md`. Suit
 4. motor M10 (lint en frío con precalentamiento): la máquina estaba a carga 35–40 (otras ramas corriendo suites); se vuelve a correr sola, ver resultado abajo.
 - `eventosDeFilm` fusiona un nodo `impact` con el sfx `impact` del mismo shot a < 50 ms (un solo evento por golpe).
 
+## Ronda 2 (flexibilizar + arreglos de `--full`)
+- `fondo.estatico`: umbral 80 %, solo con fondo declarado, texto «sugerencia / considera animar…»; `fondo.preset_crudo` también como sugerencia. Tests E3/E4/E5 y F1 adaptados.
+- orquestación `orch: sim` volvía a 74/74 (el FIX venía de `fondo.estatico` sobre el medio por defecto, que ya no aplica).
+- dsl-cov C8b: `git diff --numstat` vacío (sandbox sin cambios) daba `undefined`; ahora cuenta 0/0.
+- fondos-libres D5: el detalle del check ya no imprime líneas `✗ sandbox:` (se rotulan `·`).
+- STATUS.md regenerado con `node engine/status.mjs`; demo re-renderizada tras la reescritura de FL01.
+
 ## Límites
 - Un `api.impact` dentro de un shot JS no se ve antes de pintar el fondo: declarar `eventos` con el mismo `at` (el demo lo hace).
 - Eventos de objetos animados no existen: pasar x,y por `eventos`.
 - `celular` y `acuarela` con parámetros animados recalculan su textura cada cuadro (caro); fbm/deformado/niebla no.
-- `fondo.estatico`/`preset_crudo` miden solo lo que pinta `api.fondo` (sin él, el soporte del medio cuenta como fondo constante): TODOS los films sin fondo animado avisarán hasta que se justifiquen o animen.
+- `fondo.estatico`/`preset_crudo` son SUGERENCIAS (petición del usuario: «no seas tan rígido con el fondo estático»): WARN, nunca FIX, no bloquean gate/master/orquestación. Miden solo lo que pinta `api.fondo`; sin fondo declarado (medio por defecto) no aplican.
 - El sandbox hereda los huecos de `sandbox.mjs` (mismo realm/hilo; `process.env` se ve vacío, no bloqueado).
 - `Math.random` en el código del fondo se rechaza en lint (guardia); en ejecución queda sembrado.
 
