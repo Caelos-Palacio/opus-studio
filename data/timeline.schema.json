@@ -172,6 +172,7 @@
         "maxHold": { "type": "number", "minimum": 0 }, "cutOnBeat": { "type": "boolean" }, "shotLen": { "$ref": "#/$defs/num2" },
         "safe": { "type": "object", "additionalProperties": false, "properties": { "top": { "type": "number" }, "bottom": { "type": "number" }, "side": { "type": "number" } } },
         "minFontPx": { "type": "number", "minimum": 0 }, "requireCausality": { "type": "boolean" }, "requireFacts": { "type": "boolean" },
+        "requireFocus": { "type": "boolean" }, "saliency": { "type": "boolean" }, "maxSizes": { "type": "number", "minimum": 0 },
         "holdEnergy": { "type": "number", "minimum": 0 }, "popRatio": { "type": "number", "minimum": 0 }, "readCps": { "type": "number", "exclusiveMinimum": 0 }
       }
     },
