@@ -1,22 +1,19 @@
 // SVG como elemento (spec 020): importa un SVG, lo SANEA, lo normaliza a un cuadro unidad y lo pinta con los roles de paleta del medio.
 //   parseSvg(texto, {nombre}) → doc      tokenizador XML de lista blanca (sin dependencias) + geom.parsePath (M L H V C S Q T A Z → cúbicas)
-//   cargarSvg(id, root)       → doc      «mosca» → assets/svg/mosca.svg (o una ruta assets/…svg); cacheado por contenido; falla con SvgError
+//   (svg-io.mjs) cargarSvg(id, root) → doc      «mosca» → assets/svg/mosca.svg (o una ruta assets/…svg); cacheado por contenido; falla con SvgError
+//   Este módulo es PURO (lo importa dsl-core, que comparten los shots y el navegador): sin fs ni node:*.
 //   drawSvg(ctx, doc, o, E)   → {x,y,w,h,rot,punta,centro}   o: {x,y,size,rot,flip,alfa,trazo,morphTo,u,roles,mono}  E: {pal}
 //   longitud(doc)             → longitud total de los trazos (cuadro unidad); el trazado progresivo reparte `trazo` ∈ [0,1] por longitud de path
 //   validateSvg(o, path, E)   → valida los literales del tipo DSL `svg` (los {$expr} se comprueban aparte)
 // Seguridad: nada de scripts, <foreignObject>, eventos on…, href que no sea «#interno», javascript:/data:, url() externo, DOCTYPE/ENTITY,
 // animaciones SMIL, <image>/<iframe>/…: se rechaza con SvgError {codigo, línea}. Lo que no se dibuja (title, defs, style, use, texto…) se ignora y queda en doc.avisos.
 // Determinista y puro: la geometría se hornea al parsear (los transforms entran en las Béziers); pintar solo depende de (doc, o, paleta).
-import fs from 'node:fs';
-import path from 'node:path';
-import crypto from 'node:crypto';
-import { rootFrom } from './paths.mjs';
 import { parsePath, shapes, mapPts, tracePath, traceTrim, tracePolys, morphPolys, flatten, resample, length as shapeLength, bbox } from './geom.mjs';
 import { mix as mixHex } from './color.mjs';
-import { clamp, lerp } from './core.mjs';
+import { clamp, lerp, hashStr } from './core.mjs';
 import { hint } from './fondo-capas.mjs';
+import { BIBLIOTECA } from './svg-lib.mjs';
 
-const ROOT = rootFrom(import.meta.url);
 export const MAX_BYTES = 512 * 1024, MAX_ELEMS = 4000, MAX_DEPTH = 48, DIR = 'assets/svg';
 export class SvgError extends Error {
   constructor(codigo, msg, { nombre = '', linea = 0, remedio = '' } = {}) {
@@ -39,7 +36,7 @@ const dec = (s) => s.replace(/&(amp|lt|gt|quot|apos);/g, (m) => DEC[m]);
 const local = (n) => n.replace(/^[^:]*:/, '');
 function xml(txt, nombre) {
   const E = (codigo, msg, linea, remedio) => { throw new SvgError(codigo, msg, { nombre, linea, remedio }); };
-  if (Buffer.byteLength(txt) > MAX_BYTES) E('tamano', `pesa ${(Buffer.byteLength(txt) / 1024).toFixed(0)} KB (máx. ${MAX_BYTES / 1024} KB)`, 0, 'Simplifica el dibujo');
+  if (new TextEncoder().encode(txt).length > MAX_BYTES) E('tamano', `pesa ${(new TextEncoder().encode(txt).length / 1024).toFixed(0)} KB (máx. ${MAX_BYTES / 1024} KB)`, 0, 'Simplifica el dibujo');
   const dt = /<!\s*(DOCTYPE|ENTITY)/i.exec(txt); if (dt) E('entidad', `lleva <!${dt[1].toUpperCase()}> (entidades externas/expansivas: XXE, billion laughs)`, lineaDe(txt, dt.index), 'Quita el DOCTYPE y las entidades');
   const root = { tag: '#root', attrs: {}, kids: [], linea: 0 }, stack = [root]; let i = 0, elems = 0, ln = 1, lp = 0;
   const lineAt = (p) => { while (lp < p) if (txt.charCodeAt(lp++) === 10) ln++; return ln; };
@@ -160,31 +157,20 @@ export function parseSvg(texto, { nombre = '' } = {}) {
   const s = 1 / Math.max(vb[2], vb[3]), cx = vb[0] + vb[2] / 2, cy = vb[1] + vb[3] / 2;
   for (const it of items) { it.shape = mapPts(it.shape, (x, y) => [(x - cx) * s, (y - cy) * s]); it.sw *= s; if (it.dash) it.dash = it.dash.map((d) => d * s); }
   const tags = (raiz.attrs['data-tags'] ?? '').split(/[\s,]+/).filter(Boolean);
-  return { nombre, titulo, tags, w: vb[2] * s, h: vb[3] * s, items, paths: items.length, avisos: [...avisos].sort(), hash: crypto.createHash('sha1').update(String(texto)).digest('hex').slice(0, 12) };
+  return { nombre, titulo, tags, w: vb[2] * s, h: vb[3] * s, items, paths: items.length, avisos: [...avisos].sort(), hash: hashStr(String(texto)).toString(16) };
 }
 
-// ── 3 · biblioteca y carga ───────────────────────────────────────────────────────────────────────────────────────
-export const listaSvg = (root = ROOT) => { const d = path.join(root, DIR); return fs.existsSync(d) ? fs.readdirSync(d).filter((f) => f.endsWith('.svg') && !f.startsWith('_')).map((f) => f.slice(0, -4)).sort() : []; };
-export const SVG_LIB = listaSvg();
-export function resolverSvg(id, root = ROOT) {
-  const s = String(id ?? ''); let rel;
-  if (/^[A-Za-z0-9_-]+$/.test(s)) rel = `${DIR}/${s}.svg`;
-  else {
-    const n = path.posix.normalize(s.replace(/\\/g, '/'));
-    if (path.isAbsolute(s) || /(^|\/)\.\.(\/|$)/.test(s) || !n.startsWith('assets/') || !n.endsWith('.svg')) throw new SvgError('ruta', `«${s}» no es una ruta válida: solo un nombre de la biblioteca o una ruta assets/….svg (sin «..» ni rutas absolutas)`, { nombre: s });
-    rel = n;
-  }
-  const abs = path.join(root, rel);
-  if (!fs.existsSync(abs)) throw new SvgError('inexistente', `no existe ${rel}. ${hint(s.replace(/^assets\/svg\/|\.svg$/g, ''), listaSvg(root))}`, { nombre: s });
-  return { rel, abs };
+// ── 3 · biblioteca y rutas (PURO: la lectura de archivos vive en svg-io.mjs; el manifiesto de la biblioteca, en svg-lib.mjs) ──────
+export const SVG_LIB = Object.keys(BIBLIOTECA);
+// «mosca» → assets/svg/mosca.svg · «assets/…/x.svg» → tal cual; nada de «..», rutas absolutas ni fuera de assets/
+export function resolverRuta(id) {
+  const s = String(id ?? '');
+  if (/^[A-Za-z0-9_-]+$/.test(s)) return `${DIR}/${s}.svg`;
+  const n = s.replace(/\\/g, '/').split('/').reduce((a, x) => (x === '.' || x === '' ? a : x === '..' ? (a.push('..'), a) : (a.push(x), a)), []).join('/');
+  if (s.startsWith('/') || /^[A-Za-z]:/.test(s) || /(^|[\\/])\.\.([\\/]|$)/.test(s) || !n.startsWith('assets/') || !n.endsWith('.svg')) throw new SvgError('ruta', `«${s}» no es una ruta válida: solo un nombre de la biblioteca o una ruta assets/….svg (sin «..» ni rutas absolutas)`, { nombre: s });
+  return n;
 }
-const CACHE = new Map();
-export function cargarSvg(id, root = ROOT) {
-  const { rel, abs } = resolverSvg(id, root), st = fs.statSync(abs), key = `${abs}:${st.size}:${st.mtimeMs}`, hit = CACHE.get(abs);
-  if (hit && hit.key === key) return hit.doc;
-  const doc = parseSvg(fs.readFileSync(abs, 'utf8'), { nombre: path.basename(rel, '.svg') }); doc.archivo = rel;
-  CACHE.set(abs, { key, doc }); return doc;
-}
+export const sugerirSvg = (s) => hint(String(s).replace(/^assets\/svg\/|\.svg$/g, ''), SVG_LIB);
 
 // ── 4 · pintado ──────────────────────────────────────────────────────────────────────────────────────────────────
 export const longitud = (doc) => doc.items.reduce((a, it) => a + (it._len ??= shapeLength(it.shape)), 0);
@@ -261,14 +247,15 @@ function puntoEn(S, u) {                                          // punto a fra
 // ── 5 · DSL: validación de literales ─────────────────────────────────────────────────────────────────────────────
 export const SVG_KEYS = ['svg', 'x', 'y', 'size', 'rot', 'flip', 'alfa', 'trazo', 'morphTo', 'u', 'roles', 'mono', 'label', 'fields'];
 const isExpr = (v) => v && typeof v === 'object' && !Array.isArray(v) && '$expr' in v;
-export function validateSvg(o, p, E, root = ROOT) {
-  const docs = {};
+export function validateSvg(o, p, E) {
+  const lib = {};
   for (const k of ['svg', 'morphTo']) {
     const v = o[k]; if (v == null || isExpr(v)) continue;
     if (typeof v !== 'string') { E(`${p}/${k}`, `${k}: nombre de la biblioteca o ruta assets/….svg`); continue; }
-    try { docs[k] = cargarSvg(v, root); } catch (e) { E(`${p}/${k}`, e.message, e.codigo === 'inexistente' ? hint(v, listaSvg(root)) : e.codigo === 'ruta' ? 'la ruta debe ser assets/….svg sin «..»' : 'sanea o simplifica el archivo'); }
+    try { resolverRuta(v); } catch (e) { E(`${p}/${k}`, e.message, 'la ruta debe ser assets/….svg sin «..»'); continue; }
+    if (/^[A-Za-z0-9_-]+$/.test(v)) { if (!BIBLIOTECA[v]) E(`${p}/${k}`, `svg «${v}» no está en la biblioteca (assets/svg/)`, sugerirSvg(v)); else lib[k] = v; }
   }
-  if (docs.svg && docs.morphTo && docs.svg.paths !== docs.morphTo.paths) E(`${p}/morphTo`, `morph exige el mismo número de paths: «${docs.svg.nombre}» tiene ${docs.svg.paths} y «${docs.morphTo.nombre}» tiene ${docs.morphTo.paths}`);
+  if (lib.svg && lib.morphTo && BIBLIOTECA[lib.svg].paths !== BIBLIOTECA[lib.morphTo].paths) E(`${p}/morphTo`, `morph exige el mismo número de paths: «${lib.svg}» tiene ${BIBLIOTECA[lib.svg].paths} y «${lib.morphTo}» tiene ${BIBLIOTECA[lib.morphTo].paths}`);
   if (o.morphTo != null && o.u == null) E(`${p}/u`, 'morphTo necesita u (0..1)');
   if (o.roles != null) { if (!o.roles || typeof o.roles !== 'object' || Array.isArray(o.roles)) E(`${p}/roles`, 'roles: objeto {"#hex o rol del archivo": "rol de paleta"}'); else for (const [k, v] of Object.entries(o.roles)) if (!isExpr(v) && !(typeof v === 'string' && ROL.test(v))) E(`${p}/roles/${k}`, 'el destino debe ser un rol de paleta o un hex'); }
   if (o.mono != null && !isExpr(o.mono) && !(typeof o.mono === 'string' && ROL.test(o.mono))) E(`${p}/mono`, 'mono: un rol de paleta o un hex');
@@ -276,9 +263,9 @@ export function validateSvg(o, p, E, root = ROOT) {
 
 // ── 6 · meta uniforme para el toolbox: una ficha por SVG de la biblioteca ────────────────────────────────────────
 export const META = SVG_LIB.map((id) => {
-  const doc = cargarSvg(id, ROOT);
-  return { id: `svg_${id}`, kind: 'objeto', resumen: (doc.titulo || `SVG ${id}`).split(/\s+/).slice(0, 15).join(' '), tags: [...new Set(['svg', 'vector', id, ...doc.tags])].map((t) => t.toLowerCase()),
+  const m = BIBLIOTECA[id];
+  return { id: `svg_${id}`, kind: 'objeto', resumen: (m.titulo || `SVG ${id}`).split(/\s+/).slice(0, 15).join(' '), tags: [...new Set(['svg', 'vector', id, ...m.tags])].map((t) => t.toLowerCase()),
     params: { x: 'number', y: 'number', size: 'number', rot: 'number', trazo: 'number', roles: 'json', mono: 'string', morphTo: 'string' },
-    cuando: `elemento vectorial «${id}» (assets/svg/${id}.svg, ${doc.paths} paths): se traza con trazo 0..1, se recolorea con los roles del medio y hace morph con otro SVG de igual nº de paths`,
+    cuando: `elemento vectorial «${id}» (assets/svg/${id}.svg, ${m.paths} paths): se traza con trazo 0..1, se recolorea con los roles del medio y hace morph con otro SVG de igual nº de paths`,
     ejemplo: `{"type":"svg","svg":"${id}","x":{"$expr":"S_cx"},"y":{"$expr":"S_cy"},"size":320,"trazo":{"$expr":"seg(lt, 0, 2)"}}`, siguiente: ['cli:peek'] };
 });
