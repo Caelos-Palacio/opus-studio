@@ -111,5 +111,12 @@ ok('D tipos registrados en TYPES con req y props', TYPES.fondo && TYPES.objeto &
 const API = fs.readFileSync(path.join(ROOT, 'docs/API.md'), 'utf8');
 ok('I22 docs/API.md (generado) documenta api.fondo y api.objeto', /api\.fondo\(/.test(API) && /api\.objeto\(/.test(API));
 ok('I22 docs/handoff/fondos.md documenta dónde está el meta', /fondos-meta/.test(fs.readFileSync(path.join(ROOT, 'docs/handoff/fondos.md'), 'utf8')));
+// I23 (rescatado de la rama voz, V3b): un objeto de tamaño 0 (p. ej. un muelle en su primer instante) no envenena el contexto de dibujo
+{
+  const c = canvasPkg.createCanvas(100, 100), g = c.getContext('2d'), E = { pal: { paper: '#ffffff', ink: '#000000', accent: '#ff0000', accent2: '#0000ff', shade: '#cccccc' }, k: 1, t: 0 };
+  g.fillStyle = '#fff'; g.fillRect(0, 0, 100, 100); drawObjeto(g, 'moneda', { x: 50, y: 50, size: 0 }, E); g.fillStyle = '#00ff00'; g.fillRect(10, 10, 20, 20);
+  const px = g.getImageData(15, 15, 1, 1).data;
+  ok('I23 tras dibujar una moneda de tamaño 0, el contexto sigue dibujando (antes quedaba muerto para el resto de la sesión)', px[1] === 255 && px[0] === 0);
+}
 console.log(`\nfondos: ${n - bad}/${n}`);
 process.exit(bad ? 1 : 0);

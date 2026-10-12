@@ -1,0 +1,19 @@
+{
+  "name": "kit-libre",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "license": "MIT",
+  "description": "Kit libre para animaciones frame(ctx, t) deterministas con node-canvas",
+  "scripts": {
+    "preview": "node plantilla/render.js --preview",
+    "render": "node plantilla/render.js",
+    "still": "node plantilla/still.js",
+    "test": "node test.mjs",
+    "audit": "node kit/auditoria.mjs plantilla",
+    "muestra": "node muestra.mjs"
+  },
+  "dependencies": {
+    "canvas": "^3.2.3"
+  }
+}
