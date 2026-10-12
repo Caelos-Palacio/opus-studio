@@ -1,0 +1,38 @@
+{
+ "title": "fondos libres — un fondo que vive con el relato",
+ "style": "editorial",
+ "profile": "cinematic",
+ "fps": 30,
+ "width": 1280,
+ "height": 720,
+ "duration": 12,
+ "shots": [
+  {
+   "id": "FL01",
+   "t": [
+    0,
+    12
+   ],
+   "size": "WS",
+   "action": "el agua pasa de turbia a clara en el giro; dos golpes la sacuden",
+   "text": "TURBIO",
+   "transition_out": "cut",
+   "cam": {
+    "move": "static"
+   },
+   "sfx": [
+    {
+     "at": 3.0,
+     "type": "impact",
+     "gain": 0.8
+    },
+    {
+     "at": 8.6,
+     "type": "impact",
+     "gain": 0.8
+    }
+   ]
+  }
+ ],
+ "end_hold_ok": true
+}

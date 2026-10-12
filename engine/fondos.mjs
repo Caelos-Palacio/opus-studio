@@ -94,7 +94,7 @@ export function drawFondo(ctx, spec, t, E) {
     const def = CAPAS[c.tipo]; if (!def) throw new Error(`fondo: tipo de capa desconocido "${c.tipo}" — ${hint(c.tipo, Object.keys(CAPAS))}`);
     const dyn = esDinamico(c), p = {};
     if (dyn || (c.anim && Object.keys(c.anim).length) || def.reactiva || c.tipo === 'codigo') animado = true;
-    if (c.tipo === 'codigo') codigos.push({ archivo: c.archivo, maxMs: typeof c.maxMs === 'number' ? c.maxMs : 30, capa: c });
+    if (c.tipo === 'codigo') codigos.push({ archivo: c.archivo, maxMs: typeof c.maxMs === 'number' ? c.maxMs : 30, capa: c, eventos: spec.eventos ?? [] });
     for (const [k, d] of Object.entries(def.params)) { const raw = c[k] !== undefined ? c[k] : d.def; p[k] = dyn && k !== 'id' ? clampTipo(d, resolver(raw, d.type, getEnv())) : raw; }
     const ev = (k, dflt) => { const s = c.anim?.[k]; return s == null ? dflt : typeof s === 'number' ? s : compile(String(s)).fn({ sig: () => 0, ...env0 }); };
     const seed = (hashStr(`${seed0}:${c.id}`) + (c.semilla | 0) * 104729 + i * 31) | 0, par = p.paralaje ?? def.paralaje;

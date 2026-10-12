@@ -361,7 +361,7 @@ async function fondoLibre(film, fr) {
       const ms = [];
       for (let i = 0; i < FONDO_LIBRE.muestras; i++) {
         const t = (film.duration * (i + 0.5)) / FONDO_LIBRE.muestras, cv = film.canvas(film.width, film.height), g = cv.getContext('2d'), t0 = hrtime.bigint();
-        drawFondo(g, { capas: [c.capa] }, t, { W: film.width, H: film.height, k: Math.min(film.width, film.height) / 1080, pal: film.S.palette, canvas: film.canvas, depth: (d, fn) => fn(), cache: new Map(), eventos: film.eventos, beatAt: beatAtOf(film), codigo: film.codigo, u: i / FONDO_LIBRE.muestras, dur: film.duration, lt: t });
+        drawFondo(g, { capas: [c.capa], eventos: c.eventos }, t, { W: film.width, H: film.height, k: Math.min(film.width, film.height) / 1080, pal: film.S.palette, canvas: film.canvas, depth: (d, fn) => fn(), cache: new Map(), eventos: film.eventos, beatAt: beatAtOf(film), codigo: film.codigo, u: i / FONDO_LIBRE.muestras, dur: film.duration, lt: t });
         ms.push(Number(hrtime.bigint() - t0) / 1e6);
       }
       ms.sort((a, b) => a - b); const med = ms[ms.length >> 1];
