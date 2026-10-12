@@ -39,7 +39,7 @@
   "$defs": {
     "num2": { "type": "array", "items": { "type": "number" }, "minItems": 2, "maxItems": 2 },
     "unit2": { "type": "array", "items": { "type": "number", "minimum": 0, "maximum": 1 }, "minItems": 2, "maxItems": 2 },
-    "voice": { "enum": ["click", "tick", "pop", "whoosh", "impact", "riser", "shimmer", "drone", "rev", "anom"] },
+    "voice": { "enum": ["click", "tick", "pop", "whoosh", "impact", "riser", "shimmer", "drone", "rev", "gota", "nota", "anom"] },
     "shot": {
       "type": "object",
       "additionalProperties": false,
@@ -135,7 +135,7 @@
     },
     "sfx": {
       "type": "object", "additionalProperties": false, "required": ["at", "type"],
-      "properties": { "at": { "type": "number" }, "type": { "$ref": "#/$defs/voice" }, "gain": { "type": "number", "minimum": 0 }, "pan": { "type": "number", "minimum": -1, "maximum": 1 }, "dur": { "type": "number", "exclusiveMinimum": 0 } }
+      "properties": { "at": { "type": "number" }, "type": { "$ref": "#/$defs/voice" }, "gain": { "type": "number", "minimum": 0 }, "pan": { "type": "number", "minimum": -1, "maximum": 1 }, "dur": { "type": "number", "exclusiveMinimum": 0 }, "energia": { "type": "number", "minimum": 0, "maximum": 1, "description": "gota: energía normalizada del evento (más aguda cuanto más energía)" } }
     },
     "cue": {
       "type": "object", "additionalProperties": false, "required": ["at", "type"],
