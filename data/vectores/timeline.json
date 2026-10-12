@@ -1,0 +1,20 @@
+{
+ "title": "Vectores: SVG que se traza y pesa, y una lámina de flujo",
+ "style": "soft",
+ "medium": "tecnico_plano",
+ "profile": "cinematic",
+ "profileOverrides": { "maxHold": 8 },
+ "fps": 30,
+ "width": 1920,
+ "height": 1080,
+ "duration": 10,
+ "autoSfx": false,
+ "music": null,
+ "end_hold_ok": true,
+ "shots": [
+  { "id": "V01", "t": [0, 5], "size": "MS", "action": "el secante se traza y se desliza con inercia; la mosca se traza y cae con peso sobre él",
+    "text": "Una mosca sobre el secante", "transition_out": "cut", "after": null, "cam": { "move": "static", "why": "reveal", "amount": 0 } },
+  { "id": "V02", "t": [5, 10], "size": "WS", "action": "lámina de flujo generada desde cinco nodos", "text": "De un SVG a una lámina",
+    "transition_out": "cut", "after": "V01", "cam": { "move": "static", "why": "reveal", "amount": 0 }, "hold_ok": [[3.2, 5]] }
+ ]
+}
