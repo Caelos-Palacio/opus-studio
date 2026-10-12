@@ -87,6 +87,7 @@ export function closure(roots) {
   while (stack.length) {
     const f = stack.pop(); if (seen.has(f)) continue; seen.add(f);
     if (!/\.(m?js|cjs)$/.test(f)) continue;                                // .json importado: hoja (entra por contenido)
+    if (rel(f).startsWith('shots/')) for (const m of fs.readFileSync(f, 'utf8').matchAll(CODIGO_REF)) { const t = path.join(ROOT, 'shots', m[1]); if (fs.existsSync(t) && !seen.has(t)) stack.push(t); }   // spec 021: capa `codigo` = dependencia exacta del shot
     for (const s of specifiers(f)) {
       if (s.startsWith('.') || s.startsWith('/')) { const t = path.resolve(path.dirname(f), s); if (fs.existsSync(t) && !seen.has(t) && !stopped(t)) stack.push(t); }
       else if (!s.startsWith('node:') && !isBuiltin(s) && !s.includes('${')) pkgs.add(pkgName(s));

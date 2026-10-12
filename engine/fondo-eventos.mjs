@@ -14,8 +14,9 @@ export function eventosDeFilm({ shots = [], story = null, escenas = {}, W = 1, H
     for (const c of sc.cues ?? []) if (c?.id && num(c.at)) ev.push({ t: s.t[0] + c.at, kind: 'cue', id: c.id, shot: s.id });
     let n = 0;
     for (const o of nodos(sc.objects)) if (o.type === 'impact' && num(o.at)) {
-      const op = o.opts && typeof o.opts === 'object' ? o.opts : {}, e = { t: s.t[0] + o.at, kind: 'impacto', id: `${s.id}:nodo${n++}`, shot: s.id };
-      if (num(op.x)) e.x = op.x / W; if (num(op.y)) e.y = op.y / H; ev.push(e);
+      const op = o.opts && typeof o.opts === 'object' ? o.opts : {}, t = s.t[0] + o.at, dup = ev.find((q) => q.shot === s.id && q.kind === 'impacto' && Math.abs(q.t - t) < 0.05);   // el mismo golpe (sfx + nodo): un solo evento
+      const e = dup ?? { t, kind: 'impacto', id: `${s.id}:nodo${n++}`, shot: s.id };
+      if (num(op.x)) e.x = op.x / W; if (num(op.y)) e.y = op.y / H; if (!dup) ev.push(e);
     }
   }
   (story?.beats ?? []).forEach((b, i) => { if (num(b?.t)) ev.push({ t: b.t, kind: 'beat', id: b.id ?? `b${i + 1}`, ...(b.shot ? { shot: b.shot } : {}) }); });
