@@ -346,30 +346,16 @@ async function motion(fps, film, FC) {
   writeAtomic(path.join(ROOT, 'out/motion.json'), JSON.stringify({ fps, energy: E.map((e) => +e.toFixed(5)) }));
 }
 
-// Fondos libres (spec 021 §D): anti-menú. La familia de fondo de cada shot sale de api.fondo (meta `fondo`: preset o tipos de capa); sin api.fondo, el soporte del medio.
-//   fondo.estatico     una familia sin variación animada (valores expr/keyframes, anim, capas reactivas o código) en > 60 % de la duración del film
-//   fondo.preset_crudo un preset usado sin ajustes/sin/capas en > 50 % de los shots con fondo
-//   fondo_ok:{porque}  (timeline, ≥ 20 caracteres) justifica ambos: el soporte constante puede SER la metáfora (Mate papel)
-//   fondo.codigo_lento una capa `codigo` mide más de su `maxMs` por cuadro
-export const FONDO_LIBRE = { estatico: 0.6, crudo: 0.5, okMin: 20, muestras: 8 };
+// Fondos libres (spec 021 §D): anti-menú. Las reglas puras viven en fondo-lint.mjs; aquí se recoge lo que cada shot dijo al pintar su fondo (meta `fondo`) y se mide el coste del código propio.
+//   fondo.codigo_lento una capa `codigo` mide más de su `maxMs` por cuadro (mediana de N cuadros repartidos por el film, a la resolución real)
 async function fondoLibre(film, fr) {
-  const per = new Map(), cod = new Map();
+  const { analizarFondos, FONDO_LIBRE } = await import('./fondo-lint.mjs'), per = new Map(), cod = new Map();
   for (const f of fr) for (const m of f.boxes?.meta ?? []) if (m.prim === 'fondo') {
     const q = per.get(m.shot); if (!q) per.set(m.shot, { ...m }); else q.animado ||= m.animado;
     for (const c of m.codigos ?? []) if (!cod.has(c.archivo)) cod.set(c.archivo, { ...c, shot: m.shot });
   }
-  const ok = (film.fondo_ok?.porque ?? '').trim().length >= FONDO_LIBRE.okMin, durS = (s) => s.t[1] - s.t[0], total = film.shots.reduce((a, s) => a + durS(s), 0) || film.duration;
-  if (!ok) {
-    const fam = new Map();
-    for (const s of film.shots) { const m = per.get(s.id), f = m ? m.familia : `medio:${film.medium ?? 'por_defecto'}`; if (m?.animado) continue; const g = fam.get(f) ?? { dur: 0, first: s, n: 0 }; g.dur += durS(s); g.n++; fam.set(f, g); }
-    const top = [...fam.entries()].sort((a, b) => b[1].dur - a[1].dur)[0];
-    if (top && top[1].dur / total > FONDO_LIBRE.estatico) warn(top[1].first.id, top[1].first.t[0], `fondo.estatico: el mismo fondo (${top[0]}) sin variación animada en ${Math.round((100 * top[1].dur) / total)} % del film (${top[1].n} shots; umbral ${Math.round(100 * FONDO_LIBRE.estatico)} %)`,
-      'animar el fondo con el relato (keyframes {k:[…],en:"giro"} o {expr}), añadir una capa reactiva (onda/mancha/pulso) o código propio; si el soporte constante ES la metáfora, declarar fondo_ok:{porque} en el timeline');
-    const conPreset = [...per.values()].filter((m) => m.preset), crudos = conPreset.filter((m) => !m.ajustado);
-    if (per.size && crudos.length / per.size > FONDO_LIBRE.crudo) warn(crudos[0].shot, film.shots.find((s) => s.id === crudos[0].shot).t[0], `fondo.preset_crudo: ${crudos.length} de ${per.size} shots con fondo usan un preset sin ningún ajuste (umbral ${Math.round(100 * FONDO_LIBRE.crudo)} %)`,
-      'los presets son ejemplos de partida: derivar con ajustes (colores, escalas), sin (quitar capas), capas (añadir las propias) o keyframes; ver node engine/tools.mjs show <preset>');
-  }
-  if (cod.size) {                                                            // coste de las capas `codigo`: mediana de N cuadros repartidos por el film, a la resolución real
+  for (const x of analizarFondos(film, per)) warn(x.shot, x.t, x.problem, x.remedy);
+  if (cod.size) {
     const { drawFondo } = await import('./fondos.mjs'), { beatAtOf } = await import('./prims.mjs'), { hrtime } = await import('node:process');
     for (const [archivo, c] of cod) {
       const ms = [];
@@ -379,7 +365,7 @@ async function fondoLibre(film, fr) {
         ms.push(Number(hrtime.bigint() - t0) / 1e6);
       }
       ms.sort((a, b) => a - b); const med = ms[ms.length >> 1];
-      if (med > (c.maxMs ?? 30)) warn(c.shot, film.shots.find((s) => s.id === c.shot)?.t[0] ?? 0, `fondo.codigo_lento: shots/${archivo} tarda ${med.toFixed(0)} ms/cuadro (mediana de ${ms.length}; presupuesto ${c.maxMs ?? 30} ms)`, 'simplificar el bucle (menos elementos, texturas en memo por t estático) o subir maxMs si el coste es asumible');
+      if (med > (c.maxMs ?? 30)) warn(c.shot, film.shots.find((s) => s.id === c.shot)?.t[0] ?? 0, `fondo.codigo_lento: shots/${archivo} tarda ${med.toFixed(0)} ms/cuadro (mediana de ${ms.length}; presupuesto ${c.maxMs ?? 30} ms)`, 'simplificar el bucle (menos elementos, cálculo fuera del bucle por cuadro) o subir maxMs si el coste es asumible');
     }
   }
 }
