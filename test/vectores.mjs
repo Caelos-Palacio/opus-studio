@@ -16,7 +16,8 @@ const clone = (x) => JSON.parse(JSON.stringify(x));
 const S = await import('../engine/svg.mjs');
 const D = await import('../engine/dsl-core.mjs');
 const G = await import('../engine/diagramas.mjs');
-const { parseSvg, SvgError, drawSvg, SVG_LIB, cargarSvg, longitud } = S;
+const IO = await import('../engine/svg-io.mjs');
+const { parseSvg, SvgError, drawSvg, SVG_LIB, longitud } = S, { cargarSvg } = IO;
 
 const PAL = { paper: '#f3ead8', ink: '#1b2a3a', accent: '#d9482b', accent2: '#2b7fd9', shade: '#8a8a8a', quant: '#e0a020', anom: '#20a060' };
 const PAL2 = { paper: '#101820', ink: '#f0f0f0', accent: '#20d0a0', accent2: '#d040d0', shade: '#505050', quant: '#ffee00', anom: '#ff3030' };
@@ -47,6 +48,9 @@ const fail = (txt) => { try { parseSvg(txt, { nombre: 't' }); return null; } cat
   const want = ['secante', 'mosca', 'sobre', 'moneda', 'botella', 'sello', 'lupa', 'reloj', 'mano', 'hoja'];
   ok('V1f biblioteca: las 10 SVG propias existen y parsean, con ≥ 3 paths y roles de paleta (data-fill/data-stroke)', want.every((w) => lib.some((l) => l.id === w && !l.err && l.paths >= 3 && l.role)), JSON.stringify(lib.filter((l) => l.err || l.paths < 3 || !l.role)));
 }
+
+{ const { spawnSync } = await import('node:child_process'), r = spawnSync(process.execPath, ['engine/svg-io.mjs', 'manifest', '--check'], { cwd: ROOT, encoding: 'utf8' });
+  ok('V1g el manifiesto puro engine/svg-lib.mjs está al día con assets/svg/ (y svg.mjs/dsl-core no importan fs)', r.status === 0 && !/node:/.test(rd('engine/svg.mjs').split('\n').filter((l) => /^import/.test(l)).join('\n')), r.stdout); }
 
 // ── V2 sanitización ──
 {
@@ -145,20 +149,18 @@ const fail = (txt) => { try { parseSvg(txt, { nombre: 't' }); return null; } cat
 // ── V6 generadores de diagramas ──
 {
   const flujo = { receta: 'diagrama_flujo', id: 'F1', disposicion: 'serpiente', cols: 3, leyenda: [['accent', 'decide el usuario']], nodos: [['uno', 'a', 'b', 'accent2'], ['dos', 'c', 'd', 'ink'], ['tres', 'e', 'f', 'ink'], ['cuatro', 'g', 'h', 'ink'], ['cinco', 'i', 'j', 'accent']] };
+  const cuenta = (sc, tipo) => { const w = (l) => l.reduce((a, o) => a + (o.type === 'repeat' ? (o.items?.length ?? 0) * w(o.children) : (o.type === tipo ? 1 : 0) + w(o.children ?? [])), 0); return w(sc.objects); };
   const sc = G.generar(clone(flujo)), tipos = (s) => { const out = []; const w = (l) => { for (const o of l) { out.push(o); if (o.children) w(o.children); } }; w(s.objects); return out; };
-  const T = tipos(sc), cajas = T.filter((o) => o.type === 'box'), flechas = T.filter((o) => o.type === 'arrow');
-  const reps = sc.objects.filter((o) => o.type === 'repeat');
-  const nBox = cajas.length + reps.reduce((s, r) => s + (r.items?.length ?? 0) * (r.children.filter((c) => c.type === 'box').length), 0), nArr = flechas.length + reps.reduce((s, r) => s + (r.items?.length ?? 0) * (r.children.filter((c) => c.type === 'arrow').length), 0);
+  const nBox = cuenta(sc, 'box'), nArr = cuenta(sc, 'arrow');
   ok('V6a diagrama_flujo: escenario válido; 5 nodos → 5 cajas con rótulo y 4 flechas de cadena', D.validateScene(sc).length === 0 && nBox >= 5 && nArr === 4, `${nBox} cajas ${nArr} flechas ${JSON.stringify(D.validateScene(sc).slice(0, 2))}`);
   const geom = G.disponer(flujo.nodos.length, 'serpiente', 3), fila = G.disponer(5, 'fila', 5), col = G.disponer(3, 'columna', 1);
   ok('V6b disposición: serpiente invierte la segunda fila (nodo 4 bajo el 3, sentido ←); fila y columna ordenadas', geom[2].c === 2 && geom[3].c === 2 && geom[4].c === 1 && geom[3].f === 1 && fila.every((p, i) => p.f === 0 && p.c === i) && col.every((p, i) => p.c === 0 && p.f === i), JSON.stringify(geom));
   const e1 = (() => { try { G.generar({ ...clone(flujo), aristas: [['uno', 'tress']] }); } catch (e) { return e; } })(), e2 = (() => { try { G.generar({ ...clone(flujo), disposicion: 'serpentin' }); } catch (e) { return e; } })(), e3 = (() => { try { G.generar({ receta: 'diagrama_flujo', id: 'F2', nodos: [] }); } catch (e) { return e; } })();
   ok('V6c errores con ruta y sugerencia: arista a un nodo inexistente («tress» → "tres"), disposición desconocida («serpentin» → "serpiente"), sin nodos', /tres/.test(e1?.message ?? '') && /serpiente/.test(e2?.message ?? '') && /nodos/.test(e3?.message ?? ''), [e1?.message, e2?.message, e3?.message].join(' | '));
-  const aris = G.generar({ ...clone(flujo), aristas: [['uno', 'tres'], ['dos', 'cinco']] }); const nA = (() => { const t = tipos(aris); const rr = aris.objects.filter((o) => o.type === 'repeat'); return t.filter((o) => o.type === 'arrow').length + rr.reduce((s, r) => s + (r.items?.length ?? 0) * r.children.filter((c) => c.type === 'arrow').length, 0); })();
+  const aris = G.generar({ ...clone(flujo), aristas: [['uno', 'tres'], ['dos', 'cinco']] }); const nA = cuenta(aris, 'arrow');
   ok('V6d aristas explícitas (por título o índice) reemplazan la cadena: 2 aristas → 2 flechas', nA === 2, String(nA));
   const capas = { receta: 'diagrama_capas', id: 'C1', capas: [['gobernanza', 'quién puede qué', 'accent2', ['ledger', 'gate', 'roles'], 'contrato: sin SHIP no hay master', ['gate']], ['render', 'tiempo → imagen', 'accent2', ['seek', 'caché'], 'contrato: mismo t → mismos píxeles']] };
-  const sc2 = G.generar(clone(capas)), t2 = tipos(sc2), rep2 = sc2.objects.filter((o) => o.type === 'repeat');
-  const mods = t2.filter((o) => o.type === 'box').length + rep2.reduce((s, r) => s + (r.items?.length ?? 0) * r.children.filter((c) => c.type === 'box').length, 0);
+  const sc2 = G.generar(clone(capas)), mods = cuenta(sc2, 'box');
   ok('V6e diagrama_capas: válido; 2 capas + 5 módulos = 7 cajas, el contrato como texto, el destacado en accent', D.validateScene(sc2).length === 0 && mods === 7 && JSON.stringify(sc2).includes('contrato: sin SHIP no hay master') && JSON.stringify(sc2).includes('"accent"'), `${mods} ${JSON.stringify(D.validateScene(sc2).slice(0, 2))}`);
   const barras = { receta: 'barras_antes_despues', id: 'B1', filas: [['master', 'reloj', 167, 84, 's'], ['lint', 'film', 70, 1.5, 's'], ['cobertura', 'dsl', 3.2, 95.2, '%'], ['tokens', 'arranque', 15300, 1400, '', '≈ ']] };
   const M = G.mejora, sc3 = G.generar(clone(barras));

@@ -9,7 +9,7 @@ import { span } from './perf.mjs';
 import { rgba, mix } from './color.mjs';
 import { drawFondo } from './fondos.mjs';
 import { drawObjeto, OBJETOS } from './objetos.mjs';
-import { cargarSvg, drawSvg, SVG_LIB } from './svg.mjs';
+import { drawSvg, SVG_LIB } from './svg.mjs';
 
 export const DOC = {};
 const rrect = (c, x, y, w, h, r) => { c.moveTo(x + r, y); c.arcTo(x + w, y, x + w, y + h, r); c.arcTo(x + w, y + h, x, y + h, r); c.arcTo(x, y + h, x, y, r); c.arcTo(x, y, x + w, y, r); c.closePath(); };
@@ -61,7 +61,7 @@ export function prims(ctx, api, film, shot, cx) {
       return r;
     },
     svg(id, o = {}) {
-      const doc = cargarSvg(id), B = o.morphTo != null ? cargarSvg(o.morphTo) : undefined, r = drawSvg(ctx, doc, { ...o, morphTo: B }, { pal: S.palette, k }), c = Math.abs(Math.cos(r.rot)), sn = Math.abs(Math.sin(r.rot));
+      const doc = film.assets.svg(id), B = o.morphTo != null ? film.assets.svg(o.morphTo) : undefined, r = drawSvg(ctx, doc, { ...o, morphTo: B }, { pal: S.palette, k }), c = Math.abs(Math.cos(r.rot)), sn = Math.abs(Math.sin(r.rot));
       const bw = r.w * c + r.h * sn, bh = r.w * sn + r.h * c; api.focus(r.x - bw / 2, r.y - bh / 2, bw, bh, o.label ?? id);
       log('svg', { x: r.x - bw / 2, y: r.y - bh / 2, w: bw, h: bh }, { svg: id });
       return r;
