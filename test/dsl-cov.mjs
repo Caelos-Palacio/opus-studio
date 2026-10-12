@@ -159,8 +159,10 @@ if (!fast) {
     await Promise.all(Object.entries(FILMS).map(async ([film, tl]) => { const r = await run(['engine/lint.mjs', '--only', 'validate'], { cwd: d, env: { OPUS_TIMELINE: tl, OPUS_LAYERS: 'none' }, timeout: 300000 }); const f = glob(d, film); if (f) { const L = JSON.parse(fs.readFileSync(f, 'utf8')); for (const i of L.issues.filter((x) => x.level === 'FIX')) errs.push(film + ': ' + i.problem); } else errs.push(film + ': sin resultado ' + r.stderr.slice(-120)); }));
   } finally { rmrf(d); }
   ok('C8 lint --only validate: sin FIX en los 5 films con sus shots DSL', !errs.length, errs.slice(0, 3).join('; '));
-  const { spawnSync } = await import('node:child_process'), g = (spawnSync('git', ['diff', '--stat', '4373007', '--', 'engine/sandbox.mjs', 'engine/guard.mjs'], { cwd: ROOT, encoding: 'utf8' }).stdout ?? '');
-  ok('C8b el sandbox y la guardia no cambian por el DSL (git diff vs el punto de partida vacío)', g.trim() === '', g);
+  const { spawnSync } = await import('node:child_process'), gitn = (f) => (spawnSync('git', ['diff', '--numstat', '4373007', '--', f], { cwd: ROOT, encoding: 'utf8' }).stdout ?? '').trim().split('\t').slice(0, 2).map(Number);
+  const [sa, sd] = gitn('engine/sandbox.mjs'), [ga, gd] = gitn('engine/guard.mjs'), gsrc = fs.readFileSync(path.join(ROOT, 'engine/guard.mjs'), 'utf8').split('\n'), tail = gsrc.length - gsrc.findIndex((l) => l.includes('Capas `codigo` de los fondos (spec 021'));
+  // Spec 021 B: la guardia GANA scanFondoCodigo (se añade al final, sin tocar una sola línea del escaneo): la capa `codigo` pasa por la MISMA guardia. Cualquier otro cambio sigue fallando.
+  ok('C8b el sandbox y la guardia no cambian por el DSL (git diff vs el punto de partida vacío; guard.mjs solo añade scanFondoCodigo, spec 021)', sa === 0 && sd === 0 && gd === 0 && ga <= tail + 1, `sandbox +${sa}/-${sd} guard +${ga}/-${gd} (cola spec 021: ${tail} líneas)`);
   // ── C9: rendimiento ── (solo perfil full: 3 pasadas por film con cronómetro; es lo más caro de la suite)
   if (FULL) {
   const { copyRepo: cp2, rmrf: rm2 } = await import('./lib.mjs'), slow = [];
