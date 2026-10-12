@@ -34,9 +34,20 @@ doc('world3d', 'api.world3d(scene, {rect, t, u, cam, overrides, step, motionBlur
 doc('p3', 'api.p3(x, y, z) → [sx, sy, k]', 'Proyección en perspectiva alrededor del foco de cámara (z>0 = lejos). k = escala.');
 doc('card3d', 'api.card3d({x,y,w,h, rx, ry, z}, (ctx, api) => ...)', 'Tarjeta con giro 3D real (homografía por malla) — ≤ 60° legible.');
 doc('atmos', 'api.atmos(z) → {alpha, blur}', 'Perspectiva atmosférica y DOF del estilo para una profundidad z.');
-doc('fondo', 'api.fondo({preset?, semilla?, ajustes?:{idCapa:{…}}, sin?:[idCapa], capas?:[{tipo, id?, alfa, mezcla, paralaje, deriva, anim:{alfa,escala,dx,dy}, …params}]}, {alfa})', 'Fondo GENERATIVO como pila de capas declaradas (datos): degradados, ruido (fbm, deformado, celular, flujo), atmósfera (niebla, polvo, rayos, bokeh, estrellas, orbes), motivos (retícula, trama, rayado, semitono, motivo), luz (viñeta, foco, terminador) y temáticas (olas, acuarela, perfil). Presets temáticos con `porque` (cosmos_profundo, cuba_oscura, expediente_kraft, papel_carta_acuarela, mar_acuarela, noche_ciudad, laboratorio, taller_madera, amanecer_niebla, plano_tecnico). Determinista (semilla), con parallax por capa y animación por expresiones de t; colores por rol de la paleta del medio. Pintar PRIMERO en el shot. Catálogo: node engine/fondos-meta.mjs.');
+doc('fondo', 'api.fondo({preset?, semilla?, ajustes?:{idCapa:{…}}, sin?:[idCapa], capas?:[{tipo, id?, alfa, mezcla, paralaje, deriva, anim:{alfa,escala,dx,dy}, …params}]}, {alfa})', 'Fondo GENERATIVO como pila de capas declaradas (datos): degradados, ruido (fbm, deformado, celular, flujo), atmósfera (niebla, polvo, rayos, bokeh, estrellas, orbes), motivos (retícula, trama, rayado, semitono, motivo), luz (viñeta, foco, terminador) y temáticas (olas, acuarela, perfil). Presets temáticos con `porque` (cosmos_profundo, cuba_oscura, expediente_kraft, papel_carta_acuarela, mar_acuarela, noche_ciudad, laboratorio, taller_madera, amanecer_niebla, plano_tecnico). Determinista (semilla), con parallax por capa; colores por rol de la paleta del medio. Spec 021: CUALQUIER parámetro admite {expr:"…t lt u beat pulso(\'impacto\',0.4)…"} o keyframes {k:[[x,v],…],ease,eje,en:"giro"} (colores en OKLab); capas reactivas a eventos (onda, mancha, pulso; `eventos:[{id,tipo,at,x,y}]`) y capa `codigo` ({tipo:"codigo",archivo:"fondos/x.mjs"}: función propia (ctx,t,E) en shots/fondos/, bajo sandbox). Los presets son ejemplos de partida: derívalos con ajustes/sin/capas. Pintar PRIMERO en el shot. Catálogo: node engine/fondos-meta.mjs.');
 doc('objeto', 'api.objeto(id, {x, y, size, rot, estado, partes, params, color, relleno, acento, flip, alfa, label}) → {x, y, w, h, <ancla>:{x,y}}', 'Objeto vectorial paramétrico de la biblioteca (cilindro_metalico, campana_cristal, llave_laton, balanza_cruz, sello_tampon, acta_cuaderno, pluma, fotomultiplicador, cuba, contador, papel_continuo, lapiz, lampara_mesa, botella_vidrio, tarjeta_postal, moneda, sobre_sello, red_pesca, mapa_costero, reloj, mano, puerta, ventana, mesa, libro). `estado` = nombre o [a,b,u] (interpola), `partes` = valores animables, `params` = forma/cantidad/texto; devuelve las anclas con nombre en px. Registra foco. Trazo con la tinta del medio y relleno por rol.');
 
+// beat musical (fraccionario) en el instante t: rejilla explícita del film (tempo variable) o bpm+offset; 0 si el film no tiene pulso
+const BEATS = new WeakMap();
+export function beatAtOf(film) {
+  let f = BEATS.get(film); if (f) return f;
+  f = (t) => {
+    const bt = film.beatTimes;
+    if (bt?.length > 1) { let lo = 0, hi = bt.length - 1; while (hi - lo > 1) { const mid = (lo + hi) >> 1; if (bt[mid] <= t) lo = mid; else hi = mid; } return lo + (t - bt[lo]) / Math.max(1e-6, bt[lo + 1] - bt[lo]); }
+    return film.bpm > 0 ? ((t - (film.beatOffset || 0)) * film.bpm) / 60 : 0;
+  };
+  BEATS.set(film, f); return f;
+}
 export function prims(ctx, api, film, shot, cx) {
   const S = film.S, col = api.color, k = api.k, W = film.width, H = film.height;
   const log = (prim, box, extra = {}) => api.meta.push({ prim, shot: shot.id, ...box, ...extra });
@@ -47,8 +58,10 @@ export function prims(ctx, api, film, shot, cx) {
   const P = {
     fondo(spec, o = {}) {
       const E = fondoE; if (E.pal !== S.palette) { E.pal = S.palette; E._col = null; E._palKey = null; }
-      Object.assign(E, { W, H, k, canvas: film.canvas, depth: api.depth, u: cx.u, dur: shot.t[1] - shot.t[0], lt: o.lt ?? cx.t - shot.t[0], alfa: o.alfa ?? 1 });
-      drawFondo(ctx, spec, cx.t, E);
+      Object.assign(E, { W, H, k, canvas: film.canvas, depth: api.depth, u: cx.u, dur: shot.t[1] - shot.t[0], lt: o.lt ?? cx.t - shot.t[0], alfa: o.alfa ?? 1,
+        eventos: film.eventos ?? [], beatAt: beatAtOf(film), codigo: film.codigo ?? null });        // spec 021: eventos del film, rejilla de beats y proveedor sandboxed de la capa `codigo`
+      const r = drawFondo(ctx, spec, cx.t, E);
+      api.meta.push({ prim: 'fondo', shot: shot.id, ...r });                                          // lint fondo.estatico / fondo.preset_crudo / fondo.codigo_lento
     },
     objeto(id, o = {}) {
       const tf = S.typeface, r = drawObjeto(ctx, id, { ...o, x: o.x, y: o.y }, { pal: S.palette, k, t: cx.t, font: `"${tf.mono || 'Courier New'}", monospace` }), c = Math.abs(Math.cos(r.rot)), sn = Math.abs(Math.sin(r.rot));

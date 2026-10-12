@@ -41,7 +41,7 @@ async function loadExt(root, warnings) {
     for (const m of META) {
       const bad = validateMeta(m); if (bad.length) { warnings.push(`${rel}: meta "${m?.id ?? '?'}" inválido (${bad.join('; ')})`); continue; }
       const k = m.kind && KINDS.includes(m.kind) ? m.kind : kind, ps = Object.entries(m.params).map(([n, t]) => `${n}:${t}`).join(', ');
-      out.push({ id: `${k}:${m.id}`, kind: k, resumen: m.resumen, tags: m.tags, cuando: m.cuando ?? m.resumen, entra: ps || '—', sale: 'capa/objeto en el shot', ejemplo: m.ejemplo ?? `${k} ${m.id} {${ps}}`, siguiente: m.siguiente, src: rel });
+      out.push({ id: `${k}:${m.id}`, kind: k, resumen: m.resumen, tags: m.tags, cuando: m.cuando ?? m.resumen, entra: ps || '—', sale: 'capa/objeto en el shot', ejemplo: m.ejemplo ?? `${k} ${m.id} {${ps}}`, ...(m.derivar ? { derivar: m.derivar } : {}), siguiente: m.siguiente, src: rel });
     }
   }
   return out;
@@ -126,7 +126,7 @@ export async function buildRegistry({ root = ROOT } = {}) {
   }
   const entries = [...by.values()].map((e) => {
     const kind = e.kind;
-    const base = { id: e.id, kind, resumen: e.resumen, tags: [...new Set([...(e.tags ?? []), ...e.id.slice(kind.length + 1).split(/[.:_-]/)].filter(Boolean).map((t) => String(t).toLowerCase()))].sort(), cuando: e.cuando ?? e.resumen, entra: e.entra ?? '—', sale: e.sale ?? '—', coste: e.coste ?? DEFAULT_COSTE[kind] ?? '—', ejemplo: e.ejemplo ?? e.uso ?? e.cmd ?? '—', uso: e.uso ?? e.cmd ?? e.ejemplo ?? '—', siguiente: e.siguiente ?? DEFAULT_NEXT[kind] ?? [], fases: e.fases ?? [], src: e.src };
+    const base = { id: e.id, kind, resumen: e.resumen, tags: [...new Set([...(e.tags ?? []), ...e.id.slice(kind.length + 1).split(/[.:_-]/)].filter(Boolean).map((t) => String(t).toLowerCase()))].sort(), cuando: e.cuando ?? e.resumen, entra: e.entra ?? '—', sale: e.sale ?? '—', coste: e.coste ?? DEFAULT_COSTE[kind] ?? '—', ejemplo: e.ejemplo ?? e.uso ?? e.cmd ?? '—', uso: e.uso ?? e.cmd ?? e.ejemplo ?? '—', siguiente: e.siguiente ?? DEFAULT_NEXT[kind] ?? [], fases: e.fases ?? [], ...(e.derivar ? { derivar: e.derivar } : {}), src: e.src };
     return base;
   }).sort((a, b) => (a.id < b.id ? -1 : a.id > b.id ? 1 : 0));
   const ids = new Set(entries.map((e) => e.id));

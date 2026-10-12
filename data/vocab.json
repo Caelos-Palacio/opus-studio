@@ -688,6 +688,21 @@
       "doc": "Códigos de aviso del lint/crítico para reglas de dirección (no confundir con lint.stage).",
       "terms": [
         {
+          "id": "fondo.estatico",
+          "def": "el mismo fondo (preset o soporte del medio) sin variación animada de parámetros en más del 60 % de la duración del film; se justifica con fondo_ok:{porque} en el timeline (spec 021 D)",
+          "forbid": []
+        },
+        {
+          "id": "fondo.preset_crudo",
+          "def": "un preset usado sin ajustes, sin ni capas extra en más del 50 % de los shots con fondo: los presets son ejemplos de partida, no un menú (spec 021 D)",
+          "forbid": []
+        },
+        {
+          "id": "fondo.codigo_lento",
+          "def": "una capa de código propio (shots/fondos) tarda más de su presupuesto maxMs por cuadro (spec 021 B)",
+          "forbid": []
+        },
+        {
           "id": "fondo.vacio",
           "def": "fondo oscuro sin profundidad medible (varianza espacial, gradiente y cambio temporal bajos fuera de sujeto y texto) en ≥ 30 % del film (FIX si ≥ 60 %); el oscuro elegido por el tema, con estrellas, niebla, viñeta o parallax, pasa (spec 012 P6)",
           "forbid": []
@@ -1363,6 +1378,26 @@
       "doc": "Tipo de capa de fondo generativo (spec 014: fondo.capas[].tipo).",
       "terms": [
         {
+          "id": "onda",
+          "def": "Anillos que se expanden desde cada evento, como el agua tras un golpe.",
+          "forbid": []
+        },
+        {
+          "id": "mancha",
+          "def": "Mancha de tinta o gota que crece en cada evento, persiste y se desvanece.",
+          "forbid": []
+        },
+        {
+          "id": "pulso",
+          "def": "Lavado de color o foco que se enciende en cada evento y se apaga.",
+          "forbid": []
+        },
+        {
+          "id": "codigo",
+          "def": "Capa escrita por el agente: función pura (ctx, t, E) en shots/fondos/, bajo sandbox.",
+          "forbid": []
+        },
+        {
           "id": "relleno",
           "def": "Color liso que cubre todo el cuadro.",
           "forbid": []
@@ -1484,52 +1519,52 @@
       "terms": [
         {
           "id": "cosmos_profundo",
-          "def": "Cosmos con nebulosa, dos campos de estrellas y polvo: oscuridad inmensa con profundidad.",
+          "def": "Ejemplo de partida: cosmos con nebulosa, dos campos de estrellas y polvo.",
           "forbid": []
         },
         {
           "id": "cuba_oscura",
-          "def": "Agua negra con fotomultiplicadores como lunas, niebla fría, haces de luz y paralaje.",
+          "def": "Ejemplo de partida: agua negra con esferas luminosas, niebla fría, haces y paralaje.",
           "forbid": []
         },
         {
           "id": "expediente_kraft",
-          "def": "Cartón de archivo con renglones, marcas de registro, rayado a lápiz y viñeta de tinta.",
+          "def": "Ejemplo de partida: soporte de estraza con renglones, marcas de registro y rayado a lápiz.",
           "forbid": []
         },
         {
           "id": "papel_carta_acuarela",
-          "def": "Papel de carta con renglones azules, lavados de acuarela, ondas y polvo suave.",
+          "def": "Ejemplo de partida: papel de carta con renglones azules, lavados de acuarela y ondas.",
           "forbid": []
         },
         {
           "id": "mar_acuarela",
-          "def": "Mar de acuarela: lavados azules, franjas de olas con espuma y bruma.",
+          "def": "Ejemplo de partida: mar de acuarela con lavados azules, franjas de olas y bruma.",
           "forbid": []
         },
         {
           "id": "noche_ciudad",
-          "def": "Noche urbana: cielo violeta, montañas, rascacielos con ventanas, bokeh y bruma.",
+          "def": "Ejemplo de partida: noche urbana con cielo violeta, montañas, rascacielos, bokeh y bruma.",
           "forbid": []
         },
         {
           "id": "laboratorio",
-          "def": "Laboratorio claro: retícula de puntos, cono de luz de lámpara, semitono y viñeta.",
+          "def": "Ejemplo de partida: laboratorio claro con retícula de puntos, cono de lámpara y semitono.",
           "forbid": []
         },
         {
           "id": "taller_madera",
-          "def": "Banco de taller: vetas de madera, cono de lámpara cálida, polvo dorado y rayado.",
+          "def": "Ejemplo de partida: banco de taller con vetas, lámpara cálida, polvo dorado y rayones.",
           "forbid": []
         },
         {
           "id": "amanecer_niebla",
-          "def": "Amanecer con niebla: degradado cálido, sierras en bandas, rayos de sol y polvo.",
+          "def": "Ejemplo de partida: amanecer con niebla, sierras en bandas, rayos de sol y polvo.",
           "forbid": []
         },
         {
           "id": "plano_tecnico",
-          "def": "Plano técnico: retícula milimetrada con líneas mayores, marcas de registro y viñeta.",
+          "def": "Ejemplo de partida: plano milimetrado con líneas mayores, marcas de registro y viñeta.",
           "forbid": []
         }
       ]

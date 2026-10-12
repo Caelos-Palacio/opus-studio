@@ -15,7 +15,7 @@ import { specOf, camStats, camState, camEnds } from './camera.mjs';
 import { barHeight } from './grade.mjs';
 import { checkPalette } from './styles.mjs';
 import { luminance } from './color.mjs';
-import { guardCtx, scanShots } from './guard.mjs';
+import { guardCtx, scanShots, scanFondoCodigo } from './guard.mjs';
 import { activeShots } from './seek.mjs';
 import { currentHashes, stamp, neighbors, lintDir, filmKey } from './verdict.mjs';
 import { writeAtomic } from './lock.mjs';
@@ -346,6 +346,44 @@ async function motion(fps, film, FC) {
   writeAtomic(path.join(ROOT, 'out/motion.json'), JSON.stringify({ fps, energy: E.map((e) => +e.toFixed(5)) }));
 }
 
+// Fondos libres (spec 021 §D): anti-menú. La familia de fondo de cada shot sale de api.fondo (meta `fondo`: preset o tipos de capa); sin api.fondo, el soporte del medio.
+//   fondo.estatico     una familia sin variación animada (valores expr/keyframes, anim, capas reactivas o código) en > 60 % de la duración del film
+//   fondo.preset_crudo un preset usado sin ajustes/sin/capas en > 50 % de los shots con fondo
+//   fondo_ok:{porque}  (timeline, ≥ 20 caracteres) justifica ambos: el soporte constante puede SER la metáfora (Mate papel)
+//   fondo.codigo_lento una capa `codigo` mide más de su `maxMs` por cuadro
+export const FONDO_LIBRE = { estatico: 0.6, crudo: 0.5, okMin: 20, muestras: 8 };
+async function fondoLibre(film, fr) {
+  const per = new Map(), cod = new Map();
+  for (const f of fr) for (const m of f.boxes?.meta ?? []) if (m.prim === 'fondo') {
+    const q = per.get(m.shot); if (!q) per.set(m.shot, { ...m }); else q.animado ||= m.animado;
+    for (const c of m.codigos ?? []) if (!cod.has(c.archivo)) cod.set(c.archivo, { ...c, shot: m.shot });
+  }
+  const ok = (film.fondo_ok?.porque ?? '').trim().length >= FONDO_LIBRE.okMin, durS = (s) => s.t[1] - s.t[0], total = film.shots.reduce((a, s) => a + durS(s), 0) || film.duration;
+  if (!ok) {
+    const fam = new Map();
+    for (const s of film.shots) { const m = per.get(s.id), f = m ? m.familia : `medio:${film.medium ?? 'por_defecto'}`; if (m?.animado) continue; const g = fam.get(f) ?? { dur: 0, first: s, n: 0 }; g.dur += durS(s); g.n++; fam.set(f, g); }
+    const top = [...fam.entries()].sort((a, b) => b[1].dur - a[1].dur)[0];
+    if (top && top[1].dur / total > FONDO_LIBRE.estatico) warn(top[1].first.id, top[1].first.t[0], `fondo.estatico: el mismo fondo (${top[0]}) sin variación animada en ${Math.round((100 * top[1].dur) / total)} % del film (${top[1].n} shots; umbral ${Math.round(100 * FONDO_LIBRE.estatico)} %)`,
+      'animar el fondo con el relato (keyframes {k:[…],en:"giro"} o {expr}), añadir una capa reactiva (onda/mancha/pulso) o código propio; si el soporte constante ES la metáfora, declarar fondo_ok:{porque} en el timeline');
+    const conPreset = [...per.values()].filter((m) => m.preset), crudos = conPreset.filter((m) => !m.ajustado);
+    if (per.size && crudos.length / per.size > FONDO_LIBRE.crudo) warn(crudos[0].shot, film.shots.find((s) => s.id === crudos[0].shot).t[0], `fondo.preset_crudo: ${crudos.length} de ${per.size} shots con fondo usan un preset sin ningún ajuste (umbral ${Math.round(100 * FONDO_LIBRE.crudo)} %)`,
+      'los presets son ejemplos de partida: derivar con ajustes (colores, escalas), sin (quitar capas), capas (añadir las propias) o keyframes; ver node engine/tools.mjs show <preset>');
+  }
+  if (cod.size) {                                                            // coste de las capas `codigo`: mediana de N cuadros repartidos por el film, a la resolución real
+    const { drawFondo } = await import('./fondos.mjs'), { beatAtOf } = await import('./prims.mjs'), { hrtime } = await import('node:process');
+    for (const [archivo, c] of cod) {
+      const ms = [];
+      for (let i = 0; i < FONDO_LIBRE.muestras; i++) {
+        const t = (film.duration * (i + 0.5)) / FONDO_LIBRE.muestras, cv = film.canvas(film.width, film.height), g = cv.getContext('2d'), t0 = hrtime.bigint();
+        drawFondo(g, { capas: [c.capa] }, t, { W: film.width, H: film.height, k: Math.min(film.width, film.height) / 1080, pal: film.S.palette, canvas: film.canvas, depth: (d, fn) => fn(), cache: new Map(), eventos: film.eventos, beatAt: beatAtOf(film), codigo: film.codigo, u: i / FONDO_LIBRE.muestras, dur: film.duration, lt: t });
+        ms.push(Number(hrtime.bigint() - t0) / 1e6);
+      }
+      ms.sort((a, b) => a - b); const med = ms[ms.length >> 1];
+      if (med > (c.maxMs ?? 30)) warn(c.shot, film.shots.find((s) => s.id === c.shot)?.t[0] ?? 0, `fondo.codigo_lento: shots/${archivo} tarda ${med.toFixed(0)} ms/cuadro (mediana de ${ms.length}; presupuesto ${c.maxMs ?? 30} ms)`, 'simplificar el bucle (menos elementos, texturas en memo por t estático) o subir maxMs si el coste es asumible');
+    }
+  }
+}
+
 // Fondo vacío (spec 012 P6): el negro ELEGIDO por el tema pasa; el negro VACÍO (oscuro y sin profundidad) avisa. Métrica fondo.profundidad.
 // Cadencia/tamaño propios (4 fps, 384 px, CON gradación: lo que ve el espectador); fotogramas cacheados como los demás. Solo film entero.
 async function fondo(film, FC) {
@@ -354,6 +392,7 @@ async function fondo(film, FC) {
   for (let i = 0; i < n; i++) { const t = i / FONDO.fps, F = await FC.get(t, { px: true }); fr.push({ t, W: F.W, H: F.H, data: F.data, boxes: F.boxes }); }
   const S = fondoSeries(fr, { fps: FONDO.fps }), pct = (x) => Math.round(x * 100), long = [...S.runs].sort((a, b) => b.t1 - b.t0 - (a.t1 - a.t0))[0];
   writeAtomic(path.join(ROOT, 'out/fondo.json'), JSON.stringify({ P: S.P, darkFrac: S.darkFrac, emptyFrac: S.emptyFrac, runs: S.runs, wins: S.wins.map((w) => [+w.t0.toFixed(2), +(w.P ?? 0).toFixed(2), +(w.lum ?? 0).toFixed(1)]) }));
+  await fondoLibre(film, fr);
   const V = veredicto(S); if (!V) return;
   const sh = film.shots.find((x) => long.t0 >= x.t[0] && long.t0 < x.t[1]);
   const lvl = V === 'FIX' ? fix : warn;
@@ -426,7 +465,7 @@ let warmP = null;                                                            // 
 { const { prewarm } = await import('./framewarm.mjs'), t0 = Date.now(); warmP = prewarm({ film: R.film, FCL, FCS_, FCF, needFondo: want('fondo'), lfps, scope: R.film.lintScope ?? null, needLayout: want('layout') || want('rhythm'), needSmall: want('motion') || want('arc') || want('rhythm') }).then((n) => { if (n) { stepMs.prewarm = Date.now() - t0; stepMs.warmFrames = n; } }); }
 const step = async (k, f) => { if (want(k)) { if (warmP && k !== 'validate' && k !== 'determinism') { await warmP; warmP = null; } CHECK = k; const t0 = Date.now(); try { await f(); } finally { stepMs[k] = Date.now() - t0; } } };
 try {
-await step('validate', () => { validate(R.film); for (const x of scanShots(ROOT, R.film.shots.map((s) => s.id))) (x.level === 'FIX' ? fix : warn)(x.shot, 0, x.problem, x.remedy); fonts(R); });
+await step('validate', () => { validate(R.film); for (const x of [...scanShots(ROOT, R.film.shots.map((s) => s.id)), ...scanFondoCodigo(ROOT)]) (x.level === 'FIX' ? fix : warn)(x.shot, 0, x.problem, x.remedy); fonts(R); });
 await step('determinism', () => determinism(R.film));
 await step('layout', async () => { R.film.guard = guardCtx; R.film.guardLog = []; await layout(R, Math.min(lfps, 8), FCL); R.film.guard = null; guardReport(R.film); });
 await step('camera', () => camera(R.film));

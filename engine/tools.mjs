@@ -33,6 +33,7 @@ export function find(entries, q, { k = 5, kind = null } = {}) { return search(en
 export function card(e) {
   const L = [`# ${e.id}  (${e.kind})`, e.resumen, '', `cuándo: ${e.cuando}`, `entra:  ${e.entra}`, `sale:   ${e.sale}`, `coste:  ${e.coste}`, `uso:    ${e.uso}`];
   if (e.ejemplo && e.ejemplo !== e.uso) L.push(`ej:     ${e.ejemplo}`);
+  if (e.derivar?.length) L.push('derivar:', ...e.derivar.map((d) => `  · ${d}`));
   L.push(`tags:   ${e.tags.join(', ')}`);
   if (e.fases?.length) L.push(`fases:  ${e.fases.join(', ')}`);
   if (e.siguiente?.length) L.push(`siguiente: ${e.siguiente.join(' · ')}`);
