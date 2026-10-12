@@ -290,7 +290,7 @@ export function mediumState(film, cv) {
   film._mx ??= new Map(); let st = film._mx.get(key); if (st) return st;
   if (film._mx.size > 6) film._mx.clear();
   const r = rng(M.seed ?? 1), mk = (w, h) => film.canvas(w, h);
-  st = { W, H, support: buildSupport(film, M, W, H, r, mk), layers: M.layers.map((L) => ({ L, ...buildLayer(L, W, H, r, mk, M) })), erosion: buildErosion(M, W, H, r, mk), grain: buildGrain(M, W, H, r, mk), ink: mk(W, H), tmp: mk(W, H) };
+  st = { W, H, support: buildSupport(film, M, W, H, r, mk), layers: M.layers.map((L) => ({ L, ...buildLayer(L, W, H, r, mk, M) })), erosion: M.ink.erosion ? buildErosion(M, W, H, r, mk) : null, grain: M.grain ? buildGrain(M, W, H, r, mk) : [], ink: mk(W, H), tmp: mk(W, H) };
   st.vig = null; mediumStats.builds++; film._mx.set(key, st); return st;
 }
 

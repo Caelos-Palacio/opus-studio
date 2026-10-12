@@ -9,7 +9,7 @@
 - **`engine/diagramas.mjs`**: generadores `diagrama_flujo` (serpiente|fila|columna|cuadricula), `diagrama_capas`, `barras_antes_despues` (mejora calculada: −50 %, ÷47, ×30). `shots/<ID>.diagrama.json` → `node engine/diagramas.mjs build <f>` (o `--all [--check]`) → `.scene.json` + `.mjs`. `opus new shot <id> --receta diagrama_flujo` crea el ejemplo. Coordenadas por expresiones de W/H/k.
 - **Perfil `lamina`** (profiles.json, esquema, lint: `requireFocus`, `saliency`, `maxSizes`): docs/current/LAMINAS.md. El film `sistema` ya lo usa (sin `profileOverrides` ni `hold_ok`).
 - **S01 rehecha**: `shots/S01.diagrama.json` = 22 líneas escritas frente a 464 del JSON a mano (−95 %); lint del film sistema sin FIX. S03 y S05 no se migran (3 de 5 shots de la misma receta dispararían `receta.repeticion`); los generadores capas/barras reproducen sus datos (probados en V6).
-- **Demo**: film `vectores` (`data/vectores`, V01 mosca+secante trazan y se mueven con peso —muelle 'snap', inercia—, V02 lámina de flujo). `out/entregas/vectores.mp4` y `.jpg` (en el repo principal). Master con `--force` (crítico visual sin veredicto; lint SHIP). **Espera la nota del usuario.**
+- **Demo**: film `vectores` (`data/vectores`, VT01 mosca+secante trazan y se mueven con peso —muelle 'snap', inercia—, VT02 lámina de flujo). `out/entregas/vectores.mp4` y `.jpg` (en el repo principal). Master con `--force` (crítico visual sin veredicto; lint SHIP). **Espera la nota del usuario.**
 
 ## Tests
 `test/vectores.mjs` (V1–V7, registrado en `test/suites.d/vectores.json`): parse, sanitización, determinismo, trazo, recoloreo, morph, hash, DSL/toolbox, diagramas, perfil y S01. Cobertura DSL 95,6 % (ratchet intacto).

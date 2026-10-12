@@ -1,6 +1,6 @@
 {
   "receta": "diagrama_flujo",
-  "id": "V02",
+  "id": "VT02",
   "doc": "Del archivo SVG a la lámina: cinco etapas.",
   "disposicion": "fila",
   "leyenda": [["accent2", "lo escribe una persona"], ["ink", "lo hace el motor"]],

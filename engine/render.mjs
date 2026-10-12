@@ -105,7 +105,7 @@ async function rangeWorker() {
   const R = await makeRenderer({ size: arg('--size'), alpha });
   // ProRes: rgba RECTO (getImageData); toBuffer('raw') de node-canvas es premultiplicado y x264 (opaco) no lo nota, pero el alfa sí.
   const ff = spawn('ffmpeg', ['-y', '-loglevel', 'error', '-f', 'rawvideo', '-pix_fmt', prores ? 'rgba' : 'bgra', '-s', `${R.W}x${R.H}`, '-r', String(fps), '-i', 'pipe:0',
-    ...(prores ? proresArgs() : x264Args({ tune: R.film.medium?.encode?.tune, crf: arg('--crf', '16'), preset: arg('--preset', process.env.OPUS_PRESET ?? 'medium'), threads: +arg('--threads', 0) })), out + '.part.' + ext], { stdio: ['pipe', 'inherit', 'inherit'] });
+    ...(prores ? proresArgs() : x264Args({ tune: R.film.P.boceto ? null : R.film.medium?.encode?.tune, crf: arg('--crf', '16'), preset: arg('--preset', process.env.OPUS_PRESET ?? 'medium'), threads: +arg('--threads', 0) })), out + '.part.' + ext], { stdio: ['pipe', 'inherit', 'inherit'] });
   let i = a;
   await new Promise((res) => {
     const pump = () => {

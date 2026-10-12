@@ -11,6 +11,7 @@ import { compile as compileExpr, FUNCS, ExprError } from './expr.mjs';
 import { seg, ease, lerp, clamp, rng } from './core.mjs';
 import { rgba } from './color.mjs';
 import { validateFondo, FONDO_KEYS } from './fondos.mjs';
+import { BOCETO_VALORES } from './boceto-degrada.mjs';
 import { validateObjeto } from './objetos.mjs';
 import { validateSvg, SVG_KEYS } from './svg.mjs';
 
@@ -18,7 +19,7 @@ export const DSL_VERSION = 1;
 const BUILTIN_TIME = ['t', 'lt', 'u', 'dur', 't0', 't1'], BUILTIN_FRAME = ['W', 'H', 'k', 'dt', 'S_x0', 'S_x1', 'S_y0', 'S_y1', 'S_w', 'S_h', 'S_cx', 'S_cy', 'boxes'], BUILTIN = [...BUILTIN_TIME, ...BUILTIN_FRAME];
 const KIT = ['spring', 'seg', 'at', 'param', 'color', 'vec', 'str', 'cat', 'has', 'len', 'nil', 'inkA', 'box', 'set', 'item', 'take', 'pget', 'chr'];
 const ID_RE = /^[A-Za-z][A-Za-z0-9]*$/, CONST_NAMES = ['pi', 'tau', 'e', 'true', 'false'];
-const COMMON = ['id', 'type', 'when', 'cue', 'semantic', 'reads'];
+const COMMON = ['id', 'type', 'when', 'cue', 'semantic', 'reads', 'boceto'];
 const LIBP = ['lib', 'fn', 'args', 'fields'];
 // tipo → { props permitidas, requeridas, salidas (campos que publica como <id>_<campo>) }
 const BOX_VIS = ['label', 'tag', 'color', 'fill', 'fillAlpha', 'radius', 'lw', 'banda', 'sombra', 'alpha', 'role'];
@@ -144,6 +145,7 @@ export function validateScene(sc) {
       if (o.fields && !Array.isArray(o.fields)) E(`${p}/fields`, 'fields: lista de nombres');
       if (o.type === 'repeat' && (o.fields ?? []).length && !o.id) E(p, 'repeat con fields necesita id');
       if (o.id != null) { if (!ID_RE.test(o.id) || CONST_NAMES.includes(o.id)) E(`${p}/id`, `id "${o.id}" no válido (letras y dígitos, sin "_"; ni constantes: ${CONST_NAMES.join(' ')})`); else if (ids.has(o.id)) E(`${p}/id`, `id duplicado "${o.id}"`); else ids.add(o.id); }
+      if (o.boceto != null && !BOCETO_VALORES.includes(o.boceto)) E(`${p}/boceto`, `boceto: "${o.boceto}" no válido`, `valores: ${BOCETO_VALORES.join(' | ')}`);
       if (o.cue != null && !cues.has(o.cue)) E(`${p}/cue`, `cue "${o.cue}" no existe`, hint(o.cue, [...cues.keys()]));
       if (o.type === 'fondo') validateFondo(Object.fromEntries(FONDO_KEYS.filter((k) => k in o).map((k) => [k, o[k]])), p, E);
       if (o.type === 'objeto') validateObjeto(o, p, E);
@@ -294,6 +296,8 @@ export function shot(scene, libs = {}) {
     const publish = (o, r) => { if (o.id) { if (TYPES[o.type].value || o.fields) env[o.id] = r; for (const f of o.fields ?? []) env[`${o.id}_${fieldVar(f)}`] = pathGet(r, f); } };
     const run = (list) => { const ctx = cur.ctx, api = cur.api; for (const o of list) {
       if (o.when != null && !ce(String(o.when)).fn(env)) continue; if (o.cue != null && !cueOn(o.cue)) continue;
+      if (film.P?.boceto && o.boceto === 'omitir') continue;                  // spec 019: degradación declarada (solo en boceto)
+      if (film.P?.boceto && o.boceto === 'sin_fx' && o.type === 'layer') { run(o.children); continue; }
       switch (o.type) {
         case 'ground': api.ground(val(o.fy), ...(o.alpha != null ? [val(o.alpha)] : [])); break;
         case 'marks': { const c = val(o.color ?? 'shade'), x0 = val(o.x0 ?? 0), dx = val(o.dx ?? 0.1), y0 = val(o.y0 ?? 0), dy = val(o.dy ?? 0.25), h = val(o.half ?? 7); ctx.strokeStyle = api.color(c); ctx.lineWidth = val(o.lineWidth ?? 2);

@@ -15,6 +15,7 @@ import { assertTimeline, suggest as suggestName } from './schema.mjs';
 import { assertEdit, assertAudio, assertMedio } from './inputs.mjs';
 import { resolveTimeline, assertParams } from './params.mjs';
 import { bindParams } from './signal.mjs';
+import { degradar } from './boceto-degrada.mjs';
 import { createWorld3d } from './world3d/index.mjs';
 import { usesWorld3d } from './hash.mjs';
 import { cargarSvg } from './svg-io.mjs';
@@ -78,6 +79,7 @@ export async function loadFilm({ timeline = timelinePath(), animatic = false, st
   const film = compile(tl, rd('engine/profiles.json'), loadStyles(), fs.existsSync(aj) ? assertAudio(JSON.parse(fs.readFileSync(aj, 'utf8')), path.relative(ROOT, aj)) : null);
   film.timelinePath = timeline;
   if (process.env.OPUS_FXFAST === '1') film.P.fxFast = true; else if (process.env.OPUS_FXFAST === '0') film.P.fxFast = false;   // spec 009: lint/peek/review lo activan por defecto; 0 lo fuerza fuera                          // R3 opt-in (fx baratos): entra en el hash vía film.P; también por perfil/overrides
+  if (process.env.OPUS_BOCETO === '1') degradar(film);                                   // spec 019: boceto = degradación declarada (engine/boceto-degrada.mjs); film.P.boceto entra en todos los hashes
   film.resolution = R;
   film.assets = makeAssets(ROOT);
   film.canvas = (w, h) => createCanvas(w, h);

@@ -3,77 +3,105 @@ import { shot } from '../engine/dsl-core.mjs';
 export default shot({
  "dsl": 1,
  "id": "V01",
- "doc": "SVG propios: el secante entra con inercia y la mosca cae con peso; ambos se trazan por longitud de path.",
+ "doc": "La cuba antes del primer destello: agua negra, fotomultiplicadores como lunas, nada ocurre (8,2 s).",
+ "camera": {
+  "move": "push",
+  "why": "approach",
+  "amount": 0.03
+ },
+ "transition": {
+  "out": "cut"
+ },
  "objects": [
   {
-   "id": "titulo",
-   "type": "text",
-   "text": {
-    "$shot": "text"
-   },
-   "x": {
-    "$expr": "W / 2"
-   },
-   "y": {
-    "$expr": "H * 0.093"
-   },
-   "role": "h2",
-   "color": "ink"
-  },
-  {
-   "id": "sec",
-   "type": "svg",
-   "svg": "secante",
-   "x": {
-    "$expr": "S_cx - 60 - 520 * (1 - spring(lt - 0.2, 'snap'))"
-   },
-   "y": {
-    "$expr": "S_cy + 90"
-   },
-   "size": {
-    "$expr": "k * 560"
-   },
-   "trazo": {
-    "$expr": "seg(lt, 0.1, 2.0)"
-   },
-   "rot": {
-    "$expr": "-0.05 * (1 - spring(lt - 0.2, 'snap'))"
+   "type": "fondo",
+   "preset": "cuba_oscura",
+   "ajustes": {
+    "agua": {
+     "stops": [
+      "#01070c",
+      "#03141d",
+      "#010305"
+     ]
+    },
+    "haces": {
+     "intensidad": 0.045
+    },
+    "turbidez": {
+     "alfa": 0.1
+    },
+    "bruma": {
+     "densidad": 0.2
+    },
+    "pmtLejanos": {
+     "brillo": 0.3,
+     "alfa": 0.5
+    },
+    "pmtCercanos": {
+     "brillo": 0.4,
+     "alfa": 0.75
+    },
+    "vineta": {
+     "fuerza": 0.9
+    }
    }
   },
   {
-   "id": "mos",
-   "type": "svg",
-   "svg": "mosca",
-   "x": {
-    "$expr": "S_cx + 130"
+   "id": "cont",
+   "type": "objeto",
+   "objeto": "contador",
+   "x": 215,
+   "y": 112,
+   "size": 220,
+   "alfa": {
+    "$expr": "seg(lt, 6.0, 7.4) * 0.5"
    },
-   "y": {
-    "$expr": "S_cy + 10 - 130 * (1 - spring(lt - 2.7, 'snap'))"
+   "params": {
+    "digitos": 2,
+    "tipo": "numerico"
    },
-   "size": {
-    "$expr": "k * 280"
+   "partes": {
+    "valor": {
+     "$expr": "0"
+    },
+    "brillo": 0.95
    },
-   "trazo": {
-    "$expr": "seg(lt, 1.0, 2.6)"
-   },
-   "rot": {
-    "$expr": "0.5 * (1 - spring(lt - 2.7, 'snap')) + 0.03 * sin(lt * 38) * seg(lt, 3.3, 3.5) * (1 - seg(lt, 3.9, 4.4))"
-   }
+   "color": "#07141c",
+   "relleno": "#0a1a24",
+   "acento": "accent2"
   },
   {
-   "id": "pie",
+   "id": "t0",
    "type": "text",
-   "text": "assets/svg/mosca.svg · assets/svg/secante.svg",
+   "text": "Kamioka, mil metros bajo la roca.",
    "x": {
-    "$expr": "W / 2"
+    "$expr": "S_cx"
    },
    "y": {
-    "$expr": "H * 0.9"
+    "$expr": "S_y1 - 74"
    },
-   "role": "label",
+   "role": "body",
+   "align": "center",
    "color": "ink",
    "alpha": {
-    "$expr": "seg(lt, 0.7, 1.0)"
+    "$expr": "1 * seg(lt, 0.9, 1.7000000000000002) * (1 - seg(lt, 7.3, 8.1))"
+   }
+  },
+  {
+   "id": "t1",
+   "type": "text",
+   "text": "Una cuba de agua, mil fotomultiplicadores. Esperan.",
+   "x": {
+    "$expr": "S_cx"
+   },
+   "y": {
+    "$expr": "S_y1 - 34"
+   },
+   "role": "body",
+   "align": "center",
+   "color": "ink",
+   "alpha": {
+    "$expr": "1 * seg(lt, 2.6, 3.4000000000000004) * (1 - seg(lt, 7.3, 8.1))"
    }
   }
  ]

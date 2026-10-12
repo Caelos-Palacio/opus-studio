@@ -1,0 +1,108 @@
+// GENERADO desde shots/V03.scene.json por `node engine/dsl.mjs build` (spec 006). No editar a mano: edita el .scene.json y regenera.
+import { shot } from '../engine/dsl-core.mjs';
+export default shot({
+ "dsl": 1,
+ "id": "V03",
+ "doc": "La pausa real: 7,304 s entre el 9.º y el 10.º destello. No ocurre nada; solo agua, niebla y polvo. El contador queda en 8.",
+ "camera": {
+  "move": "push",
+  "why": "approach",
+  "amount": 0.025
+ },
+ "transition": {
+  "out": "cut"
+ },
+ "objects": [
+  {
+   "type": "fondo",
+   "preset": "cuba_oscura",
+   "ajustes": {
+    "agua": {
+     "stops": [
+      "#01070c",
+      "#03141d",
+      "#010305"
+     ]
+    },
+    "haces": {
+     "intensidad": 0.045
+    },
+    "turbidez": {
+     "alfa": 0.1
+    },
+    "bruma": {
+     "densidad": 0.2
+    },
+    "pmtLejanos": {
+     "brillo": 0.3,
+     "alfa": 0.5
+    },
+    "pmtCercanos": {
+     "brillo": 0.4,
+     "alfa": 0.75
+    },
+    "vineta": {
+     "fuerza": 0.9
+    }
+   }
+  },
+  {
+   "id": "cont",
+   "type": "objeto",
+   "objeto": "contador",
+   "x": 215,
+   "y": 112,
+   "size": 220,
+   "alfa": {
+    "$expr": "1"
+   },
+   "params": {
+    "digitos": 2,
+    "tipo": "numerico"
+   },
+   "partes": {
+    "valor": {
+     "$expr": "8"
+    },
+    "brillo": 0.95
+   },
+   "color": "#07141c",
+   "relleno": "#0a1a24",
+   "acento": "accent2"
+  },
+  {
+   "id": "et",
+   "type": "text",
+   "text": "KAMIOKANDE-II",
+   "x": {
+    "$expr": "215"
+   },
+   "y": {
+    "$expr": "178"
+   },
+   "role": "label",
+   "align": "center",
+   "color": "accent2",
+   "alpha": {
+    "$expr": "0.6 * seg(lt, 0.3, 1.1) * (1 - seg(lt, 98.2, 99))"
+   }
+  },
+  {
+   "id": "t0",
+   "type": "text",
+   "text": "Pasan siete segundos. No llega ninguno.",
+   "x": {
+    "$expr": "S_cx"
+   },
+   "y": {
+    "$expr": "S_y1 - 46"
+   },
+   "role": "body",
+   "align": "center",
+   "color": "ink",
+   "alpha": {
+    "$expr": "1 * seg(lt, 1, 1.8) * (1 - seg(lt, 4.6000000000000005, 5.4))"
+   }
+  }
+ ]
+}, {  });

@@ -1,0 +1,60 @@
+<!doctype html>
+<html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>opus · preview en vivo</title>
+<style>
+:root{--bg:#111;--fg:#ddd;--mut:#888;--ac:#e8b04a;--err:#ff6b5e}
+@media (prefers-color-scheme: light){:root{--bg:#f4f1ea;--fg:#222;--mut:#666;--ac:#a4620a;--err:#b3261e}}
+html,body{margin:0;height:100%;background:var(--bg);color:var(--fg);font:13px ui-monospace,monospace}
+#wrap{display:flex;flex-direction:column;height:100%}
+#stage{flex:1;min-height:0;display:flex;align-items:center;justify-content:center;background:#000;position:relative}
+canvas{max-width:100%;max-height:100%;image-rendering:auto;background:#000}
+#err{display:none;position:absolute;left:0;right:0;top:0;margin:0;padding:8px 12px;background:var(--err);color:#fff;white-space:pre-wrap;max-height:40%;overflow:auto}
+#bar{display:flex;gap:10px;align-items:center;padding:8px 12px;flex-wrap:wrap}
+input[type=range]{flex:1;min-width:140px;accent-color:var(--ac)}
+button,select{background:transparent;color:var(--fg);border:1px solid var(--mut);border-radius:4px;padding:3px 9px;font:inherit;cursor:pointer}
+#meta{color:var(--mut);padding:0 12px 8px}
+.flash{outline:2px solid var(--ac)}
+</style></head><body>
+<div id="wrap"><div id="stage"><canvas id="c" width="320" height="180"></canvas><pre id="err"></pre></div>
+<div id="bar"><button id="play" title="espacio">▶</button><input id="s" type="range" min="0" max="1" step="0.0833" value="0" aria-label="tiempo"><span id="lab">0.00 s</span>
+<select id="esc" aria-label="resolución"><option value="0.25">¼</option><option value="0.5">½</option></select></div>
+<div id="meta"></div></div>
+<script>
+// Solo GET a este mismo origen. Cada fotograma es un JPEG del boceto (12 fps, sin grano ni post); ←/→ = un fotograma, espacio = reproducir.
+const $ = (id) => document.getElementById(id), cv = $('c'), x = cv.getContext('2d'), S = $('s'), lab = $('lab'), meta = $('meta'), err = $('err'), play = $('play'), esc = $('esc');
+let info = null, t = 0, ver = -1, playing = false, pedido = 0, tPlay = 0, base = 0;
+const FPS = 12;
+async function cargarInfo() {
+  info = await (await fetch('/info', { cache: 'no-store' })).json(); ver = info.version;
+  S.max = info.duration || 1; S.step = 1 / FPS; t = Math.min(t, S.max);
+  mostrarError(info.error); document.title = `opus · ${info.film}`; await dibujar(); }
+function mostrarError(m) { err.style.display = m ? 'block' : 'none'; err.textContent = m ? '✗ ' + m : ''; }
+async function dibujar() {
+  const n = ++pedido; if (!info || !info.duration) return;
+  try {
+    const r = await fetch(`/frame?t=${t.toFixed(4)}&s=${esc.value}&v=${ver}`, { cache: 'no-store' });
+    if (!r.ok) { if (n === pedido) mostrarError(await r.text()); return; }
+    const bmp = await createImageBitmap(await r.blob()); if (n !== pedido) return;
+    if (cv.width !== bmp.width || cv.height !== bmp.height) { cv.width = bmp.width; cv.height = bmp.height; }
+    x.drawImage(bmp, 0, 0); S.value = t; lab.textContent = `${t.toFixed(2)} s · f${Math.round(t * FPS)}`;
+    meta.textContent = `${info.film} · shots ${r.headers.get('X-Shots') || '-'} · caché ${r.headers.get('X-Cache')} · v${r.headers.get('X-Version')}`;
+    if (!info.error) mostrarError(null);
+  } catch (e) { if (n === pedido) mostrarError(String(e)); }
+}
+S.addEventListener('input', () => { playing = false; play.textContent = '▶'; t = +S.value; dibujar(); });
+esc.addEventListener('change', dibujar);
+play.addEventListener('click', () => alternar());
+function alternar() { playing = !playing; play.textContent = playing ? '⏸' : '▶'; if (playing) { base = t; tPlay = performance.now(); tick(); } }
+async function tick() { if (!playing) return; const dt = (performance.now() - tPlay) / 1000; t = base + dt; if (t >= info.duration) { t = 0; base = 0; tPlay = performance.now(); } await dibujar(); requestAnimationFrame(tick); }
+addEventListener('keydown', (e) => {
+  if (e.key === ' ') { e.preventDefault(); alternar(); }
+  else if (e.key === 'ArrowRight' || e.key === 'ArrowLeft') { playing = false; play.textContent = '▶'; t = Math.max(0, Math.min(info.duration, t + (e.key === 'ArrowRight' ? 1 : -1) / FPS)); dibujar(); }
+});
+const ev = new EventSource('/events');
+ev.onmessage = async (m) => {
+  const d = JSON.parse(m.data);
+  if (d.type === 'error') { mostrarError(d.error); return; }
+  if (d.version !== ver) { await cargarInfo(); cv.classList.add('flash'); setTimeout(() => cv.classList.remove('flash'), 400); }
+};
+cargarInfo();
+</script></body></html>
