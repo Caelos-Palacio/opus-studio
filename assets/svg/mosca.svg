@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" data-tags="mosca insecto vuelo mosquito animal plaga">
+ <title>Mosca vista desde arriba, con alas translúcidas</title>
+ <g fill="none" stroke="#1b2a3a" data-stroke="ink" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+  <path d="M42 50 L28 46 L20 53" stroke-width="1.8"/>
+  <path d="M58 50 L72 46 L80 53" stroke-width="1.8"/>
+  <path d="M42 58 L26 62 L17 75" stroke-width="1.8"/>
+  <path d="M58 58 L74 62 L83 75" stroke-width="1.8"/>
+  <path d="M44 66 L35 80 L32 92" stroke-width="1.8"/>
+  <path d="M56 66 L65 80 L68 92" stroke-width="1.8"/>
+  <path d="M46 46 C30 38 17 20 25 11 C34 5 46 24 49 42 Z" fill="#7fd6ff" data-fill="accent2" fill-opacity="0.4"/>
+  <path d="M54 46 C70 38 83 20 75 11 C66 5 54 24 51 42 Z" fill="#7fd6ff" data-fill="accent2" fill-opacity="0.4"/>
+  <path d="M50 56 C63 56 67 70 63 80 C59 91 41 91 37 80 C33 70 37 56 50 56 Z" fill="#4a5560" data-fill="shade"/>
+  <path d="M39 70 Q50 75 61 70 M41 79 Q50 84 59 79" stroke-opacity="0.6" stroke-width="1.5"/>
+  <path d="M50 35 C61 35 65 44 63 52 C61 61 39 61 37 52 C35 44 39 35 50 35 Z" fill="#4a5560" data-fill="shade"/>
+  <path d="M50 21 C57 21 60 27 58 32 C56 36 44 36 42 32 C40 27 43 21 50 21 Z" fill="#4a5560" data-fill="shade"/>
+  <path d="M43 23 C47 22 48 28 45 31 C41 31 39 26 43 23 Z" fill="#d9482b" data-fill="accent" stroke-width="1.4"/>
+  <path d="M57 23 C53 22 52 28 55 31 C59 31 61 26 57 23 Z" fill="#d9482b" data-fill="accent" stroke-width="1.4"/>
+ </g>
+</svg>

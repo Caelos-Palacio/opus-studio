@@ -9,8 +9,10 @@ import { span } from './perf.mjs';
 import { rgba, mix } from './color.mjs';
 import { drawFondo } from './fondos.mjs';
 import { drawObjeto, OBJETOS } from './objetos.mjs';
+import { cargarSvg, drawSvg, SVG_LIB } from './svg.mjs';
 
 export const DOC = {};
+const rrect = (c, x, y, w, h, r) => { c.moveTo(x + r, y); c.arcTo(x + w, y, x + w, y + h, r); c.arcTo(x + w, y + h, x, y + h, r); c.arcTo(x, y + h, x, y, r); c.arcTo(x, y, x + w, y, r); c.closePath(); };
 const doc = (name, sig, text) => (DOC[name] = { sig, text });
 const memo = (film, bucket) => { film._memo ??= {}; return (film._memo[bucket] ??= new Map()); };
 
@@ -36,6 +38,8 @@ doc('card3d', 'api.card3d({x,y,w,h, rx, ry, z}, (ctx, api) => ...)', 'Tarjeta co
 doc('atmos', 'api.atmos(z) → {alpha, blur}', 'Perspectiva atmosférica y DOF del estilo para una profundidad z.');
 doc('fondo', 'api.fondo({preset?, semilla?, ajustes?:{idCapa:{…}}, sin?:[idCapa], capas?:[{tipo, id?, alfa, mezcla, paralaje, deriva, anim:{alfa,escala,dx,dy}, …params}]}, {alfa})', 'Fondo GENERATIVO como pila de capas declaradas (datos): degradados, ruido (fbm, deformado, celular, flujo), atmósfera (niebla, polvo, rayos, bokeh, estrellas, orbes), motivos (retícula, trama, rayado, semitono, motivo), luz (viñeta, foco, terminador) y temáticas (olas, acuarela, perfil). Presets temáticos con `porque` (cosmos_profundo, cuba_oscura, expediente_kraft, papel_carta_acuarela, mar_acuarela, noche_ciudad, laboratorio, taller_madera, amanecer_niebla, plano_tecnico). Determinista (semilla), con parallax por capa y animación por expresiones de t; colores por rol de la paleta del medio. Pintar PRIMERO en el shot. Catálogo: node engine/fondos-meta.mjs.');
 doc('objeto', 'api.objeto(id, {x, y, size, rot, estado, partes, params, color, relleno, acento, flip, alfa, label}) → {x, y, w, h, <ancla>:{x,y}}', 'Objeto vectorial paramétrico de la biblioteca (cilindro_metalico, campana_cristal, llave_laton, balanza_cruz, sello_tampon, acta_cuaderno, pluma, fotomultiplicador, cuba, contador, papel_continuo, lapiz, lampara_mesa, botella_vidrio, tarjeta_postal, moneda, sobre_sello, red_pesca, mapa_costero, reloj, mano, puerta, ventana, mesa, libro). `estado` = nombre o [a,b,u] (interpola), `partes` = valores animables, `params` = forma/cantidad/texto; devuelve las anclas con nombre en px. Registra foco. Trazo con la tinta del medio y relleno por rol.');
+doc('svg', 'api.svg(id, {x, y, size, rot, flip, alfa, trazo, morphTo, u, roles, mono, label}) → {x, y, w, h, punta:{x,y}, centro:{x,y}}', `SVG importado (assets/svg/: ${SVG_LIB.join(', ')}; o una ruta assets/….svg) como elemento: sanitizado (sin scripts/href externos/foreignObject), cuadro unidad de lado size, recoloreable por roles de paleta (data-fill/data-stroke, roles:{"#hex":"rol"}, mono:"rol"), trazo 0..1 = trazado progresivo por longitud de path (punta = la pluma) y morphTo+u entre dos SVG con el mismo número de paths.`);
+doc('box', 'api.box(x, y, w, h, {label, tag, color, fill, fillAlpha, radius, lw, banda, sombra, alpha, role}) → {x, y, w, h}', 'Caja con rótulo para diagramas: relleno (fill, def. paper), contorno (color), banda superior, sombra, etiqueta numerada (tag) y rótulo de varias líneas (label con saltos de línea: la 1.ª en role, las demás en label). Registra el texto para el lint; el foco lo pone el diagrama.');
 
 export function prims(ctx, api, film, shot, cx) {
   const S = film.S, col = api.color, k = api.k, W = film.width, H = film.height;
@@ -55,6 +59,27 @@ export function prims(ctx, api, film, shot, cx) {
       const bw = r.w * c + r.h * sn, bh = r.w * sn + r.h * c; api.focus(r.x - bw / 2, r.y - bh / 2, bw, bh, o.label ?? id);
       log('objeto', { x: r.x - bw / 2, y: r.y - bh / 2, w: bw, h: bh }, { objeto: id });
       return r;
+    },
+    svg(id, o = {}) {
+      const doc = cargarSvg(id), B = o.morphTo != null ? cargarSvg(o.morphTo) : undefined, r = drawSvg(ctx, doc, { ...o, morphTo: B }, { pal: S.palette, k }), c = Math.abs(Math.cos(r.rot)), sn = Math.abs(Math.sin(r.rot));
+      const bw = r.w * c + r.h * sn, bh = r.w * sn + r.h * c; api.focus(r.x - bw / 2, r.y - bh / 2, bw, bh, o.label ?? id);
+      log('svg', { x: r.x - bw / 2, y: r.y - bh / 2, w: bw, h: bh }, { svg: id });
+      return r;
+    },
+    box(x, y, w, h, o = {}) {
+      const a = clamp(o.alpha ?? 1), rad = Math.min((o.radius ?? 0) * k, w / 2, h / 2), cc = o.color ?? 'ink', fl = o.fill === undefined ? 'paper' : o.fill, lw = (o.lw ?? 2) * k;
+      const path = () => { ctx.beginPath(); if (rad > 0) rrect(ctx, x, y, w, h, rad); else ctx.rect(x, y, w, h); };
+      ctx.save();
+      if (o.sombra) { ctx.globalAlpha = 0.22 * a; ctx.fillStyle = col('shade'); path(); ctx.fill(); }
+      if (fl) { ctx.globalAlpha = a * (o.fillAlpha ?? 0.92); ctx.fillStyle = col(fl); path(); ctx.fill(); }
+      if (o.banda) { ctx.globalAlpha = a; ctx.fillStyle = col(cc); ctx.fillRect(x, y, w, o.banda * k); }
+      if (lw > 0) { ctx.globalAlpha = a; ctx.strokeStyle = col(cc); ctx.lineWidth = lw; path(); ctx.stroke(); }
+      ctx.restore();
+      if (o.tag != null && o.tag !== '') api.text(String(o.tag), x + 24 * k, y + 38 * k, { role: 'label', color: cc, alpha: a, align: 'left' });
+      const L = o.label == null ? [] : String(o.label).split('\n'), s1 = api.sizes[o.role ?? 'body'], s2 = api.sizes.label, gap = 1.45;
+      if (L.length) { const blk = s1 * 1.2 + (L.length - 1) * s2 * gap, y0 = y + h / 2 - blk / 2 + s1 * 0.6;
+        L.forEach((ln, i) => api.text(ln, x + w / 2, i ? y0 + s1 * 0.6 + (i - 0.5) * s2 * gap + s2 * 0.1 : y0, i ? { role: 'label', alpha: 0.85 * a } : { role: o.role ?? 'body', alpha: a })); }
+      return { x, y, w, h };
     },
     tex(tex, x, y, o = {}) {
       const T = film.assets.tex(tex, o.display !== false), size = texSize(o), w = T.w * size, h = T.h * size;

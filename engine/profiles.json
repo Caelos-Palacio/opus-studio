@@ -55,5 +55,27 @@
     "holdEnergy": 0.0002,
     "popRatio": 3,
     "readCps": 12
+  },
+  "lamina": {
+    "maxHold": 600,
+    "cutOnBeat": false,
+    "shotLen": [
+      2.0,
+      60.0
+    ],
+    "safe": {
+      "top": 0.06,
+      "bottom": 0.08,
+      "side": 0.06
+    },
+    "minFontPx": 24,
+    "requireCausality": false,
+    "requireFacts": false,
+    "requireFocus": false,
+    "saliency": false,
+    "maxSizes": 5,
+    "holdEnergy": 0.0002,
+    "popRatio": 3,
+    "readCps": 40
   }
 }

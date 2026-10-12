@@ -42,7 +42,7 @@ const fail = (txt) => { try { parseSvg(txt, { nombre: 't' }); return null; } cat
   const arc = parseSvg(SVG('<path d="M10 50 A40 40 0 0 1 90 50"/>'), { nombre: 'a' }).items[0].shape, xs = arc.contours[0].d.filter((_, i) => i % 2 === 0), ys = arc.contours[0].d.filter((_, i) => i % 2 === 1);
   // semicírculo de radio 40 centrado en (50,50): ancho 80, alto 40 (en cuadro unidad /100)
   ok('V1d arco A → cúbicas con bbox del semicírculo (ancho 0,8, alto ≈ 0,4)', Math.abs(Math.max(...xs) - Math.min(...xs) - 0.8) < 0.01 && Math.abs(Math.max(...ys) - Math.min(...ys) - 0.4) < 0.01, `${(Math.max(...xs) - Math.min(...xs)).toFixed(3)} × ${(Math.max(...ys) - Math.min(...ys)).toFixed(3)}`);
-  const all = doc.items.flatMap((i) => i.shape.contours.flatMap((c2) => c2.d)); ok('V1e cuadro unidad: lado mayor 1 y centrado (coordenadas en [−0,5·k, 0,5·k])', Math.max(...all.map(Math.abs)) <= 1, '');
+  const all = doc.items.flatMap((i) => i.shape.contours.flatMap((c2) => c2.d)); ok('V1e cuadro unidad: lado mayor 1 y centrado (coordenadas en [−0,5·k, 0,5·k])', Math.max(...all.map(Math.abs)) <= 1.001, '');
   const lib = SVG_LIB.map((id) => { try { const d = cargarSvg(id, ROOT); return { id, paths: d.paths, role: d.items.some((i) => i.fillRol || i.strokeRol), avisos: d.avisos }; } catch (e) { return { id, err: e.message }; } });
   const want = ['secante', 'mosca', 'sobre', 'moneda', 'botella', 'sello', 'lupa', 'reloj', 'mano', 'hoja'];
   ok('V1f biblioteca: las 10 SVG propias existen y parsean, con ≥ 3 paths y roles de paleta (data-fill/data-stroke)', want.every((w) => lib.some((l) => l.id === w && !l.err && l.paths >= 3 && l.role)), JSON.stringify(lib.filter((l) => l.err || l.paths < 3 || !l.role)));

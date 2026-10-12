@@ -3,9 +3,10 @@ import { shot } from '../engine/dsl-core.mjs';
 export default shot({
  "dsl": 1,
  "id": "S01",
- "doc": "Diagrama 1 · pipeline de producción: once etapas del brief a la nota, en serpiente; el color dice quién decide (Claude, el código o el usuario).",
+ "doc": "[receta:diagrama_flujo] Diagrama 1 · pipeline de producción: doce etapas del brief a la nota, en serpiente; el color dice quién decide (Claude, el código o el usuario). GENERADO desde shots/S01.diagrama.json por `node engine/diagramas.mjs build` (spec 020): edita ese archivo y regenera.",
  "objects": [
   {
+   "id": "titulo",
    "type": "text",
    "text": {
     "$shot": "text"
@@ -13,25 +14,38 @@ export default shot({
    "x": {
     "$expr": "W / 2"
    },
-   "y": 100,
+   "y": {
+    "$expr": "H * 0.0926"
+   },
    "role": "h2",
-   "color": "ink",
-   "id": "titulo"
+   "color": "ink"
   },
   {
    "type": "shape",
    "shape": "rect",
-   "x": 470,
-   "y": 162,
-   "w": 22,
-   "h": 22,
+   "x": {
+    "$expr": "W * 0.2448"
+   },
+   "y": {
+    "$expr": "H * 0.15"
+   },
+   "w": {
+    "$expr": "k * 22"
+   },
+   "h": {
+    "$expr": "k * 22"
+   },
    "color": "accent2"
   },
   {
    "type": "text",
    "text": "decide Claude (texto)",
-   "x": 506,
-   "y": 173,
+   "x": {
+    "$expr": "W * 0.2635"
+   },
+   "y": {
+    "$expr": "H * 0.1602"
+   },
    "role": "label",
    "color": "ink",
    "align": "left"
@@ -39,17 +53,29 @@ export default shot({
   {
    "type": "shape",
    "shape": "rect",
-   "x": 900,
-   "y": 162,
-   "w": 22,
-   "h": 22,
+   "x": {
+    "$expr": "W * 0.4688"
+   },
+   "y": {
+    "$expr": "H * 0.15"
+   },
+   "w": {
+    "$expr": "k * 22"
+   },
+   "h": {
+    "$expr": "k * 22"
+   },
    "color": "ink"
   },
   {
    "type": "text",
    "text": "lo hace el código",
-   "x": 936,
-   "y": 173,
+   "x": {
+    "$expr": "W * 0.4875"
+   },
+   "y": {
+    "$expr": "H * 0.1602"
+   },
    "role": "label",
    "color": "ink",
    "align": "left"
@@ -57,17 +83,29 @@ export default shot({
   {
    "type": "shape",
    "shape": "rect",
-   "x": 1330,
-   "y": 162,
-   "w": 22,
-   "h": 22,
+   "x": {
+    "$expr": "W * 0.6927"
+   },
+   "y": {
+    "$expr": "H * 0.15"
+   },
+   "w": {
+    "$expr": "k * 22"
+   },
+   "h": {
+    "$expr": "k * 22"
+   },
    "color": "accent"
   },
   {
    "type": "text",
    "text": "juzga el usuario",
-   "x": 1366,
-   "y": 173,
+   "x": {
+    "$expr": "W * 0.7115"
+   },
+   "y": {
+    "$expr": "H * 0.1602"
+   },
    "role": "label",
    "color": "ink",
    "align": "left"
@@ -77,263 +115,166 @@ export default shot({
    "type": "repeat",
    "items": [
     [
-     300,
-     335,
+     0.17,
+     0.3433,
+     0.1848,
+     0.1562,
      "01",
-     "brief",
-     "pieza · arco mute",
-     "look · lo que no haré",
-     "accent2"
+     "brief\npieza · arco mute\nlook · lo que no haré",
+     "accent2",
+     0.2
     ],
     [
-     740,
-     335,
+     0.39,
+     0.3433,
+     0.1848,
+     0.1562,
      "02",
-     "story v2",
-     "voz · ancla · giro",
-     "pregunta con respuesta tardía",
-     "accent2"
+     "story v2\nvoz · ancla · giro\npregunta con respuesta tardía",
+     "accent2",
+     0.5
     ],
     [
-     1180,
-     335,
+     0.61,
+     0.3433,
+     0.1848,
+     0.1562,
      "03",
-     "estilo + medio",
-     "paleta · tipo · soporte",
-     "salen del encargo",
-     "accent2"
+     "estilo + medio\npaleta · tipo · soporte\nsalen del encargo",
+     "accent2",
+     0.8
     ],
     [
-     1620,
-     335,
+     0.83,
+     0.3433,
+     0.1848,
+     0.1562,
      "04",
-     "audio / score",
-     "la pista es el reloj",
-     "score · sounddesign · mixer",
-     "ink"
+     "audio / score\nla pista es el reloj\nscore · sounddesign · mixer",
+     "ink",
+     1.1
     ],
     [
-     1620,
-     610,
+     0.83,
+     0.58,
+     0.1848,
+     0.1562,
      "05",
-     "timeline",
-     "shots · cámara · acción",
-     "validate hasta SHIP",
-     "ink"
+     "timeline\nshots · cámara · acción\nvalidate hasta SHIP",
+     "ink",
+     1.4
     ],
     [
-     1180,
-     610,
+     0.61,
+     0.58,
+     0.1848,
+     0.1562,
      "06",
-     "shots",
-     "DSL · recetas · objetos",
-     "puros: seek(t) sin azar",
-     "ink"
+     "shots\nDSL · recetas · objetos\npuros: seek(t) sin azar",
+     "ink",
+     1.7
     ],
     [
-     740,
-     610,
+     0.39,
+     0.58,
+     0.1848,
+     0.1562,
      "07",
-     "lint",
-     "narr · fondo · arc · layout",
-     "escalera determinista",
-     "ink"
+     "lint\nnarr · fondo · arc · layout\nescalera determinista",
+     "ink",
+     2
     ],
     [
-     300,
-     610,
+     0.17,
+     0.58,
+     0.1848,
+     0.1562,
      "08",
-     "crítico",
-     "hoja de contacto (peek)",
-     "solo con lint SHIP",
-     "ink"
+     "crítico\nhoja de contacto (peek)\nsolo con lint SHIP",
+     "ink",
+     2.3
     ],
     [
-     300,
-     885,
+     0.17,
+     0.8167,
+     0.1848,
+     0.1562,
      "09",
-     "gate",
-     "SHIP vigente",
-     "+ crítico sin FIX",
-     "ink"
+     "gate\nSHIP vigente\n+ crítico sin FIX",
+     "ink",
+     2.6
     ],
     [
-     740,
-     885,
+     0.39,
+     0.8167,
+     0.1848,
+     0.1562,
      "10",
-     "master",
-     "fragmentos con hash",
-     "techo −3 dBTP",
-     "ink"
+     "master\nfragmentos con hash\ntecho −3 dBTP",
+     "ink",
+     2.9
     ],
     [
-     1180,
-     885,
+     0.61,
+     0.8167,
+     0.1848,
+     0.1562,
      "11",
-     "nota del usuario",
-     "nota 1–10 + comentario",
-     "es el juez de gusto",
-     "accent"
+     "nota del usuario\nnota 1–10 + comentario\nes el juez de gusto",
+     "accent",
+     3.2
     ],
     [
-     1620,
-     885,
+     0.83,
+     0.8167,
+     0.1848,
+     0.1562,
      "12",
-     "lección",
-     "vuelve a la spec (3DD)",
-     "falso negativo → escenario",
-     "accent"
+     "lección\nvuelve a la spec (3DD)\nfalso negativo → escenario",
+     "accent",
+     3.5
     ]
    ],
    "fields": [
     "x",
     "y",
+    "w",
+    "h",
     "n",
     "t",
-    "s1",
-    "s2",
-    "c"
+    "c",
+    "d"
    ],
    "children": [
     {
-     "type": "shape",
-     "shape": "rect",
+     "type": "box",
      "x": {
-      "$expr": "b_x - 185"
+      "$expr": "(b_x - b_w / 2) * W"
      },
      "y": {
-      "$expr": "b_y - 90"
+      "$expr": "(b_y - b_h / 2) * H"
      },
-     "w": 370,
-     "h": 180,
-     "color": "paper",
-     "alpha": {
-      "$expr": "0.92 * seg(lt, i * 0.3, i * 0.3 + 0.45)"
-     }
-    },
-    {
-     "type": "shape",
-     "shape": "rect",
-     "x": {
-      "$expr": "b_x - 185"
+     "w": {
+      "$expr": "b_w * W"
      },
-     "y": {
-      "$expr": "b_y - 90"
+     "h": {
+      "$expr": "b_h * H"
      },
-     "w": 370,
-     "h": 180,
-     "color": "shade",
-     "alpha": {
-      "$expr": "0.22 * seg(lt, i * 0.3, i * 0.3 + 0.45)"
-     }
-    },
-    {
-     "type": "shape",
-     "shape": "rect",
-     "x": {
-      "$expr": "b_x - 185"
-     },
-     "y": {
-      "$expr": "b_y - 90"
-     },
-     "w": 370,
-     "h": 180,
-     "color": {
-      "$expr": "b_c"
-     },
-     "stroke": true,
-     "lineWidth": 3,
-     "alpha": {
-      "$expr": "seg(lt, i * 0.3, i * 0.3 + 0.45)"
-     }
-    },
-    {
-     "type": "shape",
-     "shape": "rect",
-     "x": {
-      "$expr": "b_x - 185"
-     },
-     "y": {
-      "$expr": "b_y - 90"
-     },
-     "w": 370,
-     "h": 9,
-     "color": {
-      "$expr": "b_c"
-     },
-     "alpha": {
-      "$expr": "seg(lt, i * 0.3, i * 0.3 + 0.45)"
-     }
-    },
-    {
-     "type": "text",
-     "text": {
-      "$expr": "b_n"
-     },
-     "x": {
-      "$expr": "b_x - 161"
-     },
-     "y": {
-      "$expr": "b_y - 52"
-     },
-     "role": "label",
-     "color": {
-      "$expr": "b_c"
-     },
-     "alpha": {
-      "$expr": "seg(lt, i * 0.3, i * 0.3 + 0.45)"
-     },
-     "align": "left"
-    },
-    {
-     "type": "text",
-     "text": {
+     "label": {
       "$expr": "b_t"
      },
-     "x": {
-      "$expr": "b_x"
+     "tag": {
+      "$expr": "b_n"
      },
-     "y": {
-      "$expr": "b_y - 10"
+     "color": {
+      "$expr": "b_c"
      },
-     "role": "body",
-     "color": "ink",
+     "fill": "paper",
+     "banda": 9,
+     "lw": 3,
+     "sombra": true,
      "alpha": {
-      "$expr": "seg(lt, i * 0.3, i * 0.3 + 0.45)"
-     }
-    },
-    {
-     "type": "text",
-     "text": {
-      "$expr": "b_s1"
-     },
-     "x": {
-      "$expr": "b_x"
-     },
-     "y": {
-      "$expr": "b_y + 34"
-     },
-     "role": "label",
-     "color": "ink",
-     "alpha": {
-      "$expr": "0.85 * seg(lt, i * 0.3, i * 0.3 + 0.45)"
-     }
-    },
-    {
-     "type": "text",
-     "text": {
-      "$expr": "b_s2"
-     },
-     "x": {
-      "$expr": "b_x"
-     },
-     "y": {
-      "$expr": "b_y + 66"
-     },
-     "role": "label",
-     "color": "ink",
-     "alpha": {
-      "$expr": "0.85 * seg(lt, i * 0.3, i * 0.3 + 0.45)"
+      "$expr": "seg(lt, b_d, b_d + 0.45)"
      }
     }
    ]
@@ -343,81 +284,92 @@ export default shot({
    "type": "repeat",
    "items": [
     [
-     493,
-     335,
-     547,
-     335,
-     "accent2"
+     0.2672,
+     0.3433,
+     0.2928,
+     0.3433,
+     "accent2",
+     0.62
     ],
     [
-     933,
-     335,
-     987,
-     335,
-     "accent2"
+     0.4872,
+     0.3433,
+     0.5128,
+     0.3433,
+     "accent2",
+     0.92
     ],
     [
-     1373,
-     335,
-     1427,
-     335,
-     "accent2"
+     0.7072,
+     0.3433,
+     0.7328,
+     0.3433,
+     "accent2",
+     1.22
     ],
     [
-     1620,
-     433,
-     1620,
-     512,
-     "ink"
+     0.83,
+     0.4299,
+     0.83,
+     0.4934,
+     "ink",
+     1.52
     ],
     [
-     1427,
-     610,
-     1373,
-     610,
-     "ink"
+     0.7328,
+     0.58,
+     0.7072,
+     0.58,
+     "ink",
+     1.82
     ],
     [
-     987,
-     610,
-     933,
-     610,
-     "ink"
+     0.5128,
+     0.58,
+     0.4872,
+     0.58,
+     "ink",
+     2.12
     ],
     [
-     547,
-     610,
-     493,
-     610,
-     "ink"
+     0.2928,
+     0.58,
+     0.2672,
+     0.58,
+     "ink",
+     2.42
     ],
     [
-     300,
-     708,
-     300,
-     787,
-     "ink"
+     0.17,
+     0.6666,
+     0.17,
+     0.7301,
+     "ink",
+     2.72
     ],
     [
-     493,
-     885,
-     547,
-     885,
-     "ink"
+     0.2672,
+     0.8167,
+     0.2928,
+     0.8167,
+     "ink",
+     3.02
     ],
     [
-     933,
-     885,
-     987,
-     885,
-     "ink"
+     0.4872,
+     0.8167,
+     0.5128,
+     0.8167,
+     "ink",
+     3.32
     ],
     [
-     1373,
-     885,
-     1427,
-     885,
-     "accent"
+     0.7072,
+     0.8167,
+     0.7328,
+     0.8167,
+     "accent",
+     3.62
     ]
    ],
    "fields": [
@@ -425,41 +377,48 @@ export default shot({
     "y0",
     "x1",
     "y1",
-    "c"
+    "c",
+    "d"
    ],
    "children": [
     {
      "type": "arrow",
      "x0": {
-      "$expr": "a_x0"
+      "$expr": "a_x0 * W"
      },
      "y0": {
-      "$expr": "a_y0"
+      "$expr": "a_y0 * H"
      },
      "x1": {
-      "$expr": "a_x1"
+      "$expr": "a_x1 * W"
      },
      "y1": {
-      "$expr": "a_y1"
+      "$expr": "a_y1 * H"
+     },
+     "u": {
+      "$expr": "seg(lt, a_d, a_d + 0.4)"
      },
      "color": {
       "$expr": "a_c"
-     },
-     "lw": 3,
-     "head": 20,
-     "u": {
-      "$expr": "seg(lt, i * 0.3 + 0.3, i * 0.3 + 0.7)"
      }
     }
    ]
   },
   {
    "type": "focus",
-   "x": 115,
-   "y": 245,
-   "w": 1690,
-   "h": 730,
-   "label": "pipeline",
+   "x": {
+    "$expr": "W * 0.063"
+   },
+   "y": {
+    "$expr": "H * 0.225"
+   },
+   "w": {
+    "$expr": "W * 0.88"
+   },
+   "h": {
+    "$expr": "H * 0.71"
+   },
+   "label": "diagrama",
    "weight": 1,
    "hollow": true
   }
