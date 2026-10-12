@@ -48,10 +48,10 @@ export default shot({
     "$expr": "S_cx + 130"
    },
    "y": {
-    "$expr": "S_cy - 30 - 230 * (1 - spring(lt - 2.7, 'snap'))"
+    "$expr": "S_cy + 10 - 130 * (1 - spring(lt - 2.7, 'snap'))"
    },
    "size": {
-    "$expr": "k * 300"
+    "$expr": "k * 280"
    },
    "trazo": {
     "$expr": "seg(lt, 1.0, 2.6)"
@@ -73,7 +73,7 @@ export default shot({
    "role": "label",
    "color": "ink",
    "alpha": {
-    "$expr": "seg(lt, 2.8, 3.4)"
+    "$expr": "seg(lt, 0.7, 1.0)"
    }
   }
  ]

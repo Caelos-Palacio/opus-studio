@@ -5,7 +5,7 @@
  "objects": [
   {"id": "titulo", "type": "text", "text": {"$shot": "text"}, "x": {"$expr": "W / 2"}, "y": {"$expr": "H * 0.093"}, "role": "h2", "color": "ink"},
   {"id": "sec", "type": "svg", "svg": "secante", "x": {"$expr": "S_cx - 60 - 520 * (1 - spring(lt - 0.2, 'snap'))"}, "y": {"$expr": "S_cy + 90"}, "size": {"$expr": "k * 560"}, "trazo": {"$expr": "seg(lt, 0.1, 2.0)"}, "rot": {"$expr": "-0.05 * (1 - spring(lt - 0.2, 'snap'))"}},
-  {"id": "mos", "type": "svg", "svg": "mosca", "x": {"$expr": "S_cx + 130"}, "y": {"$expr": "S_cy - 30 - 230 * (1 - spring(lt - 2.7, 'snap'))"}, "size": {"$expr": "k * 300"}, "trazo": {"$expr": "seg(lt, 1.0, 2.6)"}, "rot": {"$expr": "0.5 * (1 - spring(lt - 2.7, 'snap')) + 0.03 * sin(lt * 38) * seg(lt, 3.3, 3.5) * (1 - seg(lt, 3.9, 4.4))"}},
-  {"id": "pie", "type": "text", "text": "assets/svg/mosca.svg · assets/svg/secante.svg", "x": {"$expr": "W / 2"}, "y": {"$expr": "H * 0.9"}, "role": "label", "color": "ink", "alpha": {"$expr": "seg(lt, 2.8, 3.4)"}}
+  {"id": "mos", "type": "svg", "svg": "mosca", "x": {"$expr": "S_cx + 130"}, "y": {"$expr": "S_cy + 10 - 130 * (1 - spring(lt - 2.7, 'snap'))"}, "size": {"$expr": "k * 280"}, "trazo": {"$expr": "seg(lt, 1.0, 2.6)"}, "rot": {"$expr": "0.5 * (1 - spring(lt - 2.7, 'snap')) + 0.03 * sin(lt * 38) * seg(lt, 3.3, 3.5) * (1 - seg(lt, 3.9, 4.4))"}},
+  {"id": "pie", "type": "text", "text": "assets/svg/mosca.svg · assets/svg/secante.svg", "x": {"$expr": "W / 2"}, "y": {"$expr": "H * 0.9"}, "role": "label", "color": "ink", "alpha": {"$expr": "seg(lt, 0.7, 1.0)"}}
  ]
 }
