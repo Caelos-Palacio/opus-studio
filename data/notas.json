@@ -162,6 +162,24 @@
       "texto": "bastante muy bien",
       "fuente": "012",
       "medible": false
+    },
+    {
+      "film": "botella",
+      "version": "aislada v1 (agente sin motor, frame(t) libre)",
+      "dim": "general",
+      "nota": null,
+      "texto": "genial",
+      "fuente": "exp",
+      "medible": false
+    },
+    {
+      "film": "voz_demo",
+      "version": "espeak-ng",
+      "dim": "voz",
+      "nota": null,
+      "texto": "la voz fuera, terrible",
+      "fuente": "018",
+      "medible": false
     }
   ]
 }
