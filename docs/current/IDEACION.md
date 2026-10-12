@@ -71,6 +71,17 @@ Prompt (guionista):
 > fuente, `en_pantalla_antes_de`), giro (de → a, qué beat se relee) y apuesta. Después escribe los beats con `concreto` (qué cosa
 > física ocurre) y `peso`. Cierre: elige entre corte, golpe, silencio, abierto, cicatriz; el eco solo con `porque`. Sin moraleja.
 
+## Fase 6b — Boceto (spec 019): decidir el concepto antes de la producción gobernada
+Entre el story v2 y la producción: **bocetar los 2–3 shots que sostienen la apuesta** (ancla, giro) y pedir nota temprana al usuario.
+1. `node engine/opus.mjs boceto <film> --shot <ancla>` (y el del giro): mp4 a ¼ de resolución, 12 fps, sin grano ni post, + hoja de contacto, en segundos.
+   Para iterar un `.scene.json` viéndolo: `node engine/opus.mjs preview <film>` (recarga al guardar). Sin lint, sin crítico, sin gates: solo esquema.
+2. Mirar la hoja y el mp4 (no el código). Preguntar al usuario con 1 línea: «¿esto es el film que quieres ver?» — la nota temprana vale más que pulir.
+3. Si no convence, se descarta o se cambia el concepto AHORA (coste: segundos y 0 tokens de crítico), no tras el master.
+4. Solo con un sí se entra en la producción gobernada. **Los gates (lint SHIP, crítico, audio −3 dBTP) siguen siendo obligatorios para el master**:
+   un boceto no es entregable, su hash lleva `film.P.boceto` y el gate no lo acepta nunca.
+Qué se pierde en el boceto (declarado en `engine/boceto-degrada.mjs`): grano, bloom/cromática/color, textura viva de tinta; el juicio de textura, color y audio
+se hace en el master. Una escena puede marcar objetos/capas con `"boceto": "omitir" | "sin_fx"` para abaratar lo que no decide el concepto.
+
 ## Reglas anti-recaída
 - Una crítica del usuario se traduce a hipótesis y se contrasta en ≥ 2 films antes de volverse regla del lint (lección Potencias v3).
 - Los umbrales y la lista anti-cliché caducan: una entrada sin saltar en 3 oleadas se retira.

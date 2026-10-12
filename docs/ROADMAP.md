@@ -53,7 +53,7 @@ Se adoptan sus ventajas sin perder el proceso.
 - **E3 voz y sincronía (spec 018).** TTS congelada como asset con hash (determinismo) + **timeline sincronizado a
   transcripción con tiempos** (palabra/frase → cue): la animación sigue el argumento hablado, como el flujo de Claude Design.
   La narración es opcional por film (el guion decide, spec 012 P1).
-- **E4 boceto rápido (spec 019).** Modo `boceto`: previsualización baja (resolución/fps reducidos, sin gates) para decidir el
+- **E4 boceto rápido (spec 019) ✓ implementado en rama `boceto` (falta nota del usuario, H1).** Modo `boceto`: previsualización baja (resolución/fps reducidos, sin gates) para decidir el
   concepto en minutos antes de la producción gobernada; live preview con recarga al editar `.scene.json`.
 - **E5 vectores y diagramas (spec 020).** Importar SVG como objeto/elemento (paths a canvas, recoloreable por medio, con hash),
   para no dibujar a mano objetos pobres (secante, mosca de Consta). Recetas `diagrama_flujo`, `diagrama_capas`,
