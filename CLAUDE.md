@@ -16,6 +16,8 @@
   resolver conflictos de merge en archivos de datos (vocab, tools.index, suites.d), llenar `$hueco` de recetas con texto ya decidido,
   verificar un hecho con fuente, escéptico ciego, revisar hoja de contacto o diff, buscar en el repo. Nunca diseño de motor, decisiones
   creativas ni commits; el padre revisa e integra y responde de su resultado. Las hojas no delegan.
+  Modo supervisor (pedido del usuario): un Sonnet que coordina puede tener hasta 4 haikus a la vez y darles también arreglos
+  ACOTADOS de código/tests con instrucciones exactas; el supervisor revisa cada diff, corre las suites y hace los commits.
 - Empieza por `node engine/tools.mjs brief --role <rol>` y `tools plan "<objetivo>"`; usa `tools find "<intención>"` / `show <id>` en vez de leer el catálogo (spec 015).
 - Eficiencia: docs/current/EFICIENCIA.md. Mapa de docs: docs/current/README.md; decisiones: docs/adr/.
 - Shots nuevos: no los escribas enteros; `node engine/opus.mjs new shot <id> --receta <r> [--param k=v] [--llenar objeto.prop=texto]` (spec 016; `tools find "…" --kind receta`) y llena los `$hueco`.
