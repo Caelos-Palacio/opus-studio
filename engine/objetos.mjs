@@ -428,6 +428,7 @@ export function validateObjeto(o, path, E) {
 
 // ── pintado ──
 export function drawObjeto(ctx, id, o, E) {
+  if (!(o.size >= 0.5)) return { x: o.x, y: o.y, w: 0, h: 0, rot: o.rot ?? 0 };   // tamaño 0 (p. ej. un muelle en su primer instante): cairo queda con una matriz no invertible y TODO el dibujo posterior de la sesión se pierde en silencio
   const def = OBJETOS[id]; if (!def) throw new Error(`objeto desconocido "${id}" — ${hint(id, Object.keys(OBJETOS))}`);
   const P = {}; for (const [k, d] of Object.entries(def.params)) P[k] = o.params?.[k] !== undefined ? o.params[k] : d.def;
   const stateVals = (n) => ({ ...(def.estados[n] ?? (() => { throw new Error(`estado desconocido "${n}" en ${id} — ${hint(n, Object.keys(def.estados))}`); })()) });
