@@ -14,7 +14,14 @@ Rama `fondos-libres` (desde main). Spec: `docs/specs/021-fondos-libres.md`. Suit
 - **C. Reactivo**: capas `onda`, `mancha`, `pulso` + funciones de expresión sobre eventos. `film.eventos` (`engine/fondo-eventos.mjs`): sfx `impact`, nodos `impact` y cues numéricos de `.scene.json`, beats del story; `fondo.eventos` añade los suyos.
 - **D. Anti-menú**: presets reescritos por tema («Ejemplo de partida: …», sin films); `tools show <preset>` muestra `derivar:` (ajustes, keyframes con ancla, expr, sin, capas); guía `fondo_libre`;
   lint WARN `fondo.estatico` (> 60 % de la duración) y `fondo.preset_crudo` (> 50 % de shots) en `engine/fondo-lint.mjs`; `fondo_ok:{porque ≥ 20 car.}` en el timeline (esquema actualizado). Mate papel avisa y se justifica con `fondo_ok`.
-- **E. Demo**: film `data/fondos_libres/` (shot `shots/FL01.mjs`, código `shots/fondos/burbujas.mjs`). Entrega `out/entregas/fondos_libres.mp4` (12 s, TP −1,9 dBFS) + `fondos_libres.jpg`. Lint SHIP; crítico escrito por el agente (sin nota del usuario).
+- **E. Demo**: film `data/fondos_libres/` (shot DSL `shots/FL01.scene.json` → FL01.mjs, nativo en dsl-coverage; código `shots/fondos/burbujas.mjs`). Entrega `out/entregas/fondos_libres.mp4` (12 s, TP −1,9 dBFS) + `fondos_libres.jpg`. Lint SHIP; crítico escrito por el agente (sin nota del usuario).
+
+## Arreglos tras `--full` (4 fallos)
+1. hash/grafo-vivo: `closure()` sigue las referencias `archivo:"fondos/x.mjs"` de los shots (burbujas.mjs ya está en el cierre y en `shotDeps`).
+2. dsl-cov C7: FL01 reescrito como escena DSL y declarado `nativo` (94,2 % → 95,7 %).
+3. dsl-cov C8b: cambio intencional de guard.mjs (`scanFondoCodigo`); el test se afina, no se silencia (ver spec 021, «Cambios en líneas base»).
+4. motor M10 (lint en frío con precalentamiento): la máquina estaba a carga 35–40 (otras ramas corriendo suites); se vuelve a correr sola, ver resultado abajo.
+- `eventosDeFilm` fusiona un nodo `impact` con el sfx `impact` del mismo shot a < 50 ms (un solo evento por golpe).
 
 ## Límites
 - Un `api.impact` dentro de un shot JS no se ve antes de pintar el fondo: declarar `eventos` con el mismo `at` (el demo lo hace).

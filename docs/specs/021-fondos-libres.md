@@ -70,6 +70,12 @@ Contraste: un agente aislado que dibuja sus fondos con código libre. Esta spec 
 13. [M] Compatibilidad: todos los fondos de la spec 014 siguen validando y pintando los mismos píxeles (suite fondos); cobertura DSL intacta.
 14. [H] El demo se lee como un fondo que VIVE con el relato (turbio→claro, golpes, código propio) y no como un menú.
 
+## Cambios en líneas base de otras suites (justificados)
+- `test/dsl-cov.mjs` C8b («el sandbox y la guardia no cambian por el DSL»): `engine/guard.mjs` GANA `scanFondoCodigo` (+14 líneas añadidas al final, 0 borradas) porque la capa `codigo` debe pasar por la MISMA guardia que los shots.
+  El test ahora exige sandbox.mjs idéntico, 0 líneas borradas en guard.mjs y que lo añadido sea solo esa cola; cualquier otro cambio sigue fallando. No se relaja nada más.
+- `data/dsl-coverage.json`: `FL01` (demo) declarado `nativo` (nació en DSL; cobertura 95,7 %, ratchet 95 % intacto). La capa de código propio vive fuera del shot (`shots/fondos/burbujas.mjs`).
+- `engine/hash.mjs#closure`: un shot que referencia `archivo:"fondos/x.mjs"` lo tiene en su cierre (dependencia exacta; el test `hash/grafo-vivo` traza los módulos cargados).
+
 ## Fuera de alcance
 - Estado entre cuadros (simulación de fluidos acumulativa): las capas reactivas son funciones cerradas de t y eventos.
 - Eventos descubiertos en ejecución (un `api.impact` dentro de un shot JS no se ve antes de pintar el fondo): declarar `eventos` con el mismo `at`.
