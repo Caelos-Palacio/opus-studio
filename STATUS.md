@@ -56,11 +56,11 @@ Archivos (test/*.mjs): `arc.mjs` `bench-skia.mjs` `boceto.mjs` `critic.mjs` `cut
 <!-- estatico:fin -->
 
 ---
-## Estado vivo (2026-10-12T22:28Z, no verificado)
+## Estado vivo (2026-10-12T22:55Z, no verificado)
 
 ## Veredictos
 
-Film activo: `main` · engineHash `e1f0f0dcfca28962232bad569f0151f60f69b5b471c1de159843dbf1315a262d` · filmHash `92932c044c007d70`
+Film activo: `main` · engineHash `2c6d4c92a60ea1e5ba02f63d2b234ef01be7485efef4dbe4f1b3f852d11b8b1c` · filmHash `875dda73d11b8fd2`
 
 - out/lint.json: SHIP · CADUCADO
 - out/critic.json: no existe
@@ -74,8 +74,8 @@ Film activo: `main` · engineHash `e1f0f0dcfca28962232bad569f0151f60f69b5b471c1d
 
 - `backup/pre-limpieza` (+136 commits)
 - `film-botella` (+12 commits)
-- `film-consta` (+9 commits)
-- `fondos-libres` (+9 commits)
+- `film-consta` (+11 commits)
+- `fondos-libres` (+11 commits)
 - `gobernanza` (+96 commits)
 - `harness` (+101 commits)
 - `medios` (+57 commits)
@@ -83,7 +83,7 @@ Film activo: `main` · engineHash `e1f0f0dcfca28962232bad569f0151f60f69b5b471c1d
 - `orquestacion` (+101 commits)
 - `perf` (+53 commits)
 - `semantica` (+101 commits)
-- `vectores` (+8 commits)
+- `vectores` (+11 commits)
 - `video-mate` (+33 commits)
 - `video-reel` (+34 commits)
 - `video-regla` (+34 commits)
@@ -103,7 +103,7 @@ Film activo: `main` · engineHash `e1f0f0dcfca28962232bad569f0151f60f69b5b471c1d
 
 ## Último run de tests
 
-- 2026-10-12T15:32:51.559Z: 1 fallos (perfil quick)
+- 2026-10-12T22:43:54.622Z: 3 fallos (perfil full)
 
 ## Ledger
 
