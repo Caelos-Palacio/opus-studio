@@ -96,6 +96,20 @@ aprender el motor. Se copia tal cual y se le añade la sección «Historia» de 
   - sonoridad integrada entre −19 y −16 LUFS;
   - LRA ≥ 6 LU (la dinámica es parte del arco).
 
+## Oficio (aprendido de Anatomy, docs/research/12)
+- **El objeto es la explicación.** Antes de dibujar, una frase: qué se mueve y qué significa ese movimiento. Evita lo
+  demasiado abstracto (formas flotando) y lo demasiado plano (una forma con rayas): construye objetos reconocibles con
+  MUCHAS piezas pequeñas (lista de piezas antes de la geometría; cada pieza apoya en otra).
+- **Verdad primero:** las cifras reales viven en un módulo puro pequeño (`hechos.js`) del que salen textos y movimientos.
+- **Jerarquía tonal:** soporte en tono bajo, estructura medio, sujeto alto y UN solo acento de luz por escena.
+- **Oficio medible:** ninguna línea acaba en el aire; las texturas terminan en un borde o se desvanecen; nada atraviesa
+  nada; el sujeto ocupa 55–65 % del cuadro en sus planos; se lee a 390 px.
+- **Geometría una vez:** precalcula lo estático y traslada lo que se mueve; reconstruye solo lo que cambia de forma.
+- **Presupuesto:** `date` al inicio y en cada paso del método; si un paso pasa del doble de lo previsto, recorta alcance.
+- **Revisión a 1× y a 4×:** además de la hoja, primeros planos 4× de juntas, bordes y texto. "¿Se lee al instante como
+  algo real? ¿rico a 1× y gratificante a 4×? ¿alguna cara desnuda o esquina vacía?"
+- Opcional (MIT, sin coste de render): `roughjs` con semilla fija para trazo a mano; `perfect-freehand` para pluma/lápiz.
+
 ## Prohibido
 - Voz, narración o TTS.
 - Moralejas finales y signos de exclamación.

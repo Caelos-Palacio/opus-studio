@@ -117,4 +117,31 @@ Orden: 1 y 3 son baratas y rápidas; 2 y 5 son inversiones mayores con retorno e
   ilustrado con IA» que es agente + canvas. Fuente: https://www.remoteopenclaw.com/plugins/analyticalmonk-explain-this/explain-this [S]
 - Guía de Anthropic «build interactive diagram tools»: usar SVG precisos ya hechos (con IDs de ontología) en vez de que el
   modelo dibuje anatomía; el modelo orquesta, no ilustra. https://claude.com/resources/use-case/build-interactive-diagram-tools [S]
-- No se encontró un repo «Anatomy» explicador; pendiente que el usuario dé el enlace exacto.
+
+## Anatomy (wheresryan22/anatomy), el repo correcto [V: README y SKILL.md leídos]
+https://github.com/wheresryan22/anatomy · MIT · ~6,1k estrellas · skill de agente para Claude Code/Codex/OpenCode.
+Convierte una idea técnica en una **máquina física isométrica cuyo funcionamiento ES el concepto** (caché que se salta
+trabajo → cerradura de pines). SVG con sombreado a 4 tonos pintado de atrás a delante; WebGL solo para fuego/agua/brillo;
+kit propio sin dependencias (cámara iso, sólidos, `lathe` para piezas redondas, `tube` para cables); auditorías automáticas.
+
+Por qué se ve bien siendo barato (lo adoptable):
+1. **El objeto es la explicación.** Inventar una cosa física cuyo movimiento sea el concepto; nada de cajas y flechas.
+   Fallos nombrados: "demasiado abstracto" (losas flotando) y "demasiado plano" (una losa con rayas). Cura: una máquina
+   reconocible de MUCHAS piezas (≥ 40, agrupadas: base, estructura, mecanismo, controles, sujeto; cada pieza apoya en otra).
+2. **Verdad primero:** cifras reales en un módulo puro pequeño que mueve todo (lectura, movimiento, rótulo).
+3. **Tamaño con presupuesto:** Figura 40–80 piezas ~30–90 min; Hero 80–150 ~2–4 h; Épico: no empezar, proponer Hero.
+   `date` al inicio y en cada paso; avisar si un paso pasa del doble de su cuota.
+4. **Jerarquía tonal:** base `lo`, estructura `mid`, sujeto `hi`, UN solo acento `lit`; color solo si el color es el tema.
+5. **Reglas de oficio medibles:** las líneas terminan en una cara/línea/punto (nada flotando); texturas que acaban en un
+   borde o se desvanecen; sin interpenetraciones; orden de profundidad medido, no a ojo; volumen real y halo bajo la base;
+   el sujeto ocupa 55–65 % del cuadro; legible a 390 px.
+6. **Geometría una vez:** precalcular lo estático, trasladar lo que se mueve, reconstruir solo lo que cambia de forma.
+7. **Verificar como crítico:** capturas a 1× y primeros planos a 4× de juntas, curvas, finales de textura; hoja de contacto
+   ralentizada en transiciones; auditoría que termina en 0. "¿Se lee al instante como un objeto real? ¿rico a 1× y
+   gratificante a 4×? ¿ninguna cara desnuda ni esquina vacía?"
+8. **Empezar por el ejemplo más pequeño** (≈ 300 líneas) y leer referencias bajo demanda.
+Límites declarados: no hace gráficos, ni personas, ni mapas exactos; una figura cuesta una sesión larga.
+
+Encaje en opus-studio [I]: su kit es al dibujo lo que nuestro brief MODO-LIBRE es al gusto. Proponemos un **kit libre
+mínimo** (sólidos sombreados a 4 tonos, `lathe` para botella/moneda, `tube` para cuerda/red, papel/acuarela, rough.js /
+perfect-freehand para trazo a mano) + auditorías de salida (líneas sueltas, texto tapado, ocupación del cuadro, 4×).
