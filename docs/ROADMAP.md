@@ -60,3 +60,5 @@ Se adoptan sus ventajas sin perder el proceso.
   `barras_antes_despues`, tipo `box` con rótulo y perfil de lint `lamina` (deuda del film `sistema`).
 - **Deuda viva.** Eval ciega del toolbox (intenciones escritas por un agente sin contexto); pulir presets cosmos_profundo,
   papel_carta_acuarela, laboratorio; `npm test -- --full` en main; push a GitHub (solo con confirmación).
+- **Bugs vistos por E3 (sin arreglar):** un film de un solo plano con `timeline.sound` da NaN en toda la mezcla
+  (`analyzeFilm`/`score.mjs` sin impactos). Voz de calidad: piper + modelo es-ES (hoy espeak-ng, robótico).
