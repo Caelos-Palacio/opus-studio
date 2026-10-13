@@ -53,10 +53,12 @@ Se adoptan sus ventajas sin perder el proceso.
 - **E3 voz y sincronía (spec 018).** TTS congelada como asset con hash (determinismo) + **timeline sincronizado a
   transcripción con tiempos** (palabra/frase → cue): la animación sigue el argumento hablado, como el flujo de Claude Design.
   La narración es opcional por film (el guion decide, spec 012 P1).
-- **E4 boceto rápido (spec 019).** Modo `boceto`: previsualización baja (resolución/fps reducidos, sin gates) para decidir el
+- **E4 boceto rápido (spec 019) ✓ implementado en rama `boceto` (falta nota del usuario, H1).** Modo `boceto`: previsualización baja (resolución/fps reducidos, sin gates) para decidir el
   concepto en minutos antes de la producción gobernada; live preview con recarga al editar `.scene.json`.
 - **E5 vectores y diagramas (spec 020).** Importar SVG como objeto/elemento (paths a canvas, recoloreable por medio, con hash),
   para no dibujar a mano objetos pobres (secante, mosca de Consta). Recetas `diagrama_flujo`, `diagrama_capas`,
   `barras_antes_despues`, tipo `box` con rótulo y perfil de lint `lamina` (deuda del film `sistema`).
 - **Deuda viva.** Eval ciega del toolbox (intenciones escritas por un agente sin contexto); pulir presets cosmos_profundo,
   papel_carta_acuarela, laboratorio; `npm test -- --full` en main; push a GitHub (solo con confirmación).
+- **Bugs vistos por E3 (sin arreglar):** un film de un solo plano con `timeline.sound` da NaN en toda la mezcla
+  (`analyzeFilm`/`score.mjs` sin impactos). Voz de calidad: piper + modelo es-ES (hoy espeak-ng, robótico).

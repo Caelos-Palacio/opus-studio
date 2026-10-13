@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 // Spec 010 — DSL al ~80 %: cobertura (dsl coverage), goldens de píxeles contra el JS legado y rendimiento.
-//   node test/dsl-cov.mjs [--fast]        tests (C1–C9)
+//   node test/dsl-cov.mjs [--fast]        tests (C1–C8; C9 rendimiento solo con --perf o --solo-perf, suite dsl-perf)
 //   node test/dsl-cov.mjs --worker <timeline> [ids,…]   (interno) sha de píxeles de cada shot en 6 instantes
 //   node test/dsl-cov.mjs --gen            REGENERA test/fixtures/dsl-legacy/hashes.json (solo con el JS legado intacto)
 import fs from 'node:fs';
@@ -55,6 +55,7 @@ if (argv[0] === '--check') {   // node test/dsl-cov.mjs --check [film|all] [id,i
 
 // ══════════════════════════════════════ tests (C1–C9) ══════════════════════════════════════
 const fast = argv.includes('--fast');
+const SOLO_PERF = argv.includes('--solo-perf'), WITH_PERF = SOLO_PERF || argv.includes('--perf');   // C9 (rendimiento) es lo más caro: suite propia `dsl-perf` (--solo-perf) con tope propio; aquí solo con --perf
 let fail = 0;
 const ok = (name, cond, extra = '') => { console.log(`${cond ? '✓' : '✗'} dsl-cov: ${name}${cond ? '' : '  ' + extra}`); if (!cond) fail++; };
 const D = await import('../engine/dsl-core.mjs');
@@ -63,7 +64,7 @@ const clone = (x) => JSON.parse(JSON.stringify(x));
 const SPEC = JSON.parse(fs.readFileSync(path.join(ROOT, 'data/dsl-coverage.json'), 'utf8'));
 
 // ── C1: inventario determinista ──
-{
+if (!SOLO_PERF) {
   const a = await run([path.join(ROOT, 'engine/dsl.mjs'), 'coverage']), b = await run([path.join(ROOT, 'engine/dsl.mjs'), 'coverage']);
   const C = CV.coverage(ROOT), shotFiles = fs.readdirSync(path.join(ROOT, 'shots')).filter((f) => f.endsWith('.mjs') && /export default/.test(fs.readFileSync(path.join(ROOT, 'shots', f), 'utf8')));
   ok('C1 dsl coverage lista todos los shots con su clase y el %; dos ejecuciones dan el mismo texto', a.status === 0 && a.stdout === b.stdout && C.rows.length === shotFiles.length && C.rows.every((r) => a.stdout.includes(r.id.padEnd(12) + ' ' + r.cls)) && /\d+\.\d %/.test(a.stdout), a.stderr);
@@ -73,7 +74,7 @@ const SPEC = JSON.parse(fs.readFileSync(path.join(ROOT, 'data/dsl-coverage.json'
 
 // ── C2: tipos nuevos — schema con «¿quisiste decir…?», pureza y deps exactas ──
 const NEW = ['curve', 'lines', 'repeat', 'formula', 'layer', 'smear', 'word', 'box', 'impact', 'particles', 'world3d', 'let', 'focusOf', 'ring', 'dot', 'shatter', 'cracks', 'gridlines', 'playhead', 'world', 'hud', 'caption', 'arrow'];
-{
+if (!SOLO_PERF) {
   const base = (o) => ({ dsl: 1, id: 'T', libs: { L: './L.mjs' }, params: { a: { type: 'number', default: 1 }, b: { type: 'number', default: 2 } }, objects: [o] });
   const good = { curve: { type: 'curve', n: 4, x: { $expr: 'i' }, y: { $expr: 'a' } }, lines: { type: 'lines', segs: [[0, 0, 1, 1]] }, repeat: { type: 'repeat', n: 2, children: [] }, formula: { type: 'formula', tex: 'x', x: 1, y: 1 },
     layer: { type: 'layer', children: [] }, smear: { type: 'smear', x: 1, y: 1, vx: 1, vy: 1, children: [] }, word: { type: 'word', lib: 'L', str: 'A', x: 1, y: 1, size: 9 }, box: { type: 'box', x: 1, y: 1, w: 1, h: 1 }, impact: { type: 'impact', at: 0 },
@@ -126,7 +127,7 @@ const NEW = ['curve', 'lines', 'repeat', 'formula', 'layer', 'smear', 'word', 'b
 }
 
 // ── C3: píxeles idénticos al JS legado (in/mid/out + 3 instantes) en TODOS los shots convertidos ──
-{
+if (!SOLO_PERF) {
   const mine = convertidos(), H = refHashes(), sample = (ids) => (FULL ? ids : ids.filter((_, i) => i % 3 === 0)), fix = fs.readdirSync(path.join(ROOT, 'test/fixtures/dsl-legacy')).filter((f) => f.endsWith('.mjs')).map((f) => f.slice(0, -4));
   ok('C3a todo shot convertido (que existía en JS) tiene su JS legado en test/fixtures/dsl-legacy y sus hashes de referencia', mine.every((id) => fix.includes(id) && H[id] && Object.keys(H[id]).length === FRACS.length), mine.filter((id) => !fix.includes(id)).join(' '));
   { const nat = nativos(), NS = Object.keys(nat); // C3c (spec 017): «nativo» no es una puerta trasera
@@ -146,13 +147,13 @@ const NEW = ['curve', 'lines', 'repeat', 'formula', 'layer', 'smear', 'word', 'b
 }
 
 // ── C7: ratchet de cobertura ──
-{
+if (!SOLO_PERF) {
   const C = CV.coverage(ROOT);
   ok(`C7 cobertura ${C.pct.toFixed(1)} % ≥ 80 % y ≥ umbral ratchet ${SPEC.ratchet.min} % (el umbral solo sube)`, C.pct >= 80 && C.pct + 1e-9 >= SPEC.ratchet.min, `${C.pct.toFixed(1)} % < ${SPEC.ratchet.min} %: ¿un shot volvió a JS?`);
   ok('C7b el % honesto cuenta los pendientes de otra rama en el denominador', Math.abs(C.pct - (100 * C.dsl) / C.total) < 1e-9 && C.total === C.rows.length);
 }
 
-if (!fast) {
+if (!fast && !SOLO_PERF) {
   // ── C8: validate sin FIX en todos los films; el sandbox no cambia ──
   const { copyRepo, rmrf } = await import('./lib.mjs'), d = copyRepo(), errs = [];
   try {
@@ -163,8 +164,10 @@ if (!fast) {
   const [sa, sd] = gitn2('engine/sandbox.mjs'), [ga, gd] = gitn2('engine/guard.mjs'), gsrc = fs.readFileSync(path.join(ROOT, 'engine/guard.mjs'), 'utf8').split('\n'), tail = gsrc.length - gsrc.findIndex((l) => l.includes('Capas `codigo` de los fondos (spec 021'));
   // Spec 021 B: la guardia GANA scanFondoCodigo (se añade al final, sin tocar una sola línea del escaneo): la capa `codigo` pasa por la MISMA guardia. Cualquier otro cambio sigue fallando.
   ok('C8b el sandbox y la guardia no cambian por el DSL (git diff vs el punto de partida vacío; guard.mjs solo añade scanFondoCodigo, spec 021)', sa === 0 && sd === 0 && gd === 0 && ga <= tail + 1, `sandbox +${sa}/-${sd} guard +${ga}/-${gd} (cola spec 021: ${tail} líneas)`);
+}
+
   // ── C9: rendimiento ── (solo perfil full: 3 pasadas por film con cronómetro; es lo más caro de la suite)
-  if (FULL) {
+if (FULL && WITH_PERF) {
   const { copyRepo: cp2, rmrf: rm2 } = await import('./lib.mjs'), slow = [];
   await Promise.all(Object.keys(FILMS).map(async (film) => {   // films en paralelo: el cociente DSL/JS compara dos renders bajo la misma carga
     const tl = JSON.parse(fs.readFileSync(path.join(ROOT, FILMS[film]), 'utf8')).shots.map((s) => s.id), ids = tl.filter((i) => convertidos().includes(i)); if (!ids.length) return;
@@ -173,7 +176,6 @@ if (!fast) {
       if (best > 1.1) slow.push(`${film} ×${best.toFixed(3)}`); console.log(`  perf ${film}: DSL/JS = ×${best.toFixed(3)} (${ids.length} shots)`); } finally { rm2(dd); }
   }));
   ok('C9 rendimiento: un shot DSL no es más de 10 % más lento que su JS legado (tiempo por fotograma, por film)', !slow.length, slow.join(' '));
-  }
 }
 function glob(d, film) { const dir = path.join(d, 'out/lint'); if (!fs.existsSync(dir)) return null; const sub = fs.readdirSync(dir).filter((x) => fs.existsSync(path.join(dir, x, '_only-validate.json'))); return sub.length ? path.join(dir, sub[sub.length - 1], '_only-validate.json') : null; }
 console.log(fail ? `\ndsl-cov: ${fail} fallos` : '\ndsl-cov: todo verde');

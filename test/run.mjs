@@ -76,7 +76,7 @@ async function fixture() {
   finally { rmrf(d); }
 }
 // Scripts autónomos (imprimen sus propias líneas ✓/✗; el código de salida decide).
-const script = (file, args = [], { stderr = true } = {}) => async () => { const r = await run([path.join(ROOT, file), ...args]); return { ok: r.status === 0, line: (r.stdout + (stderr || r.status ? r.stderr : '')).trimEnd() }; };
+const script = (file, args = [], { stderr = true, timeout } = {}) => async () => { const r = await run([path.join(ROOT, file), ...args], timeout ? { timeout } : {}); return { ok: r.status === 0, line: (r.stdout + (stderr || r.status ? r.stderr : '')).trimEnd() }; };
 
 // Suites del manifiesto (test/suites.mjs) + drop-ins test/suites.d/*.json (una suite por archivo, sin conflictos de merge entre ramas).
 const dropins = fs.existsSync(path.join(ROOT, 'test/suites.d')) ? fs.readdirSync(path.join(ROOT, 'test/suites.d')).filter((f) => f.endsWith('.json')).sort().map((f) => JSON.parse(fs.readFileSync(path.join(ROOT, 'test/suites.d', f), 'utf8'))) : [];
@@ -87,7 +87,7 @@ const timed = (name, fn) => async () => { const t = Date.now(), r = await fn(); 
 const t0 = Date.now(), P = pool(jobs), plan = [];   // plan = [{ w, name, fn }]: se encola por peso (lo pesado primero), la salida sigue ese mismo orden fijo
 for (const m of MUT) if (sel(m.name) && (!fast || m.quick)) plan.push({ w: full ? 3 : 2, name: 'mut:' + m.name, fn: () => mutation(m) });
 if (!fast && sel('fixture')) plan.push({ w: 6, name: 'fixture', fn: fixture });
-for (const S of ALL) if (sel(S.name) && !S.skip?.includes(PROFILE)) plan.push({ w: S.w ?? 1, name: S.name, fn: script(S.file, argsFor(S), { stderr: S.stderr !== false }) });
+for (const S of ALL) if (sel(S.name) && !S.skip?.includes(PROFILE)) plan.push({ w: S.w ?? 1, name: S.name, fn: script(S.file, argsFor(S), { stderr: S.stderr !== false, timeout: S.timeout }) });
 const tasks = plan.map((p, i) => ({ ...p, i })).sort((a, b) => b.w - a.w || a.i - b.i).map((p) => P(timed(p.name, p.fn)));
 let fail = 0;
 for (const t of tasks) { const r = await t; console.log(r.line); if (!r.ok) fail++; }

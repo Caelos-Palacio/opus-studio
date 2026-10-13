@@ -43,13 +43,15 @@ export const VOICES = {
   shimmer: { doc: 'parciales agudos que se apagan (revelación)', fn: (o, w) => { for (let i = 0; i < 2.5 * SR; i++) { const t = i / SR; let s = 0; for (const [f, g] of [[1568, 1], [2093, 0.7], [2637, 0.5], [3136, 0.35]]) s += g * Math.sin(TAU * f * t + g); w(i, 0.25 * s * env(t, 0.02, 0.7)); } } },
   drone: { doc: 'lecho grave en quintas (dur s)', fn: (o, w) => { const d = o.dur ?? 4; for (let i = 0; i < d * SR; i++) { const t = i / SR, a = Math.min(1, t / 0.8, (d - t) / 0.8); w(i, 0.3 * a * (Math.sin(TAU * 55 * t) + 0.6 * Math.sin(TAU * 82.4 * t) + 0.2 * Math.sin(TAU * 110 * t + Math.sin(t)))); } } },
   rev: { doc: 'acorde de revelación (legado cues)', fn: (o, w) => { for (let i = 0; i < 2.8 * SR; i++) { const t = i / SR; w(i, (0.5 * Math.sin(TAU * 392 * t) + 0.35 * Math.sin(TAU * 587.3 * (t - 0.12)) * (t > 0.12) + 0.16 * Math.sin(TAU * 784 * (t - 0.24)) * (t > 0.24)) * env(t, 0.01, 0.9)); } } },
+  gota: { doc: 'clic de agua con tono (altura = energía del evento)', fn: (o, w) => { const R = rng(o.seed), f0 = 380 + 1350 * Math.min(1, Math.max(0, o.energia ?? 0.4)); let ph = 0; for (let i = 0; i < 0.5 * SR; i++) { const t = i / SR; ph += (TAU * f0 * (1 + 1.2 * (1 - Math.exp(-t / 0.018)))) / SR; w(i, 0.7 * Math.sin(ph) * env(t, 0.0008, 0.04) + 0.3 * Math.sin(TAU * 2 * f0 * t) * env(t, 0.004, 0.12) + 0.4 * (R() * 2 - 1) * Math.exp(-t / 0.0011)); } } },
+  nota: { doc: 'nota larga y quieta (dur s): tónica con entrada y salida lentas', fn: (o, w) => { const d = o.dur ?? 8; for (let i = 0; i < d * SR; i++) { const t = i / SR, a = Math.min(1, t / 3.2, (d - t) / 3.5) ** 1.6; w(i, 0.22 * a * (Math.sin(TAU * 220 * t) + 0.35 * Math.sin(TAU * 440.8 * t))); } } },
   anom: { doc: 'batido disonante (legado cues)', fn: (o, w) => { for (let i = 0; i < 2.2 * SR; i++) { const t = i / SR; w(i, 0.45 * (Math.asin(Math.sin(TAU * 146.8 * t)) + Math.asin(Math.sin(TAU * 155.6 * t))) * env(t, 0.01, 0.7)); } } },
 };
 
 export function collectEvents(tl) {
   const ev = [], A = tl.autoSfx === true ? { morph: true, beat: true, cut: true } : tl.autoSfx || {}, shots = [...tl.shots].sort((a, b) => a.t[0] - b.t[0]);
   for (const s of shots) {
-    for (const e of s.sfx ?? []) ev.push({ t: s.t[0] + e.at, type: e.type, gain: e.gain ?? 0.8, pan: e.pan ?? 0, dur: e.dur, src: `${s.id}.sfx` });
+    for (const e of s.sfx ?? []) ev.push({ t: s.t[0] + e.at, type: e.type, gain: e.gain ?? 0.8, pan: e.pan ?? 0, dur: e.dur, energia: e.energia, src: `${s.id}.sfx` });
     for (const c of s.cues ?? []) ev.push({ t: s.t[0] + c.at, type: c.type, gain: 0.7, pan: 0, src: `${s.id}.cues` });
     if (A.beat) for (const b of s.on_beat_at ?? []) ev.push({ t: s.t[0] + b, type: A.beat === true ? 'pop' : A.beat, gain: 0.55, pan: 0, src: `${s.id}.on_beat_at` });
   }
