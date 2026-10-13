@@ -48,17 +48,17 @@ Contexto: comparación con Claude Code + Remotion Skills, Claude Design y Nyx Mo
 inmediato (ecosistema web, vectores, retoque humano); nosotros en guion → gobernanza → nota humana, determinismo y sonido.
 Se adoptan sus ventajas sin perder el proceso.
 
-- **E2 films de prueba (spec 013 H1).** Consta y Veinticuatro renderizadas, esperan nota. Veinticuatro: verificar contra
+- **E2 films de prueba (spec 013 H1).** Consta (spec 017) y Veinticuatro ✓ integradas en main; esperan nota. Veinticuatro: verificar contra
   Hirata et al. 1987 qué evento de Kamiokande‑II queda fuera de los 11 (¿6.º o 12.º?) y corregir guion/film. Botella: producir.
 - **E3 voz y sincronía (spec 018).** TTS congelada como asset con hash (determinismo) + **timeline sincronizado a
   transcripción con tiempos** (palabra/frase → cue): la animación sigue el argumento hablado, como el flujo de Claude Design.
   La narración es opcional por film (el guion decide, spec 012 P1).
-- **E4 boceto rápido (spec 019) ✓ implementado en rama `boceto` (falta nota del usuario, H1).** Modo `boceto`: previsualización baja (resolución/fps reducidos, sin gates) para decidir el
+- **E4 boceto rápido (spec 019) ✓ integrado en main (falta nota del usuario, H1).** Modo `boceto`: previsualización baja (resolución/fps reducidos, sin gates) para decidir el
   concepto en minutos antes de la producción gobernada; live preview con recarga al editar `.scene.json`.
-- **E5 vectores y diagramas (spec 020).** Importar SVG como objeto/elemento (paths a canvas, recoloreable por medio, con hash),
+- **E5 vectores y diagramas (spec 020) ✓ integrado en main (2026-10-12).** Importar SVG como objeto/elemento (paths a canvas, recoloreable por medio, con hash),
   para no dibujar a mano objetos pobres (secante, mosca de Consta). Recetas `diagrama_flujo`, `diagrama_capas`,
   `barras_antes_despues`, tipo `box` con rótulo y perfil de lint `lamina` (deuda del film `sistema`).
-- **Deuda viva.** Eval ciega del toolbox (intenciones escritas por un agente sin contexto); pulir presets cosmos_profundo,
+- **E6 fondos libres (spec 021) ✓ integrado en main (2026-10-12).**
+- **Deuda viva.** (`npm test -- --full` en main: ✓ verde el 2026-10-12.) Eval ciega del toolbox (intenciones escritas por un agente sin contexto); pulir presets cosmos_profundo,
   papel_carta_acuarela, laboratorio; `npm test -- --full` en main; push a GitHub (solo con confirmación).
-- **Bugs vistos por E3 (sin arreglar):** un film de un solo plano con `timeline.sound` da NaN en toda la mezcla
-  (`analyzeFilm`/`score.mjs` sin impactos). Voz de calidad: piper + modelo es-ES (hoy espeak-ng, robótico).
+- **Bugs vistos por E3:** (RESUELTO bf078d4) un film de un solo plano con `timeline.sound` daba NaN en la mezcla. Voz de calidad: piper + modelo es-ES (hoy espeak-ng, robótico).

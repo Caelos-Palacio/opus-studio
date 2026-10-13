@@ -35,6 +35,16 @@
 ## WIP (agente detenido), ver docs/handoff/ en cada rama
 - `worktree-agent-a55c05dc1fd0f272f` — F3 orquestación (falta simulación de 4 agentes y verificar tests). NO integrada a propósito.
 
+## Estado real (2026-10-12, cierre de la ola E de integración)
+- main contiene boceto, film-veinticuatro, vectores, fondos-libres y film-consta; `npm test -- --full` en verde (789 comprobaciones, 785 s).
+- Specs: 017 consta-foley, 018 voz, 019 boceto, 020 vectores/diagramas, 021 fondos-libres. Rescate de voz en main (d9d685b); la rama `voz` queda sin integrar (solo su rescate).
+- Films con sus shots nativos DSL (data/dsl-coverage.json): sistema (S*), veinticuatro (V*), consta (C*), vectores (VT*), fondos libres (FL01).
+- `dsl-perf` es suite aparte (tope 1500 s). C9 (DSL ≤ 1,10× el JS) y B2/M10 son sensibles a la carga: si fallan en una `--full`,
+  repetir con `npm test -- --full --only <suite>`; con dos `--full` a la vez fallan además orch (sim) y la limpieza de boceto (ENOTEMPTY). Correr UNA a la vez.
+- Fusiones de ramas: STATUS con `node engine/status.mjs`, índice con `node engine/tools.mjs build`; `dsl-coverage.json` es unión de `nativo`.
+- Sin integrar: `film-botella` (producir) y `kit-libre/` intacto. Sin push a GitHub (requiere confirmación).
+- Pendiente: notas del usuario (Consta, Veinticuatro, boceto, potencias v2); verificar el evento Kamiokande‑II de Veinticuatro; voz de calidad (piper es-ES); eval ciega del toolbox.
+
 ## Pendiente
 - F5b: calificación humana de potencias v2 (objetivo ≥ 8) y recalibrar umbrales con la nota. Límites: síntesis simple (sin convolución ni muestras),
   un solo estilo sonoro, densidad rítmica medida sobre la partitura, `--fast` exige LRA ≥6. `data/stress/potencias.json` ganó el campo `sound`: el veredicto

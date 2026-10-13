@@ -59,15 +59,15 @@ Archivos (test/*.mjs): `arc.mjs` `bench-skia.mjs` `boceto.mjs` `consta.mjs` `cri
 <!-- estatico:fin -->
 
 ---
-## Estado vivo (2026-10-13T03:07Z, no verificado)
+## Estado vivo (2026-10-13T04:11Z, no verificado)
 
 ## Veredictos
 
-Film activo: `consta` · engineHash `ac53f4628f2426c76bf7df7b12ba01d4b315d08104e6bcb2fd47eb6859382145` · filmHash `a282a9e9b9490e44`
+Film activo: `main` · engineHash `ac53f4628f2426c76bf7df7b12ba01d4b315d08104e6bcb2fd47eb6859382145` · filmHash `ef361edd948577f7`
 
 - out/lint.json: SHIP · CADUCADO
 - out/critic.json: SHIP · CADUCADO
-- veredictos por shot: 0 vigentes, 8 caducados
+- veredictos por shot: 0 vigentes, 3 caducados
 
 ### Estado de gates (out/gates.json)
 
@@ -77,7 +77,6 @@ Film activo: `consta` · engineHash `ac53f4628f2426c76bf7df7b12ba01d4b315d08104e
 
 - `backup/pre-limpieza` (+136 commits)
 - `film-botella` (+12 commits)
-- `film-consta` (+12 commits)
 - `gobernanza` (+96 commits)
 - `harness` (+101 commits)
 - `medios` (+57 commits)
@@ -104,11 +103,11 @@ Film activo: `consta` · engineHash `ac53f4628f2426c76bf7df7b12ba01d4b315d08104e
 
 ## Último run de tests
 
-- 2026-10-13T03:07:23.262Z: todo verde (perfil full)
+- 2026-10-13T04:11:19.278Z: todo verde (perfil full)
 
 ## Ledger
 
-- cadena: íntegra · 30 entradas (30 encadenadas, 0 heredadas, 0 firmadas) · códigos 100 %
+- cadena: íntegra · 16 entradas (5 encadenadas, 11 heredadas, 0 firmadas) · códigos 100 %
 
 ## Presupuestos
 
