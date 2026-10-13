@@ -31,7 +31,7 @@ export function validateMeta(m) {
   return p;
 }
 // Módulos que pueden exponer META (la rama `fondos` decide cuál usa; todos opcionales).
-export const META_MODULES = [['fondo', 'engine/fondos.mjs'], ['fondo', 'engine/fondos/index.mjs'], ['objeto', 'engine/objetos.mjs'], ['objeto', 'engine/objetos/index.mjs']];
+export const META_MODULES = [['fondo', 'engine/fondos.mjs'], ['fondo', 'engine/fondos/index.mjs'], ['objeto', 'engine/objetos.mjs'], ['objeto', 'engine/objetos/index.mjs'], ['objeto', 'engine/svg.mjs']];
 async function loadExt(root, warnings) {
   const out = [];
   for (const [kind, rel] of META_MODULES) {

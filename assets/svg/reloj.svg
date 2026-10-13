@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" data-tags="reloj hora tiempo minutero plazo espera">
+ <title>Reloj de pared marcando las diez y ocho</title>
+ <g fill="none" stroke="#1b2a3a" data-stroke="ink" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+  <path d="M45 4 H55 V10 H45 Z" fill="#a9743a" data-fill="accent"/>
+  <path d="M92 54 A42 42 0 1 1 8 54 A42 42 0 1 1 92 54 Z" fill="#f3ead8" data-fill="paper" stroke-width="3"/>
+  <path d="M87 54 A37 37 0 1 1 13 54 A37 37 0 1 1 87 54 Z" stroke-width="1" stroke-opacity="0.5"/>
+  <path d="M50 27 L50 19.5 M65 28 L67.2 24.1 M76 39 L79.9 36.8 M77 54 L84.5 54 M76 69 L79.9 71.2 M65 80 L67.2 83.9 M50 81 L50 88.5 M35 80 L32.8 83.9 M24 69 L20.1 71.3 M23 54 L15.5 54 M24 39 L20.1 36.8 M35 28 L32.7 24.1" stroke-width="2"/>
+  <path d="M50 54 L33 44" stroke-width="4.2"/>
+  <path d="M50 54 L73 33" stroke-width="3"/>
+  <path d="M50 54 L64 78 M50 54 L46 47" stroke="#d9482b" data-stroke="accent" stroke-width="1.5"/>
+  <path d="M54 54 A4 4 0 1 1 46 54 A4 4 0 1 1 54 54 Z" fill="#d9482b" data-fill="accent" stroke-width="1.2"/>
+ </g>
+</svg>

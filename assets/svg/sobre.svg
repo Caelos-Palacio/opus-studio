@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" data-tags="sobre carta correo sello postal mensaje">
+ <title>Sobre cerrado con sello postal y dirección</title>
+ <g fill="none" stroke="#1b2a3a" data-stroke="ink" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+  <path d="M6 28 H94 V82 H6 Z" fill="#f3ead8" data-fill="paper"/>
+  <path d="M6 82 L38 52 M94 82 L62 52" stroke-width="1.6" stroke-opacity="0.7"/>
+  <path d="M6 28 L50 62 L94 28 Z" fill="#e7dcc3" data-fill="paper" fill-opacity="0.9"/>
+  <path d="M68 58 H88 V76 H68 Z" fill="#d9482b" data-fill="accent"/>
+  <path d="M71 61 H85 V73 H71 Z" stroke="#f3ead8" data-stroke="paper" stroke-width="1"/>
+  <path d="M78 64 L79.5 68 L83 68.4 L80.3 70.6 L81.2 74 L78 72 L74.8 74 L75.7 70.6 L73 68.4 L76.5 68 Z" fill="#f3ead8" data-fill="paper" stroke="none"/>
+  <path d="M13 68 H46 M13 74 H40" stroke-opacity="0.55" stroke-width="1.6"/>
+ </g>
+</svg>

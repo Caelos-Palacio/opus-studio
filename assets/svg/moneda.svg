@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" data-tags="moneda dinero oro precio pago metal">
+ <title>Moneda con estrella y canto acordonado</title>
+ <g fill="none" stroke="#1b2a3a" data-stroke="ink" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+  <path d="M92 50 A42 42 0 1 1 8 50 A42 42 0 1 1 92 50 Z" fill="#e0a838" data-fill="accent" stroke-width="3"/>
+  <path d="M87.5 50 L91 50 M86.9 56.5 L90.4 57.1 M85.2 62.8 L88.5 64 M82.5 68.8 L85.5 70.5 M78.7 74.1 L81.4 76.4 M74.1 78.7 L76.4 81.4 M68.8 82.5 L70.5 85.5 M62.8 85.2 L64 88.5 M56.5 86.9 L57.1 90.4 M50 87.5 L50 91 M43.5 86.9 L42.9 90.4 M37.2 85.2 L36 88.5 M31.3 82.5 L29.5 85.5 M25.9 78.7 L23.6 81.4 M21.3 74.1 L18.6 76.4 M17.5 68.8 L14.5 70.5 M14.8 62.8 L11.5 64 M13.1 56.5 L9.6 57.1 M12.5 50 L9 50 M13.1 43.5 L9.6 42.9 M14.8 37.2 L11.5 36 M17.5 31.2 L14.5 29.5 M21.3 25.9 L18.6 23.6 M25.9 21.3 L23.6 18.6 M31.2 17.5 L29.5 14.5 M37.2 14.8 L36 11.5 M43.5 13.1 L42.9 9.6 M50 12.5 L50 9 M56.5 13.1 L57.1 9.6 M62.8 14.8 L64 11.5 M68.7 17.5 L70.5 14.5 M74.1 21.3 L76.4 18.6 M78.7 25.9 L81.4 23.6 M82.5 31.3 L85.5 29.5 M85.2 37.2 L88.5 36 M86.9 43.5 L90.4 42.9" stroke-width="0.9" stroke-opacity="0.55"/>
+  <path d="M84 50 A34 34 0 1 1 16 50 A34 34 0 1 1 84 50 Z" stroke-width="1.4"/>
+  <path d="M50 33 L54.1 44.3 L66.2 44.7 L56.7 52.2 L60 63.8 L50 57 L40 63.8 L43.3 52.2 L33.8 44.7 L45.9 44.3 Z" fill="#f3ead8" data-fill="paper" stroke-width="1.8"/>
+  <path d="M22 38 A30 30 0 0 1 40 21" stroke="#f3ead8" data-stroke="paper" stroke-width="3" stroke-opacity="0.75"/>
+  <path d="M33 74 H67" stroke-width="1.4" stroke-opacity="0.6"/>
+ </g>
+</svg>

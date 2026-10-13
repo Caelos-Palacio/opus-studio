@@ -2,7 +2,10 @@
 
 - Idioma: español (código, docs, commits). Commits terminan con la línea Co-Authored-By del modelo. NUNCA push sin preguntar.
 - Proceso 3DD (docs/specs/README.md): Claude escribe specs desde la intención del usuario → escenarios BDD → tests en
-  rojo → código. El usuario es el juez de gusto: ningún output audiovisual está "hecho" sin su nota.
+  rojo → código. Estudio v6 (spec 022): AUTÓNOMO por defecto; el gusto vive en `data/gusto.md` + panel de críticos (director, ojo,
+  escéptico); la nota del usuario es opcional y calibra. Storyboard con modo `autonomo` | `consultar` (el usuario opina o cambia el plan).
+- Producción: Sonnet libre con `frame(ctx,t)`, brief docs/current/MODO-LIBRE.md y `kit-libre/`; se controla el RESULTADO (determinismo,
+  auditoría, audio, panel). DSL/recetas/presets/toolbox/gobernanza pesada: CONGELADOS (se usan si aportan, sin funciones nuevas).
 - Gusto del usuario: asombro, épico/vibrante, con personalidad. Anti-patrones: monotonía, prisa, audio pobre,
   fondo negro VACÍO (sin profundidad ni motivo; el oscuro elegido por el tema —cosmos, noche, luz— es válido: spec 012 Lección), paleta por defecto (dorado sobre azul noche). Ver docs/specs/001–003.
 - Antes de tocar nada: STATUS.md (estado real, generado), docs/HANDOFF.md y docs/ROADMAP.md (rumbo); plan viejo en docs/history/PLAN.md. Memoria conceptual: docs/MEMORIA.md.
@@ -18,6 +21,6 @@
   creativas ni commits; el padre revisa e integra y responde de su resultado. Las hojas no delegan.
   Modo supervisor (pedido del usuario): un Sonnet que coordina puede tener hasta 4 haikus a la vez y darles también arreglos
   ACOTADOS de código/tests con instrucciones exactas; el supervisor revisa cada diff, corre las suites y hace los commits.
-- Empieza por `node engine/tools.mjs brief --role <rol>` y `tools plan "<objetivo>"`; usa `tools find "<intención>"` / `show <id>` en vez de leer el catálogo (spec 015).
+- (Congelado) Para el motor viejo: `node engine/tools.mjs brief --role <rol>` y `tools plan "<objetivo>"`; usa `tools find "<intención>"` / `show <id>` en vez de leer el catálogo (spec 015).
 - Eficiencia: docs/current/EFICIENCIA.md. Mapa de docs: docs/current/README.md; decisiones: docs/adr/.
-- Shots nuevos: no los escribas enteros; `node engine/opus.mjs new shot <id> --receta <r> [--param k=v] [--llenar objeto.prop=texto]` (spec 016; `tools find "…" --kind receta`) y llena los `$hueco`.
+- (Congelado) Shots del motor viejo: `node engine/opus.mjs new shot <id> --receta <r> [--param k=v] [--llenar objeto.prop=texto]` (spec 016; `tools find "…" --kind receta`) y llena los `$hueco`.
