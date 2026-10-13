@@ -30,6 +30,7 @@
     "motif": { "anyOf": [{ "type": "null" }, { "$ref": "#/$defs/motif" }] },
     "rhyme": { "type": "boolean", "description": "false desactiva el aviso de rima (lint rima)" },
     "fondo": { "type": "boolean", "description": "false desactiva el aviso fondo.vacio (lint fondo): solo para fixtures técnicos; un film real justifica su oscuro con profundidad" },
+    "fondo_ok": { "type": "object", "additionalProperties": false, "required": ["porque"], "properties": { "porque": { "type": "string", "minLength": 20, "description": "por qué un fondo constante o un preset sin ajustes SIRVE al tema (no «para evitar el negro»)" } }, "description": "spec 021: justifica un fondo constante (lint fondo.estatico) o un preset sin ajustes (fondo.preset_crudo); el soporte puede SER la metáfora" },
     "end_hold_ok": { "type": "boolean", "description": "true permite un final en reposo (lint motion)" },
     "shots": { "type": "array", "minItems": 1, "items": { "$ref": "#/$defs/shot" } },
     "signals": { "type": "object", "description": "F4: señales nombradas, funciones puras de t (docs/PARAMS.md); se enlazan a parámetros con {\"$sig\"} o sig('x') en {\"$expr\"}", "additionalProperties": { "$ref": "#/$defs/signal" } },

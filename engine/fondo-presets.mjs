@@ -2,11 +2,12 @@
 // Cada uno trae `porque` (el tema que sirve: spec 012 Lección — el fondo se elige por tema, no «para evitar el negro»),
 // `resumen` (≤ 15 palabras), `tags` y `medio` (soporte con el que luce). Los claros usan ROLES de la paleta (se adaptan al medio);
 // los oscuros usan tintas absolutas porque la oscuridad ES el tema (agua negra, noche, cosmos).
-// Se pueden usar tal cual, retocar (`ajustes` por id de capa, `sin` para quitar) o ampliar (`capas` extra encima).
+// Se DERIVAN, no se eligen: `ajustes` por id de capa (con valores animados: expr / keyframes con ancla `en`), `sin` para quitar, `capas` extra encima
+// (también reactivas `onda`/`mancha`/`pulso` y `codigo` propio). Usado crudo en la mayoría de los shots, el lint avisa (fondo.preset_crudo).
 export const PRESETS = {
   cosmos_profundo: {
-    resumen: 'Cosmos con nebulosa, dos campos de estrellas y polvo: oscuridad inmensa con profundidad.', tags: ['oscuro', 'cosmos', 'escala', 'noche'], medio: 'sin medio o neon',
-    porque: 'Un viaje de escalas hasta el cosmos pide la oscuridad: el vacío es el tema y la profundidad (nebulosa, estrellas lejanas y cercanas, polvo) evita el negro vacío.',
+    resumen: 'Ejemplo de partida: cosmos con nebulosa, dos campos de estrellas y polvo.', tags: ['oscuro', 'cosmos', 'escala', 'noche'], medio: 'sin medio o neon',
+    porque: 'Ejemplo de partida para relatos de escala inmensa, noche o vacío: la oscuridad es el tema y la profundidad (nebulosa, estrellas lejanas y cercanas, polvo) evita el negro vacío. Derívalo: tiñe la nebulosa con el color del relato, quita capas con `sin`, anima brillo y tinte con keyframes.',
     capas: [
       { tipo: 'degradado', id: 'espacio', modo: 'radial', stops: ['#0d1430', '#05070f', '#020309'], centro: [0.58, 0.42], radio: 1.25 },
       { tipo: 'deformado', id: 'nebulosa', modo: 'nube', color: '#07102a', colorB: '#5a44b8', escala: 0.55, fuerza: 0.9, contraste: 1.6, alfa: 0.85, mezcla: 'pantalla', deriva: [0.004, 0.001], paralaje: 0.08 },
@@ -18,8 +19,8 @@ export const PRESETS = {
     ],
   },
   cuba_oscura: {
-    resumen: 'Agua negra con fotomultiplicadores como lunas, niebla fría, haces de luz y paralaje.', tags: ['oscuro', 'agua', 'ciencia', 'detector', 'silencio'], medio: 'sin medio o neon',
-    porque: 'Veinticuatro ocurre en una cuba de agua negra bajo tierra: la oscuridad es el sujeto (nadie ve llegar los destellos) y mil fotomultiplicadores a distinta profundidad dan la escala sin llenar el cuadro.',
+    resumen: 'Ejemplo de partida: agua negra con esferas luminosas, niebla fría, haces y paralaje.', tags: ['oscuro', 'agua', 'ciencia', 'detector', 'silencio'], medio: 'sin medio o neon',
+    porque: 'Ejemplo de partida para relatos de detección, silencio o cavidades bajo tierra o bajo el agua: la oscuridad es el sujeto y las luces a distinta profundidad dan escala sin llenar el cuadro. Derívalo: cambia la cantidad y el color de las esferas, reacciona a los impactos con una capa `onda`.',
     capas: [
       { tipo: 'degradado', id: 'agua', modo: 'lineal', angulo: 90, stops: ['#020911', '#05202e', '#020509'] },
       { tipo: 'deformado', id: 'turbidez', modo: 'nube', color: '#031018', colorB: '#14506a', escala: 0.6, fuerza: 0.8, contraste: 1.4, alfa: 0.3, mezcla: 'pantalla', deriva: [0.003, -0.002], paralaje: 0.15 },
@@ -32,8 +33,8 @@ export const PRESETS = {
     ],
   },
   expediente_kraft: {
-    resumen: 'Cartón de archivo con renglones, marcas de registro, rayado a lápiz y viñeta de tinta.', tags: ['claro', 'papel', 'archivo', 'burocracia', 'kraft'], medio: 'kraft',
-    porque: 'Consta es un expediente: el soporte de estraza, los renglones de formulario y las marcas de registro son parte de la metáfora (custodia, actas, sellos), no un adorno.',
+    resumen: 'Ejemplo de partida: soporte de estraza con renglones, marcas de registro y rayado a lápiz.', tags: ['claro', 'papel', 'archivo', 'burocracia', 'kraft'], medio: 'kraft',
+    porque: 'Ejemplo de partida para relatos de archivo, trámite o custodia: el soporte de papel basto con renglones y marcas de registro es parte de la metáfora, no un adorno. Derívalo: envejece el soporte con keyframes, añade una `mancha` al sellar, cambia el rayado.',
     capas: [
       { tipo: 'degradado', id: 'soporte', stops: ['paper', 'shade'], modo: 'lineal', angulo: 80, alfa: 0.5, mezcla: 'multiplicar' },
       { tipo: 'fbm', id: 'mota', color: 'paper', colorB: 'shade', modo: 'nube', escala: 0.4, alfa: 0.4, mezcla: 'multiplicar', paralaje: 0.1 },
@@ -44,8 +45,8 @@ export const PRESETS = {
     ],
   },
   papel_carta_acuarela: {
-    resumen: 'Papel de carta con renglones azules, lavados de acuarela, ondas y polvo suave.', tags: ['claro', 'papel', 'acuarela', 'carta', 'ternura'], medio: 'papel_crema',
-    porque: 'Botella es una carta que espera años: el papel de carta rayado y la acuarela (sal, agua, tiempo) sostienen la ternura sin sentimentalismo; el soporte es parte de la historia.',
+    resumen: 'Ejemplo de partida: papel de carta con renglones azules, lavados de acuarela y ondas.', tags: ['claro', 'papel', 'acuarela', 'carta', 'ternura'], medio: 'papel_crema',
+    porque: 'Ejemplo de partida para relatos íntimos, de espera o de correspondencia: el papel rayado y la acuarela (agua, sal, tiempo) sostienen la ternura sin sentimentalismo. Derívalo: que los lavados pasen de turbios a claros en el giro del relato (keyframes con `en`).',
     capas: [
       { tipo: 'relleno', id: 'papel', color: 'paper', alfa: 1 },
       { tipo: 'fbm', id: 'fibra', color: 'paper', colorB: 'shade', modo: 'nube', escala: 0.3, octavas: 6, alfa: 0.35, mezcla: 'multiplicar', paralaje: 0.08 },
@@ -57,8 +58,8 @@ export const PRESETS = {
     ],
   },
   mar_acuarela: {
-    resumen: 'Mar de acuarela: lavados azules, franjas de olas con espuma y bruma.', tags: ['claro', 'mar', 'acuarela', 'agua', 'calma'], medio: 'papel_crema',
-    porque: 'Para cualquier relato en el mar (corrientes, botellas, redes) el agua pintada a la acuarela da movimiento lento y luz sin competir con el objeto ancla.',
+    resumen: 'Ejemplo de partida: mar de acuarela con lavados azules, franjas de olas y bruma.', tags: ['claro', 'mar', 'acuarela', 'agua', 'calma'], medio: 'papel_crema',
+    porque: 'Ejemplo de partida para cualquier relato sobre el mar, el agua o el tiempo en calma: el agua pintada da movimiento lento y luz sin competir con el objeto ancla. Derívalo: sube la amplitud de las olas con el drama, tiñe el cielo según la hora del relato.',
     capas: [
       { tipo: 'degradado', id: 'cielo', modo: 'lineal', angulo: 90, stops: ['paper', { mezcla: ['paper', 'accent2', 0.18] }], alfa: 1 },
       { tipo: 'acuarela', id: 'cielo2', colores: ['accent2', 'shade'], n: 4, tamano: [0.25, 0.5], intensidad: 0.14, zona: [0, 0.4], mezcla: 'multiplicar', paralaje: 0.1 },
@@ -69,8 +70,8 @@ export const PRESETS = {
     ],
   },
   noche_ciudad: {
-    resumen: 'Noche urbana: cielo violeta, montañas, rascacielos con ventanas, bokeh y bruma.', tags: ['oscuro', 'ciudad', 'noche', 'luces'], medio: 'sin medio o neon',
-    porque: 'Una historia de gente, turnos o señales nocturnas necesita la ciudad encendida: las ventanas (cada una una persona despierta) dan escala humana y el bokeh cálido, intimidad.',
+    resumen: 'Ejemplo de partida: noche urbana con cielo violeta, montañas, rascacielos, bokeh y bruma.', tags: ['oscuro', 'ciudad', 'noche', 'luces'], medio: 'sin medio o neon',
+    porque: 'Ejemplo de partida para historias de gente, turnos o señales nocturnas: las ventanas encendidas dan escala humana y el bokeh cálido, intimidad. Derívalo: enciende más ventanas a lo largo del relato, apaga el bokeh en el silencio.',
     capas: [
       { tipo: 'degradado', id: 'cielo', modo: 'lineal', angulo: 90, stops: ['#050818', '#1a1440', '#4a2a5a'] },
       { tipo: 'estrellas', id: 'estrellas', n: 140, fuerza: 0.55, titileo: 0.5, destellos: 0, paralaje: 0.04 },
@@ -82,8 +83,8 @@ export const PRESETS = {
     ],
   },
   laboratorio: {
-    resumen: 'Laboratorio claro: retícula de puntos, cono de luz de lámpara, semitono y viñeta.', tags: ['claro', 'ciencia', 'medida', 'tecnico'], medio: 'tecnico o pizarra',
-    porque: 'Cuando el tema es medir o razonar, el fondo es una mesa de laboratorio: retícula de referencia, una lámpara que ilumina el experimento y márgenes limpios para los datos.',
+    resumen: 'Ejemplo de partida: laboratorio claro con retícula de puntos, cono de lámpara y semitono.', tags: ['claro', 'ciencia', 'medida', 'tecnico'], medio: 'tecnico o pizarra',
+    porque: 'Ejemplo de partida para relatos de medir, razonar o demostrar: retícula de referencia, una lámpara que ilumina el experimento y márgenes limpios para los datos. Derívalo: mueve el foco de la lámpara hacia el dato, afina la retícula cuando el relato se concreta.',
     capas: [
       { tipo: 'degradado', id: 'pared', stops: ['paper', 'shade'], modo: 'radial', centro: [0.5, 0.55], radio: 1.1, alfa: 1 },
       { tipo: 'reticula', id: 'puntos', estilo: 'puntos', color: 'ink', paso: 0.045, mayor: 0, alfa: 0.18, paralaje: 0.2 },
@@ -94,8 +95,8 @@ export const PRESETS = {
     ],
   },
   taller_madera: {
-    resumen: 'Banco de taller: vetas de madera, cono de lámpara cálida, polvo dorado y rayado.', tags: ['oscuro', 'madera', 'taller', 'calido', 'oficio'], medio: 'sin medio',
-    porque: 'Una historia de oficio (reparar, medir a mano, escribir con pluma) ocurre sobre un banco: las vetas dan escala táctil y la lámpara recorta el objeto del resto.',
+    resumen: 'Ejemplo de partida: banco de taller con vetas, lámpara cálida, polvo dorado y rayones.', tags: ['oscuro', 'madera', 'taller', 'calido', 'oficio'], medio: 'sin medio',
+    porque: 'Ejemplo de partida para relatos de oficio (reparar, medir a mano, escribir con pluma): las vetas dan escala táctil y la lámpara recorta el objeto del resto. Derívalo: baja la lámpara al cerrar el relato, cambia la madera por otro tono.',
     capas: [
       { tipo: 'degradado', id: 'base', modo: 'lineal', angulo: 90, stops: ['#2a1a0e', '#4a2f19', '#241508'] },
       { tipo: 'deformado', id: 'vetas', color: '#2b1a0d', colorB: '#7a5230', escala: 0.14, estira: 7, fuerza: 0.5, contraste: 1.6, alfa: 0.7, mezcla: 'superponer', paralaje: 0.18 },
@@ -106,8 +107,8 @@ export const PRESETS = {
     ],
   },
   amanecer_niebla: {
-    resumen: 'Amanecer con niebla: degradado cálido, sierras en bandas, rayos de sol y polvo.', tags: ['claro', 'amanecer', 'paisaje', 'esperanza', 'niebla'], medio: 'papel_crema',
-    porque: 'Para una apertura serena o un cierre que no explica nada, el amanecer entre la niebla da horizonte y esperanza sin música épica.',
+    resumen: 'Ejemplo de partida: amanecer con niebla, sierras en bandas, rayos de sol y polvo.', tags: ['claro', 'amanecer', 'paisaje', 'esperanza', 'niebla'], medio: 'papel_crema',
+    porque: 'Ejemplo de partida para una apertura serena o un cierre que no explica nada: el horizonte entre la niebla da esperanza sin música épica. Derívalo: levanta el sol y despeja la bruma con keyframes a lo largo del shot.',
     capas: [
       { tipo: 'degradado', id: 'cielo', modo: 'lineal', angulo: 90, stops: ['#7d8fb0', '#e9a98f', '#f6d8b8'] },
       { tipo: 'fbm', id: 'nubes', modo: 'nube', color: '#f6d8b8', colorB: '#fff4de', escala: 0.5, contraste: 1.7, alfa: 0.55, deriva: [0.005, 0], paralaje: 0.1 },
@@ -120,8 +121,8 @@ export const PRESETS = {
     ],
   },
   plano_tecnico: {
-    resumen: 'Plano técnico: retícula milimetrada con líneas mayores, marcas de registro y viñeta.', tags: ['claro', 'plano', 'ingenieria', 'medida'], medio: 'tecnico o tecnico_bermellon',
-    porque: 'Si el relato construye o mide algo (un mecanismo, una balanza, un instrumento), el plano milimetrado enmarca el objeto como pieza de ingeniería.',
+    resumen: 'Ejemplo de partida: plano milimetrado con líneas mayores, marcas de registro y viñeta.', tags: ['claro', 'plano', 'ingenieria', 'medida'], medio: 'tecnico o tecnico_bermellon',
+    porque: 'Ejemplo de partida para relatos que construyen o miden algo (un mecanismo, una balanza, un instrumento): el milimetrado enmarca el objeto como pieza de ingeniería. Derívalo: engrosa la retícula mayor cuando el objeto se acerca al dato.',
     capas: [
       { tipo: 'relleno', id: 'papel', color: 'paper' },
       { tipo: 'reticula', id: 'menor', estilo: 'lineas', color: 'accent2', paso: 0.025, mayor: 0, alfa: 0.3, grosor: 0.8, paralaje: 0.15 },

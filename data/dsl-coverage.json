@@ -26,6 +26,7 @@
   "S03": "diagrama del film sistema: nació en DSL (no hubo JS previo)",
   "S04": "diagrama del film sistema: nació en DSL (no hubo JS previo)",
   "S05": "diagrama del film sistema: nació en DSL (no hubo JS previo)",
+  "FL01": "demo de fondos libres (spec 021): nació en DSL; la capa codigo vive en shots/fondos/burbujas.mjs",
   "V01": "film veinticuatro: nació en DSL (generado por data/veinticuatro/escenas.mjs; no hubo JS previo)",
   "V02": "film veinticuatro: nació en DSL (generado por data/veinticuatro/escenas.mjs; no hubo JS previo)",
   "V03": "film veinticuatro: nació en DSL (generado por data/veinticuatro/escenas.mjs; no hubo JS previo)",

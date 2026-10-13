@@ -9,7 +9,10 @@ import { rootFrom } from './paths.mjs';
 import path from 'node:path';
 import canvasPkg from 'canvas';
 import { compile } from './seek.mjs';
-import { makeSandbox } from './sandbox.mjs';
+import { makeSandbox, SandboxError } from './sandbox.mjs';
+import { hrtime } from 'node:process';                  // binding real: el sandbox sustituye el GLOBAL process, no este módulo
+import { scanSource } from './guard.mjs';
+import { eventosDeFilm } from './fondo-eventos.mjs';
 import { makeTexStore, texReady } from './tex.mjs';
 import { assertTimeline, suggest as suggestName } from './schema.mjs';
 import { assertEdit, assertAudio, assertMedio } from './inputs.mjs';
@@ -65,6 +68,38 @@ export function buildTimeMap(edit, film) {
   return { map, duration: acc, items };
 }
 
+// Eventos del film (fondo-eventos.mjs): lee las escenas DSL y el story del film activo.
+function eventosDe(film, timeline) {
+  const escenas = {}; for (const s of film.shots) { const f = path.join(ROOT, 'shots', `${s.id}.scene.json`); if (fs.existsSync(f)) { try { escenas[s.id] = JSON.parse(fs.readFileSync(f, 'utf8')); } catch { /* la escena rota la reporta dsl validate */ } } }
+  let story = null; try { const sp = process.env.OPUS_STORY ?? film.story ?? filmFile('story.json', filmId() === 'main' ? 'data/story.json' : null, timeline); if (sp && fs.existsSync(path.join(ROOT, sp))) story = JSON.parse(fs.readFileSync(path.join(ROOT, sp), 'utf8')); } catch { story = null; }
+  return eventosDeFilm({ shots: film.shots, story, escenas, W: film.width, H: film.height });
+}
+// Capa `codigo` (spec 021 §B): cada shots/fondos/<n>.mjs pasa la guardia AST de los shots (FIX ⇒ NO se carga, la capa falla cerrada), se importa bajo el hook de
+// imports del sandbox y se ejecuta con los globales del shot (Date congelado, Math.random sembrado, sin red/proceso/timers). Se mide el coste por cuadro.
+export async function cargarCodigoFondos(film, sb) {
+  const dir = path.join(ROOT, 'shots', 'fondos'), mods = new Map(); film.codigoRechazados = {}; film.codigoCoste = {};
+  if (fs.existsSync(dir)) for (const f of fs.readdirSync(dir).filter((x) => x.endsWith('.mjs')).sort()) {
+    const name = `fondos/${f}`, fixes = scanSource(fs.readFileSync(path.join(dir, f), 'utf8'), name.replace(/\.mjs$/, '')).filter((x) => x.level === 'FIX');
+    if (fixes.length) { film.codigoRechazados[name] = fixes.map((x) => x.problem).join('; '); continue; }
+    const fn = await sb.importShot(path.join(dir, f), name);
+    if (typeof fn === 'function') mods.set(name, fn); else film.codigoRechazados[name] = 'no exporta por defecto una función (ctx, t, E)';
+  }
+  const wrapped = new Map();
+  film.codigo = (archivo) => {
+    if (film.codigoRechazados[archivo]) throw new Error(`fondo: codigo "${archivo}" rechazado por la guardia: ${film.codigoRechazados[archivo]}`);
+    const fn = mods.get(archivo); if (!fn) return undefined;
+    let w = wrapped.get(archivo);
+    if (!w) {
+      w = (ctx, t, E) => {
+        const t0 = hrtime.bigint();
+        try { return sb.run(archivo, () => fn(ctx, t, E)); } catch (e) { if (e instanceof SandboxError) return undefined; throw e; }
+        finally { const ms = Number(hrtime.bigint() - t0) / 1e6, c = (film.codigoCoste[archivo] ??= { n: 0, total: 0, max: 0 }); c.n++; c.total += ms; if (ms > c.max) c.max = ms; }
+      };
+      wrapped.set(archivo, w);
+    }
+    return w;
+  };
+}
 export async function loadFilm({ timeline = timelinePath(), animatic = false, style, profile, edit = process.env.OPUS_EDIT } = {}) {
   await texReady();
   const aj = path.join(ROOT, sibling('audio.json', 'data/audio.json', timeline)), R = resolveTimeline(assertTimeline(rd(timeline), timeline), timeline), tl = R.timeline;   // E8 + F4: capas resueltas
@@ -83,6 +118,7 @@ export async function loadFilm({ timeline = timelinePath(), animatic = false, st
   film.resolution = R;
   film.assets = makeAssets(ROOT);
   film.canvas = (w, h) => createCanvas(w, h);
+  film.eventos = eventosDe(film, timeline);                                              // spec 021: impactos, cues y beats del relato para los fondos reactivos y los keyframes con ancla
   film.world3d = createWorld3d();                                                       // spec 004: backend 3D (gl/three solo se cargan si algún shot usa api.world3d)
   if (!animatic && usesWorld3d(tl.shots.map((s) => s.id))) { film.world3d.available; film.world3d.sig(); }   // precarga FUERA del sandbox de shots (que congela process/Date); si falta, api.world3d degrada y lint da FIX
   if (!animatic) {
@@ -91,6 +127,7 @@ export async function loadFilm({ timeline = timelinePath(), animatic = false, st
       const f = path.join(ROOT, 'shots', `${s.id}.mjs`);
       if (fs.existsSync(f)) film.mods[s.id] = sb.wrap(await sb.importShot(f, s.id), s.id);
     }
+    await cargarCodigoFondos(film, sb);                                             // spec 021: capas `codigo` (shots/fondos/*.mjs) bajo el mismo sandbox y guardia
     bindParams(film); assertParams(film);                                           // defaults de los esquemas promovidos + validación
   }
   const ac = path.join(ROOT, 'data/autocam', filmId(timeline) === 'main' ? path.basename(timeline) : filmId(timeline) + '.json');                 // cámaras 'auto' horneadas (válidas solo si el hash coincide)

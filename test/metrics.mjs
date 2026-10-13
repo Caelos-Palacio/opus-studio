@@ -41,7 +41,7 @@ ok('APCA: negro/blanco = 106,04; blanco/negro = −107,88', near(C.apca('#000000
   ok('px → anchos de pantalla (14 px a 1280 = 1,09 %)', near(U.PARAM_UNITS.px.convert(14, film, 'hitR').value, 14 / 1280, 1e-12));
   ok('vh de un tamaño → escala de plano', /MLS/.test(U.PARAM_UNITS.vh.convert(0.17, film, 'size').note) && U.PARAM_UNITS.vh.convert(0.17, film, 'size').unit === 'escala de plano');
   ok('s → fotogramas', /12.0 fotogramas/.test(U.PARAM_UNITS.s.convert(0.4, film, 'textIn').note)); }
-{ const used = new Set(); for (const f of fs.readdirSync(path.join(ROOT, 'shots'))) for (const m of fs.readFileSync(path.join(ROOT, 'shots', f), 'utf8').matchAll(/unit: '([^']+)'/g)) used.add(m[1]);
+{ const used = new Set(); for (const f of fs.readdirSync(path.join(ROOT, 'shots')).filter((n) => /\.mjs$/.test(n))) for (const m of fs.readFileSync(path.join(ROOT, 'shots', f), 'utf8').matchAll(/unit: '([^']+)'/g)) used.add(m[1]);
   ok('todas las unidades de los esquemas de params de los shots tienen conversión', [...used].every((u) => U.PARAM_UNITS[u]), [...used].filter((u) => !U.PARAM_UNITS[u]).join(',')); }
 
 // ── 4. controles analíticos ──

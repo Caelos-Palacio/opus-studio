@@ -10,13 +10,11 @@
 import { rng, clamp, lerp, smooth, hash2, hashStr } from './core.mjs';
 import { hex2rgb, rgba, mix, luminance } from './color.mjs';
 import { compile } from './expr.mjs';
+import { hint, esDinamico, validarDinamico } from './fondo-valor.mjs';
 
 export const PAD = 1.4, TAU = Math.PI * 2;
 export const MEZCLAS = { normal: 'source-over', multiplicar: 'multiply', pantalla: 'screen', luz: 'lighter', superponer: 'overlay' };
-const lev = (a, b) => { const d = Array.from({ length: a.length + 1 }, (_, i) => [i, ...Array(b.length).fill(0)]); for (let j = 0; j <= b.length; j++) d[0][j] = j;
-  for (let i = 1; i <= a.length; i++) for (let j = 1; j <= b.length; j++) d[i][j] = Math.min(d[i - 1][j] + 1, d[i][j - 1] + 1, d[i - 1][j - 1] + (a[i - 1] === b[j - 1] ? 0 : 1)); return d[a.length][b.length]; };
-export const hint = (w, cs) => { let best = null, bd = 1e9; for (const c of cs) { const d = lev(String(w).toLowerCase(), String(c).toLowerCase()); if (d < bd) { bd = d; best = c; } }
-  return best != null && bd <= Math.max(1, Math.floor(String(w).length / 3)) ? `¿quisiste decir "${best}"?` : `válidos: ${[...cs].join(' ')}`; };
+export { hint };
 
 // ── tipos de parámetro (esquema) ──────────────────────────────────────────────────────────────────────────────
 //   num [min,max] · int [min,max] · bool · color · colores (lista) · par ([a,b] números) · enum (opciones) · json (objeto libre)
@@ -58,17 +56,20 @@ function campoFbm(tw, th, { celdas, oct, gain, seed, warp = 0, contraste = 1, es
   }
   return out;
 }
+// spec 021: en una capa con valores animados el campo (caro) se memoriza SIN colores y solo se repinta la rampa
+const campoMemo = (L, tw, th, o) => (L.dyn ? L.memo(`campo|${tw}x${th}|${JSON.stringify(o)}`, () => campoFbm(tw, th, o)) : campoFbm(tw, th, o));
 const rr = (r, [a, b]) => a + (b - a) * r();
 
 // ── registro ──────────────────────────────────────────────────────────────────────────────────────────────────
 export const CAPAS = {};
 const wc = (s) => String(s).trim().split(/\s+/).length;
-function capa(tipo, familia, resumen, tags, params, def, draw) {
+export function capa(tipo, familia, resumen, tags, params, def, draw) {
   if (wc(resumen) > 15) throw new Error(`capa ${tipo}: resumen > 15 palabras`);
   CAPAS[tipo] = { tipo, familia, resumen, tags: [familia, ...tags], params: { ...COMUNES, ...params }, paralaje: def.paralaje ?? 0.3, deriva: def.deriva ?? 'none', draw };
 }
 const textura = (L, ctx, key, tw, th, build, { dx = L.dx, dy = L.dy } = {}) => {            // dibuja una textura periódica que cubre el PAD, con deriva envolvente
-  const cv = L.tex(key, tw, th, build), X0 = L.X0, Y0 = L.Y0, WW = L.WW, HH = L.HH, ox = mod(dx, WW), oy = mod(dy, HH);
+  const cv = L.dyn ? L.texDin(tw, th, build) : L.tex(key, tw, th, build),                    // spec 021: capa con valores animados ⇒ el lienzo persiste y se repinta por cuadro (el campo de ruido, memorizado)
+ X0 = L.X0, Y0 = L.Y0, WW = L.WW, HH = L.HH, ox = mod(dx, WW), oy = mod(dy, HH);
   ctx.imageSmoothingEnabled = true;
   for (let a = -1; a <= 0; a++) for (let b = -1; b <= 0; b++) { const x = X0 + ox + a * WW, y = Y0 + oy + b * HH; if (x + WW < -2 || y + HH < -2 || x > L.W + 2 || y > L.H + 2) continue; ctx.drawImage(cv, x, y, WW + 0.5, HH + 0.5); }
 };
@@ -104,7 +105,7 @@ const RUIDO = { color: T.color('shade', 'color de los valles'), colorB: T.color(
   estira: T.num(1, 'estira el grano en horizontal (vetas)', 0.2, 12), octavas: T.int(5, 'capas de detalle', 1, 8), aspereza: T.num(0.5, 'peso de cada octava', 0.1, 0.9), contraste: T.num(1, 'contraste del campo', 0.2, 3), modo: T.enu('rampa', 'rampa: opaco A→B · nube: B con alfa según el campo', ['rampa', 'nube']) };
 const ruidoDraw = (warpDef) => (ctx, p, L) => {
   const [tw, th] = texSize(L), A = rgbOf(L, p.color), B = rgbOf(L, p.colorB), warp = p.fuerza ?? 0, cel = Math.max(1.5, (1 / p.escala) * 1.4);
-  textura(L, ctx, `ruido|${JSON.stringify([p, L.palKey, L.seed])}`, tw, th, (x2d) => rampa(x2d, tw, th, campoFbm(tw, th, { celdas: cel, oct: p.octavas, gain: p.aspereza, seed: L.seed, warp, contraste: p.contraste, estira: p.estira }), A, B, p.modo === 'nube'));
+  textura(L, ctx, `ruido|${JSON.stringify([p, L.palKey, L.seed])}`, tw, th, (x2d) => rampa(x2d, tw, th, campoMemo(L, tw, th, { celdas: cel, oct: p.octavas, gain: p.aspereza, seed: L.seed, warp, contraste: p.contraste, estira: p.estira }), A, B, p.modo === 'nube'));
 };
 capa('fbm', 'ruido', 'Campo de ruido fractal suave: nubes, manchas, textura de soporte.', ['nube', 'textura', 'organico'], RUIDO, { deriva: 'tex', paralaje: 0.25 }, ruidoDraw());
 capa('deformado', 'ruido', 'Ruido con dominio deformado: humo, mármol, vetas fluidas.', ['humo', 'marmol', 'fluido'], { ...RUIDO, fuerza: T.num(0.7, 'cuánto se deforma el dominio', 0, 2) }, { deriva: 'tex', paralaje: 0.25 }, ruidoDraw());
@@ -130,7 +131,7 @@ capa('flujo', 'ruido', 'Líneas de flujo que siguen un campo de ruido, con trazo
   color: T.color('ink', 'color de las líneas'), n: T.int(120, 'número de líneas', 5, 600), largo: T.num(0.28, 'largo de cada línea (lado menor)', 0.03, 1.5), giro: T.num(1.3, 'cuánto se curva el campo', 0, 4),
   escala: T.num(0.45, 'tamaño de los remolinos', 0.05, 2), grosor: T.num(1.2, 'grosor en píxeles de referencia', 0.3, 12), velocidad: T.num(0.1, 'avance del trazo (ciclos por segundo)', 0, 3), alfaMin: T.num(0.25, 'alfa mínimo por línea', 0, 1) }, { paralaje: 0.45 },
   (ctx, p, L) => {
-    const pts = L.memo(`flujo|${JSON.stringify([p, L.seed, L.W, L.H])}`, () => {
+    const pts = L.memo(`flujo|${JSON.stringify([L.sp, L.seed, L.W, L.H])}`, () => {
       const R = rng(L.seed), m = Math.min(L.W, L.H), out = [], pasos = 36, h = (p.largo * m) / pasos, cel = Math.max(1, 1 / p.escala);
       for (let i = 0; i < p.n; i++) { let x = L.X0 + R() * L.WW, y = L.Y0 + R() * L.HH; const line = []; for (let s = 0; s <= pasos; s++) { line.push([x, y]);
         const a = pnoise((x / L.W) * cel, (y / L.H) * cel, 997, 997, L.seed) * TAU * p.giro; x += Math.cos(a) * h; y += Math.sin(a) * h; } out.push({ line, a: p.alfaMin + R() * (1 - p.alfaMin), ph: R() }); }
@@ -152,7 +153,7 @@ capa('niebla', 'atmosfera', 'Niebla por profundidad: velo que espesa hacia el ho
   (ctx, p, L) => {
     const [tw, th] = texSize(L, 512), C = rgbOf(L, p.color);
     textura(L, ctx, `niebla|${JSON.stringify([p, L.palKey, L.seed])}`, tw, th, (x2d) => {
-      const f = campoFbm(tw, th, { celdas: Math.max(2, (1 / p.escala) * 1.6), oct: 4, gain: 0.55, seed: L.seed, contraste: 1.1 }), im = x2d.createImageData(tw, th), d = im.data;
+      const f = campoMemo(L, tw, th, { celdas: Math.max(2, (1 / p.escala) * 1.6), oct: 4, gain: 0.55, seed: L.seed, contraste: 1.1 }), im = x2d.createImageData(tw, th), d = im.data;
       for (let j = 0; j < th; j++) { const y = (L.Y0 + (j / th) * L.HH) / L.H, g = Math.exp(-(((y - p.horizonte) / p.altura) ** 2) * 2.2);
         for (let i = 0; i < tw; i++) { const q = (j * tw + i) * 4, n = lerp(1, f[j * tw + i] * 1.5, p.ruido); d[q] = C[0]; d[q + 1] = C[1]; d[q + 2] = C[2]; d[q + 3] = 255 * clamp(g * n * p.densidad); } }
       x2d.putImageData(im, 0, 0);
@@ -186,7 +187,7 @@ capa('bokeh', 'atmosfera', 'Discos de luz desenfocada con borde vivo, que respir
   colores: T.colores(['accent', 'paper'], 'colores de los discos'), n: T.int(24, 'número de discos', 1, 200), radio: T.par([0.02, 0.08], 'radio mínimo y máximo (lado menor)'), alfaMax: T.num(0.28, 'alfa máximo', 0.02, 1),
   respira: T.num(0.3, 'cuánto respiran 0..1', 0, 1), viento: T.par([0.006, -0.003], 'velocidad [x,y] (lado menor por segundo)') }, { paralaje: 0.6, deriva: 'pts' },
   (ctx, p, L) => {
-    const m = Math.min(L.W, L.H), pts = L.memo(`bokeh|${JSON.stringify(p)}|${L.seed}`, () => { const R = rng(L.seed); return Array.from({ length: p.n }, () => ({ x: R(), y: R(), r: rr(R, p.radio), c: Math.floor(R() * p.colores.length), a: 0.4 + 0.6 * R(), ph: R() * TAU, f: 0.3 + R() * 0.9 })); });
+    const m = Math.min(L.W, L.H), pts = L.memo(`bokeh|${L.sp}|${L.seed}`, () => { const R = rng(L.seed); return Array.from({ length: p.n }, () => ({ x: R(), y: R(), r: rr(R, p.radio), c: Math.floor(R() * p.colores.length), a: 0.4 + 0.6 * R(), ph: R() * TAU, f: 0.3 + R() * 0.9 })); });
     for (const q of pts) {
       const x = L.X0 + mod(q.x * L.WW + p.viento[0] * m * L.t + L.dx * 0.6, L.WW), y = L.Y0 + mod(q.y * L.HH + p.viento[1] * m * L.t + L.dy * 0.6, L.HH), r = q.r * m, c = L.hex(p.colores[q.c]);
       const a = p.alfaMax * q.a * (1 - p.respira * (0.5 - 0.5 * Math.sin(L.t * q.f + q.ph))), g = ctx.createRadialGradient(x, y, r * 0.2, x, y, r);
@@ -210,7 +211,7 @@ capa('orbes', 'atmosfera', 'Esferas luminosas de cristal, como lunas o fotomulti
   radio: T.num(0.035, 'radio medio (lado menor)', 0.004, 0.4), area: T.par([0.12, 0.88], 'tramo vertical ocupado [y0,y1]'), perspectiva: T.num(0.5, 'las de abajo/centro se ven mayores 0..1', 0, 1), brillo: T.num(0.8, 'intensidad de la luz 0..1', 0, 1),
   parpadeo: T.num(0.5, 'cuánto parpadean 0..1', 0, 1), destello: T.num(0.04, 'probabilidad de que una esfera se encienda a tope', 0, 1) }, { paralaje: 0.55 },
   (ctx, p, L) => {
-    const m = Math.min(L.W, L.H), pts = L.memo(`orbes|${JSON.stringify(p)}|${L.seed}|${L.W}x${L.H}`, () => {
+    const m = Math.min(L.W, L.H), pts = L.memo(`orbes|${L.sp}|${L.seed}|${L.W}x${L.H}`, () => {
       const R = rng(L.seed), out = [], cols = Math.max(1, Math.round(Math.sqrt((p.n * L.WW) / L.HH))), rows = Math.max(1, Math.ceil(p.n / cols));
       for (let i = 0; i < p.n; i++) { let x, y;
         if (p.disposicion === 'rejilla') { x = ((i % cols) + 0.5 + (Math.floor(i / cols) % 2) * 0.5 - 0.25) / cols; y = p.area[0] + ((Math.floor(i / cols) + 0.5) / rows) * (p.area[1] - p.area[0]); x += (R() - 0.5) * 0.02 / 1; y += (R() - 0.5) * 0.02; }
@@ -249,7 +250,7 @@ capa('trama', 'motivo', 'Rayado cruzado a mano: líneas paralelas irregulares, s
   color: T.color('ink', 'color del trazo'), angulo: T.num(45, 'inclinación en grados', -90, 90), paso: T.num(0.012, 'separación (lado menor)', 0.003, 0.2), cruzada: T.bool(false, 'segunda pasada en perpendicular'),
   grosor: T.num(0.9, 'grosor en píxeles de referencia', 0.3, 6), irregular: T.num(0.5, 'temblor de cada línea 0..1', 0, 1), cobertura: T.num(0.75, 'fracción de líneas que se dibujan 0..1', 0.05, 1) }, { paralaje: 0.3 },
   (ctx, p, L) => {
-    const lines = L.memo(`trama|${JSON.stringify(p)}|${L.seed}|${L.W}x${L.H}`, () => {
+    const lines = L.memo(`trama|${L.sp}|${L.seed}|${L.W}x${L.H}`, () => {
       const R = rng(L.seed), m = Math.min(L.W, L.H), s = p.paso * m, D = Math.hypot(L.WW, L.HH), out = [];
       for (let pass = 0; pass < (p.cruzada ? 2 : 1); pass++) for (let o = -D / 2; o < D / 2; o += s * (0.85 + R() * 0.3)) if (R() < p.cobertura) { const a = D * (0.4 + 0.6 * R()), b = D * (0.4 + 0.6 * R()); out.push({ pass, o, a, b, j: (R() - 0.5) * s * p.irregular * 2, w: 0.6 + R() * 0.8 }); }
       return out;
@@ -273,7 +274,7 @@ capa('semitono', 'motivo', 'Puntos de semitono cuyo tamaño sigue un campo radia
   color: T.color('ink', 'color de los puntos'), paso: T.num(0.022, 'separación (lado menor)', 0.006, 0.2), campo: T.enu('radial', 'qué decide el tamaño', ['radial', 'lineal', 'ruido']), angulo: T.num(45, 'giro de la malla en grados', -90, 90),
   tamano: T.num(0.9, 'tamaño máximo relativo al paso', 0.1, 1.6), centro: T.par([0.5, 0.45], 'centro del campo radial'), direccion: T.num(90, 'campo lineal: grados', -360, 360), invertir: T.bool(false, 'invierte el campo') }, { paralaje: 0.25 },
   (ctx, p, L) => {
-    const dots = L.memo(`semitono|${JSON.stringify(p)}|${L.seed}|${L.W}x${L.H}`, () => {
+    const dots = L.memo(`semitono|${L.sp}|${L.seed}|${L.W}x${L.H}`, () => {
       const m = Math.min(L.W, L.H), s = p.paso * m, a = (p.angulo * Math.PI) / 180, ca = Math.cos(a), sa = Math.sin(a), D = Math.hypot(L.WW, L.HH), out = [];
       for (let j = -D / 2; j < D / 2; j += s) for (let i = -D / 2; i < D / 2; i += s) {
         const x = L.W / 2 + ca * i - sa * j, y = L.H / 2 + sa * i + ca * j; if (x < L.X0 || x > L.X0 + L.WW || y < L.Y0 || y > L.Y0 + L.HH) continue;
@@ -297,7 +298,7 @@ capa('motivo', 'motivo', 'Motivo repetido (cruz, hoja, estrella…) con variaci�
   paso: T.num(0.1, 'separación (lado menor)', 0.02, 0.8), tamano: T.num(0.28, 'tamaño relativo al paso', 0.05, 1.5), variacion: T.num(0.3, 'cuánto varían posición, giro y tamaño 0..1', 0, 1), relleno: T.bool(false, 'relleno en vez de trazo'),
   grosor: T.num(1.2, 'grosor del trazo en píxeles de referencia', 0.3, 8), giro: T.num(0, 'giro base en grados', -180, 180) }, { paralaje: 0.3, deriva: 'per' },
   (ctx, p, L) => {
-    const m = Math.min(L.W, L.H), s = p.paso * m, items = L.memo(`motivo|${JSON.stringify(p)}|${L.seed}|${L.W}x${L.H}`, () => {
+    const m = Math.min(L.W, L.H), s = p.paso * m, items = L.memo(`motivo|${L.sp}|${L.seed}|${L.W}x${L.H}`, () => {
       const R = rng(L.seed), out = [], cols = Math.ceil(L.WW / s) + 2, rows = Math.ceil(L.HH / (s * (p.disposicion === 'hex' ? 0.866 : 1))) + 2, N = p.disposicion === 'dispersa' ? Math.round((L.WW * L.HH) / (s * s)) : cols * rows;
       for (let q = 0; q < N; q++) {
         let x, y; if (p.disposicion === 'dispersa') { x = R() * L.WW; y = R() * L.HH; } else { const i = q % cols, j = Math.floor(q / cols), off = p.disposicion === 'rejilla' ? 0 : (j % 2) * 0.5; x = (i + off) * s; y = j * s * (p.disposicion === 'hex' ? 0.866 : 1); }
@@ -380,7 +381,7 @@ capa('perfil', 'tematica', 'Silueta de horizonte: montañas, ciudad con ventanas
   detalle: T.int(6, 'octavas de detalle (montañas) o densidad', 1, 12), luces: T.color('paper', 'color de las ventanas encendidas (ciudad)'), encendidas: T.num(0.28, 'fracción de ventanas encendidas', 0, 1), parpadeo: T.num(0.03, 'fracción de ventanas que parpadean', 0, 1),
   lleno: T.bool(true, 'relleno hasta el borde inferior') }, { paralaje: 0.7 },
   (ctx, p, L) => {
-    const m = Math.min(L.W, L.H), baseY = L.H * p.base, S = L.memo(`perfil|${JSON.stringify(p)}|${L.seed}|${L.W}x${L.H}`, () => {
+    const m = Math.min(L.W, L.H), baseY = L.H * p.base, S = L.memo(`perfil|${L.sp}|${L.seed}|${L.W}x${L.H}`, () => {
       const R = rng(L.seed), out = { pts: [], win: [] };
       if (p.modo === 'ciudad') { let x = L.X0; while (x < L.X0 + L.WW) { const w = (0.03 + R() * 0.06) * m, h = (0.2 + R() * 0.8) * p.altura * m; out.pts.push({ x, w, h }); const cols = Math.max(1, Math.floor(w / (0.014 * m))), rows = Math.max(1, Math.floor(h / (0.022 * m)));
         for (let j = 0; j < rows; j++) for (let i = 0; i < cols; i++) if (R() < p.encendidas) out.win.push({ x: x + w * ((i + 0.5) / cols), y: baseY - h + (j + 0.7) * (h / rows) * 0.92, w: w / cols * 0.5, h: h / rows * 0.4, fl: R() < p.parpadeo, ph: R() * TAU, f: 0.5 + R() * 3 }); x += w; } }
@@ -408,17 +409,19 @@ export const META_CAPAS = Object.values(CAPAS).map(metaCapa);
 const isHex = (s) => /^#[0-9a-fA-F]{3,8}$/.test(s), isRole = (s) => /^[A-Za-z][A-Za-z0-9]*$/.test(s);
 export function colorOk(v) {
   if (typeof v === 'string') return isHex(v) || isRole(v);
-  if (v && typeof v === 'object' && !Array.isArray(v)) { const k = Object.keys(v); return (k.length === 1 && k[0] === 'paleta' && typeof v.paleta === 'number') || (k.length === 1 && k[0] === 'mezcla' && Array.isArray(v.mezcla) && v.mezcla.length === 3 && colorOk(v.mezcla[0]) && colorOk(v.mezcla[1]) && typeof v.mezcla[2] === 'number'); }
+  if (v && typeof v === 'object' && !Array.isArray(v)) { const k = Object.keys(v); return (k.length === 1 && k[0] === 'paleta' && (typeof v.paleta === 'number' || esDinamico(v.paleta))) || (k.length === 1 && k[0] === 'mezcla' && Array.isArray(v.mezcla) && v.mezcla.length === 3 && (colorOk(v.mezcla[0]) || esDinamico(v.mezcla[0])) && (colorOk(v.mezcla[1]) || esDinamico(v.mezcla[1])) && (typeof v.mezcla[2] === 'number' || esDinamico(v.mezcla[2]))); }
   return false;
 }
+const esDinamicoRaiz = (v) => v && typeof v === 'object' && !Array.isArray(v) && (Array.isArray(v.k) || typeof v.expr === 'string');
+const okFor = (d) => (x, tipo) => d.type === 'json' ? '' : valorOk(!tipo || tipo === d.type ? d : tipo === 'num' ? { type: 'num', min: -1e6, max: 1e6 } : { ...d, type: tipo }, x);
 function valorOk(d, v) {
   switch (d.type) {
     case 'num': return typeof v === 'number' && Number.isFinite(v) && v >= d.min && v <= d.max ? '' : `número en [${d.min}, ${d.max}]`;
     case 'int': return Number.isInteger(v) && v >= d.min && v <= d.max ? '' : `entero en [${d.min}, ${d.max}]`;
     case 'bool': return typeof v === 'boolean' ? '' : 'true | false';
     case 'color': return colorOk(v) ? '' : 'rol de la paleta, #hex, {mezcla:[a,b,u]} o {paleta:u}';
-    case 'colores': return Array.isArray(v) && v.length <= 12 && v.every(colorOk) ? '' : 'lista de colores (rol, #hex, {mezcla}, {paleta})';
-    case 'par': return Array.isArray(v) && v.length === 2 && v.every((x) => typeof x === 'number' && Number.isFinite(x)) ? '' : '[número, número]';
+    case 'colores': return Array.isArray(v) && v.length <= 12 && v.every((x) => colorOk(x) || esDinamico(x)) ? '' : 'lista de colores (rol, #hex, {mezcla}, {paleta})';
+    case 'par': return Array.isArray(v) && v.length === 2 && v.every((x) => (typeof x === 'number' && Number.isFinite(x)) || esDinamico(x)) ? '' : '[número, número]';
     case 'enum': return d.opts.includes(v) ? '' : `uno de: ${d.opts.join(' ')}`;
     case 'string': return v == null || typeof v === 'string' ? '' : 'texto';
     case 'json': return v == null || (typeof v === 'object' && !Array.isArray(v)) ? '' : 'objeto';
@@ -432,8 +435,14 @@ export function validateCapa(c, path, E) {
   for (const k of Object.keys(c)) {
     if (k === 'tipo') continue;
     const d = def.params[k]; if (!d) { E(`${path}/${k}`, `parámetro desconocido "${k}" en capa ${c.tipo}`, hint(k, Object.keys(def.params))); continue; }
+    if (esDinamico(c[k])) {                                                    // spec 021: expr / keyframes en cualquier parámetro
+      if (d.type === 'string' || (d.type === 'json' && !d.din)) { E(`${path}/${k}`, `"${k}" no admite valores animados`, 'solo los parámetros numéricos, de color, par, enum y bool'); continue; }
+      if (!esDinamicoRaiz(c[k])) { const bad = valorOk(d, c[k]); if (bad) E(`${path}/${k}`, `valor no válido para "${k}"`, bad); }
+      validarDinamico(c[k], d.type, `${path}/${k}`, E, okFor(d)); continue;
+    }
     const bad = valorOk(d, c[k]); if (bad) E(`${path}/${k}`, `valor no válido para "${k}"`, bad);
   }
+  def.validar?.(c, path, E);
   if (c.id != null && !/^[A-Za-z][A-Za-z0-9]*$/.test(c.id)) E(`${path}/id`, `id "${c.id}" no válido (letras y dígitos)`);
   if (c.anim) for (const [k, src] of Object.entries(c.anim)) {
     if (!ANIM_KEYS.includes(k)) { E(`${path}/anim/${k}`, `anim desconocida "${k}"`, hint(k, ANIM_KEYS)); continue; }

@@ -313,3 +313,17 @@ export function scanShots(root, ids) {
   }
   return out;
 }
+
+// Capas `codigo` de los fondos (spec 021): shots/fondos/*.mjs pasan EXACTAMENTE la misma guardia que un shot (mismo AST, mismos imports permitidos).
+// Devuelve los hallazgos con shot = 'fondos/<n>'; un FIX impide cargar el módulo (film.mjs) y bloquea el lint.
+export function scanFondoCodigo(root) {
+  const dir = path.join(root, 'shots', 'fondos'), out = [];
+  if (!fs.existsSync(dir)) return out;
+  for (const f of fs.readdirSync(dir).filter((x) => x.endsWith('.mjs')).sort()) {
+    const id = `fondos/${f.slice(0, -4)}`, file = path.join(dir, f), r = scanSource(fs.readFileSync(file, 'utf8'), id);
+    for (const { spec, line } of r.imports ?? []) if (!shotImportAllowed(root, path.resolve(path.dirname(file), spec)))
+      r.push({ level: 'FIX', shot: id, line, problem: `import prohibido '${spec}' en shots/${id}.mjs:${line}`, remedy: 'un fondo de código solo importa módulos puros del motor (core, color, geom…) u otro shot' });
+    out.push(...r);
+  }
+  return out;
+}

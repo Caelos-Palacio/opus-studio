@@ -87,6 +87,7 @@ export function closure(roots) {
   while (stack.length) {
     const f = stack.pop(); if (seen.has(f)) continue; seen.add(f);
     if (!/\.(m?js|cjs)$/.test(f)) continue;                                // .json importado: hoja (entra por contenido)
+    if (rel(f).startsWith('shots/')) for (const m of fs.readFileSync(f, 'utf8').matchAll(CODIGO_REF)) { const t = path.join(ROOT, 'shots', m[1]); if (fs.existsSync(t) && !seen.has(t)) stack.push(t); }   // spec 021: capa `codigo` = dependencia exacta del shot
     for (const s of specifiers(f)) {
       if (s.startsWith('.') || s.startsWith('/')) { const t = path.resolve(path.dirname(f), s); if (fs.existsSync(t) && !seen.has(t) && !stopped(t)) stack.push(t); }
       else if (!s.startsWith('node:') && !isBuiltin(s) && !s.includes('${')) pkgs.add(pkgName(s));
@@ -117,9 +118,27 @@ export function engineSig(roots = PIXEL_ROOTS) {
 }
 
 // Código de un shot y TODO lo que importa (cualquier ruta relativa, también ../engine/*.mjs y su cierre).
+// spec 021: un fondo puede depender de ficheros que el shot no importa: el código de sus capas `codigo` (shots/fondos/*.mjs) y el story (beats = anclas).
+const CODIGO_REF = /["']?archivo["']?\s*:\s*["'](fondos\/[A-Za-z0-9_-]+\.mjs)["']/g, USA_CODIGO = /["']codigo["']/, USA_EVENTOS = /["']?\ben["']?\s*:\s*["']|\b(pulso|desde|hasta|paso|cuenta)\(|["'](onda|mancha|pulso)["']|["']eventos["']?\s*:/;
+function extrasFondo(files) {
+  const extra = new Set(); let codigo = false, eventos = false;
+  for (const rel of files) {
+    if (!rel.startsWith('shots/')) continue;
+    let src; try { src = fs.readFileSync(path.join(ROOT, rel), 'utf8'); } catch { continue; }
+    for (const m of src.matchAll(CODIGO_REF)) extra.add('shots/' + m[1]);
+    if (USA_CODIGO.test(src)) codigo = true;
+    if (USA_EVENTOS.test(src)) eventos = true;
+  }
+  const dir = path.join(ROOT, 'shots/fondos');
+  if (codigo && !extra.size && fs.existsSync(dir)) for (const f of fs.readdirSync(dir)) if (f.endsWith('.mjs')) extra.add('shots/fondos/' + f);   // referencia dinámica: todos
+  return { extra: [...extra].sort(), eventos };
+}
 export function shotDeps(id) {
   const f = path.join('shots', id + '.mjs'); if (!fs.existsSync(path.join(ROOT, f))) return '';
-  return sigOf(closure([f]));
+  const base = closure([f]), { extra, eventos } = extrasFondo(base.files);
+  if (!extra.length && !eventos) return sigOf(base);                    // sin fondo libre: la firma de siempre (no caduca nada existente)
+  const stories = fs.existsSync(path.join(ROOT, 'data')) ? [path.join(ROOT, 'data/story.json'), ...fs.readdirSync(path.join(ROOT, 'data'), { withFileTypes: true }).filter((e) => e.isDirectory()).map((e) => path.join(ROOT, 'data', e.name, 'story.json'))] : [];
+  return sha256(sigOf(closure([f, ...extra])) + '\n' + (eventos ? stories.filter((x) => fs.existsSync(x)).map((x) => rel(x) + ':' + fileDigest(x)).join('\n') : ''));
 }
 // Hash del contenido de UN shot (su entrada + código + deps), independiente del motor: lo usa autocam para invalidarse.
 export const shotHash = (film, id) => { const s = film.shots.find((x) => x.id === id), { cam, ...rest } = s; return sha(rest, cam?.move === 'auto' ? { ...cam } : cam, shotDeps(id), film.width, film.height, JSON.stringify(film.S.camera), JSON.stringify(film.P.safe)); };
