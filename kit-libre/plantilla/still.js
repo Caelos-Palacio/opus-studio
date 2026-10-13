@@ -4,12 +4,12 @@ import fs from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { createCanvas } from 'canvas';
 import { frame, cajas } from './frame.js';
-import { W, H, escenas, cruce } from './timeline.js';
+import { W, H, escenas, cruces } from './timeline.js';
 import { textoTapado } from '../kit/auditoria.mjs';
 
 const A = process.argv.slice(2), k = A.includes('--escala') ? parseFloat(A[A.indexOf('--escala') + 1]) : 1, dir = path.join(path.dirname(fileURLToPath(import.meta.url)), 'salida', 'stills');
 const ts = A.filter((x) => !isNaN(x) && !A.includes('--escala') || (!isNaN(x) && A[A.indexOf('--escala') + 1] !== x)).map(Number);
-const lista = ts.length ? ts : escenas.flatMap((e, i) => [e.t0 + e.dur / 2, ...(i < escenas.length - 1 ? [e.t0 + e.dur - cruce / 2] : [])]);
+const lista = ts.length ? ts : escenas.flatMap((e, i) => [e.t0 + e.dur / 2, ...(i < escenas.length - 1 ? [e.t0 + e.dur - cruces[i] / 2] : [])]);
 fs.mkdirSync(dir, { recursive: true });
 for (const t of lista) {
   const c = createCanvas(Math.round(W * k), Math.round(H * k)); frame(c.getContext('2d'), t);

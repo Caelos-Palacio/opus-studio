@@ -24,7 +24,7 @@ export function registrarFuentes() {
 }
 
 const MC = createCanvas(8, 8).getContext('2d'), TC = new Map();
-const fuente = (peso, tam, mono) => { const f = registrarFuentes(); return `${peso} ${tam}px ${mono ? f.mono : f.serif}`; };
+export const fuenteCss = (peso, tam, mono) => { const f = registrarFuentes(); return `${peso} ${tam}px ${mono ? f.mono : f.serif}`; };
 const WC = new Map();
 const ancho = (font, s) => { const k = font + '|' + s; if (!WC.has(k)) { if (WC.size > 2000) WC.clear(); MC.font = font; WC.set(k, MC.measureText(s).width); } return WC.get(k); };
 // Los textos se rasterizan UNA vez (cache): medir/pintar bajo una escala de camara cambiante cuesta ~300 ms por llamada en pango.
@@ -38,27 +38,53 @@ function sello(str, font, color, tam, inter, alinear) {
 
 /** texto(ctx,str,x,y,{tam,peso,color,alinear,fondoVelo,mono,alfa}): dibuja texto (y = borde superior, admite \n) y devuelve su caja {x,y,w,h}. */
 export function texto(ctx, str, x, y, { tam = 40, peso = 'normal', color = '#1e1a17', alinear = 'left', fondoVelo = null, mono = false, alfa = 1, interlinea = 1.3 } = {}) {
-  const r = sello(str, fuente(peso, tam, mono), color, tam, interlinea, alinear), x0 = alinear === 'center' ? x - r.w / 2 : alinear === 'right' ? x - r.w : x;
+  const r = sello(str, fuenteCss(peso, tam, mono), color, tam, interlinea, alinear), x0 = alinear === 'center' ? x - r.w / 2 : alinear === 'right' ? x - r.w : x;
   ctx.save();
   if (fondoVelo) for (let k = 5; k >= 0; k--) { const p = tam * (0.3 + 0.18 * k); ctx.fillStyle = rgba(fondoVelo, 0.14); ctx.beginPath(); ctx.roundRect(x0 - p, y - p * 0.6, r.w + 2 * p, r.h + 1.2 * p, tam * 0.6); ctx.fill(); }
   ctx.globalAlpha = alfa; ctx.drawImage(r.c, x0 - r.pad, y - r.pad); ctx.restore();
-  return { x: x0, y, w: r.w, h: r.h };
+  return { x: x0, y, w: r.w, h: r.h, color, tam, alfa };
 }
 
 /** cifrasTabulares(ctx,numero,x,y,{tam,decimales,alinear,color,peso}): numero con cada digito centrado en celda de ancho fijo (sin bailes al contar); devuelve la caja. */
 export function cifrasTabulares(ctx, n, x, y, { tam = 64, decimales = 0, alinear = 'left', color = '#1e1a17', peso = 'normal', mono = false } = {}) {
-  const font = fuente(peso, tam, mono); let [ent, dec] = Math.abs(n).toFixed(decimales).split('.'); ent = ent.replace(/\B(?=(\d{3})+$)/g, '\u00a0'); const s = (n < 0 ? '-' : '') + ent + (dec ? ',' + dec : '');
+  const font = fuenteCss(peso, tam, mono); let [ent, dec] = Math.abs(n).toFixed(decimales).split('.'); ent = ent.replace(/\B(?=(\d{3})+$)/g, '\u00a0'); const s = (n < 0 ? '-' : '') + ent + (dec ? ',' + dec : '');
   const celda = Math.max(...'0123456789'.split('').map((d) => ancho(font, d))), cs = [...s].map((c) => ({ r: sello(c, font, color, tam, 1, 'left'), a: /\d/.test(c) ? celda : ancho(font, c) })), W = cs.reduce((a, c) => a + c.a, 0);
   let cx = alinear === 'center' ? x - W / 2 : alinear === 'right' ? x - W : x; const x0 = cx;
   for (const { r, a } of cs) { ctx.drawImage(r.c, cx + a / 2 - r.w / 2 - r.pad, y - r.pad); cx += a; }
-  return { x: x0, y, w: W, h: tam };
+  return { x: x0, y, w: W, h: tam, color, tam, alfa: 1 };
 }
 
-/** escribirse(str,lt,{cps,pausa}): parte de `str` ya escrita tras lt segundos (cps letras/s, pausa extra tras puntuacion). */
-export function escribirse(str, lt, { cps = 18, pausa = 0.22 } = {}) {
+/**
+ * escribirse(str,lt,{cps,pausa}): parte de `str` ya escrita tras lt segundos (cps letras/s, pausa extra tras puntuacion).
+ * Con `ctx` (+ x,y,alinear y las opciones de texto) TAMBIEN lo dibuja con ancla estable: cada linea se ancla segun su ancho
+ * COMPLETO, asi un texto centrado o a la derecha no se mueve al ir escribiendose. Entonces devuelve la caja del texto completo.
+ */
+export function escribirse(str, lt, { cps = 18, pausa = 0.22, ctx = null, x = 0, y = 0, alinear = 'left', ...opts } = {}) {
   let t = 0, i = 0;
   for (; i < str.length; i++) { t += 1 / cps + (/[,;:.]/.test(str[i]) ? pausa : 0); if (t > lt) break; }
-  return str.slice(0, i);
+  const parte = str.slice(0, i);
+  if (!ctx) return parte;
+  const tam = opts.tam ?? 40, inter = opts.interlinea ?? 1.3, font = fuenteCss(opts.peso ?? 'normal', tam, opts.mono), L = str.split('\n'), parL = parte.split('\n'), lw = L.map((l) => ancho(font, l)), w = Math.max(...lw);
+  const ax = (k) => alinear === 'center' ? x - lw[k] / 2 : alinear === 'right' ? x - lw[k] : x;
+  parL.forEach((l, k) => { if (l) texto(ctx, l, ax(k), y + k * tam * inter, { ...opts, alinear: 'left', interlinea: inter }); });
+  return { x: alinear === 'center' ? x - w / 2 : alinear === 'right' ? x - w : x, y, w, h: tam * inter * (L.length - 1) + tam, color: opts.color ?? '#1e1a17', tam, alfa: opts.alfa ?? 1 };
+}
+
+/** ajustarTexto(str,ancho,alto,{tam,min,interlinea,peso,mono}): parte en lineas (palabras) y baja el cuerpo hasta caber en ancho x alto; {str,tam,cabe}. */
+export function ajustarTexto(str, anchoMax, altoMax, { tam = 40, min = 14, interlinea = 1.3, peso = 'normal', mono = false } = {}) {
+  for (let s = tam; s >= min; s -= 1) {
+    const font = fuenteCss(peso, s, mono), lineas = []; let cur = '';
+    for (const p of String(str).split(/(\s+)/)) { const prueba = cur + p; if (!cur || ancho(font, prueba.trimEnd()) <= anchoMax) cur = prueba; else { lineas.push(cur.trimEnd()); cur = p.trimStart(); } }
+    lineas.push(cur.trimEnd());
+    if (Math.max(...lineas.map((l) => ancho(font, l))) <= anchoMax && s * interlinea * (lineas.length - 1) + s <= altoMax) return { str: lineas.join('\n'), tam: s, cabe: true };
+  }
+  const font = fuenteCss(peso, min, mono); return { str: String(str), tam: min, cabe: ancho(font, String(str)) <= anchoMax && min <= altoMax };
+}
+
+/** textoEn(ctx,str,cont,{...texto}): texto ajustado DENTRO del contenedor {x,y,w,h} (parte lineas, reduce cuerpo). La caja devuelta lleva `contenedor` para la auditoria. */
+export function textoEn(ctx, str, cont, { tam = 40, min = 14, alinear = 'left', interlinea = 1.3, ...opts } = {}) {
+  const a = ajustarTexto(str, cont.w, cont.h, { tam, min, interlinea, peso: opts.peso, mono: opts.mono }), x = alinear === 'center' ? cont.x + cont.w / 2 : alinear === 'right' ? cont.x + cont.w : cont.x;
+  return { ...texto(ctx, a.str, x, cont.y, { ...opts, tam: a.tam, alinear, interlinea }), contenedor: { ...cont } };
 }
 
 /** contraste(c1,c2): razon de contraste WCAG entre dos colores hex (>= 4.5 para texto de cuerpo). */
