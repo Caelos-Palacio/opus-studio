@@ -246,5 +246,9 @@
  "135uba1": {
   "tex": "\\approx 1\\,\\mathrm{km}",
   "display": true
+ },
+ "hem7wg": {
+  "tex": "h = 6{,}62607015 \\times 10^{-34}\\ \\mathrm{J\\,s}",
+  "display": true
  }
 }

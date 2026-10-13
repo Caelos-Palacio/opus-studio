@@ -1,0 +1,307 @@
+{
+ "title": "Consta",
+ "style": "archivo",
+ "profile": "cinematic",
+ "fps": 30,
+ "width": 1280,
+ "height": 720,
+ "duration": 45,
+ "autoSfx": false,
+ "music": null,
+ "medium": "kraft",
+ "sound": {
+  "style": "archivo",
+  "memoria": "data/consta/memoria.json"
+ },
+ "end_hold_ok": true,
+ "shots": [
+  {
+   "id": "C1",
+   "t": [
+    0,
+    4.4
+   ],
+   "size": "WS",
+   "action": "tres llaves de latón sobre el expediente; tres manos las recogen una a una; el cilindro bajo tres campanas; el tampón sin tinta aguarda",
+   "text": "Consta: bajo tres campanas de cristal, un cilindro es el kilo.",
+   "transition_out": "cut",
+   "premise": "presentar",
+   "cam": {
+    "move": "static"
+   },
+   "sakuga": "simple",
+   "sfx": [
+    {
+     "at": 0.5,
+     "type": "llave",
+     "gain": 0.22,
+     "dur": 0.4
+    },
+    {
+     "at": 1.5,
+     "type": "llave",
+     "gain": 0.22,
+     "dur": 0.4
+    },
+    {
+     "at": 2.5,
+     "type": "llave",
+     "gain": 0.22,
+     "dur": 0.4
+    }
+   ]
+  },
+  {
+   "id": "C2",
+   "t": [
+    4.4,
+    8.4
+   ],
+   "size": "MS",
+   "action": "la balanza de cruz con el cilindro y una copia; la aguja no vuelve al cero",
+   "text": "Consta una diferencia con sus copias: 50 microgramos en cien años.",
+   "transition_out": "cut",
+   "premise": "comparar",
+   "cam": {
+    "move": "static"
+   },
+   "sakuga": "simple",
+   "sfx": [
+    {
+     "at": 1.3,
+     "type": "click",
+     "gain": 0.25
+    }
+   ]
+  },
+  {
+   "id": "C3",
+   "t": [
+    8.4,
+    18.4
+   ],
+   "size": "CU",
+   "action": "la pluma escribe «ha perdido» y lo tacha dos veces; sello rojo SIN VARIACIÓN; papel secante",
+   "text": "Consta que no puede perder peso. Lo que él pesa, eso es un kilo.",
+   "transition_out": "cut",
+   "premise": "documento",
+   "cam": {
+    "move": "push",
+    "why": "approach",
+    "amount": 0.03
+   },
+   "sakuga": "normal",
+   "sfx": [
+    {
+     "at": 1.0,
+     "type": "pluma",
+     "gain": 0.5,
+     "dur": 1.0
+    },
+    {
+     "at": 2.4,
+     "type": "pluma",
+     "gain": 0.5,
+     "dur": 0.5
+    },
+    {
+     "at": 3.4,
+     "type": "pluma",
+     "gain": 0.5,
+     "dur": 1.0
+    },
+    {
+     "at": 4.8,
+     "type": "pluma",
+     "gain": 0.5,
+     "dur": 0.5
+    },
+    {
+     "at": 6.15,
+     "type": "sello",
+     "gain": 0.6
+    },
+    {
+     "at": 7.6,
+     "type": "secante",
+     "gain": 0.4,
+     "dur": 1.0
+    }
+   ]
+  },
+  {
+   "id": "C4",
+   "t": [
+    18.4,
+    26
+   ],
+   "size": "WS",
+   "action": "seis copias bajo dos campanas cada una; un plato de balanza baja un pelo con cada una",
+   "text": "Han engordado, entonces, las copias.",
+   "transition_out": "cut",
+   "premise": "contar",
+   "cam": {
+    "move": "static"
+   },
+   "sakuga": "normal",
+   "sfx": [
+    {
+     "at": 0.55,
+     "type": "tick",
+     "gain": 0.35
+    },
+    {
+     "at": 1.417,
+     "type": "tick",
+     "gain": 0.35
+    },
+    {
+     "at": 2.284,
+     "type": "tick",
+     "gain": 0.35
+    },
+    {
+     "at": 3.151,
+     "type": "tick",
+     "gain": 0.35
+    },
+    {
+     "at": 4.018,
+     "type": "tick",
+     "gain": 0.35
+    },
+    {
+     "at": 4.885,
+     "type": "tick",
+     "gain": 0.35
+    }
+   ]
+  },
+  {
+   "id": "C5",
+   "t": [
+    26,
+    31
+   ],
+   "size": "MS",
+   "action": "el cuaderno de verificaciones: 1889, 1948, 1989; la casilla «quién se movió» en blanco; una mosca; el reloj de pared",
+   "text": "No consta.",
+   "transition_out": "cut",
+   "premise": "pausa",
+   "cam": {
+    "move": "static"
+   },
+   "sakuga": "simple",
+   "sfx": [
+    {
+     "at": 0.0,
+     "type": "reloj",
+     "gain": 0.14,
+     "dur": 4.9
+    },
+    {
+     "at": 0.3,
+     "type": "mosca",
+     "gain": 0.07,
+     "dur": 4.2
+    }
+   ]
+  },
+  {
+   "id": "C6",
+   "t": [
+    31,
+    36.4
+   ],
+   "size": "CU",
+   "action": "tres llaves giran en tres cerraduras, una tras otra; el cilindro bajo el vidrio no hace nada",
+   "text": "Tres llaves: que nadie lo tocase. No que no cambiara.",
+   "transition_out": "cut",
+   "premise": "revelar",
+   "cam": {
+    "move": "push",
+    "why": "approach",
+    "amount": 0.03
+   },
+   "sakuga": "normal",
+   "sfx": [
+    {
+     "at": 1.2,
+     "type": "llave",
+     "gain": 0.25,
+     "dur": 1.0
+    },
+    {
+     "at": 2.2,
+     "type": "llave",
+     "gain": 0.25,
+     "dur": 1.0
+    },
+    {
+     "at": 3.2,
+     "type": "llave",
+     "gain": 0.25,
+     "dur": 1.0
+    }
+   ]
+  },
+  {
+   "id": "C7",
+   "t": [
+    36.4,
+    39
+   ],
+   "size": "MS",
+   "action": "el sello baja sobre el acta junto a h = 6,62607015 × 10⁻³⁴ J·s; casi un trámite",
+   "text": "Ya no es el kilo.",
+   "transition_out": "cut",
+   "premise": "caida",
+   "cam": {
+    "move": "static"
+   },
+   "sakuga": "hero",
+   "sfx": [
+    {
+     "at": 1.32,
+     "type": "sello",
+     "gain": 1.3
+    }
+   ]
+  },
+  {
+   "id": "C8",
+   "t": [
+    39,
+    45
+   ],
+   "size": "MS",
+   "action": "casilla nueva «incertidumbre»: la pluma escribe 10 µg; la cámara aguarda tres segundos de más; el sello baja sin tinta",
+   "text": "Desde hoy consta su incertidumbre: 10 µg. Por primera vez, consta que puede equivocarse.",
+   "transition_out": "cut",
+   "premise": "final",
+   "cam": {
+    "move": "static"
+   },
+   "sakuga": "normal",
+   "sfx": [
+    {
+     "at": 1.0,
+     "type": "pluma",
+     "gain": 0.5,
+     "dur": 1.0
+    },
+    {
+     "at": 2.2,
+     "type": "pluma",
+     "gain": 0.5,
+     "dur": 0.5
+    },
+    {
+     "at": 5.1,
+     "type": "sello_seco",
+     "gain": 1.5
+    }
+   ]
+  }
+ ]
+}

@@ -90,7 +90,14 @@ function aplicarMov(sc, mov, { targets, types }) {
 // Enganche con la rama `fondos` (spec 014): objeto/fondo se resuelven contra el registro del toolbox (entries: kind objeto|fondo con id
 // `objeto:<n>`) Y contra un tipo del DSL del mismo nombre (types). Si falta cualquiera de los dos queda un $hueco explícito (sin dependencia dura).
 function instanciar(kind, name, slot, { entries, types }) {
-  const e = (entries ?? []).find((x) => x.id === `${kind}:${name}`), t = types[name];
+  const e = (entries ?? []).find((x) => x.id === `${kind}:${name}`);
+  // spec 014: objetos y fondos son UN tipo DSL genérico (`objeto`/`fondo`) parametrizado por nombre/preset, no un tipo por nombre
+  if (e && !types[name] && types[kind] && (kind === 'objeto' || /"preset"/.test(`${e.uso ?? ''}${e.ejemplo ?? ''}`))) {
+    const nuevo = kind === 'objeto' ? { id: slot.id, type: 'objeto', objeto: name, x: slot.x ?? { $expr: 'S_cx' }, y: slot.y ?? { $expr: 'S_cy' }, size: 300 } : { id: slot.id, type: 'fondo', preset: name };
+    nuevo.semantic = e.resumen; for (const k of Object.keys(slot)) delete slot[k]; Object.assign(slot, nuevo);
+    return `${kind} «${name}»: ${e.resumen}`;
+  }
+  const t = types[name];
   if (!e || !t) { slot.semantic = `${HUECO}: ${kind} «${name}» aún no está en la biblioteca; sugerencia: node engine/tools.mjs find "${name}" --kind ${kind}`; return `${kind} «${name}»: sin biblioteca → $hueco`; }
   const nuevo = { id: slot.id, type: name };
   for (const p of t.req) nuevo[p] = p === 'x' || p === 'y' ? slot[p] ?? { $expr: p === 'x' ? 'S_cx' : 'S_cy' } : `${HUECO}: ${p} de ${kind} ${name}`;

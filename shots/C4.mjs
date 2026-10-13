@@ -1,0 +1,365 @@
+// GENERADO desde shots/C4.scene.json por `node engine/dsl.mjs build` (spec 006). No editar a mano: edita el .scene.json y regenera.
+import { shot } from '../engine/dsl-core.mjs';
+export default shot({
+ "dsl": 1,
+ "id": "C4",
+ "doc": "[receta:contar] el número sube; cada unidad lanza un latido del ancla.",
+ "params": {
+  "final": {
+   "type": "number",
+   "range": [
+    1,
+    12
+   ],
+   "unit": "n",
+   "default": 6,
+   "semantic": "copias"
+  },
+  "inicio": {
+   "type": "number",
+   "range": [
+    0,
+    3
+   ],
+   "unit": "s",
+   "default": 0.4,
+   "semantic": "cuándo empieza"
+  },
+  "tarda": {
+   "type": "number",
+   "range": [
+    0.5,
+    10
+   ],
+   "unit": "s",
+   "default": 5.2,
+   "semantic": "duración de la cuenta"
+  }
+ },
+ "camera": {
+  "move": "push",
+  "why": "approach"
+ },
+ "transition": {
+  "out": "cut"
+ },
+ "objects": [
+  {
+   "id": "fondo",
+   "type": "fondo",
+   "preset": "expediente_kraft",
+   "ajustes": {
+    "vineta": {
+     "fuerza": 0.1
+    },
+    "soporte": {
+     "alfa": 0.15
+    },
+    "mota": {
+     "alfa": 0.2
+    }
+   }
+  },
+  {
+   "id": "c",
+   "type": "let",
+   "value": {
+    "$expr": "6*seg(lt, inicio, inicio + tarda)"
+   }
+  },
+  {
+   "id": "campA0",
+   "type": "objeto",
+   "objeto": "campana_cristal",
+   "x": {
+    "$expr": "S_cx + -475"
+   },
+   "y": {
+    "$expr": "S_cy - 130"
+   },
+   "size": 230,
+   "params": {
+    "anidadas": 2
+   },
+   "alfa": {
+    "$expr": "clamp((c - 0)*4)"
+   },
+   "partes": {
+    "condensacion": {
+     "$expr": "0.6"
+    }
+   }
+  },
+  {
+   "id": "cop0",
+   "type": "objeto",
+   "objeto": "cilindro_metalico",
+   "x": {
+    "$expr": "S_cx + -475"
+   },
+   "y": {
+    "$expr": "S_cy - 85"
+   },
+   "size": 110,
+   "alfa": {
+    "$expr": "clamp((c - 0)*4)"
+   },
+   "partes": {
+    "brillo": {
+     "$expr": "0.9"
+    }
+   }
+  },
+  {
+   "id": "campA1",
+   "type": "objeto",
+   "objeto": "campana_cristal",
+   "x": {
+    "$expr": "S_cx + -285"
+   },
+   "y": {
+    "$expr": "S_cy - 130"
+   },
+   "size": 230,
+   "params": {
+    "anidadas": 2
+   },
+   "alfa": {
+    "$expr": "clamp((c - 1)*4)"
+   },
+   "partes": {
+    "condensacion": {
+     "$expr": "0.6"
+    }
+   }
+  },
+  {
+   "id": "cop1",
+   "type": "objeto",
+   "objeto": "cilindro_metalico",
+   "x": {
+    "$expr": "S_cx + -285"
+   },
+   "y": {
+    "$expr": "S_cy - 85"
+   },
+   "size": 110,
+   "alfa": {
+    "$expr": "clamp((c - 1)*4)"
+   },
+   "partes": {
+    "brillo": {
+     "$expr": "0.9"
+    }
+   }
+  },
+  {
+   "id": "campA2",
+   "type": "objeto",
+   "objeto": "campana_cristal",
+   "x": {
+    "$expr": "S_cx + -95"
+   },
+   "y": {
+    "$expr": "S_cy - 130"
+   },
+   "size": 230,
+   "params": {
+    "anidadas": 2
+   },
+   "alfa": {
+    "$expr": "clamp((c - 2)*4)"
+   },
+   "partes": {
+    "condensacion": {
+     "$expr": "0.6"
+    }
+   }
+  },
+  {
+   "id": "cop2",
+   "type": "objeto",
+   "objeto": "cilindro_metalico",
+   "x": {
+    "$expr": "S_cx + -95"
+   },
+   "y": {
+    "$expr": "S_cy - 85"
+   },
+   "size": 110,
+   "alfa": {
+    "$expr": "clamp((c - 2)*4)"
+   },
+   "partes": {
+    "brillo": {
+     "$expr": "0.9"
+    }
+   }
+  },
+  {
+   "id": "campA3",
+   "type": "objeto",
+   "objeto": "campana_cristal",
+   "x": {
+    "$expr": "S_cx + 95"
+   },
+   "y": {
+    "$expr": "S_cy - 130"
+   },
+   "size": 230,
+   "params": {
+    "anidadas": 2
+   },
+   "alfa": {
+    "$expr": "clamp((c - 3)*4)"
+   },
+   "partes": {
+    "condensacion": {
+     "$expr": "0.6"
+    }
+   }
+  },
+  {
+   "id": "cop3",
+   "type": "objeto",
+   "objeto": "cilindro_metalico",
+   "x": {
+    "$expr": "S_cx + 95"
+   },
+   "y": {
+    "$expr": "S_cy - 85"
+   },
+   "size": 110,
+   "alfa": {
+    "$expr": "clamp((c - 3)*4)"
+   },
+   "partes": {
+    "brillo": {
+     "$expr": "0.9"
+    }
+   }
+  },
+  {
+   "id": "campA4",
+   "type": "objeto",
+   "objeto": "campana_cristal",
+   "x": {
+    "$expr": "S_cx + 285"
+   },
+   "y": {
+    "$expr": "S_cy - 130"
+   },
+   "size": 230,
+   "params": {
+    "anidadas": 2
+   },
+   "alfa": {
+    "$expr": "clamp((c - 4)*4)"
+   },
+   "partes": {
+    "condensacion": {
+     "$expr": "0.6"
+    }
+   }
+  },
+  {
+   "id": "cop4",
+   "type": "objeto",
+   "objeto": "cilindro_metalico",
+   "x": {
+    "$expr": "S_cx + 285"
+   },
+   "y": {
+    "$expr": "S_cy - 85"
+   },
+   "size": 110,
+   "alfa": {
+    "$expr": "clamp((c - 4)*4)"
+   },
+   "partes": {
+    "brillo": {
+     "$expr": "0.9"
+    }
+   }
+  },
+  {
+   "id": "campA5",
+   "type": "objeto",
+   "objeto": "campana_cristal",
+   "x": {
+    "$expr": "S_cx + 475"
+   },
+   "y": {
+    "$expr": "S_cy - 130"
+   },
+   "size": 230,
+   "params": {
+    "anidadas": 2
+   },
+   "alfa": {
+    "$expr": "clamp((c - 5)*4)"
+   },
+   "partes": {
+    "condensacion": {
+     "$expr": "0.6"
+    }
+   }
+  },
+  {
+   "id": "cop5",
+   "type": "objeto",
+   "objeto": "cilindro_metalico",
+   "x": {
+    "$expr": "S_cx + 475"
+   },
+   "y": {
+    "$expr": "S_cy - 85"
+   },
+   "size": 110,
+   "alfa": {
+    "$expr": "clamp((c - 5)*4)"
+   },
+   "partes": {
+    "brillo": {
+     "$expr": "0.9"
+    }
+   }
+  },
+  {
+   "id": "ancla",
+   "type": "objeto",
+   "objeto": "balanza_cruz",
+   "x": {
+    "$expr": "S_cx"
+   },
+   "y": {
+    "$expr": "S_cy + 60"
+   },
+   "size": 270,
+   "partes": {
+    "inclinacion": {
+     "$expr": "-0.07*floor(c) - 0.02*fract(c)*step(0.01,c)*exp(-9*fract(c))*0"
+    },
+    "aguja": {
+     "$expr": "-0.16*floor(c)"
+    }
+   }
+  },
+  {
+   "id": "l1",
+   "type": "text",
+   "text": "Han engordado, entonces, las copias.",
+   "x": {
+    "$expr": "S_cx"
+   },
+   "y": {
+    "$expr": "S_cy + 270+2"
+   },
+   "role": "h2",
+   "align": "center",
+   "alpha": {
+    "$expr": "seg(lt,3.6,3.9)"
+   }
+  }
+ ]
+}, {  });

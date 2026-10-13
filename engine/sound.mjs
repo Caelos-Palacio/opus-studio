@@ -28,6 +28,7 @@ import { memo, codeSig, fingerprint, astats } from './audiocache.mjs';
 import { mixdown } from './mixer.mjs';
 import { wavBuffer } from './dsp.mjs';
 import { filmId } from './filmid.mjs';
+import { FOLEY } from './foley.mjs';
 
 const SR = 48000, TAU = Math.PI * 2;
 const env = (t, a, d) => (t < a ? t / a : Math.exp(-(t - a) / d));
@@ -47,6 +48,9 @@ export const VOICES = {
   nota: { doc: 'nota larga y quieta (dur s): tónica con entrada y salida lentas', fn: (o, w) => { const d = o.dur ?? 8; for (let i = 0; i < d * SR; i++) { const t = i / SR, a = Math.min(1, t / 3.2, (d - t) / 3.5) ** 1.6; w(i, 0.22 * a * (Math.sin(TAU * 220 * t) + 0.35 * Math.sin(TAU * 440.8 * t))); } } },
   anom: { doc: 'batido disonante (legado cues)', fn: (o, w) => { for (let i = 0; i < 2.2 * SR; i++) { const t = i / SR; w(i, 0.45 * (Math.asin(Math.sin(TAU * 146.8 * t)) + Math.asin(Math.sin(TAU * 155.6 * t))) * env(t, 0.01, 0.7)); } } },
 };
+
+// spec 017: el foley de archivo también está en la ruta legada (misma síntesis; sin música ni ducking)
+for (const [k, f] of Object.entries(FOLEY)) VOICES[k] = { doc: f.doc, lead: (o) => f.synth({ ...o, dur: o.dur ?? f.dur }, rng(o.seed ?? 1)).lead, fn: (o, w) => { const { x } = f.synth({ ...o, dur: o.dur ?? f.dur }, rng(o.seed ?? 1)); for (let i = 0; i < x.length; i++) w(i, x[i]); } };
 
 export function collectEvents(tl) {
   const ev = [], A = tl.autoSfx === true ? { morph: true, beat: true, cut: true } : tl.autoSfx || {}, shots = [...tl.shots].sort((a, b) => a.t[0] - b.t[0]);

@@ -34,6 +34,7 @@ Definición (gates.json); el estado de cierre está en la parte viva.
 | [014-fondos-objetos.md](docs/specs/014-fondos-objetos.md) | 014 — Fondos generativos y biblioteca de objetos | sin nota |
 | [015-toolbox.md](docs/specs/015-toolbox.md) | Spec 015 — toolbox: descubrimiento progresivo de herramientas | sin nota |
 | [016-recetas.md](docs/specs/016-recetas.md) | 016 — Recetas: el agente no escribe todo el código | sin nota |
+| [017-consta-foley.md](docs/specs/017-consta-foley.md) | 017 — Consta: foley de archivo y film sin música | consta · (pendiente) ·  · |
 | [019-boceto.md](docs/specs/019-boceto.md) | 019 — Boceto rápido y preview en vivo (E4) | sin nota |
 | [020-vectores-diagramas.md](docs/specs/020-vectores-diagramas.md) | 020 — Vectores y diagramas: SVG como elemento y láminas desde datos | sin nota |
 | [021-fondos-libres.md](docs/specs/021-fondos-libres.md) | 021 — Fondos libres: parámetros animables, capa `codigo`, fondo reactivo y anti-menú | sin nota |
@@ -41,32 +42,32 @@ Definición (gates.json); el estado de cierre está en la parte viva.
 
 ## Motor
 
-- versión: 5.0.0 (package.json) · módulos engine/: 100
+- versión: 5.0.0 (package.json) · módulos engine/: 101
 - roles: modo `enforce` (*, director, dp, investigador, td, productor, animator, review) · digest `35a737817acffefa`
 - presupuestos: data/budgets.json digest `5290bbde06ea538a`
 
 ## DSL de escenas (spec 010)
 
-- cobertura: **96.4 %** (80/83 shots en DSL; honesta: los 1 pendientes de otra rama cuentan en contra; sin ellos 97.6 %) · umbral ratchet 95 %
-- clases: dsl 80 · escape 2 · pendiente:world3d2 1 · shots 100 % nativos 21 · el resto usa objetos respaldados por una función de módulo (plot/axis/world/hud/word…) con semántica y deps declaradas
+- cobertura: **96.7 %** (88/91 shots en DSL; honesta: los 1 pendientes de otra rama cuentan en contra; sin ellos 97.8 %) · umbral ratchet 95 %
+- clases: dsl 88 · escape 2 · pendiente:world3d2 1 · shots 100 % nativos 29 · el resto usa objetos respaldados por una función de módulo (plot/axis/world/hud/word…) con semántica y deps declaradas
 - escapes: A1 (objetivo de las mutaciones de test/run.mjs, golden.mjs, gov.mjs y orch: esos tests editan su JS por texto); A2 (objetivo de las mutaciones de test/run.mjs, golden.mjs, gov.mjs y orch: esos tests editan su JS por texto)
 - pendientes: D01 (world3d2)
 
 ## Tests
 
-Archivos (test/*.mjs): `arc.mjs` `bench-skia.mjs` `boceto.mjs` `critic.mjs` `cut-render.mjs` `diagramas.mjs` `dsl-cov.mjs` `film.mjs` `fondo.mjs` `fondos-libres.mjs` `fondos.mjs` `fuzz.mjs` `golden.mjs` `gov.mjs` `guard.mjs` `harness.mjs` `hash.mjs` `lib.mjs` `medios.mjs` `memoria.mjs` `metrics.mjs` `motor.mjs` `narr.mjs` `orch.mjs` `orquestacion.mjs` `params.mjs` `perf.mjs` `prores.mjs` `recetas.mjs` `run.mjs` `schema.mjs` `semantica.mjs` `sound.mjs` `suites.mjs` `tools.mjs` `unit.mjs` `vectores.mjs` `veinticuatro.mjs` `world3d.mjs`
+Archivos (test/*.mjs): `arc.mjs` `bench-skia.mjs` `boceto.mjs` `consta.mjs` `critic.mjs` `cut-render.mjs` `diagramas.mjs` `dsl-cov.mjs` `film.mjs` `fondo.mjs` `fondos-libres.mjs` `fondos.mjs` `fuzz.mjs` `golden.mjs` `gov.mjs` `guard.mjs` `harness.mjs` `hash.mjs` `lib.mjs` `medios.mjs` `memoria.mjs` `metrics.mjs` `motor.mjs` `narr.mjs` `orch.mjs` `orquestacion.mjs` `params.mjs` `perf.mjs` `prores.mjs` `recetas.mjs` `run.mjs` `schema.mjs` `semantica.mjs` `sound.mjs` `suites.mjs` `tools.mjs` `unit.mjs` `vectores.mjs` `veinticuatro.mjs` `world3d.mjs`
 <!-- estatico:fin -->
 
 ---
-## Estado vivo (2026-10-13T02:38Z, no verificado)
+## Estado vivo (2026-10-13T03:07Z, no verificado)
 
 ## Veredictos
 
-Film activo: `fondos_libres` · engineHash `3a0d866b15da119f4885f4bc45f67abcab6bdcfe8d30c0c7e64e76b0b6cab41e` · filmHash `daf6ef0269673631`
+Film activo: `consta` · engineHash `ac53f4628f2426c76bf7df7b12ba01d4b315d08104e6bcb2fd47eb6859382145` · filmHash `a282a9e9b9490e44`
 
 - out/lint.json: SHIP · CADUCADO
 - out/critic.json: SHIP · CADUCADO
-- veredictos por shot: 0 vigentes, 1 caducados
+- veredictos por shot: 0 vigentes, 8 caducados
 
 ### Estado de gates (out/gates.json)
 
@@ -76,8 +77,7 @@ Film activo: `fondos_libres` · engineHash `3a0d866b15da119f4885f4bc45f67abcab6b
 
 - `backup/pre-limpieza` (+136 commits)
 - `film-botella` (+12 commits)
-- `film-consta` (+11 commits)
-- `fondos-libres` (+14 commits)
+- `film-consta` (+12 commits)
 - `gobernanza` (+96 commits)
 - `harness` (+101 commits)
 - `medios` (+57 commits)
@@ -104,11 +104,11 @@ Film activo: `fondos_libres` · engineHash `3a0d866b15da119f4885f4bc45f67abcab6b
 
 ## Último run de tests
 
-- 2026-10-13T02:38:12.951Z: todo verde (perfil full)
+- 2026-10-13T03:07:23.262Z: todo verde (perfil full)
 
 ## Ledger
 
-- cadena: íntegra · 7 entradas (7 encadenadas, 0 heredadas, 0 firmadas) · códigos 100 %
+- cadena: íntegra · 30 entradas (30 encadenadas, 0 heredadas, 0 firmadas) · códigos 100 %
 
 ## Presupuestos
 

@@ -69,7 +69,7 @@ export function prims(ctx, api, film, shot, cx) {
     },
     objeto(id, o = {}) {
       const tf = S.typeface, r = drawObjeto(ctx, id, { ...o, x: o.x, y: o.y }, { pal: S.palette, k, t: cx.t, font: `"${tf.mono || 'Courier New'}", monospace` }), c = Math.abs(Math.cos(r.rot)), sn = Math.abs(Math.sin(r.rot));
-      const bw = r.w * c + r.h * sn, bh = r.w * sn + r.h * c; api.focus(r.x - bw / 2, r.y - bh / 2, bw, bh, o.label ?? id);
+      const bw = r.w * c + r.h * sn, bh = r.w * sn + r.h * c; if (o.focus !== false) api.focus(r.x - bw / 2, r.y - bh / 2, bw, bh, o.label ?? id, o.hollow ? { hollow: o.hollow } : {});
       log('objeto', { x: r.x - bw / 2, y: r.y - bh / 2, w: bw, h: bh }, { objeto: id });
       return r;
     },
