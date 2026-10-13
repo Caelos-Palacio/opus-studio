@@ -11,7 +11,7 @@
     "title": { "type": "string" },
     "style": { "type": "string", "description": "pack de styles/<nombre>.json (se comprueba contra el directorio)" },
     "medium": { "type": "string", "description": "medio del film (spec 003): styles/medios/<nombre>.json — soporte, tinta, grano, paleta, parallax. Sin él, comportamiento clásico" },
-    "profile": { "enum": ["reel", "explainer", "cinematic"] },
+    "profile": { "enum": ["reel", "explainer", "cinematic", "lamina"] },
     "profileOverrides": { "$ref": "#/$defs/profileOverrides" },
     "styleOverrides": { "$ref": "#/$defs/styleOverrides" },
     "palette": { "type": "object", "description": "compat opus-studio 2 (styles.mjs resolveStyle)", "additionalProperties": { "type": "string" } },
@@ -172,6 +172,7 @@
         "maxHold": { "type": "number", "minimum": 0 }, "cutOnBeat": { "type": "boolean" }, "shotLen": { "$ref": "#/$defs/num2" },
         "safe": { "type": "object", "additionalProperties": false, "properties": { "top": { "type": "number" }, "bottom": { "type": "number" }, "side": { "type": "number" } } },
         "minFontPx": { "type": "number", "minimum": 0 }, "requireCausality": { "type": "boolean" }, "requireFacts": { "type": "boolean" },
+        "requireFocus": { "type": "boolean" }, "saliency": { "type": "boolean" }, "maxSizes": { "type": "number", "minimum": 0 },
         "holdEnergy": { "type": "number", "minimum": 0 }, "popRatio": { "type": "number", "minimum": 0 }, "readCps": { "type": "number", "exclusiveMinimum": 0 }
       }
     },
@@ -179,7 +180,7 @@
       "type": "object", "additionalProperties": false,
       "description": "se fusiona en profundidad sobre el pack (styles.mjs); claves de primer nivel = las de DEFAULTS",
       "properties": {
-        "name": { "type": "string" }, "description": { "type": "string" }, "mood": { "type": "string" }, "defaultProfile": { "enum": ["reel", "explainer", "cinematic"] },
+        "name": { "type": "string" }, "description": { "type": "string" }, "mood": { "type": "string" }, "defaultProfile": { "enum": ["reel", "explainer", "cinematic", "lamina"] },
         "palette": { "type": "object", "additionalProperties": { "type": "string" } }, "typeface": { "type": "object" }, "motion": { "type": "object" },
         "camera": { "type": "object" }, "grade": { "type": "object" }, "depth": { "type": "object" }, "light": { "type": "object" },
         "compose": { "type": "object" }, "rules": { "type": "object" }, "bans": { "type": "array", "items": { "type": "string" } }

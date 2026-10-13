@@ -11,6 +11,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { TYPES, validateScene, assertScene } from './dsl-core.mjs';
 import { validateMeta, tokens } from './toolbox.mjs';
+import { entradasRegistro as entradasGeneradores, GENERADORES, nuevo as nuevoDiagrama } from './diagramas.mjs';   // spec 020: recetas que EMITEN el JSON desde una lista corta
 
 export const ROOT = rootFrom(import.meta.url);
 export const DIR = 'data/recetas', GRUPOS = ['plano', 'movimiento', 'transicion'], MAX_LINEAS = 25, MAX_PARAMS = 4;
@@ -47,9 +48,9 @@ export function validarReceta(r, root = ROOT) {
 }
 // Entradas para el registro del toolbox (kind receta). El toolbox las carga por import dinámico (tolerante).
 export function entradasRegistro(root = ROOT) {
-  return catalogo(root).map((r) => { const m = r.meta, ps = Object.entries(m.params).map(([k, t]) => `${k}:${t}`).join(', ');
+  return [...entradasGeneradores(), ...catalogo(root).map((r) => { const m = r.meta, ps = Object.entries(m.params).map(([k, t]) => `${k}:${t}`).join(', ');
     return { id: `receta:${m.id}`, kind: 'receta', resumen: m.resumen, tags: [...m.tags, m.grupo], cuando: m.cuando ?? m.resumen, entra: ps || '—', sale: 'shots/<id>.scene.json propio (scaffold con $hueco)',
-      uso: `node engine/opus.mjs new shot <id> --receta ${m.id} [--objeto o] [--fondo f]${m.grupo === 'plano' ? ' [--mov temblor]' : ''}`, ejemplo: `node engine/opus.mjs new shot X1 --receta ${m.id}`, siguiente: ['check:receta.hueco', 'cli:dsl.build'], src: r.file }; });
+      uso: `node engine/opus.mjs new shot <id> --receta ${m.id} [--objeto o] [--fondo f]${m.grupo === 'plano' ? ' [--mov temblor]' : ''}`, ejemplo: `node engine/opus.mjs new shot X1 --receta ${m.id}`, siguiente: ['check:receta.hueco', 'cli:dsl.build'], src: r.file }; })];
 }
 
 // ── huecos y marca ───────────────────────────────────────────────────────────────────────────────────────────────
@@ -205,6 +206,10 @@ export async function cli(args) {
     const id = rest.find((x, i) => !x.startsWith('--') && !(i && VALOR.includes(rest[i - 1])));
     if (!id || !/^[A-Za-z][A-Za-z0-9_-]*$/.test(id)) { console.error('uso: opus new shot <id> --receta <r> [--objeto o] [--fondo f] [--mov a,b] [--a id,id] [--param k=v] [--llenar objeto.prop=texto] [--film f] [--force]   (id: letras, dígitos, - _)'); return 1; }
     const receta = opt(rest, '--receta'); if (!receta) { console.error(`falta --receta (${catalogo().map((r) => r.meta.id).join(' ')}; node engine/recetas.mjs list)`); return 1; }
+    if (GENERADORES.has(receta)) {                                         // spec 020: generador de diagramas → shots/<id>.diagrama.json editable + scene generado
+      try { const r = await nuevoDiagrama(id, receta, { force: rest.includes('--force') }); console.log(`scaffold ${r.rel} (receta ${receta}, generador) → ${r.scene} + shots/${id}.mjs\nsiguiente: edita ${r.rel} → node engine/diagramas.mjs build ${r.rel} → añade el shot ${id} al timeline (profile: lamina) → npm run lint`); return 0; }
+      catch (e) { console.error('✗ ' + e.message); return 1; }
+    }
     const rel = `shots/${id}.scene.json`, abs = path.join(ROOT, rel), force = rest.includes('--force');
     if (!force && (fs.existsSync(abs) || fs.existsSync(path.join(ROOT, `shots/${id}.mjs`)))) { console.error(`✗ ${rel} (o shots/${id}.mjs) ya existe: no se pisa; usa --force para reescribirlo`); return 1; }
     let entries, filmNote = '';
@@ -222,7 +227,7 @@ export async function cli(args) {
     console.log(`siguiente: llenar los $hueco → node engine/dsl.mjs build ${rel} → ${filmNote || 'añadir el shot al timeline'} → npm run lint`);
     return 0;
   }
-  if (cmd === 'list') { for (const r of catalogo()) console.log(`${r.meta.id.padEnd(20)} ${r.meta.grupo.padEnd(11)} ${r.meta.resumen}`); return 0; }
+  if (cmd === 'list') { for (const r of catalogo()) console.log(`${r.meta.id.padEnd(20)} ${r.meta.grupo.padEnd(11)} ${r.meta.resumen}`); for (const g of GENERADORES.values()) console.log(`${g.meta.id.padEnd(20)} ${g.meta.grupo.padEnd(11)} ${g.meta.resumen}`); return 0; }
   if (cmd === 'show') { const r = cargarRecetas().get(rest[0]); if (!r) { console.error(`receta «${rest[0]}» no existe`); return 1; } console.log(fs.readFileSync(path.join(ROOT, r.file), 'utf8').trimEnd()); return 0; }
   if (cmd === 'medir') { for (const m of medirAhorro()) console.log(`${m.receta.padEnd(18)} (${m.film}) receta ${String(m.tokReceta).padStart(4)} tok · desde cero ${String(m.tokCero).padStart(4)} tok · ahorro ${(m.ahorro * 100).toFixed(0)} %  (comando + ${m.ediciones} edición/es residual/es; peor caso reescribiendo líneas enteras: ${(m.ahorroLineas * 100).toFixed(0)} %)`); return 0; }
   if (cmd === 'audit') {

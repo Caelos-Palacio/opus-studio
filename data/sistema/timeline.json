@@ -2,14 +2,7 @@
  "title": "El sistema: proceso y arquitectura (diagramas estáticos)",
  "style": "soft",
  "medium": "tecnico_plano",
- "profile": "cinematic",
- "profileOverrides": {
-  "shotLen": [
-   4,
-   20
-  ],
-  "maxHold": 8
- },
+ "profile": "lamina",
  "fps": 30,
  "width": 1920,
  "height": 1080,
@@ -33,13 +26,7 @@
     "move": "static",
     "why": "reveal",
     "amount": 0
-   },
-   "hold_ok": [
-    [
-     5,
-     8
-    ]
-   ]
+   }
   },
   {
    "id": "S02",
@@ -56,13 +43,7 @@
     "move": "static",
     "why": "reveal",
     "amount": 0
-   },
-   "hold_ok": [
-    [
-     6,
-     8
-    ]
-   ]
+   }
   },
   {
    "id": "S03",
@@ -79,13 +60,7 @@
     "move": "static",
     "why": "reveal",
     "amount": 0
-   },
-   "hold_ok": [
-    [
-     5,
-     8
-    ]
-   ]
+   }
   },
   {
    "id": "S04",
@@ -102,13 +77,7 @@
     "move": "static",
     "why": "reveal",
     "amount": 0
-   },
-   "hold_ok": [
-    [
-     5,
-     8
-    ]
-   ]
+   }
   },
   {
    "id": "S05",
@@ -125,13 +94,7 @@
     "move": "static",
     "why": "reveal",
     "amount": 0
-   },
-   "hold_ok": [
-    [
-     5,
-     8
-    ]
-   ]
+   }
   }
  ]
 }

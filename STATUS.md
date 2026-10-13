@@ -35,35 +35,36 @@ Definición (gates.json); el estado de cierre está en la parte viva.
 | [015-toolbox.md](docs/specs/015-toolbox.md) | Spec 015 — toolbox: descubrimiento progresivo de herramientas | sin nota |
 | [016-recetas.md](docs/specs/016-recetas.md) | 016 — Recetas: el agente no escribe todo el código | sin nota |
 | [019-boceto.md](docs/specs/019-boceto.md) | 019 — Boceto rápido y preview en vivo (E4) | sin nota |
+| [020-vectores-diagramas.md](docs/specs/020-vectores-diagramas.md) | 020 — Vectores y diagramas: SVG como elemento y láminas desde datos | sin nota |
 
 ## Motor
 
-- versión: 5.0.0 (package.json) · módulos engine/: 92
+- versión: 5.0.0 (package.json) · módulos engine/: 96
 - roles: modo `enforce` (*, director, dp, investigador, td, productor, animator, review) · digest `35a737817acffefa`
 - presupuestos: data/budgets.json digest `5290bbde06ea538a`
 
 ## DSL de escenas (spec 010)
 
-- cobertura: **96.3 %** (77/80 shots en DSL; honesta: los 1 pendientes de otra rama cuentan en contra; sin ellos 97.5 %) · umbral ratchet 95 %
-- clases: dsl 77 · escape 2 · pendiente:world3d2 1 · shots 100 % nativos 18 · el resto usa objetos respaldados por una función de módulo (plot/axis/world/hud/word…) con semántica y deps declaradas
+- cobertura: **96.3 %** (79/82 shots en DSL; honesta: los 1 pendientes de otra rama cuentan en contra; sin ellos 97.5 %) · umbral ratchet 95 %
+- clases: dsl 79 · escape 2 · pendiente:world3d2 1 · shots 100 % nativos 20 · el resto usa objetos respaldados por una función de módulo (plot/axis/world/hud/word…) con semántica y deps declaradas
 - escapes: A1 (objetivo de las mutaciones de test/run.mjs, golden.mjs, gov.mjs y orch: esos tests editan su JS por texto); A2 (objetivo de las mutaciones de test/run.mjs, golden.mjs, gov.mjs y orch: esos tests editan su JS por texto)
 - pendientes: D01 (world3d2)
 
 ## Tests
 
-Archivos (test/*.mjs): `arc.mjs` `bench-skia.mjs` `boceto.mjs` `critic.mjs` `cut-render.mjs` `diagramas.mjs` `dsl-cov.mjs` `film.mjs` `fondo.mjs` `fondos.mjs` `fuzz.mjs` `golden.mjs` `gov.mjs` `guard.mjs` `harness.mjs` `hash.mjs` `lib.mjs` `medios.mjs` `memoria.mjs` `metrics.mjs` `motor.mjs` `narr.mjs` `orch.mjs` `orquestacion.mjs` `params.mjs` `perf.mjs` `prores.mjs` `recetas.mjs` `run.mjs` `schema.mjs` `semantica.mjs` `sound.mjs` `suites.mjs` `tools.mjs` `unit.mjs` `veinticuatro.mjs` `world3d.mjs`
+Archivos (test/*.mjs): `arc.mjs` `bench-skia.mjs` `boceto.mjs` `critic.mjs` `cut-render.mjs` `diagramas.mjs` `dsl-cov.mjs` `film.mjs` `fondo.mjs` `fondos.mjs` `fuzz.mjs` `golden.mjs` `gov.mjs` `guard.mjs` `harness.mjs` `hash.mjs` `lib.mjs` `medios.mjs` `memoria.mjs` `metrics.mjs` `motor.mjs` `narr.mjs` `orch.mjs` `orquestacion.mjs` `params.mjs` `perf.mjs` `prores.mjs` `recetas.mjs` `run.mjs` `schema.mjs` `semantica.mjs` `sound.mjs` `suites.mjs` `tools.mjs` `unit.mjs` `vectores.mjs` `veinticuatro.mjs` `world3d.mjs`
 <!-- estatico:fin -->
 
 ---
-## Estado vivo (2026-10-12T22:02Z, no verificado)
+## Estado vivo (2026-10-12T22:55Z, no verificado)
 
 ## Veredictos
 
-Film activo: `main` · engineHash `3794563876009a7cd64d7c5f3242b59acee3c6437b4cefd3d3a7e9d2c5b9244a` · filmHash `1e1bdeaa58dd2aa8`
+Film activo: `main` · engineHash `2c6d4c92a60ea1e5ba02f63d2b234ef01be7485efef4dbe4f1b3f852d11b8b1c` · filmHash `875dda73d11b8fd2`
 
 - out/lint.json: SHIP · CADUCADO
-- out/critic.json: SHIP · CADUCADO
-- veredictos por shot: 0 vigentes, 3 caducados
+- out/critic.json: no existe
+- veredictos por shot: 0 vigentes, 0 caducados
 
 ### Estado de gates (out/gates.json)
 
@@ -73,9 +74,8 @@ Film activo: `main` · engineHash `3794563876009a7cd64d7c5f3242b59acee3c6437b4ce
 
 - `backup/pre-limpieza` (+136 commits)
 - `film-botella` (+12 commits)
-- `film-consta` (+9 commits)
-- `film-veinticuatro` (+13 commits)
-- `fondos-libres` (+8 commits)
+- `film-consta` (+11 commits)
+- `fondos-libres` (+11 commits)
 - `gobernanza` (+96 commits)
 - `harness` (+101 commits)
 - `medios` (+57 commits)
@@ -83,7 +83,7 @@ Film activo: `main` · engineHash `3794563876009a7cd64d7c5f3242b59acee3c6437b4ce
 - `orquestacion` (+101 commits)
 - `perf` (+53 commits)
 - `semantica` (+101 commits)
-- `vectores` (+8 commits)
+- `vectores` (+11 commits)
 - `video-mate` (+33 commits)
 - `video-reel` (+34 commits)
 - `video-regla` (+34 commits)
@@ -103,11 +103,11 @@ Film activo: `main` · engineHash `3794563876009a7cd64d7c5f3242b59acee3c6437b4ce
 
 ## Último run de tests
 
-- 2026-10-08T00:28:55.760Z: todo verde (perfil quick)
+- 2026-10-12T22:43:54.622Z: 3 fallos (perfil full)
 
 ## Ledger
 
-- cadena: íntegra · 14 entradas (3 encadenadas, 11 heredadas, 0 firmadas) · códigos 100 %
+- cadena: íntegra · 6 entradas (6 encadenadas, 0 heredadas, 0 firmadas) · códigos 100 %
 
 ## Presupuestos
 
