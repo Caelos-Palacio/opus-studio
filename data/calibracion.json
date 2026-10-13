@@ -2,6 +2,7 @@
   "descripcion": "Conjunto de calibración del panel (spec 022, G4). Cada película tiene un nivel ordinal (1–5) deducido de las notas humanas de data/notas.json; el panel debe reproducir ese orden (Spearman ≥ umbral). Los empates de nivel no cuentan como orden conocido. Los mp4 están en out/entregas (o OPUS_ENTREGAS).",
   "umbral_spearman": 0.7,
   "semilla": 2210,
+  "semillas": { "calibracion": 2210, "calibracion2": 7002 },
   "niveles": {
     "1": "mala: monótona, apresurada, audio pobre (nota ≈ 5)",
     "2": "«bien, no wow» o superada por una versión posterior",

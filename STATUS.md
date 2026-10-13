@@ -59,7 +59,7 @@ Archivos (test/*.mjs): `arc.mjs` `bench-skia.mjs` `boceto.mjs` `consta.mjs` `cri
 <!-- estatico:fin -->
 
 ---
-## Estado vivo (2026-10-13T05:42Z, no verificado)
+## Estado vivo (2026-10-13T06:07Z, no verificado)
 
 ## Veredictos
 
@@ -78,7 +78,7 @@ Film activo: `main` · engineHash `ac53f4628f2426c76bf7df7b12ba01d4b315d08104e6b
 - `backup/pre-limpieza` (+136 commits)
 - `film-botella` (+12 commits)
 - `gobernanza` (+96 commits)
-- `gusto` (+1 commits)
+- `gusto` (+2 commits)
 - `harness` (+101 commits)
 - `medios` (+57 commits)
 - `metricas` (+76 commits)
@@ -104,11 +104,11 @@ Film activo: `main` · engineHash `ac53f4628f2426c76bf7df7b12ba01d4b315d08104e6b
 
 ## Último run de tests
 
-- 2026-10-13T05:42:34.598Z: 1 fallos (perfil full)
+- 2026-10-13T06:07:33.650Z: todo verde (perfil quick)
 
 ## Ledger
 
-- cadena: íntegra · 2 entradas (2 encadenadas, 0 heredadas, 0 firmadas) · códigos 100 %
+- cadena: íntegra · 3 entradas (3 encadenadas, 0 heredadas, 0 firmadas) · códigos 100 %
 
 ## Presupuestos
 

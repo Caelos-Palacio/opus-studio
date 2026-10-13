@@ -20,8 +20,8 @@ const near = (a, b, e = 1e-9) => Math.abs(a - b) < e;
 
 // ── G-A. perfil de gusto: reglas observables con origen ──
 {
-  const reglas = G.parseReglas(md), manual = reglas.filter((r) => !/^8\./.test(r.grupo));
-  ok('A1 hay reglas en los 6 grupos (historia/voz, ritmo, composición/materia, color/tipografía, sonido, anti-patrones)', [/^1\./, /^2\./, /^3\./, /^4\./, /^5\./, /^6\./].every((p) => manual.filter((r) => p.test(r.grupo)).length >= 3), reglas.length + ' reglas');
+  const reglas = G.parseReglas(md), manual = reglas.filter((r) => !/^9\./.test(r.grupo));
+  ok('A1 hay reglas en los 7 grupos (historia/voz, ritmo, composición/materia, color/tipografía, sonido, anti-patrones, movimiento)', [/^1\./, /^2\./, /^3\./, /^4\./, /^5\./, /^6\./, /^7\./].every((p) => manual.filter((r) => p.test(r.grupo)).length >= 3), reglas.length + ' reglas');
   const e = G.validarReglas(reglas);
   ok('A2 cada regla tiene id único, texto y ≥1 origen válido (nota N##, spec ###, research ##, MODO-LIBRE, exp)', e.length === 0, e.slice(0, 3).join(' | '));
   const nid = new Set(notas.notas.map((_, i) => G.idNota(i))), citadas = manual.flatMap((r) => r.origen.filter((o) => /^N\d+/.test(o)));
@@ -37,9 +37,17 @@ const near = (a, b, e = 1e-9) => Math.abs(a - b) < e;
   ok('A8 el validador rechaza una regla sin origen y otra con origen inventado', eb.some((x) => /H99: sin origen/.test(x)) && eb.some((x) => /H98: origen inválido/.test(x)), eb.join(' | '));
 }
 
+{
+  const reglas = G.parseReglas(md), por = Object.fromEntries(reglas.map((r) => [r.id, r]));
+  const mov = reglas.filter((r) => /^M\d+$/.test(r.id));
+  ok('A9 sección «Movimiento»: ≥ 5 reglas M* observables en las tiras (easing, peso, transición motivada, nada entra todo a la vez), cada una con origen', mov.length >= 5 && ['easing', 'inercia', 'cambio de escena', 'a la vez'].every((w) => mov.some((r) => r.texto.toLowerCase().includes(w.toLowerCase()))) && mov.every((r) => r.origen.length) && mov.every((r) => /^7\./.test(r.grupo)), mov.map((r) => r.id).join(','));
+  ok('A10 regla positiva «didáctico con materia» (H09, origen N10 + spec 001) y las reglas anti-lección la matizan (H04, A07, A08 la citan)', por.H09 && /materia/.test(por.H09.texto) && por.H09.origen.includes('N10') && por.H09.origen.includes('spec 001') && ['H04', 'A07', 'A08'].every((id) => /H09/.test(por[id].texto)));
+  ok('A11 el oscuro elegido con profundidad es válido con más peso (C12 PESO ALTO con spec 012, N09, N17; A01 y C09 lo remiten)', por.C12 && /PESO ALTO/.test(por.C12.texto) && ['spec 012', 'N09', 'N17'].every((o) => por.C12.origen.includes(o)) && /C12/.test(por.A01.texto) && /NO se penaliza/.test(por.C09.texto));
+}
+
 // ── G-B. rúbrica ──
 {
-  const esp = { director: ['historia', 'voz', 'ritmo'], ojo: ['composicion', 'materia', 'color', 'tipografia'], esceptico: ['no_generico', 'no_clipart', 'no_corporativo'] };
+  const esp = { director: ['historia', 'voz', 'ritmo', 'movimiento'], ojo: ['composicion', 'materia', 'color', 'tipografia'], esceptico: ['no_generico', 'no_clipart', 'no_corporativo'] };
   ok('B1 la rúbrica define las 3 miradas con sus criterios (director, ojo, escéptico)', Object.entries(esp).every(([m, c]) => JSON.stringify(Object.keys(rubrica[m] ?? {})) === JSON.stringify(c)), JSON.stringify(Object.fromEntries(Object.entries(rubrica).map(([k, v]) => [k, Object.keys(v).length]))));
   ok('B2 miradaKey acepta «escéptico» con tilde y sin ella, y rechaza lo demás', G.miradaKey('escéptico') === 'esceptico' && G.miradaKey('Esceptico') === 'esceptico' && G.miradaKey('ojo') === 'ojo' && G.miradaKey('critico') === null);
 }
@@ -60,14 +68,15 @@ const near = (a, b, e = 1e-9) => Math.abs(a - b) < e;
 }
 
 // ── G-D. validación de veredictos ──
-const buen = { mirada: 'director', puntos: { historia: 7, voz: 6, ritmo: 8 }, total: 7, arreglos: ['acortar el tramo f03–f05', 'añadir un respiro de 4 s antes del giro', 'cambiar el cierre por una imagen'] };
+const vistosOk = ['hoja.jpg', 'recortes/r1.png', 'recortes/r2.png', 'recortes/r3.png', 'recortes/r4.png', 'tiras/t1.jpg', 'tiras/t2.jpg', 'tiras/t3.jpg'];
+const buen = { mirada: 'director', puntos: { historia: 7, voz: 6, ritmo: 8, movimiento: 7 }, total: 7, arreglos: ['acortar el tramo f03–f05', 'añadir un respiro de 4 s antes del giro', 'cambiar el cierre por una imagen'], vistos: vistosOk };
 const val = (v, m) => P.validarVeredicto(v, rubrica, m);
 {
   ok('D1 un veredicto correcto valida', val(buen).ok, val(buen).errores.join('|'));
-  ok('D2 acepta «escéptico» con tilde', val({ mirada: 'escéptico', puntos: { no_generico: 4, no_clipart: 5, no_corporativo: 3 }, total: 4, arreglos: buen.arreglos }).ok);
+  ok('D2 acepta «escéptico» con tilde', val({ mirada: 'escéptico', puntos: { no_generico: 4, no_clipart: 5, no_corporativo: 3 }, total: 4, arreglos: buen.arreglos, vistos: vistosOk }).ok);
   ok('D3 rechaza mirada inválida', !val({ ...buen, mirada: 'crítico' }).ok);
-  ok('D4 rechaza criterio que falta o que sobra', !val({ ...buen, puntos: { historia: 7, voz: 6 } }).ok && !val({ ...buen, puntos: { ...buen.puntos, extra: 5 } }).ok);
-  ok('D5 rechaza puntos fuera de 0–10 o no numéricos', !val({ ...buen, puntos: { historia: 11, voz: 6, ritmo: 8 } }).ok && !val({ ...buen, puntos: { historia: -1, voz: 6, ritmo: 8 } }).ok && !val({ ...buen, puntos: { historia: '7', voz: 6, ritmo: 8 } }).ok);
+  ok('D4 rechaza criterio que falta o que sobra', !val({ ...buen, puntos: { historia: 7, voz: 6, ritmo: 8 } }).ok && !val({ ...buen, puntos: { ...buen.puntos, extra: 5 } }).ok);
+  ok('D5 rechaza puntos fuera de 0–10 o no numéricos', !val({ ...buen, puntos: { historia: 11, voz: 6, ritmo: 8, movimiento: 7 } }).ok && !val({ ...buen, puntos: { historia: -1, voz: 6, ritmo: 8, movimiento: 7 } }).ok && !val({ ...buen, puntos: { historia: '7', voz: 6, ritmo: 8, movimiento: 7 } }).ok);
   ok('D6 rechaza un total que no es la media de los puntos (±0,25)', !val({ ...buen, total: 9 }).ok && val({ ...buen, total: 7.2 }).ok);
   ok('D7 exige exactamente 3 arreglos concretos', !val({ ...buen, arreglos: ['uno', 'dos'] }).ok && !val({ ...buen, arreglos: [...buen.arreglos, 'cuatro arreglos de más'] }).ok && !val({ ...buen, arreglos: ['a', 'b', 'c'] }).ok);
   ok('D8 rechaza lo que no es un objeto', !val(null).ok && !val([1]).ok && !val('x').ok);
@@ -76,6 +85,12 @@ const val = (v, m) => P.validarVeredicto(v, rubrica, m);
   ok('D9 registrar valida, normaliza y guarda veredictos/director.json', v.mirada === 'director' && JSON.parse(fs.readFileSync(path.join(dir, 'veredictos/director.json'), 'utf8')).total === 7);
   let msg = ''; try { P.registrar(dir, 'ojo', JSON.stringify(buen), rubrica); } catch (e) { msg = e.message; }
   ok('D10 registrar rechaza si la mirada del JSON no coincide con la pedida; y JSON ilegible', /no coincide/.test(msg) && (() => { try { P.registrar(dir, 'ojo', '{no es json', rubrica); } catch (e) { return /ilegible/.test(e.message); } })());
+}
+
+{
+  const sin = { ...buen }; delete sin.vistos;
+  ok('D11 «vistos» obligatorio: sin el campo, con < 7 archivos, o sin 4 recortes / 3 tiras, el veredicto se rechaza', !val(sin).ok && /vistos/.test(val(sin).errores.join()) && !val({ ...buen, vistos: vistosOk.slice(0, 6) }).ok && !val({ ...buen, vistos: ['hoja.jpg', 'frames/f01.jpg', 'frames/f02.jpg', 'frames/f03.jpg', 'frames/f04.jpg', 'frames/f05.jpg', 'frames/f06.jpg', 'tiras/t1.jpg', 'tiras/t2.jpg', 'tiras/t3.jpg'] }).ok && !val({ ...buen, vistos: [...vistosOk.slice(0, 5), 'tiras/t1.jpg', 'tiras/t1.jpg', 'tiras/t1.jpg'] }).ok);
+  ok('D12 «vistos» válido con 7+ (4 recortes y 3 tiras), tolera prefijo de letra y se guarda normalizado; registrar rechaza uno con 6', val({ ...buen, vistos: ['A/hoja.jpg', 'A/recortes/r1.png', 'A/recortes/r2.png', 'A/recortes/r3.png', 'A/recortes/r6.png', 'A/tiras/t1.jpg', 'A/tiras/t4.jpg', 'A/tiras/t6.jpg'] }).ok && val(buen).v.vistos.length === 8 && (() => { try { P.registrar(path.join(tmp, 'rv'), 'director', { ...buen, vistos: vistosOk.slice(0, 6) }, rubrica); } catch (e) { return /vistos/.test(e.message); } })());
 }
 
 // ── G-E. agregación SHIP / FIX ──
@@ -89,8 +104,8 @@ const val = (v, m) => P.validarVeredicto(v, rubrica, m);
   ok('E4 FIX devuelve 9 arreglos, de la mirada más baja a la más alta; SHIP ninguno', f.arreglos.length === 9 && f.arreglos[0].mirada === 'ojo' && f.arreglos[8].mirada === 'director' && A(9, 9, 9).arreglos.length === 0);
   ok('E5 faltan miradas → INCOMPLETO (no se decide con 2 de 3)', P.agregar({ director: V(9, 9, 9).director, ojo: V(9, 9, 9).ojo }).estado === 'INCOMPLETO');
   const dir = path.join(tmp, 'ver'); fs.mkdirSync(dir);
-  const mk = (m, puntos, total) => P.registrar(dir, m, { mirada: m, puntos, total, arreglos: ['arreglo concreto uno', 'arreglo concreto dos', 'arreglo concreto tres'] }, rubrica);
-  mk('director', { historia: 9, voz: 8, ritmo: 8 }, 8.3); mk('ojo', { composicion: 8, materia: 9, color: 8, tipografia: 8 }, 8.3); mk('escéptico', { no_generico: 8, no_clipart: 8, no_corporativo: 8 }, 8);
+  const mk = (m, puntos, total) => P.registrar(dir, m, { mirada: m, puntos, total, arreglos: ['arreglo concreto uno', 'arreglo concreto dos', 'arreglo concreto tres'], vistos: vistosOk }, rubrica);
+  mk('director', { historia: 9, voz: 8, ritmo: 8, movimiento: 8 }, 8.3); mk('ojo', { composicion: 8, materia: 9, color: 8, tipografia: 8 }, 8.3); mk('escéptico', { no_generico: 8, no_clipart: 8, no_corporativo: 8 }, 8);
   const r = P.veredicto(dir);
   ok('E6 veredicto(dir) agrega los 3 JSON registrados y escribe veredicto.json y veredicto.md', r.estado === 'SHIP' && fs.existsSync(path.join(dir, 'veredicto.md')) && JSON.parse(fs.readFileSync(path.join(dir, 'veredicto.json'), 'utf8')).estado === 'SHIP' && /SHIP/.test(fs.readFileSync(path.join(dir, 'veredicto.md'), 'utf8')), `media ${r.media}`);
 }
@@ -105,7 +120,7 @@ const val = (v, m) => P.validarVeredicto(v, rubrica, m);
   ok('F5 Spearman no depende de la escala, solo del orden', near(s([0.1, 0.5, 0.9, 0.95], [1, 5, 50, 51]), 1));
   const c = { umbral_spearman: 0.7, peliculas: [{ clave: 'x1', nivel: 1 }, { clave: 'x2', nivel: 2 }, { clave: 'x3', nivel: 3 }, { clave: 'x4', nivel: 4 }], pares: [{ mayor: 'x4', menor: 'x1', fuerza: 'estricto', origen: 't' }, { mayor: 'x3', menor: 'x2', fuerza: 'debil', origen: 't' }] };
   const dir = path.join(tmp, 'cal'), mapa = path.join(tmp, 'mapa.json'), map = { A: 'x3', B: 'x1', C: 'x4', D: 'x2' }; fs.mkdirSync(dir); fs.writeFileSync(mapa, JSON.stringify(map));
-  const puntua = (puntos) => { for (const [l, c2] of Object.entries(map)) { const t = puntos[c2]; for (const m of G.MIRADAS) { const pu = Object.fromEntries(Object.keys(rubrica[m]).map((k) => [k, t])); fs.mkdirSync(path.join(dir, l), { recursive: true }); P.registrar(path.join(dir, l), m, { mirada: m, puntos: pu, total: t, arreglos: ['arreglo concreto uno', 'arreglo concreto dos', 'arreglo concreto tres'] }, rubrica); } } };
+  const puntua = (puntos) => { for (const [l, c2] of Object.entries(map)) { const t = puntos[c2]; for (const m of G.MIRADAS) { const pu = Object.fromEntries(Object.keys(rubrica[m]).map((k) => [k, t])); fs.mkdirSync(path.join(dir, l), { recursive: true }); P.registrar(path.join(dir, l), m, { mirada: m, puntos: pu, total: t, arreglos: ['arreglo concreto uno', 'arreglo concreto dos', 'arreglo concreto tres'], vistos: vistosOk }, rubrica); } } };
   puntua({ x1: 3, x2: 5, x3: 6, x4: 8 });
   const r = P.calibrar({ cal: c, dir, mapa });
   ok('F6 calibrar: panel que ordena como las notas → ρ = 1, CALIBRADO, pares cumplidos', near(r.rho, 1) && r.ok && r.pares.every((p) => p.ok) && r.n === 4);
@@ -130,28 +145,53 @@ const val = (v, m) => P.validarVeredicto(v, rubrica, m);
   ok('G6 la anonimización es una biyección letra→película, determinista y baraja el orden', JSON.stringify(a) === JSON.stringify(b) && new Set(Object.values(a)).size === claves.size && Object.keys(a).every((k) => /^[A-Z]\d?$/.test(k)) && JSON.stringify(Object.values(a)) !== JSON.stringify([...claves]));
 }
 
+{
+  const claves = cal.peliculas.map((p) => p.clave), m1 = P.anonimizar(claves, cal.semillas.calibracion), m2 = P.anonimizar(claves, cal.semillas.calibracion2);
+  ok('G7 el lote 2 usa otra semilla y un mapa NUEVO: ninguna letra apunta a la misma película que en el lote 1', cal.semillas.calibracion2 !== cal.semillas.calibracion && Object.keys(m1).every((k) => m1[k] !== m2[k]) && new Set(Object.values(m2)).size === claves.length && P.LOTE === 'calibracion2');
+  const h = P.hermanos('/x/out/panel/calibracion2');
+  ok('G8 los archivos hermanos del lote cuelgan de su nombre (mapa, veredictos, resultado): el lote 1 no se pisa', h.mapa.endsWith('calibracion2-mapa.json') && h.veredictos.endsWith('calibracion2-veredictos') && h.resultado.endsWith('calibracion2-resultado.json') && P.hermanos('/x/calibracion').mapa.endsWith('calibracion-mapa.json'));
+}
+
+{
+  const vacio = P.profundidad({ esp: 2, tex: 0.3, temporal: 1, luces: 0, oscuros_pct: 100 }), estrellas = P.profundidad({ esp: 12, tex: 1.2, temporal: 8.5, luces: 1.4, oscuros_pct: 100 }), claro = P.profundidad({ esp: 18, tex: 3, temporal: 6, luces: 0, oscuros_pct: 0 });
+  ok('H0a profundidad: un negro vacío sale «baja», un oscuro con estrellas y movimiento «media/alta», y un fondo claro «n/a» (no se mide como defecto)', vacio.nivel === 'baja' && ['media', 'alta'].includes(estrellas.nivel) && /^n\/a/.test(claro.nivel));
+  const serie = { fps: 4, dif: Array.from({ length: 79 }, (_, i) => (i >= 38 && i <= 40 ? 20 : 1 + (i % 7) * 0.1) + (i === 12 || i === 72 ? 15 : 0)), luma: Array.from({ length: 80 }, (_, i) => (i < 56 ? 40 : 160)) };
+  const mt = P.momentosTiras(serie, 20, 6);
+  ok('H0b momentosTiras: 6 instantes ordenados y separados, uno es el giro (cambio de luminancia hacia el 40–90 %) y el resto son picos de actividad', mt.length === 6 && mt.every((m, i) => i === 0 || m.t > mt[i - 1].t) && mt.filter((m) => m.tipo === 'giro').length === 1 && Math.abs(mt.find((m) => m.tipo === 'giro').t - 14) <= 1 && mt.some((m) => Math.abs(m.t - 3) <= 0.5) && mt.some((m) => Math.abs(m.t - 18.25) <= 0.5), mt.map((m) => `${m.tipo[0]}${m.t.toFixed(1)}`).join(' '));
+}
+
 // ── G-H. paquete anónimo con un mp4 sintético ──
 {
   const mp4 = path.join(tmp, 'secreto_pelicula_xyz.mp4'), out = path.join(tmp, 'paquete');
   execFileSync('ffmpeg', ['-v', 'error', '-y', '-f', 'lavfi', '-i', 'testsrc2=size=320x180:rate=15:duration=4', '-f', 'lavfi', '-i', 'sine=frequency=330:duration=4', '-shortest', '-pix_fmt', 'yuv420p', '-metadata', 'title=secreto_pelicula_xyz', mp4]);
   const r = await P.preparar(mp4, out, { nombre: 'Q' });
   const ls = (d) => fs.readdirSync(path.join(out, d)), fr = ls('frames'), rc = ls('recortes');
-  ok('H1 preparar extrae 12 fotogramas, la hoja de contacto y 6 recortes', fr.length === 12 && rc.length === 6 && fs.existsSync(path.join(out, 'hoja.jpg')) && fs.statSync(path.join(out, 'hoja.jpg')).size > 2000, `${fr.length} + ${rc.length}`);
+  const tr = ls('tiras');
+  ok('H1 preparar extrae 12 fotogramas, la hoja de contacto, 6 recortes y 6 tiras de movimiento', fr.length === 12 && rc.length === 6 && tr.length === 6 && fs.existsSync(path.join(out, 'hoja.jpg')) && fs.statSync(path.join(out, 'hoja.jpg')).size > 2000, `${fr.length} + ${rc.length} + ${tr.length}`);
   { const { loadImage } = (await import('canvas')).default, a = await loadImage(path.join(out, 'recortes/r1.png')), f = await loadImage(path.join(out, 'frames/f01.jpg'));
     ok('H2 cada recorte es una zona de 1/4×1/4 del cuadro ampliada 4× (mismo tamaño que el fotograma)', a.width === f.width && a.height === f.height, `${a.width}×${a.height}`); }
-  ok('H3 mide el audio con ebur128 (LUFS, LRA, true peak) y los % de vacíos y de fondo plano', r.audio && Number.isFinite(r.audio.I) && Number.isFinite(r.audio.LRA) && Number.isFinite(r.audio.TP) && r.vis.vacios_pct >= 0 && r.vis.plano_pct >= 0 && r.vis.muestras > 5, JSON.stringify(r.audio) + ' ' + r.vis.vacios_pct + '%');
+  ok('H3 mide el audio con ebur128 (LUFS, LRA, true peak) y el % de fondo oscuro/plano y de fondo plano', r.audio && Number.isFinite(r.audio.I) && Number.isFinite(r.audio.LRA) && Number.isFinite(r.audio.TP) && r.vis.oscuro_plano_pct >= 0 && r.vis.plano_pct >= 0 && r.vis.muestras > 5, JSON.stringify(r.audio) + ' ' + r.vis.oscuro_plano_pct + '%');
   const pq = fs.readFileSync(path.join(out, 'paquete.md'), 'utf8'), po = fs.readFileSync(path.join(out, 'paquete.ojo.md'), 'utf8');
-  ok('H4 paquete.md trae mediciones, reglas con origen y la rúbrica de las 3 miradas con su JSON', /LUFS/.test(pq) && /Fotogramas vacíos/.test(pq) && /\*\*C01\*\*/.test(pq) && /_Origen:/.test(pq) && ['historia', 'composicion', 'no_clipart'].every((c) => pq.includes(`"${c}"`)));
+  ok('H4 paquete.md trae mediciones, reglas con origen y la rúbrica de las 3 miradas con su JSON', /LUFS/.test(pq) && /Fondo oscuro\/plano/.test(pq) && !/Fotogramas vacíos/.test(pq) && /\*\*C01\*\*/.test(pq) && /_Origen:/.test(pq) && ['historia', 'composicion', 'no_clipart'].every((c) => pq.includes(`"${c}"`)));
   ok('H5 paquete.<mirada>.md solo lleva las reglas y la rúbrica de su mirada', /"composicion"/.test(po) && !/"historia"/.test(po) && /\*\*C01\*\*/.test(po) && !/\*\*H01\*\*/.test(po));
   const txt = []; const walk = (d) => { for (const f of fs.readdirSync(d)) { const p = path.join(d, f); if (fs.statSync(p).isDirectory()) walk(p); else if (/\.(md|json)$/.test(f)) txt.push(fs.readFileSync(p, 'utf8')); } }; walk(out);
   ok('H6 anonimato: ningún archivo del paquete contiene el nombre ni la ruta del mp4, ni notas humanas', txt.length >= 5 && txt.every((t) => !/secreto_pelicula|opus-gusto|\.mp4|notas humanas previas/i.test(t)) && /película Q/.test(pq));
-  const idxNotas = fs.readFileSync(path.join(out, 'paquete.md'), 'utf8').includes('Notas humanas previas');
+  {
+  const med = JSON.parse(fs.readFileSync(path.join(out, 'medidas.json'), 'utf8')), pd = fs.readFileSync(path.join(out, 'paquete.director.md'), 'utf8');
+  ok('H10 «vacío» reetiquetado como «fondo oscuro/plano (%)», con la aclaración de que no es un defecto, y con la profundidad medida al lado (espacial, textura, temporal, puntos de luz)', /Fondo oscuro\/plano/.test(pq) && /NO es un defecto/.test(pq) && /Profundidad medida/.test(pq) && /varianza espacial/.test(pq) && /varianza temporal/.test(pq) && ['espacial', 'textura', 'temporal', 'puntos_luz_pct', 'nivel'].every((k) => k in med.vis.profundidad), JSON.stringify(med.vis.profundidad));
+  ok('H11 el paquete describe las 6 tiras (8 fotogramas a 5 fps, con tiempo y Δ) y la tira del giro; medidas.json las lista', /tiras\/t6\.jpg/.test(pq) && /8 fotogramas CONSECUTIVOS a 5 fps/.test(pq) && /EL GIRO/.test(pq) && med.tiras.length === 6 && med.tiras.every((t) => t.deltas.length === 7 && t.hasta > t.desde) && med.tiras.filter((t) => t.tipo === 'giro').length === 1);
+  ok('H12 descriptor de audio legible: curva ASCII por tramos, golpes, silencios y presencia de cama/música', /Descriptor de audio/.test(pd) && /█/.test(pd) && /Golpes o ataques detectados/.test(pd) && /Silencios/.test(pd) && /Música o cama sostenida/.test(pd) && med.perfil_audio.curva.length >= 8 && Array.isArray(med.perfil_audio.golpes));
+  ok('H13 el paquete exige lectura: ≥ 7 vistos (4 recortes y 3 tiras) y explica el campo «vistos» en el formato de respuesta', /«vistos»|`vistos`/.test(pd) && /mínimo 7/.test(pd) && /"vistos":\[/.test(pd) && /Un veredicto con menos se rechaza/.test(pd));
+}
+const idxNotas = fs.readFileSync(path.join(out, 'paquete.md'), 'utf8').includes('Notas humanas previas');
   const out2 = path.join(tmp, 'paquete2'); await P.preparar(mp4, out2);
   const pq2 = fs.readFileSync(path.join(out2, 'paquete.md'), 'utf8');
   ok('H7 sin --nombre el paquete es nominal y SÍ lleva las notas humanas previas (G5: el panel siguiente las aplica)', !idxNotas && /Notas humanas previas/.test(pq2) && /secreto_pelicula_xyz/.test(pq2));
   const dirCal = path.join(tmp, 'cal2'); fs.mkdirSync(path.join(dirCal, 'A'), { recursive: true }); fs.mkdirSync(path.join(dirCal, 'B'));
   const pr = P.prompt('ojo', { calibracion: true, dir: dirCal, salida: path.join(tmp, 'ojo.json') }), pu = P.prompt('director', { paquete: out });
-  ok('H8 los prompts salen autocontenidos: sin huecos {{}}, con rutas, enfoque, rúbrica y formato; la calibración no menciona nombres reales', !/\{\{/.test(pr + pu) && pr.includes(dirCal) && /OJO|«ojo»/.test(pr) && pr.includes('"composicion"') && /A, B/.test(pr) && !cal.peliculas.filter((p) => p.clave.includes("_")).some((p) => pr.includes(p.clave)) && !/botella|potencias/i.test(pr) && pu.includes(path.join(out, 'paquete.director.md')) && /DIRECTOR/.test(pu));
+  ok('H8 los prompts salen autocontenidos: sin huecos {{}}, con rutas, enfoque, rúbrica y formato; la calibración no menciona nombres reales', !/\{\{/.test(pr + pu) && pr.includes(dirCal) && /OJO|«ojo»/.test(pr) && pr.includes('"composicion"') && /A, B/.test(pr) && /vistos/.test(pr) && /tiras/.test(pr) && !cal.peliculas.filter((p) => p.clave.includes("_")).some((p) => pr.includes(p.clave)) && !/botella|potencias/i.test(pr) && pu.includes(path.join(out, 'paquete.director.md')) && /DIRECTOR/.test(pu));
+  const d2 = path.join(tmp, 'pp', 'calibracion2'); fs.mkdirSync(path.join(d2, 'A'), { recursive: true });
+  ok('H8b `prompt --calibracion` sin --dir apunta al lote por defecto (calibracion2): su carpeta de veredictos es calibracion2-veredictos', P.LOTE === 'calibracion2' && P.prompt('director', { calibracion: true, dir: d2 }).includes(path.join(tmp, 'pp', 'calibracion2-veredictos', 'director.json')));
   const lote = path.join(tmp, 'lote.json'); fs.writeFileSync(lote, JSON.stringify([{ paquete: 'A', ...buen }, { paquete: 'B', ...buen }, { paquete: 'Z', ...buen }, { paquete: 'A', ...buen, total: 2 }]));
   const rl = P.registrarLote(dirCal, lote, rubrica);
   ok('H9 registrar-lote registra los válidos y lista los rechazados (paquete inexistente, total incoherente)', rl.ok.length === 2 && rl.mal.length === 2 && fs.existsSync(path.join(dirCal, 'B/veredictos/director.json')));

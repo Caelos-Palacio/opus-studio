@@ -14,11 +14,12 @@ cita su **origen**: una nota humana (`N##`, posición en `data/notas.json`), una
 - **H01** Hay un objeto ancla concreto, con física propia (peso, flotación, inercia), y su movimiento ES la explicación; no hay cajas con flechas. _Origen: N10, N19, spec 013, MODO-LIBRE_
 - **H02** La tesis cabe en una frase y se ve u oye antes del 30 % del metraje; el film la reinterpreta en el giro (el mismo objeto cambia de significado). _Origen: spec 013_
 - **H03** El giro se marca con un cambio de luz o de color, no solo con un texto nuevo, y no cae siempre en el 72–81 % del metraje. _Origen: spec 013, MODO-LIBRE_
-- **H04** La apertura no es la plantilla «¿…?» y el cierre no es «vuelve…» ni una moraleja explícita. _Origen: spec 013_
+- **H04** La apertura no es la plantilla «¿…?» y el cierre no es «vuelve…» ni una moraleja explícita; si el film enseña y tiene materia, una pregunta honesta o una conclusión clara no penalizan (ver H09). _Origen: spec 013, exp 2026-10-13_
 - **H05** Hay voz: un punto de vista reconocible (humor, una imperfección deliberada, un detalle personal) que distingue este film de otro cualquiera. _Origen: spec 013, N19_
 - **H06** Un concepto flojo ejecutado con oficio queda en «bien»: el concepto pesa tanto como la ejecución en la nota. _Origen: N16_
 - **H07** Todo recurso (3D, medio, sonido, cámara) está motivado por el guion desde el principio; nada se ve «pegado con cinta» a posteriori. _Origen: N12, spec 012_
 - **H08** Los protagonistas tienen un rasgo propio (gesto, mascota, tic) que se repite y evoluciona. _Origen: spec 003_
+- **H09** Didáctico con materia es una virtud: cuando el objeto ES la explicación (un punto, una recta, una pieza que se construye) y el soporte tiene materia (papel, pizarra, trazo a mano), enseñar un concepto por vez, con claridad y paso a paso, puntúa alto; lo genérico no es enseñar sino enseñar con plantilla y sin materia. _Origen: N10, spec 001, exp 2026-10-13_
 
 ## 2. Ritmo (mirada: director)
 - **R01** Las duraciones de escena son irregulares (coeficiente de variación ≥ 0,3) y no hay 5 escenas seguidas de igual duración. _Origen: N01, spec 001, MODO-LIBRE_
@@ -38,7 +39,8 @@ cita su **origen**: una nota humana (`N##`, posición en `data/notas.json`), una
 - **C06** Un solo medio coherente en TODO (fondo, objetos, texto y luz); la luz también está hecha con el material del medio. _Origen: spec 003, N13_
 - **C07** El medio y el fondo los elige el tema: oscuro con profundidad si el tema es luz, noche, cosmos o escala inmensa; soporte con textura si es razonar, medir o escribir. _Origen: N17, N13, spec 012_
 - **C08** Hay imperfección deliberada (trazo que tiembla, desregistro, mancha, borde irregular) en vez de vector limpio. _Origen: spec 003, MODO-LIBRE_
-- **C09** Un fondo oscuro tiene profundidad que se ve (estrellas, bruma, niebla, viñeta, parallax); un oscuro sin motivo es relleno. _Origen: N17, spec 012_
+- **C09** Un fondo oscuro tiene profundidad que se ve (estrellas, bruma, niebla, viñeta, parallax); un oscuro sin motivo es relleno. Con profundidad y elegido por el tema, el oscuro NO se penaliza. _Origen: N17, N09, spec 012_
+- **C12** PESO ALTO: un fondo oscuro elegido por el tema (cosmos, noche, luz, escala inmensa) y con profundidad visible (estrellas, bruma, capas con parallax) es una decisión válida y suele ganar al soporte técnico claro para ese tema; un porcentaje alto de fondo oscuro en las mediciones no es un defecto por sí solo. _Origen: spec 012, N09, N17_
 - **C10** La cámara no es un plano frontal fijo: hay empuje, parallax o fuga con motivo. _Origen: spec 003_
 - **C11** Los objetos añadidos (3D, sellos, recortes) comparten luz, sombra y grano con el fondo. _Origen: N11, N12_
 
@@ -60,19 +62,27 @@ cita su **origen**: una nota humana (`N##`, posición en `data/notas.json`), una
 - **S07** El máximo de sonoridad coincide con el pico visual (±0,5 s). _Origen: spec 002_
 
 ## 6. Anti-patrones (mirada: escéptico)
-- **A01** Fondo negro VACÍO: oscuro sin profundidad ni motivo. (El oscuro elegido por el tema y con profundidad es válido.) _Origen: spec 003, N17, spec 012_
+- **A01** Fondo negro VACÍO: oscuro sin profundidad ni motivo (profundidad medida baja y nada que lo justifique). El oscuro elegido por el tema y con profundidad es válido y no se castiga (ver C12). _Origen: spec 003, N17, spec 012_
 - **A02** Monotonía: escenas de igual duración, mismo zoom, mismo gesto repetido. _Origen: N01, spec 001_
 - **A03** Prisa: conceptos que aparecen y desaparecen sin tiempo de lectura. _Origen: N01_
 - **A04** Audio pobre: efectos planos, sin música con arco. _Origen: N01, N03_
 - **A05** Paleta por defecto: dorado tímido sobre azul noche. _Origen: spec 003_
 - **A06** Clip-art: siluetas planas de contorno limpio, iconos vectoriales sin textura ni sombra de contacto, mismo grosor de línea en todo. _Origen: exp 2026-10-11, N19, research 12_
-- **A07** Presentación corporativa: cajas con flechas, listas con viñetas, titulares centrados con icono, aspecto de plantilla de diapositivas. _Origen: exp 2026-10-11, spec 022_
-- **A08** Plantilla narrativa visible: tríadas, simetría exacta, moraleja final. _Origen: spec 013_
+- **A07** Presentación corporativa: cajas con flechas, listas con viñetas, titulares centrados con icono, aspecto de plantilla de diapositivas sin materia. Explicar con claridad sobre un soporte con materia NO es esto (ver H09). _Origen: exp 2026-10-11, spec 022, exp 2026-10-13_
+- **A08** Plantilla narrativa visible: tríadas, simetría exacta, moraleja final, aplicadas igual a cualquier tema. Un orden didáctico propio del objeto (un paso lleva al siguiente) no es plantilla (ver H09). _Origen: spec 013, exp 2026-10-13_
 - **A09** Texto diminuto y gris sobre un fondo casi igual de gris. _Origen: spec 003_
 - **A10** Vacío decorado con efectos (brillos, partículas) en lugar de un mundo con objetos. _Origen: spec 003_
 - **A11** Sobrecorregir: aplicar una crítica a todo (por ejemplo prohibir el negro o imponer un medio único). _Origen: N17, N13, spec 013_
 
-## 7. Rúbrica del panel (0–10)
+## 7. Movimiento (mirada: director; se juzga en las tiras de movimiento)
+- **M01** Easing: los desplazamientos arrancan y frenan con curva (ease-in/out); en una tira de 8 fotogramas la distancia recorrida entre fotogramas consecutivos crece y decrece, no es constante ni abrupta. _Origen: N10, exp 2026-10-13_
+- **M02** Peso: lo que se mueve tiene inercia; acelera, se pasa un poco y asienta (rebote amortiguado o ligero exceso), y lo que cae o se apoya proyecta sombra de contacto; nada flota sin masa. _Origen: N19, spec 013, exp 2026-10-13_
+- **M03** Transición motivada: cada cambio de escena nace de algo visible (un objeto que arrastra, una luz que se enciende, un gesto de cámara) y no de un corte o fundido genérico sin causa. _Origen: N12, spec 012, exp 2026-10-13_
+- **M04** Nada entra todo a la vez: los elementos de una escena llegan escalonados, con al menos 2 fotogramas de la tira entre cada llegada, siguiendo el orden de lectura; un cuadro que aparece completo de golpe es un defecto. _Origen: N01, exp 2026-10-13_
+- **M05** Hay vida en el reposo: durante los respiros siguen la deriva de cámara, el grano o una respiración sutil; solo un respiro marcado puede dejar la tira idéntica en los 8 fotogramas. _Origen: spec 003, N10, exp 2026-10-13_
+- **M06** El movimiento principal tiene dirección y causa: lo que entra lo hace desde un lado coherente y el pico de velocidad coincide con el momento de más energía (±0,5 s). _Origen: spec 001, exp 2026-10-13_
+
+## 8. Rúbrica del panel (0–10)
 Cada mirada puntúa sus criterios de 0 a 10 con estas anclas (0 = ausente o roto; 5 = correcto pero olvidable; 8 = bueno,
 se defiende ante un profesional; 10 = asombroso, se recordaría). La puntuación total de la mirada es la media de sus criterios.
 SHIP exige media de las tres miradas ≥ 8 y ninguna mirada por debajo de 6.
@@ -80,21 +90,22 @@ SHIP exige media de las tres miradas ≥ 8 y ninguna mirada por debajo de 6.
 ### director
 - **historia**: ¿hay una idea con un objeto ancla, un giro y un cierre propios? 0 = sin idea; 5 = idea correcta de plantilla; 10 = idea fresca cuyo objeto ES la explicación.
 - **voz**: ¿tiene un punto de vista reconocible y no robótico? 0 = impersonal; 5 = tono neutro correcto; 10 = voz inconfundible, con humor o imperfección propia.
-- **ritmo**: variación, respiros, un pico y un final que respira (más el arco del sonido). 0 = constante o apresurado; 5 = variado pero sin pico claro; 10 = crescendo, golpe, respiro y cierre medidos.
+- **ritmo**: variación, respiros, un pico y un final que respira (más el arco del sonido, con el descriptor de audio). 0 = constante o apresurado; 5 = variado pero sin pico claro; 10 = crescendo, golpe, respiro y cierre medidos.
+- **movimiento**: easing, peso, transiciones motivadas y entradas escalonadas (reglas M*), juzgados en las tiras de movimiento. 0 = saltos o desplazamientos lineales, todo entra a la vez; 5 = fluido pero sin peso ni intención; 10 = cada gesto tiene curva, masa y causa.
 
 ### ojo
 - **composicion**: sujeto, aire, profundidad y cámara. 0 = plano frontal vacío; 5 = ordenado pero estático; 10 = sujeto grande, capas con parallax y aire para el texto.
-- **materia**: textura del soporte, grano, imperfección, integración de capas, visible a 1×. 0 = fondo plano; 5 = textura presente pero tímida; 10 = el material se siente táctil en todo.
+- **materia**: textura del soporte, grano, imperfección, integración de capas, visible a 1× y en los recortes 4× (ábrelos: ahí se ve la fibra, el trazo y la sombra de contacto). Un fondo oscuro con profundidad medida y elegido por el tema cuenta como materia. 0 = fondo plano; 5 = textura presente pero tímida; 10 = el material se siente táctil en todo.
 - **color**: paleta cerrada, acento por escena, coherencia con el tema. 0 = colores sin criterio; 5 = paleta correcta pero de manual; 10 = paleta propia y cambio de color con sentido.
 - **tipografia**: jerarquía, legibilidad a 1×, carácter. 0 = ilegible o sin jerarquía; 5 = legible pero por defecto; 10 = jerarquía clara y carácter del medio.
 
 ### escéptico
 - **no_generico**: ¿podría ser de cualquier otro tema? 0 = plantilla intercambiable; 5 = tiene algo propio pero previsible; 10 = solo podría ser este film.
 - **no_clipart**: ¿hay materia y detalle o iconos planos? 0 = clip-art puro; 5 = vector limpio con algo de textura; 10 = ilustración con oficio y detalle.
-- **no_corporativo**: ¿parece una presentación de empresa? 0 = diapositivas con viñetas y cajas; 5 = limpio pero institucional; 10 = nada institucional, con riesgo y personalidad.
+- **no_corporativo**: ¿parece una presentación de empresa? Enseñar con claridad sobre un soporte con materia no es corporativo (H09). 0 = diapositivas con viñetas y cajas; 5 = limpio pero institucional; 10 = nada institucional, con riesgo y personalidad.
 
 <!-- notas:begin -->
-## 8. Notas humanas (generado: `node engine/gusto.mjs build`)
+## 9. Notas humanas (generado: `node engine/gusto.mjs build`)
 
 Cada línea es una observación del usuario sobre un film concreto. Aplícala como criterio general, no como receta de ese film.
 

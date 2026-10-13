@@ -57,7 +57,7 @@ export function validarReglas(reglas) {
 
 /** Rúbrica: {director:{historia:desc,…}, ojo:{…}, esceptico:{…}} leída de la sección «Rúbrica» (### mirada, - **criterio**: desc). */
 export function parseRubrica(md) {
-  const i = md.indexOf('## 7. Rúbrica'); const rub = {};
+  const i = md.indexOf('## 8. Rúbrica'); const rub = {};
   if (i < 0) return rub;
   const fin = md.indexOf(BEGIN); let mir = null;
   for (const raw of md.slice(i, fin < 0 ? undefined : fin).split('\n')) {
@@ -69,7 +69,7 @@ export function parseRubrica(md) {
 
 /** Texto de las reglas por mirada: grupos de la sección → mirada que las usa. */
 export const GRUPOS_DE = {
-  director: [/^1\./, /^2\./, /^5\./],
+  director: [/^1\./, /^2\./, /^5\./, /^7\./],
   ojo: [/^3\./, /^4\./],
   esceptico: [/^6\./, /^1\./],
 };
@@ -81,7 +81,7 @@ export const fmtRegla = (r) => `- **${r.id}** ${r.texto} _Origen: ${r.origen.joi
 
 /** Sección generada desde notas.json. Las notas sin información («pendiente de calificación») no generan regla. */
 export function seccionNotas(notas) {
-  const L = ['## 8. Notas humanas (generado: `node engine/gusto.mjs build`)', '',
+  const L = ['## 9. Notas humanas (generado: `node engine/gusto.mjs build`)', '',
     'Cada línea es una observación del usuario sobre un film concreto. Aplícala como criterio general, no como receta de ese film.', ''];
   notas.forEach((n, i) => {
     if (!n.texto || /^pendiente/i.test(n.texto)) return;
