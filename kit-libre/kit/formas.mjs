@@ -1,6 +1,6 @@
 // formas.mjs: objetos con volumen en 2D (revolucion, tubos, extrusion, trazo a mano). Sin clip-art: todo sombreado en bandas.
 import { createCanvas } from 'canvas';
-import { rng, gauss, valor, fbm, lerp, clamp, smoothstep, mezclar, oscurecer, aclarar, rgba } from './base.mjs';
+import { rng, gauss, valor, fbm, lerp, clamp, smoothstep, mezclar, oscurecer, aclarar, rgba, hexRgb } from './base.mjs';
 
 const scr = new Map();
 const lienzo = (ctx) => { const k = ctx.canvas.width + 'x' + ctx.canvas.height; if (!scr.has(k)) scr.set(k, createCanvas(ctx.canvas.width, ctx.canvas.height)); const c = scr.get(k); c.getContext('2d').clearRect(0, 0, c.width, c.height); return c; };
@@ -22,21 +22,40 @@ export function perfil(pts, paso = 2) {
   out.push(pts[pts.length - 1]); return out;
 }
 
-/** torno(ctx,perfil,{x,y,luz,tono,rot,estrias}): cuerpo de revolucion (botella, jarra, moneda de canto) en 4 tonos con reflejo; eje en x,y hacia abajo. */
+const TC = new Map();
+/**
+ * torno(ctx,perfil,{x,y,luz,tono,rot,estrias,reflejo}): cuerpo de revolucion (botella, jarra, esfera, moneda de canto), eje vertical
+ * en x,y. Sombreado CONTINUO por pixel (normal de la superficie, Lambert + reflejo de rebote + brillo), sin bandas; se cachea.
+ * `luz` -1 (izquierda) .. 1 (derecha). Devuelve {y0,alto}.
+ */
 export function torno(ctx, per, { x = 0, y = 0, luz = -0.5, tono = '#4f8f6a', rot = 0, estrias = false, reflejo = true } = {}) {
-  const tc = [oscurecer(tono, 0.55), oscurecer(tono, 0.25), tono, aclarar(tono, 0.3)], lz = Math.sqrt(1 - luz * luz), th = [0.3, 0.6, 0.85], segs = [];
-  let ult = -1;
-  for (let i = 0; i <= 200; i++) { const u = -1 + i / 100, I = luz * u + lz * Math.sqrt(Math.max(0, 1 - u * u)), b = I < th[0] ? 0 : I < th[1] ? 1 : I < th[2] ? 2 : 3; if (b !== ult) { segs.push([u, 1, b]); if (segs.length > 1) segs[segs.length - 2][1] = u; ult = b; } }
-  const y0 = per[0][0], H = per[per.length - 1][0] - y0;
-  ctx.save(); ctx.translate(x, y); ctx.rotate(rot);
-  const hh = (i) => (per[i + 1] ? per[i + 1][0] - per[i][0] : 1) + 0.9;
-  per.forEach(([yy, r], i) => { for (const [u0, u1, b] of segs) { ctx.fillStyle = tc[b]; ctx.fillRect(u0 * r, yy, (u1 - u0) * r + 0.6, hh(i)); } });
-  if (reflejo) per.forEach(([yy, r], i) => { const f = smoothstep(0, 0.1, (yy - y0) / H) * smoothstep(1, 0.9, (yy - y0) / H); ctx.fillStyle = `rgba(255,255,255,${0.5 * f})`; ctx.fillRect((luz * 0.85 - 0.06) * r, yy, 0.12 * r, hh(i) - 0.55); ctx.fillStyle = `rgba(255,255,255,${0.14 * f})`; ctx.fillRect((-luz * 0.8) * r, yy, 0.05 * r, hh(i) - 0.55); });
-  if (estrias) { ctx.strokeStyle = 'rgba(0,0,0,0.25)'; ctx.lineWidth = 1; for (let yy = y0 + 2; yy < y0 + H; yy += 3) { const r = per.find((p) => p[0] >= yy)?.[1] ?? 0; ctx.beginPath(); ctx.moveTo(-r, yy); ctx.lineTo(r, yy); ctx.stroke(); } }
-  ctx.strokeStyle = rgba(oscurecer(tono, 0.75), 0.9); ctx.lineWidth = 1.5; ctx.lineJoin = 'round';
-  for (const s of [-1, 1]) { ctx.beginPath(); per.forEach(([yy, r], i) => i ? ctx.lineTo(s * r, yy) : ctx.moveTo(s * r, yy)); ctx.stroke(); }
-  const rt = per[0][1], rb = per[per.length - 1][1]; ctx.beginPath(); ctx.moveTo(-rt, y0); ctx.lineTo(rt, y0); ctx.moveTo(-rb, y0 + H); ctx.lineTo(rb, y0 + H); ctx.stroke();
-  ctx.restore(); return { y0, alto: H };
+  const m = ctx.getTransform?.(), sc = Math.min(2, Math.max(0.25, m ? Math.hypot(m.a, m.b) : 1)), y0 = per[0][0], y1 = per[per.length - 1][0], rmax = Math.max(...per.map((p) => p[1]));
+  const key = [per.map((p) => p.map((v) => Math.round(v * 4)).join(',')).join(';'), luz, tono, estrias, reflejo, sc.toFixed(2)].join('|');
+  let bm = TC.get(key);
+  if (!bm) {
+    if (TC.size > 24) TC.clear();
+    const w = Math.ceil((2 * rmax + 4) * sc), h = Math.ceil((y1 - y0 + 2) * sc), c = createCanvas(w, h), g = c.getContext('2d'), im = g.createImageData(w, h), d = im.data;
+    const lx = luz, ly = -0.5, lz = 0.8, ln = Math.hypot(lx, ly, lz), L = [lx / ln, ly / ln, lz / ln], Hh = [L[0], L[1], L[2] + 1], hn = Math.hypot(...Hh), Hv = Hh.map((v) => v / hn);
+    const cOsc = hexRgb(oscurecer(tono, 0.62)), cMed = hexRgb(tono), cClaro = hexRgb(aclarar(tono, 0.38)), lin = (yy) => { let i = 0; while (i < per.length - 2 && per[i + 1][0] < yy) i++; const [ya, ra] = per[i], [yb, rb] = per[i + 1]; return yb === ya ? ra : lerp(ra, rb, clamp((yy - ya) / (yb - ya), 0, 1)); }, win = Math.max(2, (y1 - y0) * 0.012);
+    const rad = (yy) => [lin(yy), (lin(Math.min(y1, yy + win)) - lin(Math.max(y0, yy - win))) / (Math.min(y1, yy + win) - Math.max(y0, yy - win) || 1)]; // radio y pendiente suavizada
+    for (let j = 0; j < h; j++) {
+      const yy = y0 - 1 + (j + 0.5) / sc, ins = yy >= y0 && yy <= y1; if (!ins) continue;
+      const [r, dr] = rad(yy), fy = (yy - y0) / (y1 - y0 || 1), est = estrias && Math.floor((yy - y0) / 3) % 2 ? 0.8 : 1;
+      for (let i = 0; i < w; i++) {
+        const xx = (i + 0.5) / sc - w / (2 * sc), cov = clamp(r - Math.abs(xx) + 0.5, 0, 1); if (cov <= 0 || r < 0.5) continue;
+        const u = clamp(xx / r, -0.999, 0.999), cz = Math.sqrt(1 - u * u), nx = u, ny = -dr, nz = cz, nn = Math.hypot(nx, ny, nz), N = [nx / nn, ny / nn, nz / nn];
+        const dif = Math.max(0, N[0] * L[0] + N[1] * L[1] + N[2] * L[2]), rebote = 0.16 * smoothstep(0.55, 1, -u * Math.sign(luz || 1)), esp = Math.pow(Math.max(0, N[0] * Hv[0] + N[1] * Hv[1] + N[2] * Hv[2]), 38) * 0.4;
+        let I = clamp(0.1 + dif * 0.95 + rebote, 0, 1.2) * est; const o = (j * w + i) * 4, a = I < 0.5 ? I / 0.5 : (I - 0.5) / 0.5;
+        const cA = I < 0.5 ? cOsc : cMed, cB = I < 0.5 ? cMed : cClaro, ref = reflejo ? 0.5 * Math.exp(-(((u - (luz * 0.78 - 0.04)) / 0.07) ** 2)) * smoothstep(0, 0.1, fy) * smoothstep(1, 0.88, fy) : 0, ruido = ((i * 73856093 ^ j * 19349663) & 255) / 255 - 0.5;
+        for (let k = 0; k < 3; k++) { const base = lerp(cA[k], cB[k], Math.min(1, a)) * (1 - 0.25 * smoothstep(0.85, 1, Math.abs(u))); d[o + k] = clamp(lerp(base, 255, clamp(esp + ref, 0, 1)) + ruido * 3, 0, 255); }
+        d[o + 3] = cov * 255;
+      }
+    }
+    g.putImageData(im, 0, 0); bm = { c, w: w / sc, h: h / sc }; TC.set(key, bm);
+  }
+  ctx.save(); ctx.translate(x, y); ctx.rotate(rot); ctx.drawImage(bm.c, -bm.w / 2, y0 - 1, bm.w, bm.h);
+  ctx.strokeStyle = rgba(oscurecer(tono, 0.75), 0.55); ctx.lineWidth = 1.2; const rt = per[0][1], rb = per[per.length - 1][1]; ctx.beginPath(); ctx.moveTo(-rt, y0); ctx.lineTo(rt, y0); ctx.moveTo(-rb, y1); ctx.lineTo(rb, y1); ctx.stroke();
+  ctx.restore(); return { y0, alto: y1 - y0 };
 }
 
 /** tubo(ctx,puntos,{grosor,variacion,seed,color,luz,torsion}): cuerda o cable con grosor modulado, sombra, cuerpo y luz. */
