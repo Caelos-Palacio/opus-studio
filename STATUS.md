@@ -42,7 +42,7 @@ Definición (gates.json); el estado de cierre está en la parte viva.
 
 ## Motor
 
-- versión: 5.0.0 (package.json) · módulos engine/: 101
+- versión: 5.0.0 (package.json) · módulos engine/: 103
 - roles: modo `enforce` (*, director, dp, investigador, td, productor, animator, review) · digest `35a737817acffefa`
 - presupuestos: data/budgets.json digest `5290bbde06ea538a`
 
@@ -55,19 +55,19 @@ Definición (gates.json); el estado de cierre está en la parte viva.
 
 ## Tests
 
-Archivos (test/*.mjs): `arc.mjs` `bench-skia.mjs` `boceto.mjs` `consta.mjs` `critic.mjs` `cut-render.mjs` `diagramas.mjs` `dsl-cov.mjs` `film.mjs` `fondo.mjs` `fondos-libres.mjs` `fondos.mjs` `fuzz.mjs` `golden.mjs` `gov.mjs` `guard.mjs` `harness.mjs` `hash.mjs` `lib.mjs` `medios.mjs` `memoria.mjs` `metrics.mjs` `motor.mjs` `narr.mjs` `orch.mjs` `orquestacion.mjs` `params.mjs` `perf.mjs` `prores.mjs` `recetas.mjs` `run.mjs` `schema.mjs` `semantica.mjs` `sound.mjs` `suites.mjs` `tools.mjs` `unit.mjs` `vectores.mjs` `veinticuatro.mjs` `world3d.mjs`
+Archivos (test/*.mjs): `arc.mjs` `bench-skia.mjs` `boceto.mjs` `consta.mjs` `critic.mjs` `cut-render.mjs` `diagramas.mjs` `dsl-cov.mjs` `film.mjs` `fondo.mjs` `fondos-libres.mjs` `fondos.mjs` `fuzz.mjs` `golden.mjs` `gov.mjs` `guard.mjs` `gusto.mjs` `harness.mjs` `hash.mjs` `lib.mjs` `medios.mjs` `memoria.mjs` `metrics.mjs` `motor.mjs` `narr.mjs` `orch.mjs` `orquestacion.mjs` `params.mjs` `perf.mjs` `prores.mjs` `recetas.mjs` `run.mjs` `schema.mjs` `semantica.mjs` `sound.mjs` `suites.mjs` `tools.mjs` `unit.mjs` `vectores.mjs` `veinticuatro.mjs` `world3d.mjs`
 <!-- estatico:fin -->
 
 ---
-## Estado vivo (2026-10-13T04:11Z, no verificado)
+## Estado vivo (2026-10-13T05:42Z, no verificado)
 
 ## Veredictos
 
 Film activo: `main` · engineHash `ac53f4628f2426c76bf7df7b12ba01d4b315d08104e6bcb2fd47eb6859382145` · filmHash `ef361edd948577f7`
 
-- out/lint.json: SHIP · CADUCADO
-- out/critic.json: SHIP · CADUCADO
-- veredictos por shot: 0 vigentes, 3 caducados
+- out/lint.json: no existe
+- out/critic.json: no existe
+- veredictos por shot: 0 vigentes, 0 caducados
 
 ### Estado de gates (out/gates.json)
 
@@ -78,6 +78,7 @@ Film activo: `main` · engineHash `ac53f4628f2426c76bf7df7b12ba01d4b315d08104e6b
 - `backup/pre-limpieza` (+136 commits)
 - `film-botella` (+12 commits)
 - `gobernanza` (+96 commits)
+- `gusto` (+1 commits)
 - `harness` (+101 commits)
 - `medios` (+57 commits)
 - `metricas` (+76 commits)
@@ -103,11 +104,11 @@ Film activo: `main` · engineHash `ac53f4628f2426c76bf7df7b12ba01d4b315d08104e6b
 
 ## Último run de tests
 
-- 2026-10-13T04:11:19.278Z: todo verde (perfil full)
+- 2026-10-13T05:42:34.598Z: 1 fallos (perfil full)
 
 ## Ledger
 
-- cadena: íntegra · 16 entradas (5 encadenadas, 11 heredadas, 0 firmadas) · códigos 100 %
+- cadena: íntegra · 2 entradas (2 encadenadas, 0 heredadas, 0 firmadas) · códigos 100 %
 
 ## Presupuestos
 
