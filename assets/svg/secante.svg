@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" data-tags="secante borrar tinta papel oficina escritorio">
+ <title>Secante de balancín con mancha de tinta</title>
+ <g fill="none" stroke="#1b2a3a" data-stroke="ink" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+  <path d="M45 24 H55 V34 H45 Z" fill="#a9743a" data-fill="accent"/>
+  <path d="M50 8 C58 8 61 14 59 19 C57 24 43 24 41 19 C39 14 42 8 50 8 Z" fill="#a9743a" data-fill="accent"/>
+  <path d="M18 34 H82 Q87 34 87 39 V52 Q87 56 82 56 H18 Q13 56 13 52 V39 Q13 34 18 34 Z" fill="#a9743a" data-fill="accent"/>
+  <path d="M20 42 H70 M20 48 H58" stroke-opacity="0.35" stroke-width="1.4"/>
+  <path d="M9 56 H91 C91 74 71 84 50 84 C29 84 9 74 9 56 Z" fill="#f3d9d6" data-fill="paper"/>
+  <path d="M29 67 C33 61 44 62 46 68 C50 66 57 70 55 75 C49 79 36 79 32 75 C28 73 27 70 29 67 Z" fill="#2b7fd9" data-fill="accent2" stroke="none" fill-opacity="0.85"/>
+  <path d="M60 66 H77 M62 71 H75 M60 76 H70" stroke-opacity="0.45" stroke-width="1.5"/>
+ </g>
+</svg>

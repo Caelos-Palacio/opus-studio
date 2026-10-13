@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" data-tags="lupa buscar investigar detalle cristal ampliar">
+ <title>Lupa con mango de madera</title>
+ <g fill="none" stroke="#1b2a3a" data-stroke="ink" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+  <path d="M64 64 L87 87" stroke="#a9743a" data-stroke="accent" stroke-width="9"/>
+  <path d="M64 64 L87 87" stroke-width="1.4" stroke-opacity="0.5"/>
+  <path d="M68 40 A28 28 0 1 1 12 40 A28 28 0 1 1 68 40 Z" fill="#7fd6ff" data-fill="accent2" fill-opacity="0.25" stroke-width="4.5"/>
+  <path d="M62 40 A22 22 0 1 1 18 40 A22 22 0 1 1 62 40 Z" stroke-width="1.2" stroke-opacity="0.7"/>
+  <path d="M24 30 A18 18 0 0 1 38 22" stroke="#f3ead8" data-stroke="paper" stroke-width="3" stroke-opacity="0.85"/>
+ </g>
+</svg>

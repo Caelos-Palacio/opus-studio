@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" data-tags="botella vidrio mensaje mar corcho etiqueta">
+ <title>Botella de vidrio con corcho y etiqueta</title>
+ <g fill="none" stroke="#1b2a3a" data-stroke="ink" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+  <path d="M44 5 H56 V16 H44 Z" fill="#a9743a" data-fill="accent"/>
+  <path d="M45 16 H55 V35 C55 41 68 45 68 57 V88 C68 92 66 95 62 95 H38 C34 95 32 92 32 88 V57 C32 45 45 41 45 35 Z" fill="#7fd6ff" data-fill="accent2" fill-opacity="0.32"/>
+  <path d="M32.5 63 Q41 59 50 63 T67.5 63 V88 C67.5 92 66 94.5 62 94.5 H38 C34 94.5 32.5 92 32.5 88 Z" fill="#7fd6ff" data-fill="accent2" fill-opacity="0.45" stroke="none"/>
+  <path d="M33 68 H67 V84 H33 Z" fill="#f3ead8" data-fill="paper" stroke-width="1.6"/>
+  <path d="M39 73 H61 M39 78 H55" stroke-width="1.4" stroke-opacity="0.7"/>
+  <path d="M38 54 V63" stroke="#f3ead8" data-stroke="paper" stroke-width="2.6" stroke-opacity="0.8"/>
+ </g>
+</svg>

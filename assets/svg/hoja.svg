@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" data-tags="hoja planta naturaleza verde otoño nervio">
+ <title>Hoja con nervios laterales y peciolo</title>
+ <g fill="none" stroke="#1b2a3a" data-stroke="ink" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+  <path d="M50 93 C50 98 46 101 41 100" stroke-width="3"/>
+  <path d="M50 6 C82 20 91 52 74 75 C66 86 57 90 50 94 C43 90 34 86 26 75 C9 52 18 20 50 6 Z" fill="#5fb36a" data-fill="accent2"/>
+  <path d="M50 6 C82 20 91 52 74 75 C66 86 57 90 50 94 Z" fill="#1b2a3a" data-fill="shade" stroke="none" fill-opacity="0.2"/>
+  <path d="M50 9 C49 40 51 70 50 94" stroke-width="2.4"/>
+  <path d="M50 30 L33 21 M50 44 L28 33 M50 58 L29 47 M50 72 L36 63" stroke-width="1.6" stroke-opacity="0.8"/>
+  <path d="M50 36 L67 27 M50 50 L72 39 M50 64 L71 53 M50 77 L64 69" stroke-width="1.6" stroke-opacity="0.8"/>
+ </g>
+</svg>

@@ -13,6 +13,7 @@ import { rgba } from './color.mjs';
 import { validateFondo, FONDO_KEYS } from './fondos.mjs';
 import { BOCETO_VALORES } from './boceto-degrada.mjs';
 import { validateObjeto } from './objetos.mjs';
+import { validateSvg, SVG_KEYS } from './svg.mjs';
 
 export const DSL_VERSION = 1;
 const BUILTIN_TIME = ['t', 'lt', 'u', 'dur', 't0', 't1'], BUILTIN_FRAME = ['W', 'H', 'k', 'dt', 'S_x0', 'S_x1', 'S_y0', 'S_y1', 'S_w', 'S_h', 'S_cx', 'S_cy', 'boxes'], BUILTIN = [...BUILTIN_TIME, ...BUILTIN_FRAME];
@@ -21,6 +22,7 @@ const ID_RE = /^[A-Za-z][A-Za-z0-9]*$/, CONST_NAMES = ['pi', 'tau', 'e', 'true',
 const COMMON = ['id', 'type', 'when', 'cue', 'semantic', 'reads', 'boceto'];
 const LIBP = ['lib', 'fn', 'args', 'fields'];
 // tipo → { props permitidas, requeridas, salidas (campos que publica como <id>_<campo>) }
+const BOX_VIS = ['label', 'tag', 'color', 'fill', 'fillAlpha', 'radius', 'lw', 'banda', 'sombra', 'alpha', 'role'];
 export const TYPES = {
   ground: { props: ['fy', 'alpha'], req: ['fy'] },
   marks: { props: ['cols', 'rows', 'x0', 'dx', 'y0', 'dy', 'half', 'color', 'lineWidth'], req: ['cols', 'rows'] },
@@ -37,7 +39,7 @@ export const TYPES = {
   layer: { props: ['opts', 'children'], req: ['children'] },
   smear: { props: ['x', 'y', 'vx', 'vy', 'children'], req: ['x', 'y', 'vx', 'vy', 'children'] },
   word: { props: ['lib', 'fn', 'str', 'x', 'y', 'size', 'opts', 'per'], req: ['lib', 'str', 'x', 'y', 'size'], out: ['x', 'y', 'w', 'h'] },
-  box: { props: ['x', 'y', 'w', 'h'], req: ['x', 'y', 'w', 'h'] },
+  box: { props: ['x', 'y', 'w', 'h', ...BOX_VIS], req: ['x', 'y', 'w', 'h'] },   // sin props visuales: solo registra el rectángulo (boxes); con label/tag/color/fill…: api.box (spec 020)
   impact: { props: ['at', 'opts'], req: ['at'] },
   focusOf: { props: LIBP, req: ['lib', 'fn'] }, ring: { props: LIBP, req: ['lib', 'fn'] }, dot: { props: LIBP, req: ['lib', 'fn'] }, shatter: { props: LIBP, req: ['lib', 'fn'] },
   cracks: { props: LIBP, req: ['lib', 'fn'] }, gridlines: { props: LIBP, req: ['lib', 'fn'] }, playhead: { props: LIBP, req: ['lib', 'fn'] },
@@ -49,6 +51,7 @@ export const TYPES = {
   hud: { props: LIBP, req: ['lib', 'fn'] }, caption: { props: LIBP, req: ['lib', 'fn'] },
   world3d: { props: [...LIBP, 'scene', 'cam', 'opts', 'time'], req: [] },
   fondo: { props: [...FONDO_KEYS, 'alfa'], req: [] },
+  svg: { props: SVG_KEYS, req: ['svg', 'x', 'y', 'size'], out: ['x', 'y', 'w', 'h'] },
   objeto: { props: ['objeto', 'x', 'y', 'size', 'rot', 'estado', 'partes', 'params', 'color', 'relleno', 'acento', 'flip', 'alfa', 'label', 'hollow', 'focus', 'fields'], req: ['objeto', 'x', 'y', 'size'], out: ['x', 'y', 'w', 'h'] },
   particles: { props: ['n', 'seed', 'x', 'y', 'r', 'color', 'alpha'], req: ['n', 'seed', 'x', 'y', 'r'] }, custom: { props: LIBP, req: ['lib', 'fn'] },
 };
@@ -146,12 +149,14 @@ export function validateScene(sc) {
       if (o.cue != null && !cues.has(o.cue)) E(`${p}/cue`, `cue "${o.cue}" no existe`, hint(o.cue, [...cues.keys()]));
       if (o.type === 'fondo') validateFondo(Object.fromEntries(FONDO_KEYS.filter((k) => k in o).map((k) => [k, o[k]])), p, E);
       if (o.type === 'objeto') validateObjeto(o, p, E);
+      if (o.type === 'svg') validateSvg(o, p, E);
       for (const r of o.reads ?? []) if (!(r in params)) E(`${p}/reads`, `param "${r}" no existe`, hint(r, Object.keys(params)));
       if (o.when != null) exprCheck({ $expr: o.when }, `${p}/when`, scope, E, false, undefined, funcs);
       for (const k of spec.props) { if (!(k in o)) continue; const v = o[k];
         if (k === 'children') { const inner = o.type === 'repeat' ? new Set([...scope, ...repVars(o)]) : scope; check(v, `${p}/children`, inner); }
         else if (o.type === 'fondo' && FONDO_KEYS.includes(k)) { /* datos literales: los valida validateFondo */ }
         else if (o.type === 'objeto' && ['partes', 'params', 'estado'].includes(k)) structCheck(v, `${p}/${k}`, scope, E, funcs);
+        else if (o.type === 'svg' && k === 'roles') structCheck(v, `${p}/roles`, scope, E, funcs);
         else if (k === 'steps') { if (!Array.isArray(v) && !(v && v.lib in libs && v.export)) E(`${p}/steps`, 'steps: lista de {t,d,tex,x,y,s} o {lib, export}'); }
         else if (k === 'lib') { if (!(v in libs)) E(`${p}/lib`, `lib "${v}" no declarada en libs`, hint(v, Object.keys(libs))); }
         else if (k === 'fn' || k === 'fields') { /* literal */ }
@@ -212,7 +217,7 @@ export function depsOf(sc) {
     if (d.entities.size) for (const e of d.entities) { d.libs.add(ents[e].lib); for (const r of ents[e].reads ?? []) d.params.add(r); if (!ents[e].reads) d.opaque = true; d.time = true; }
     if (o.lib) { d.libs.add(o.lib); const toks = (o.args ?? (o.type === 'let' ? [] : ['ctx', 'api', 'film', 't'])).filter((a) => typeof a === 'string'), pureCall = !toks.some((a) => ['film', 'shot', 'P'].includes(a)); if (toks.includes('t') || toks.includes('u') || o.type !== 'let') d.time = true; if (o.reads) o.reads.forEach((r) => d.params.add(r)); else if (!pureCall) d.opaque = true; }
     if (o.type === 'fondo') { d.time = true; d.frame = true; }
-    if (o.type === 'objeto') d.time = true;
+    if (o.type === 'objeto' || o.type === 'svg') d.time = true;
     if (o.type === 'equation') { d.time = true; d.frame = true; if (o.steps?.lib) d.libs.add(o.steps.lib); }
     if (o.type === 'text' || o.type === 'let') d.time ||= false;
     for (const x of o.reads ?? []) d.params.add(x);
@@ -314,7 +319,7 @@ export function shot(scene, libs = {}) {
         case 'group': { const body = () => { if (o.translate) { const [tx, ty] = val(o.translate); ctx.save(); ctx.translate(tx, ty); try { run(o.children); } finally { ctx.restore(); } } else run(o.children); }; if (o.depth != null) api.depth(val(o.depth), body); else body(); break; }
         case 'word': { const opts = { ...(val(o.opts ?? {})) }; if (o.per) opts.per = (kk, nn) => { const sk = [env.pk, env.pn]; env.pk = kk; env.pn = nn; const q = {}; for (const [key, ex] of Object.entries(o.per)) { const v = val(ex); if (v !== undefined) q[key] = v; } [env.pk, env.pn] = sk; return q; };
           const b = getFn(o.lib, o.fn ?? 'word')(ctx, api, val(o.str), val(o.x), val(o.y), val(o.size), opts); env.boxes.push(b); if (o.id) for (const f of TYPES.word.out) env[`${o.id}_${f}`] = b[f]; break; }
-        case 'box': env.boxes.push({ x: val(o.x), y: val(o.y), w: val(o.w), h: val(o.h) }); break;
+        case 'box': { const b = { x: val(o.x), y: val(o.y), w: val(o.w), h: val(o.h) }; env.boxes.push(b); if (BOX_VIS.some((k) => k in o)) api.box(b.x, b.y, b.w, b.h, pick(o, BOX_VIS, val)); break; }
         case 'impact': api.impact(val(o.at), val(o.opts ?? {})); break;
         case 'let': if (o.lib) { const A = { ctx, api, film, t: env.t, u, shot: shotDef }; publish(o, getFn(o.lib, o.fn)(...(o.args ?? []).map((a) => (typeof a === 'string' ? A[a] : val(a))))); } else publish(o, val(o.value)); break;
         case 'formula': api.tex(val(o.tex), val(o.x), val(o.y), pick(o, ['size', 'align', 'color', 'write', 'morphTo', 'u', 'stagger'], val)); break;
@@ -329,6 +334,7 @@ export function shot(scene, libs = {}) {
         case 'repeat': { const sI = env.i, sN = env.n, rows = isExprV(o.items) ? val(o.items) : o.items ?? null, n = rows ? rows.length : val(o.n); env.n = n;
           for (let i = 0; i < n; i++) { env.i = i; if (rows) (o.fields ?? []).forEach((f, j) => { env[`${o.id}_${f}`] = (Array.isArray(rows[i]) ? rows[i][j] : rows[i][f]); }); run(o.children); } env.i = sI; env.n = sN; break; }
         case 'fondo': api.fondo(pick(o, FONDO_KEYS, (x) => x), { ...(o.alfa != null ? { alfa: val(o.alfa) } : {}), lt: env.lt }); break;
+        case 'svg': { const r = api.svg(val(o.svg), pick(o, SVG_KEYS.filter((k) => !['svg', 'fields'].includes(k)), val)); if (o.id) { for (const f of TYPES.svg.out) env[`${o.id}_${f}`] = r[f]; publish(o, r); } break; }
         case 'objeto': { const r = api.objeto(o.objeto, pick(o, ['x', 'y', 'size', 'rot', 'estado', 'partes', 'params', 'color', 'relleno', 'acento', 'flip', 'alfa', 'label', 'hollow', 'focus'], val)); if (o.id) { for (const f of TYPES.objeto.out) env[`${o.id}_${f}`] = r[f]; publish(o, r); } break; }
         case 'world3d': if (o.scene) { const camSpec = o.cam, opts = val(o.opts ?? {}), tt0 = o.time != null ? val(o.time) : Math.max(0, env.lt);
           api.world3d(o.scene, { t: tt0, u, ...(camSpec ? { cam: (tt) => { const s3 = env.t3; env.t3 = tt; try { return val(camSpec); } finally { env.t3 = s3; } } } : {}), ...opts }); break; }

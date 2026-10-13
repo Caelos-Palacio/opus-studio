@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" data-tags="sello tampon estampar tinta oficina huella">
+ <title>Sello de goma con mango y su huella</title>
+ <g fill="none" stroke="#1b2a3a" data-stroke="ink" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+  <path d="M40 14 C40 5 60 5 60 14 L56 36 H44 Z" fill="#a9743a" data-fill="accent"/>
+  <path d="M47 14 L48.5 31" stroke="#f3ead8" data-stroke="paper" stroke-width="2" stroke-opacity="0.6"/>
+  <path d="M26 36 H74 V45 H26 Z" fill="#7a8794" data-fill="shade"/>
+  <path d="M24 45 H76 V58 H24 Z" fill="#2b7fd9" data-fill="accent2"/>
+  <path d="M17 69 H83 V92 H17 Z" stroke="#d9482b" data-stroke="accent" stroke-width="3"/>
+  <path d="M26 80.5 H74" stroke="#d9482b" data-stroke="accent" stroke-width="3.2"/>
+  <path d="M24 64 V67 M76 64 V67 M50 62 V66" stroke-width="1.6" stroke-opacity="0.6"/>
+ </g>
+</svg>

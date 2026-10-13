@@ -36,31 +36,33 @@ Definición (gates.json); el estado de cierre está en la parte viva.
 | [016-recetas.md](docs/specs/016-recetas.md) | 016 — Recetas: el agente no escribe todo el código | sin nota |
 | [017-consta-foley.md](docs/specs/017-consta-foley.md) | 017 — Consta: foley de archivo y film sin música | consta · (pendiente) ·  · |
 | [019-boceto.md](docs/specs/019-boceto.md) | 019 — Boceto rápido y preview en vivo (E4) | sin nota |
+| [020-vectores-diagramas.md](docs/specs/020-vectores-diagramas.md) | 020 — Vectores y diagramas: SVG como elemento y láminas desde datos | sin nota |
+| [022-estudio-v6.md](docs/specs/022-estudio-v6.md) | 022: Estudio v6, autónomo, con dirección propia y storyboard opcional | sin nota |
 
 ## Motor
 
-- versión: 5.0.0 (package.json) · módulos engine/: 93
+- versión: 5.0.0 (package.json) · módulos engine/: 97
 - roles: modo `enforce` (*, director, dp, investigador, td, productor, animator, review) · digest `35a737817acffefa`
 - presupuestos: data/budgets.json digest `5290bbde06ea538a`
 
 ## DSL de escenas (spec 010)
 
-- cobertura: **96.6 %** (85/88 shots en DSL; honesta: los 1 pendientes de otra rama cuentan en contra; sin ellos 97.7 %) · umbral ratchet 95 %
-- clases: dsl 85 · escape 2 · pendiente:world3d2 1 · shots 100 % nativos 26 · el resto usa objetos respaldados por una función de módulo (plot/axis/world/hud/word…) con semántica y deps declaradas
+- cobertura: **96.7 %** (87/90 shots en DSL; honesta: los 1 pendientes de otra rama cuentan en contra; sin ellos 97.8 %) · umbral ratchet 95 %
+- clases: dsl 87 · escape 2 · pendiente:world3d2 1 · shots 100 % nativos 28 · el resto usa objetos respaldados por una función de módulo (plot/axis/world/hud/word…) con semántica y deps declaradas
 - escapes: A1 (objetivo de las mutaciones de test/run.mjs, golden.mjs, gov.mjs y orch: esos tests editan su JS por texto); A2 (objetivo de las mutaciones de test/run.mjs, golden.mjs, gov.mjs y orch: esos tests editan su JS por texto)
 - pendientes: D01 (world3d2)
 
 ## Tests
 
-Archivos (test/*.mjs): `arc.mjs` `bench-skia.mjs` `boceto.mjs` `consta.mjs` `critic.mjs` `cut-render.mjs` `diagramas.mjs` `dsl-cov.mjs` `film.mjs` `fondo.mjs` `fondos.mjs` `fuzz.mjs` `golden.mjs` `gov.mjs` `guard.mjs` `harness.mjs` `hash.mjs` `lib.mjs` `medios.mjs` `memoria.mjs` `metrics.mjs` `motor.mjs` `narr.mjs` `orch.mjs` `orquestacion.mjs` `params.mjs` `perf.mjs` `prores.mjs` `recetas.mjs` `run.mjs` `schema.mjs` `semantica.mjs` `sound.mjs` `suites.mjs` `tools.mjs` `unit.mjs` `veinticuatro.mjs` `world3d.mjs`
+Archivos (test/*.mjs): `arc.mjs` `bench-skia.mjs` `boceto.mjs` `consta.mjs` `critic.mjs` `cut-render.mjs` `diagramas.mjs` `dsl-cov.mjs` `film.mjs` `fondo.mjs` `fondos.mjs` `fuzz.mjs` `golden.mjs` `gov.mjs` `guard.mjs` `harness.mjs` `hash.mjs` `lib.mjs` `medios.mjs` `memoria.mjs` `metrics.mjs` `motor.mjs` `narr.mjs` `orch.mjs` `orquestacion.mjs` `params.mjs` `perf.mjs` `prores.mjs` `recetas.mjs` `run.mjs` `schema.mjs` `semantica.mjs` `sound.mjs` `suites.mjs` `tools.mjs` `unit.mjs` `vectores.mjs` `veinticuatro.mjs` `world3d.mjs`
 <!-- estatico:fin -->
 
 ---
-## Estado vivo (2026-10-12T22:29Z, no verificado)
+## Estado vivo (2026-10-13T02:38Z, no verificado)
 
 ## Veredictos
 
-Film activo: `consta` · engineHash `fac62b4bb2f3ee6a551ce13a99720bf302b415348e498d1a7886e4cbc693fd87` · filmHash `c3119790e32502c0`
+Film activo: `consta` · engineHash `c5031dfb9c22ddcf32d52d31ce44031e6dcaf4eeec1cd822d377a5a844549257` · filmHash `6ada3ed45f694b8f`
 
 - out/lint.json: SHIP · CADUCADO
 - out/critic.json: SHIP · CADUCADO
@@ -74,8 +76,8 @@ Film activo: `consta` · engineHash `fac62b4bb2f3ee6a551ce13a99720bf302b415348e4
 
 - `backup/pre-limpieza` (+136 commits)
 - `film-botella` (+12 commits)
-- `film-consta` (+9 commits)
-- `fondos-libres` (+9 commits)
+- `film-consta` (+11 commits)
+- `fondos-libres` (+15 commits)
 - `gobernanza` (+96 commits)
 - `harness` (+101 commits)
 - `medios` (+57 commits)
@@ -83,7 +85,6 @@ Film activo: `consta` · engineHash `fac62b4bb2f3ee6a551ce13a99720bf302b415348e4
 - `orquestacion` (+101 commits)
 - `perf` (+53 commits)
 - `semantica` (+101 commits)
-- `vectores` (+9 commits)
 - `video-mate` (+33 commits)
 - `video-reel` (+34 commits)
 - `video-regla` (+34 commits)
@@ -103,11 +104,11 @@ Film activo: `consta` · engineHash `fac62b4bb2f3ee6a551ce13a99720bf302b415348e4
 
 ## Último run de tests
 
-- 2026-10-08T01:30:04.006Z: 2 fallos (perfil full)
+- 2026-10-12T22:44:46.334Z: 2 fallos (perfil full)
 
 ## Ledger
 
-- cadena: íntegra · 28 entradas (28 encadenadas, 0 heredadas, 0 firmadas) · códigos 100 %
+- cadena: íntegra · 29 entradas (29 encadenadas, 0 heredadas, 0 firmadas) · códigos 100 %
 
 ## Presupuestos
 

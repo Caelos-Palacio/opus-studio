@@ -18,6 +18,7 @@ import { bindParams } from './signal.mjs';
 import { degradar } from './boceto-degrada.mjs';
 import { createWorld3d } from './world3d/index.mjs';
 import { usesWorld3d } from './hash.mjs';
+import { cargarSvg } from './svg-io.mjs';
 import { filmId, sibling, activeTimeline, announceFilm, filmFile, resolveFilm } from './filmid.mjs';
 export { seek, activeShots, shotBeats } from './seek.mjs';
 const { createCanvas, Image } = canvasPkg;
@@ -41,6 +42,7 @@ export function makeAssets(root) {
   const tex = makeTexStore(root), imgs = lru(32), frames = lru(48), metas = new Map();
   return {
     tex: (s, display = true) => tex.get(s, display),
+    svg: (id) => cargarSvg(id, root),                                    // spec 020: SVG sanitizado de assets/ (síncrono, cacheado)
     image: (id) => { const f = [path.join(root, 'assets', id), path.join(root, id)].find((p) => fs.existsSync(p)); return f ? imgs.get(f, () => loadImg(f)) : null; },
     footage: (id) => {
       if (!metas.has(id)) { const mf = path.join(root, 'assets/cache/footage', id, 'meta.json'); metas.set(id, fs.existsSync(mf) ? JSON.parse(fs.readFileSync(mf, 'utf8')) : null); }

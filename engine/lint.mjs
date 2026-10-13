@@ -222,7 +222,7 @@ async function layout(R, fps, FC) {
       const inHole = (F) => { if (!F.hollow) return false; const iw = F.w * F.hollow, ih = F.h * F.hollow, ix = F.x + (F.w - iw) / 2, iy = F.y + (F.h - ih) / 2; return A.x >= ix && A.x + A.w <= ix + iw && A.y >= iy && A.y + A.h <= iy + ih; };
       for (const F of foci) if (!inHole(F) && inter(A, F) > 0.02 * A.w * A.h) once('tf' + A.label + F.label, () => fix(A.shot, t, `texto "${A.label}" sobre foco "${F.label}"`, 'tipo nunca sobre detalle'));
     }
-    if (sizes.length > 3) once('lv' + film.shots.find((s) => t >= s.t[0] && t < s.t[1])?.id, () => warn(film.shots.find((s) => t >= s.t[0] && t < s.t[1])?.id ?? '-', t, `${sizes.length} tamaños de tipo a la vez (jerarquía difusa)`, 'máximo 3 niveles: h1/h2/body'));
+    if (sizes.length > (P.maxSizes ?? 3)) once('lv' + film.shots.find((s) => t >= s.t[0] && t < s.t[1])?.id, () => warn(film.shots.find((s) => t >= s.t[0] && t < s.t[1])?.id ?? '-', t, `${sizes.length} tamaños de tipo a la vez (jerarquía difusa)`, `máximo ${P.maxSizes ?? 3} niveles: h1/h2/body`));
   }
   for (const v of vis.values()) {
     const dur = v.last - v.first + 1 / fps, need = 0.4 + v.chars / P.readCps;
@@ -234,7 +234,7 @@ async function layout(R, fps, FC) {
   for (const s of film.shots) {
     if (s.compose === 'free' || (sc && !sc.ids.has(s.id))) continue;
     const tm = (s.t[0] + s.t[1]) / 2, all = await frame(tm, true), px = lastPx, foci = all.filter((b) => b.kind === 'focus' && b.shot === s.id);
-    if (!foci.length) { if (film.mods[s.id]) fix(s.id, tm, 'el shot no registra ningún foco (composición y tipo sobre sujeto no se pueden medir)', 'api.focus(...) o una primitiva que lo registre (morph, path, plot, tex…)'); continue; }
+    if (!foci.length) { if (film.mods[s.id] && P.requireFocus !== false) fix(s.id, tm, 'el shot no registra ningún foco (composición y tipo sobre sujeto no se pueden medir)', 'api.focus(...) o una primitiva que lo registre (morph, path, plot, tex…)'); continue; }
     for (const f of foci) if (!f.bleed && (f.x < W * m || f.x + f.w > W * (1 - m) || f.y < bar + visH * m || f.y + f.h > H - bar - visH * m))
       warn(s.id, tm, `sujeto "${f.label}" toca el borde del encuadre${bar ? ' útil (letterbox)' : ''}`, 'dar aire (margen ' + Math.round(m * 100) + '%) o focus(...,{bleed:true}) si es intencional');
     const area = foci.reduce((p, f) => p + f.w * f.h * f.weight, 0), cx = foci.reduce((p, f) => p + (f.x + f.w / 2) * f.w * f.h * f.weight, 0) / area, cy = foci.reduce((p, f) => p + (f.y + f.h / 2) * f.w * f.h * f.weight, 0) / area;
@@ -255,7 +255,7 @@ async function layout(R, fps, FC) {
         else if (df[Math.floor(df.length * 0.9)] < 0.3) warn(s.id, tm, `sujeto "${f.label}" no se separa del fondo en grises (Δ ${df[Math.floor(df.length * 0.9)].toFixed(2)} < 0.30)`, 'separar por valor, no solo por matiz');
       }
     }
-    if (s.saliency !== false) {   // ¿el ojo va donde dice el foco? prominencia = contraste de valor con el papel, fuera del texto
+    if (s.saliency !== false && P.saliency !== false) {   // ¿el ojo va donde dice el foco? prominencia = contraste de valor con el papel, fuera del texto
       const pl = luminance(S.palette.paper) ** (1 / 2.2), txt = all.filter((b) => b.kind === 'text'), gx = 64, gy = 36, cells = [];
       for (let j = 0; j < gy; j++) for (let i = 0; i < gx; i++) { const x = Math.floor(((i + 0.5) * W) / gx), y = Math.floor(((j + 0.5) * H) / gy); if (y < bar || y > H - bar || txt.some((b) => x >= b.x && x <= b.x + b.w && y >= b.y && y <= b.y + b.h)) continue;
         const q = (y * W + x) * 4; cells.push([x, y, Math.abs((0.299 * px[q] + 0.587 * px[q + 1] + 0.114 * px[q + 2]) / 255 - pl)]); }
