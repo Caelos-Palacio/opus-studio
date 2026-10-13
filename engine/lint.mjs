@@ -15,7 +15,7 @@ import { specOf, camStats, camState, camEnds } from './camera.mjs';
 import { barHeight } from './grade.mjs';
 import { checkPalette } from './styles.mjs';
 import { luminance } from './color.mjs';
-import { guardCtx, scanShots } from './guard.mjs';
+import { guardCtx, scanShots, scanFondoCodigo } from './guard.mjs';
 import { activeShots } from './seek.mjs';
 import { currentHashes, stamp, neighbors, lintDir, filmKey } from './verdict.mjs';
 import { writeAtomic } from './lock.mjs';
@@ -346,6 +346,30 @@ async function motion(fps, film, FC) {
   writeAtomic(path.join(ROOT, 'out/motion.json'), JSON.stringify({ fps, energy: E.map((e) => +e.toFixed(5)) }));
 }
 
+// Fondos libres (spec 021 §D): anti-menú. Las reglas puras viven en fondo-lint.mjs; aquí se recoge lo que cada shot dijo al pintar su fondo (meta `fondo`) y se mide el coste del código propio.
+//   fondo.codigo_lento una capa `codigo` mide más de su `maxMs` por cuadro (mediana de N cuadros repartidos por el film, a la resolución real)
+async function fondoLibre(film, fr) {
+  const { analizarFondos, FONDO_LIBRE } = await import('./fondo-lint.mjs'), per = new Map(), cod = new Map();
+  for (const f of fr) for (const m of f.boxes?.meta ?? []) if (m.prim === 'fondo') {
+    const q = per.get(m.shot); if (!q) per.set(m.shot, { ...m }); else q.animado ||= m.animado;
+    for (const c of m.codigos ?? []) if (!cod.has(c.archivo)) cod.set(c.archivo, { ...c, shot: m.shot });
+  }
+  for (const x of analizarFondos(film, per)) warn(x.shot, x.t, x.problem, x.remedy);
+  if (cod.size) {
+    const { drawFondo } = await import('./fondos.mjs'), { beatAtOf } = await import('./prims.mjs'), { hrtime } = await import('node:process');
+    for (const [archivo, c] of cod) {
+      const ms = [];
+      for (let i = 0; i < FONDO_LIBRE.muestras; i++) {
+        const t = (film.duration * (i + 0.5)) / FONDO_LIBRE.muestras, cv = film.canvas(film.width, film.height), g = cv.getContext('2d'), t0 = hrtime.bigint();
+        drawFondo(g, { capas: [c.capa], eventos: c.eventos }, t, { W: film.width, H: film.height, k: Math.min(film.width, film.height) / 1080, pal: film.S.palette, canvas: film.canvas, depth: (d, fn) => fn(), cache: new Map(), eventos: film.eventos, beatAt: beatAtOf(film), codigo: film.codigo, u: i / FONDO_LIBRE.muestras, dur: film.duration, lt: t });
+        ms.push(Number(hrtime.bigint() - t0) / 1e6);
+      }
+      ms.sort((a, b) => a - b); const med = ms[ms.length >> 1];
+      if (med > (c.maxMs ?? 30)) warn(c.shot, film.shots.find((s) => s.id === c.shot)?.t[0] ?? 0, `fondo.codigo_lento: shots/${archivo} tarda ${med.toFixed(0)} ms/cuadro (mediana de ${ms.length}; presupuesto ${c.maxMs ?? 30} ms)`, 'simplificar el bucle (menos elementos, cálculo fuera del bucle por cuadro) o subir maxMs si el coste es asumible');
+    }
+  }
+}
+
 // Fondo vacío (spec 012 P6): el negro ELEGIDO por el tema pasa; el negro VACÍO (oscuro y sin profundidad) avisa. Métrica fondo.profundidad.
 // Cadencia/tamaño propios (4 fps, 384 px, CON gradación: lo que ve el espectador); fotogramas cacheados como los demás. Solo film entero.
 async function fondo(film, FC) {
@@ -354,6 +378,7 @@ async function fondo(film, FC) {
   for (let i = 0; i < n; i++) { const t = i / FONDO.fps, F = await FC.get(t, { px: true }); fr.push({ t, W: F.W, H: F.H, data: F.data, boxes: F.boxes }); }
   const S = fondoSeries(fr, { fps: FONDO.fps }), pct = (x) => Math.round(x * 100), long = [...S.runs].sort((a, b) => b.t1 - b.t0 - (a.t1 - a.t0))[0];
   writeAtomic(path.join(ROOT, 'out/fondo.json'), JSON.stringify({ P: S.P, darkFrac: S.darkFrac, emptyFrac: S.emptyFrac, runs: S.runs, wins: S.wins.map((w) => [+w.t0.toFixed(2), +(w.P ?? 0).toFixed(2), +(w.lum ?? 0).toFixed(1)]) }));
+  await fondoLibre(film, fr);
   const V = veredicto(S); if (!V) return;
   const sh = film.shots.find((x) => long.t0 >= x.t[0] && long.t0 < x.t[1]);
   const lvl = V === 'FIX' ? fix : warn;
@@ -426,7 +451,7 @@ let warmP = null;                                                            // 
 { const { prewarm } = await import('./framewarm.mjs'), t0 = Date.now(); warmP = prewarm({ film: R.film, FCL, FCS_, FCF, needFondo: want('fondo'), lfps, scope: R.film.lintScope ?? null, needLayout: want('layout') || want('rhythm'), needSmall: want('motion') || want('arc') || want('rhythm') }).then((n) => { if (n) { stepMs.prewarm = Date.now() - t0; stepMs.warmFrames = n; } }); }
 const step = async (k, f) => { if (want(k)) { if (warmP && k !== 'validate' && k !== 'determinism') { await warmP; warmP = null; } CHECK = k; const t0 = Date.now(); try { await f(); } finally { stepMs[k] = Date.now() - t0; } } };
 try {
-await step('validate', () => { validate(R.film); for (const x of scanShots(ROOT, R.film.shots.map((s) => s.id))) (x.level === 'FIX' ? fix : warn)(x.shot, 0, x.problem, x.remedy); fonts(R); });
+await step('validate', () => { validate(R.film); for (const x of [...scanShots(ROOT, R.film.shots.map((s) => s.id)), ...scanFondoCodigo(ROOT)]) (x.level === 'FIX' ? fix : warn)(x.shot, 0, x.problem, x.remedy); fonts(R); });
 await step('determinism', () => determinism(R.film));
 await step('layout', async () => { R.film.guard = guardCtx; R.film.guardLog = []; await layout(R, Math.min(lfps, 8), FCL); R.film.guard = null; guardReport(R.film); });
 await step('camera', () => camera(R.film));
