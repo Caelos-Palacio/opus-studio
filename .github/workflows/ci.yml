@@ -32,9 +32,9 @@ jobs:
           - os: macos-14
             experimental: true
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v7
         with:
           node-version: 22.15      # = engines.node de package.json (module.registerHooks: sandbox fail-closed)
           cache: npm
@@ -78,7 +78,7 @@ jobs:
         run: node test/golden.mjs --update --no-selftest && git status --short test/golden
         continue-on-error: true
 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         if: failure()
         with:
           name: golden-actual-${{ matrix.os }}
