@@ -246,5 +246,9 @@
  "135uba1": {
   "tex": "\\approx 1\\,\\mathrm{km}",
   "display": true
+ },
+ "1w7m1a1": {
+  "tex": "B(s)=\\sum_{i=0}^{3}\\binom{3}{i}(1-s)^{3-i}s^{i}P_i",
+  "display": true
  }
 }
