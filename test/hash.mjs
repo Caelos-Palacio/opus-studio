@@ -49,8 +49,9 @@ test('grafo-vivo', () => {
     const run = (args) => spawnSync(process.execPath, ['--import', 'data:text/javascript,' + encodeURIComponent(hook), ...args], { cwd: d, encoding: 'utf8', env: { ...process.env, ...ENV } });
     const r1 = run(['engine/render.mjs', '--still', '1', '--size', '64x36']), r2 = run(['engine/autocam.mjs']);
     ok(r1.status === 0 && r2.status === 0, 'grafo-vivo: render/autocam corren ' + r1.stderr + r2.stderr);
+    const rd = fs.realpathSync(d);   // el cargador ESM da URLs de ruta real (macOS: /var → /private/var)
     const loaded = [...new Set(fs.readFileSync(trace, 'utf8').split('\n').filter((u) => u.startsWith('file://')).map((u) => decodeURIComponent(new URL(u).pathname)))]
-      .filter((f) => f.startsWith(d + path.sep) && !f.includes(`${path.sep}node_modules${path.sep}`)).map((f) => path.relative(d, f));
+      .filter((f) => f.startsWith(rd + path.sep) && !f.includes(`${path.sep}node_modules${path.sep}`)).map((f) => path.relative(rd, f));
     const C = JSON.parse(node(d, `const H = await import('./engine/hash.mjs'), fs = await import('node:fs');
       const shots = fs.readdirSync('shots').filter((f) => f.endsWith('.mjs')).flatMap((f) => H.closure(['shots/' + f]).files);
       console.log(JSON.stringify({ pixel: H.engineFiles(), all: H.engineFiles([...H.PIXEL_ROOTS, ...H.JUDGE_ROOTS]), shots, stop: [...H.NON_PIXEL] }));`));
@@ -102,7 +103,7 @@ test('assets', () => {
     const f = path.join(d, 'assets/img/x.png'); fs.mkdirSync(path.dirname(f), { recursive: true });
     fs.writeFileSync(f, Buffer.alloc(4096, 1)); sleep(SETTLE + 100);
     const a = snap(d), db = JSON.parse(fs.readFileSync(path.join(d, 'out/cache/digests.json'), 'utf8'));
-    ok(db[f]?.[1]?.length === 64, 'assets: digest sha256 cacheado por (size,mtime,ctime,ino) en out/cache/digests.json');
+    ok(db[fs.realpathSync(f)]?.[1]?.length === 64, 'assets: digest sha256 cacheado por (size,mtime,ctime,ino) en out/cache/digests.json');
     const t = new Date(Date.now() + 3600e3); fs.utimesSync(f, t, t); sleep(SETTLE + 100);
     const b = snap(d); ok(!changed(a, b), 'assets: touch (mtime) sin cambio de contenido NO invalida');
     const st = fs.statSync(f); fs.writeFileSync(f, Buffer.alloc(4096, 2)); fs.utimesSync(f, st.atime, st.mtime);

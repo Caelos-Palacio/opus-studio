@@ -19,18 +19,15 @@ jobs:
     name: test (${{ matrix.os }})
     runs-on: ${{ matrix.os }}
     timeout-minutes: 30
-    # macOS es opcional hasta que corra en verde una vez: los golden de píxel van en modo perceptual fuera de Linux
-    # y world3d depende de OpenGL (en macOS se salta limpio). No bloquea el CI de Linux.
-    continue-on-error: ${{ matrix.experimental }}
+    # macOS: golden de píxel propios (test/golden/darwin-arm64: Pango usa CoreText y no las fuentes herméticas) y world3d
+    # saltado (sin Mesa llvmpipe el 3D no es determinista).
     strategy:
       fail-fast: false
       matrix:
         include:
           # Ubuntu 24.04: misma distro que los golden (canvas trae libs precompiladas; fuentes DejaVu herméticas).
           - os: ubuntu-24.04
-            experimental: false
           - os: macos-14
-            experimental: true
     steps:
       - uses: actions/checkout@v7
 

@@ -1,13 +1,17 @@
 #!/usr/bin/env node
 // Golden tests de píxel: fotogramas in/mid/out de cada shot del demo (data/timeline.json) y del fixture showcase.
-//   node test/golden.mjs            compara con test/golden/<film>.json (+ miniaturas PNG 160×90)
-//   node test/golden.mjs --update   regenera los golden (revisa las miniaturas en el diff antes de commitear)
+//   node test/golden.mjs            compara con el golden de la plataforma (ver abajo) (+ miniaturas PNG 160×90)
+//   node test/golden.mjs --update   regenera los golden de ESTA plataforma (revisa las miniaturas en el diff antes de commitear)
 //   [--only demo|fixture] [--no-selftest]
 // Digest por fotograma: sha256 de los píxeles a tamaño completo (exacto) + miniatura RGB 160×90 por media de bloques 8×8.
 //   · Misma plataforma (huella = versiones de canvas/cairo/pango/freetype + métrica de fuentes): el motor es determinista,
 //     así que se exige igualdad BIT A BIT (un píxel distinto = fallo). La miniatura solo sirve para localizar el cambio.
 //   · Plataforma distinta: comparación perceptual con tolerancia (Δmax por celda y Δ medio; OPUS_GOLDEN_TOL="max,media").
 //     En este modo un píxel aislado (Δ≈3 en la miniatura) NO se detecta; un desplazamiento de 1 px de un borde sí.
+// Golden por plataforma: la de referencia (linux-x64) vive en test/golden/<film>.json (+ <film>/*.png); cualquier otra
+//   `${platform}-${arch}` (p.ej. darwin-arm64: Pango usa CoreText e ignora fonts.conf ⇒ otra tipografía) en test/golden/<plataforma>/<film>.json,
+//   con los 'png' relativos al directorio del json. Al comparar: golden de la plataforma si existe, si no el de referencia (tolerante si la huella difiere).
+//   --update escribe en la ubicación de la plataforma actual. OPUS_GOLDEN_PLATFORM=<clave> fuerza la plataforma (para probar este mecanismo).
 // Fuentes herméticas: el render corre con FONTCONFIG_FILE=test/golden/fonts.conf (solo DejaVu), así el texto no depende
 // de qué "Helvetica" tenga cada máquina.
 import { isMain } from '../engine/paths.mjs';
@@ -18,7 +22,8 @@ import { pathToFileURL } from 'node:url';
 import { ROOT, FONTS_CONF, copyRepo, rmrf, run } from './lib.mjs';
 
 const argv = process.argv.slice(2), has = (k) => argv.includes(k), arg = (k) => (has(k) ? argv[argv.indexOf(k) + 1] : null);
-const GDIR = path.join(ROOT, 'test/golden'), GW = 160;
+const GDIR = path.join(ROOT, 'test/golden'), GW = 160, REF = 'linux-x64', PLAT = process.env.OPUS_GOLDEN_PLATFORM || `${process.platform}-${process.arch}`;
+const pdir = (plat) => (plat === REF ? GDIR : path.join(GDIR, plat));   // directorio de golden de una plataforma
 const [TOL_MAX, TOL_MEAN] = (process.env.OPUS_GOLDEN_TOL ?? '3,0.2').split(',').map(Number);
 export const FILMS = [
   { name: 'demo', timeline: 'data/timeline.json' },
@@ -66,21 +71,21 @@ export async function digest(F, { root = null, mutate = null } = {}) {
 
 // ── golden en disco: JSON (huella + sha) + miniaturas PNG ──────────────────────────────────────────────────────────
 async function png() { return (await import('canvas')).default; }
-export async function save(name, D) {
-  const { createCanvas } = await png(), [gw, gh] = D.grid, dir = path.join(GDIR, name);
+export async function save(name, D, base = pdir(PLAT)) {
+  const { createCanvas } = await png(), [gw, gh] = D.grid, dir = path.join(base, name);
   rmrf(dir); fs.mkdirSync(dir, { recursive: true });
   for (const f of D.frames) {
     const c = createCanvas(gw, gh), x = c.getContext('2d'), im = x.createImageData(gw, gh), b = Buffer.from(f.thumb, 'base64');
     for (let i = 0; i < gw * gh; i++) { im.data[i * 4] = b[i * 3]; im.data[i * 4 + 1] = b[i * 3 + 1]; im.data[i * 4 + 2] = b[i * 3 + 2]; im.data[i * 4 + 3] = 255; }
     x.putImageData(im, 0, 0); fs.writeFileSync(path.join(dir, `${f.shot}_${f.at}.png`), c.toBuffer('image/png', { compressionLevel: 9 }));
   }
-  fs.writeFileSync(path.join(GDIR, name + '.json'), JSON.stringify({ film: name, size: D.size, grid: D.grid, fingerprint: D.fingerprint, frames: D.frames.map(({ thumb, ...f }) => ({ ...f, png: `${name}/${f.shot}_${f.at}.png` })) }, null, 1) + '\n');
+  fs.writeFileSync(path.join(base, name + '.json'), JSON.stringify({ film: name, size: D.size, grid: D.grid, fingerprint: D.fingerprint, frames: D.frames.map(({ thumb, ...f }) => ({ ...f, png: `${name}/${f.shot}_${f.at}.png` })) }, null, 1) + '\n');
 }
-export async function load(name) {
-  const jf = path.join(GDIR, name + '.json'); if (!fs.existsSync(jf)) return null;
+export async function load(name, base = GDIR) {
+  const jf = path.join(base, name + '.json'); if (!fs.existsSync(jf)) return null;
   const G = JSON.parse(fs.readFileSync(jf, 'utf8')), { loadImage, createCanvas } = await png(), [gw, gh] = G.grid;
   for (const f of G.frames) {
-    const c = createCanvas(gw, gh), x = c.getContext('2d'); x.drawImage(await loadImage(path.join(GDIR, f.png)), 0, 0);
+    const c = createCanvas(gw, gh), x = c.getContext('2d'); x.drawImage(await loadImage(path.join(base, f.png)), 0, 0);
     const d = x.getImageData(0, 0, gw, gh).data, b = Buffer.alloc(gw * gh * 3);
     for (let i = 0; i < gw * gh; i++) { b[i * 3] = d[i * 4]; b[i * 3 + 1] = d[i * 4 + 1]; b[i * 3 + 2] = d[i * 4 + 2]; }
     f.thumb = b.toString('base64');
@@ -123,7 +128,7 @@ async function main() {
   const films = FILMS.filter((F) => !arg('--only') || F.name === arg('--only')); let fail = 0;
   const D = await Promise.all(films.map((F) => digest(F).catch((e) => e)));
   if (has('--update')) {
-    for (const [i, F] of films.entries()) { if (D[i] instanceof Error) throw D[i]; await save(F.name, D[i]); console.log(`→ test/golden/${F.name}.json (${D[i].frames.length} fotogramas)`); }
+    for (const [i, F] of films.entries()) { if (D[i] instanceof Error) throw D[i]; await save(F.name, D[i]); console.log(`→ ${path.relative(ROOT, path.join(pdir(PLAT), F.name))}.json (${D[i].frames.length} fotogramas)`); }
     return;
   }
   const demoI = films.findIndex((F) => F.name === 'demo');
@@ -131,12 +136,12 @@ async function main() {
   const extra = demoI >= 0 && !has('--no-selftest') ? [digest(films[demoI], {}), ...PIXEL_MUTATIONS.map((m) => digest(films[demoI], { mutate: m.files }))] : [];
   const X = await Promise.all(extra.map((p) => p.catch((e) => e)));
   for (const [i, F] of films.entries()) {
-    const cur = D[i], G = cur instanceof Error ? null : await load(F.name);
+    const cur = D[i], pd = pdir(PLAT), own = PLAT !== REF && fs.existsSync(path.join(pd, F.name + '.json')), G = cur instanceof Error ? null : await load(F.name, own ? pd : GDIR);
     if (cur instanceof Error) { console.log(`✗ golden-${F.name.padEnd(9)} ${cur.message}`); fail++; continue; }
     if (!G) { console.log(`✗ golden-${F.name.padEnd(9)} sin golden: node test/golden.mjs --update`); fail++; continue; }
-    const c = compare(G, cur), n = cur.frames.length;
-    if (c.bad.length) { fail++; console.log(`✗ golden-${F.name.padEnd(9)} ${c.bad.length}/${n} fotogramas cambian (${c.strict ? 'estricto' : 'tolerante'})\n   ${c.bad.map((b) => `${b.key}: ${b.why}`).join('\n   ')}\n   si el cambio es intencionado: node test/golden.mjs --update y revisa test/golden/${F.name}/*.png`); }
-    else console.log(`✓ golden-${F.name.padEnd(9)} ${n}/${n} fotogramas · ${c.identical} idénticos bit a bit${c.strict ? '' : ` · modo tolerante (otra plataforma: Δmax≤${TOL_MAX}, Δmedia≤${TOL_MEAN})`}`);
+    const c = compare(G, cur), n = cur.frames.length, used = own ? ` [golden ${PLAT}]` : '';
+    if (c.bad.length) { fail++; console.log(`✗ golden-${F.name.padEnd(9)} ${c.bad.length}/${n} fotogramas cambian (${c.strict ? 'estricto' : 'tolerante'})${used}\n   ${c.bad.map((b) => `${b.key}: ${b.why}`).join('\n   ')}\n   si el cambio es intencionado: node test/golden.mjs --update y revisa ${path.relative(ROOT, path.join(pd, F.name))}/*.png`); }
+    else console.log(`✓ golden-${F.name.padEnd(9)} ${n}/${n} fotogramas · ${c.identical} idénticos bit a bit${used}${c.strict ? '' : ` · modo tolerante (otra plataforma: Δmax≤${TOL_MAX}, Δmedia≤${TOL_MEAN})`}`);
   }
   if (X.length) {
     const base = D[demoI], [rep, ...muts] = X;
