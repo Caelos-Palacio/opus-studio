@@ -1,0 +1,84 @@
+{
+ "film": "demo",
+ "size": [
+  1280,
+  720
+ ],
+ "grid": [
+  160,
+  90
+ ],
+ "fingerprint": {
+  "canvas": "3.2.3",
+  "cairo": "1.18.4",
+  "pango": "1.57.1",
+  "freetype": "2.14.3",
+  "platform": "darwin-arm64",
+  "fonts": "464.570 464.570 529.805"
+ },
+ "frames": [
+  {
+   "shot": "A1",
+   "at": "in",
+   "t": 0,
+   "sha": "6849c73830680fc9c0f3",
+   "png": "demo/A1_in.png"
+  },
+  {
+   "shot": "A1",
+   "at": "mid",
+   "t": 1,
+   "sha": "d38868f69501e13b75d1",
+   "png": "demo/A1_mid.png"
+  },
+  {
+   "shot": "A1",
+   "at": "out",
+   "t": 1.983333,
+   "sha": "92d7b14b923b1383d532",
+   "png": "demo/A1_out.png"
+  },
+  {
+   "shot": "A2",
+   "at": "in",
+   "t": 2,
+   "sha": "44db639cdd69a88170be",
+   "png": "demo/A2_in.png"
+  },
+  {
+   "shot": "A2",
+   "at": "mid",
+   "t": 3,
+   "sha": "7256236b37bb02805be2",
+   "png": "demo/A2_mid.png"
+  },
+  {
+   "shot": "A2",
+   "at": "out",
+   "t": 3.983333,
+   "sha": "b25650c094114938a53d",
+   "png": "demo/A2_out.png"
+  },
+  {
+   "shot": "A3",
+   "at": "in",
+   "t": 4,
+   "sha": "56f7b1740de5132a87b2",
+   "png": "demo/A3_in.png"
+  },
+  {
+   "shot": "A3",
+   "at": "mid",
+   "t": 5,
+   "sha": "7174016ae12a0009ff8f",
+   "png": "demo/A3_mid.png"
+  },
+  {
+   "shot": "A3",
+   "at": "out",
+   "t": 5.983333,
+   "sha": "9e1125d56cf86dfdf7cf",
+   "png": "demo/A3_out.png"
+  }
+ ]
+}

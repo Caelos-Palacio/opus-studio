@@ -9,7 +9,7 @@
 //      menos deniega; un denegado es LEGÍTIMO si el fichero es directorOnly (roles.json) y FALSO POSITIVO si no.
 // Por defecto el modo es ENFORCE (roles.json); OPUS_ROLES_MODE=observer lo baja a solo-registrar. Un roles.json ilegible degrada a observer.
 // Rol del proceso: env OPUS_ROLE (director por defecto); "animator:A1+A2" rellena {ids} en los globs.
-import { isMain } from './paths.mjs';
+import { isMain, realish } from './paths.mjs';
 import fs from 'node:fs';
 import { spawnSync } from 'node:child_process';
 import path from 'node:path';
@@ -30,7 +30,11 @@ export function globRe(g) {
   return new RegExp('^' + re + '$');
 }
 export const loadRoles = () => { try { return JSON.parse(fs.readFileSync(ROLES_FILE, 'utf8')); } catch { return { mode: 'observer', roles: { director: ['**'] } }; } };   // roles.json ilegible: fail-open (observer), no bloquear a todos
-export const rel = (p) => { const a = path.resolve(ROOT, p), r = path.relative(ROOT, a); return r.startsWith('..') || path.isAbsolute(r) ? null : r.split(path.sep).join('/'); };
+// Ruta relativa al repo (o null si queda fuera). Primero léxica; si no, por ruta real: el hook recibe file_path tal como lo
+// ve la herramienta (p.ej. /var/… en macOS) y ROOT sale de import.meta.url ya resuelto (/private/var/…). Sin esto, todo
+// fichero del repo bajo un symlink pasaría por «fuera del proyecto» y enforce no denegaría nada.
+const REAL_ROOT = realish(ROOT), under = (root, a) => { const r = path.relative(root, a); return r.startsWith('..') || path.isAbsolute(r) ? null : r.split(path.sep).join('/'); };
+export const rel = (p) => { const a = path.resolve(ROOT, p); return under(ROOT, a) ?? under(REAL_ROOT, realish(a)); };
 
 export function canWrite(role = who().role, p, R = loadRoles()) {
   const r = rel(p); if (r === null) return { allow: true, rule: null, reason: 'fuera del proyecto' };
@@ -51,11 +55,11 @@ export function decide({ path: p, role = who().role, agent = who().agent, tool =
 }
 
 // Replay sobre el historial git: ¿cuántos de los ficheros que un rol ajustado escribió en commits reales habría denegado sin razón?
-export function replay({ repo = ROOT, R = loadRoles() } = {}) {
-  const git = (a) => spawnSync('git', ['-C', repo, ...a], { encoding: 'utf8', maxBuffer: 64 << 20 });
-  const out = git(['log', '--all', '--no-merges', '--name-only', '--pretty=format:@@%h']);
-  if (out.status !== 0) return { commits: 0, files: 0, falsePositives: [], falsePositiveRate: 0, error: 'sin git' };
-  const commits = []; for (const l of out.stdout.split('\n')) { if (l.startsWith('@@')) commits.push({ id: l.slice(2), files: [] }); else if (l && commits.length) commits.at(-1).files.push(l); }
+// historyLog(repo): el historial en el formato que consume replay (`@@<hash>` + ficheros por commit); null sin git.
+export const historyLog = (repo = ROOT) => { const o = spawnSync('git', ['-C', repo, 'log', '--all', '--no-merges', '--name-only', '--pretty=format:@@%h'], { encoding: 'utf8', maxBuffer: 64 << 20 }); return o.status === 0 ? o.stdout : null; };
+export function replay({ repo = ROOT, R = loadRoles(), log = historyLog(repo) } = {}) {
+  if (log == null) return { commits: 0, files: 0, falsePositives: [], falsePositiveRate: 0, error: 'sin git' };
+  const commits = []; for (const l of log.split('\n')) { if (l.startsWith('@@')) commits.push({ id: l.slice(2), files: [] }); else if (l && commits.length) commits.at(-1).files.push(l); }
   const names = Object.keys(R.roles ?? {}).filter((r) => !['*', 'director', 'review'].includes(r)), dOnly = (R.directorOnly ?? []).map(globRe);
   const stat = {}; let files = 0, fp = [], legit = 0, mixed = 0;
   for (const c of commits.filter((c) => c.files.length)) {
