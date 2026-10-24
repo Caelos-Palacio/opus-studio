@@ -101,7 +101,7 @@ if (sec('ci')) {
   ok(!/\bcurl\b|wget/.test(y.split('npm ci')[1] ?? ''), 'nada de red tras npm ci (salvo audit informativo)');
   ok(/node-version:\s*22\.(1[5-9]|[2-9]\d)/.test(y) || /node-version:\s*2[3-9]/.test(y), 'node >= engines (22.15)');
   ok(/xvfb/.test(y) && /mesa/i.test(y), 'Linux instala Mesa+xvfb para world3d');
-  ok(/continue-on-error:\s*\$\{\{\s*matrix\.experimental/.test(y), 'macOS opcional (experimental)');
+  ok(!/^\s*continue-on-error:/m.test(y.split('steps:')[0]), 'ningún job de la matriz es opcional (macOS bloquea igual que Linux)');
   ok(!/\t/.test(y), 'YAML sin tabuladores');
   ok(pkg.engines?.node === '>=22.15', 'engines coherente');
 }

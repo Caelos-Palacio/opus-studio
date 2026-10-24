@@ -20,7 +20,7 @@ A frame is `seek(ctx, t, film)`: a pure function of time. No hidden state, no `M
 
 ## Quick start
 
-Requirements: **Node >= 22.15** and **ffmpeg** in `PATH`. Linux and macOS (CI: ubuntu-24.04 required, macOS experimental). `gl` and `three` are optional dependencies, only needed for the real-3D layer.
+Requirements: **Node >= 22.15** and **ffmpeg** in `PATH`. Linux and macOS (CI: ubuntu-24.04 and macos-14). `gl` and `three` are optional dependencies, only needed for the real-3D layer, which runs on Linux only (it needs the pinned Mesa llvmpipe rasterizer to stay deterministic).
 
 ```bash
 git clone https://github.com/Caelos-Palacio/opus-studio && cd opus-studio

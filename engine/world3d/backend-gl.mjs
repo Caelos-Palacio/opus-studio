@@ -32,6 +32,9 @@ export function backendSig() {
 }
 
 export function loadBackend() {
+  // Solo Linux tiene el rasterizador software fijado (Mesa llvmpipe). En macOS/Windows headless-gl va por ANGLE → GPU del
+  // sistema (Metal/D3D): fotogramas no reproducibles bit a bit y una firma que mentiría. Mejor «no disponible» que no determinista.
+  if (process.platform !== 'linux') return { error: `sin rasterizador software fijado (Mesa llvmpipe) en ${process.platform}: el 3D no sería determinista` };
   let createGL, THREE;
   try { createGL = require('gl'); THREE = require('three'); } catch (e) { return { error: `paquetes 'gl'/'three' no instalados (${String(e.message).split('\n')[0]})` }; }
   let gl;
