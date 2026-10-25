@@ -62,3 +62,41 @@ Se adoptan sus ventajas sin perder el proceso.
 - **Deuda viva.** (`npm test -- --full` en main: ✓ verde el 2026-10-12.) Eval ciega del toolbox (intenciones escritas por un agente sin contexto); pulir presets cosmos_profundo,
   papel_carta_acuarela, laboratorio; `npm test -- --full` en main; push a GitHub (solo con confirmación).
 - **Bugs vistos por E3:** (RESUELTO bf078d4) un film de un solo plano con `timeline.sound` daba NaN en la mezcla. Voz de calidad: piper + modelo es-ES (hoy espeak-ng, robótico).
+
+## 9. Plan de cierre v6, económico (2026-10-25)
+Principios: el menor número de agentes y tokens posible. Edits pequeños los hace el director directamente; un único
+agente Sonnet por fase y Haiku solo para correr tests. SIN vídeos completos intermedios: se valida con stills,
+storyboard y clips de ≤ 5 s. Como mucho UNA película completa al final, y es opcional. Ver docs/research/13.
+
+- **F0 (director, sin agentes).**
+  - Identidad noreply en los commits (hecho).
+  - Brief MODO-LIBRE:
+    - la estructura sugerida es guía y nunca texto de pantalla;
+    - el texto desbordado es un fallo;
+    - excepción «aire» a la ocupación del sujeto;
+    - prohibidos los elementos de interfaz (botón, cursor, ventana);
+    - una rareza deliberada y un momento memorable sin texto;
+    - las cifras fijas pasan a ser rangos o ejemplos.
+  - Pliego de sorpresa: `data/entregas.json` (paleta, medio, tipo, sonido, estructura) y veto de repetir ≥ 2 de 5
+    rasgos de las últimas 3 entregas.
+  - Archivar `film-botella` con un tag.
+  - Congelar y anotar como no prioritario: π lento, presets flojos, eval del toolbox, voz piper, rehacer Consta,
+    defectos de Botella v2.
+- **F1 (1 Sonnet, ≈ 1 sesión).**
+  - Integrar `gusto` y bajar el panel a filtro de mínimos (auditoría automática sin LLM: clip-art, negro vacío, texto
+    ilegible, audio, determinismo) más una comparación A/B opcional.
+  - Se abandona la meta ρ ≥ 0,7.
+  - `dsl-perf` queda marcado como sensible a la carga.
+  - Una sola `--full`, corrida por Haiku.
+- **F2 (1 Sonnet, ≈ 1–2 sesiones).**
+  - `opus v6 <encargo>`: idea → guion v2 → `storyboard.html` (solo stills) → `consultar` (pausa y cambios en `plan.md`)
+    → producción libre → auditoría → filtro.
+  - Se prueba con stills y con un clip de 5 s.
+- **F3 (1 Sonnet, ≈ 1 sesión).**
+  - Kit: 2 gramáticas nuevas (neón y tiza/pizarra) para romper la monocultura sepia.
+  - Arreglos: barrido por objeto, busto de la moneda, sello ≥ 10 piezas, contraste con alfa, tinta.
+  - Se valida con `muestra.jpg`.
+- **F4 (opcional).** Una película v6 completa con tema y medio nuevos, en modo `consultar`.
+- **F5.** Push a GitHub, solo con confirmación del usuario.
+
+Presupuesto estimado: F1 ≈ 150k, F2 ≈ 250k, F3 ≈ 150k y F4 ≈ 200k tokens (≈ 0,6–0,8 M en total).
