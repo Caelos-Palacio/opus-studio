@@ -197,6 +197,62 @@ const idxNotas = fs.readFileSync(path.join(out, 'paquete.md'), 'utf8').includes(
   ok('H9 registrar-lote registra los válidos y lista los rechazados (paquete inexistente, total incoherente)', rl.ok.length === 2 && rl.mal.length === 2 && fs.existsSync(path.join(dirCal, 'B/veredictos/director.json')));
 }
 
+// ── G-F. filtro de mínimos (sin LLM) y lámina A/B (F1) ──
+{
+  const sh = (a) => execFileSync('ffmpeg', ['-v', 'error', '-y', ...a]);
+  const mk = (nombre, vid, vol) => { const f = path.join(tmp, nombre); sh(['-f', 'lavfi', '-i', `${vid}${vid.includes('=') ? ':' : '='}size=320x180:rate=15:duration=4`, ...(vol == null ? [] : ['-f', 'lavfi', '-i', 'sine=frequency=1000:duration=4', '-af', vol]), '-c:v', 'libx264', '-pix_fmt', 'yuv420p', ...(vol == null ? [] : ['-c:a', 'aac']), f]); return f; };
+  const bueno = mk('f_bueno.mp4', 'testsrc2', 'volume=7.8dB'), negro = mk('f_negro.mp4', 'color=c=black', 'volume=7.8dB'), fuerte = mk('f_fuerte.mp4', 'testsrc2', 'volume=24dB,alimiter=limit=1:level=0'), mudo = mk('f_mudo.mp4', 'testsrc2', null);
+  const id = (r, k) => r.checks.find((c) => c.id === k)?.estado;
+  const rb = P.filtro(bueno), rn = P.filtro(negro), rf = P.filtro(fuerte), rm = P.filtro(mudo);
+  ok('F1 filtro: un mp4 con textura y audio a −13 LUFS / TP < −1 PASA (texto y determinismo quedan N/A sin --codigo)', rb.estado === 'PASA' && id(rb, 'fondo') === 'OK' && id(rb, 'audio') === 'OK' && id(rb, 'texto') === 'N/A', JSON.stringify(rb.checks.map((c) => c.id + ':' + c.estado)));
+  ok('F2 filtro: fondo negro plano (profundidad baja) FALLA con motivo «fondo»', rn.estado === 'FALLA' && id(rn, 'fondo') === 'FALLA' && id(rn, 'audio') === 'OK' && rn.motivos.some((m) => /^fondo:/.test(m)), rn.motivos.join('|'));
+  ok('F3 filtro: audio con true peak > −1 y fuera de rango de LUFS FALLA con motivo «audio»', rf.estado === 'FALLA' && id(rf, 'audio') === 'FALLA' && /true peak/.test(rf.motivos[0]) && /LUFS/.test(rf.motivos[0]), rf.motivos.join('|'));
+  ok('F4 filtro: un mp4 sin pista de audio FALLA («sin pista»)', rm.estado === 'FALLA' && /sin pista|no tiene pista/.test(rm.motivos.join()), rm.motivos.join('|'));
+
+  // con código: auditoría del kit-libre (texto y determinismo)
+  const proy = (nombre, { random = false, texto = false } = {}) => {
+    const d = path.join(tmp, nombre); fs.mkdirSync(d, { recursive: true });
+    const suj = '{ x: 40, y: 20, w: 400, h: 230 }';
+    fs.writeFileSync(path.join(d, 'timeline.js'), `export const escenas = [{ id: 'a', t0: 0, dur: 3, sujeto: ${suj} }, { id: 'b', t0: 3, dur: 5, sujeto: ${suj} }];\n`);
+    fs.writeFileSync(path.join(d, 'frame.js'), `export const W = 480, H = 270;
+export function frame(ctx, t) { const g = ctx.createLinearGradient(0, 0, W, H); g.addColorStop(0, '#d8c8a0'); g.addColorStop(1, '#406050'); ctx.fillStyle = g; ctx.fillRect(0, 0, W, H);
+  ctx.fillStyle = '#802020'; ctx.fillRect(${random ? '100 + Math.random() * 50' : '100 + t * 10'}, 80, 120, 90); ctx.fillStyle = '#fff'; for (let i = 0; i < 20; i++) ctx.fillRect(i * 20, (i * 37) % 270, 6, 6); }
+${texto ? "export const cajas = () => ({ texto: [{ id: 'titulo', x: 400, y: 10, w: 300, h: 60, tam: 40, contenedor: { x: 0, y: 0, w: 480, h: 270 } }], objetos: [] });" : ''}
+`);
+    return d;
+  };
+  const cb = P.filtro(bueno, { codigo: proy('p_bueno') }), cr = P.filtro(bueno, { codigo: proy('p_random', { random: true }) }), ct = P.filtro(bueno, { codigo: proy('p_texto', { texto: true }) });
+  ok('F5 filtro --codigo: proyecto limpio PASA con texto y determinismo OK', cb.estado === 'PASA' && id(cb, 'texto') === 'OK' && id(cb, 'determinismo') === 'OK', cb.motivos.join('|'));
+  ok('F6 filtro --codigo: render no determinista FALLA con motivo «determinismo»', cr.estado === 'FALLA' && id(cr, 'determinismo') === 'FALLA', cr.motivos.join('|'));
+  ok('F7 filtro --codigo: texto fuera del cuadro FALLA con motivo «texto»', ct.estado === 'FALLA' && id(ct, 'texto') === 'FALLA', ct.motivos.join('|'));
+  ok('F8 filtro --codigo: un proyecto ilegible FALLA («auditoria») en lugar de pasar en falso', P.filtro(bueno, { codigo: path.join(tmp, 'no_existe') }).checks.some((c) => c.id === 'auditoria' && c.estado === 'FALLA'));
+
+  // --entrega: veto de repetición contra data/entregas.json (rasgos de plan.md)
+  const reg = path.join(tmp, 'entregas.json'), plan = (t) => { const f = path.join(tmp, 'plan_' + Math.random().toString(36).slice(2) + '.md'); fs.writeFileSync(f, t); return f; };
+  const R = (film, paleta, medio, tipografia, sonido, estructura) => ({ film, paleta, medio, tipografia, sonido, estructura });
+  fs.writeFileSync(reg, JSON.stringify({ entregas: [R('viejo', 'rojo', 'collage', 'grotesca', 'jazz', 'cuenta atrás'), R('b1', 'crema sepia + verde submarino', 'papel y acuarela', 'serif de libro centrada', 'agua y piano', 'objeto ancla'), R('b2', 'crema + verde submarino + turquesa', 'papel', 'serif centrada + mono', 'foley + piano', 'objeto ancla con giro'), R('b3', 'crema + verde submarino', 'papel', 'serif centrada', 'foley + piano + pad', 'objeto ancla con giro')] }));
+  const nuevo = plan('# Plan\n- **paleta:** verde neón + magenta sobre ladrillo\n- **medio:** neón y luz sobre negro\n- **tipografía:** tubo de neón monoespaciado\n- **sonido:** zumbido eléctrico y sintetizador\n- **estructura:** cuenta atrás con remate mudo\n');
+  const igual = plan('# Plan\npaleta: crema sepia con verde submarino\nmedio: papel y acuarela\ntipografía: serif de libro\nsonido: bajo continuo\nestructura: cuenta atrás con remate\n');
+  const una = plan('# Plan\npaleta: azul cianotipia\nmedio: papel\ntipografía: manuscrita\nsonido: lluvia\nestructura: lista de pasos\n');
+  const parcial = plan('# Plan\npaleta: azul\nmedio: tiza\n');
+  const rn1 = P.filtro(null, { plan: nuevo, registro: reg }), ri = P.filtro(null, { plan: igual, registro: reg }), ru = P.filtro(null, { plan: una, registro: reg }), rp = P.filtro(null, { plan: parcial, registro: reg });
+  ok('F9 --entrega: un plan con rasgos nuevos PASA; solo comparte 1 de 5 con una de las 3 últimas (el viejo fuera de las 3 no cuenta)', rn1.estado === 'PASA' && ru.estado === 'PASA', rn1.motivos.concat(ru.motivos).join('|'));
+  ok('F10 --entrega: repetir ≥ 2 de 5 rasgos de una de las 3 últimas FALLA y nombra la entrega y los rasgos', ri.estado === 'FALLA' && /b1/.test(ri.motivos[0]) && /paleta/.test(ri.motivos[0]) && /medio/.test(ri.motivos[0]), ri.motivos.join('|'));
+  ok('F11 --entrega: un plan que no declara los 5 rasgos FALLA (pliego de sorpresa); rasgosDePlan lee negritas y tildes', rp.estado === 'FALLA' && /tipografia/.test(rp.motivos[0]) && Object.keys(P.rasgosDePlan('- **tipografía:** x y\n')).join() === 'tipografia');
+  ok('F12 --entrega combinado con mp4: suma ambos grupos de comprobaciones', P.filtro(bueno, { plan: nuevo, registro: reg }).checks.map((c) => c.id).join() === 'fondo,audio,texto,determinismo,repeticion');
+  ok('F13 filtro sin mp4 ni plan es un error de uso; el registro real data/entregas.json es válido para el veto', (() => { try { P.filtro(null, {}); return false; } catch { return true; } })() && P.filtro(null, { plan: nuevo }).estado === 'PASA');
+
+  // CLI: código de salida 0 / 3
+  const cli = (a) => { try { execFileSync('node', [path.join(ROOT, 'engine/panel.mjs'), ...a], { stdio: 'pipe' }); return 0; } catch (e) { return e.status; } };
+  ok('F14 CLI `panel.mjs filtro`: sale 0 si PASA y 3 si FALLA', cli(['filtro', bueno]) === 0 && cli(['filtro', negro]) === 3);
+
+  // ab: lámina comparativa
+  const lam = path.join(tmp, 'lam', 'ab.jpg'), r = await P.ab(bueno, negro, lam);
+  const { loadImage } = (await import('canvas')).default, im = await loadImage(lam);
+  ok('F15 ab genera una lámina JPG A|B (dos columnas: hoja 4×3 y tira de 8 fotogramas del momento clave), sin LLM', fs.existsSync(lam) && im.width === r.w && im.height === r.h && r.w >= 1900 && r.h >= 500 && r.claves.length === 2 && r.durs.every((d) => d > 3), `${im.width}×${im.height}`);
+  ok('F16 CLI `panel.mjs ab` escribe la lámina con --out y sale 0; falta un mp4 → error', cli(['ab', bueno, negro, '--out', path.join(tmp, 'lam', 'cli.jpg')]) === 0 && fs.existsSync(path.join(tmp, 'lam', 'cli.jpg')) && cli(['ab', bueno, path.join(tmp, 'nada.mp4')]) === 1);
+}
+
 rmrf(tmp);
 console.log(`\n${n - bad}/${n} gusto en verde`);
 process.exit(bad ? 1 : 0);

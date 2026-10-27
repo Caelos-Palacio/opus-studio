@@ -8,8 +8,11 @@
 //   node engine/panel.mjs preparar-calibracion [--out <dir>]        paquetes ANÓNIMOS (A, B, …) de data/calibracion.json + mapa aparte
 //   node engine/panel.mjs registrar-lote <dir-calibracion> <json>   registra los veredictos de un crítico sobre todos los paquetes
 //   node engine/panel.mjs calibrar [--dir D] [--mapa M]             Spearman entre el total del panel y el nivel de las notas humanas
+//   node engine/panel.mjs filtro <mp4> [--codigo <dir>] [--entrega <plan.md>] [--registro <json>]   FILTRO DE MÍNIMOS sin LLM (F1): fondo oscuro/plano sin profundidad, texto (si hay código: auditoría del kit-libre), audio (TP ≤ −1, I −16…−12), determinismo (con código); --entrega compara los rasgos de plan.md con data/entregas.json (veto ≥ 2 de 5 de las 3 últimas). PASA (0) / FALLA (3)
+//   node engine/panel.mjs ab <mp4A> <mp4B> [--out lamina.jpg]       lámina comparativa ciega (hojas lado a lado + tira del momento clave de cada una) para elegir en 10 s; sin LLM
 import './help.mjs';
 import fs from 'node:fs';
+import os from 'node:os';
 import path from 'node:path';
 import { execFileSync, spawnSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
@@ -391,6 +394,118 @@ export function prompt(mirada, { paquete = null, calibracion = false, dir = path
   return rellenar(plantilla('docs/current/PANEL.md', 'comun'), { ...base, PAQUETE: path.resolve(paquete), SALIDA: salida ?? path.join(path.resolve(paquete), 'veredictos', `${k}.json`), FORMATO: FORMATO(k) });
 }
 
+// ───────────────────────── filtro de mínimos (F1, sin LLM) ─────────────────────────
+// El panel de 3 críticos queda como herramienta opcional: la meta ρ ≥ 0,7 se abandonó (docs/current/PANEL.md). El juez es este filtro + la lámina A/B.
+export const AUDIO_I = [-16, -12], AUDIO_TP = -1, REPITE_MAX = 2, ULTIMAS = 3, RASGOS = ['paleta', 'medio', 'tipografia', 'sonido', 'estructura'];
+const sinTilde = (x) => String(x).normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase();
+
+/** Rasgos declarados en plan.md: líneas «paleta: …», «- **medio:** …», etc. (los 5 de MODO-LIBRE §0b). */
+export function rasgosDePlan(txt) {
+  const o = {};
+  for (const l of txt.split('\n')) { const m = sinTilde(l.replace(/[*`_]/g, '')).match(/^\s*(?:[-•]\s+)?(paleta|medio|tipografia|sonido|estructura)\s*:\s*(.+?)\s*$/); if (m && !(m[1] in o)) o[m[1]] = m[2]; }
+  return o;
+}
+const fichas = (t) => new Set(sinTilde(t).split(/[^a-z0-9]+/).filter((w) => w.length >= 3));
+/** Dos descripciones del mismo rasgo «se repiten» si comparten ≥ 60 % de las palabras de la más corta. */
+export function seRepite(a, b) {
+  const A = fichas(a), B = fichas(b); if (!A.size || !B.size) return false;
+  let c = 0; for (const w of A) if (B.has(w)) c++;
+  return c / Math.min(A.size, B.size) >= 0.6;
+}
+/** Veto de repetición: rechaza si la entrega repite ≥ 2 de los 5 rasgos de alguna de las 3 últimas del registro. */
+export function vetoRepeticion(rasgos, registro) {
+  const faltan = RASGOS.filter((k) => !rasgos[k]);
+  if (faltan.length) return { estado: 'FALLA', msg: `plan.md no declara ${faltan.length === 5 ? 'ningún rasgo' : 'los rasgos'}: ${faltan.join(', ')} (pliego de sorpresa, MODO-LIBRE §0b)`, detalle: [] };
+  const ult = (registro.entregas ?? []).slice(-ULTIMAS), detalle = ult.map((e) => ({ film: e.film, iguales: RASGOS.filter((k) => e[k] && seRepite(rasgos[k], e[k])) }));
+  const malas = detalle.filter((d) => d.iguales.length >= REPITE_MAX);
+  return malas.length ? { estado: 'FALLA', msg: `repite ≥ ${REPITE_MAX} de 5 rasgos de ${malas.map((d) => `${d.film} (${d.iguales.join(', ')})`).join('; ')}`, detalle } : { estado: 'OK', msg: `no repite ≥ ${REPITE_MAX} de 5 rasgos de las ${ult.length} últimas entregas (máx. ${Math.max(0, ...detalle.map((d) => d.iguales.length))})`, detalle };
+}
+
+/** Auditoría del kit-libre sobre un proyecto (texto, contraste, cuadro vacío, determinismo). */
+export function auditarProyecto(dir) {
+  const kit = path.join(ROOT, 'kit-libre/kit/auditoria.mjs');
+  if (!fs.existsSync(kit)) return { ejecutada: false, error: 'falta kit-libre/kit/auditoria.mjs' };
+  const r = spawnSync(process.execPath, [kit, path.resolve(dir)], { encoding: 'utf8', maxBuffer: 1 << 28, cwd: ROOT }), txt = r.stdout ?? '';
+  if ((r.status !== 0 && r.status !== 1) || !/RESUMEN:/.test(txt)) return { ejecutada: false, error: ((r.stderr ?? '').trim().split('\n').slice(-2).join(' ') || `la auditoría terminó con estado ${r.status}`).slice(0, 300) };
+  const graves = txt.split('\n').filter((l) => /^\s+! /.test(l)).map((l) => l.replace(/^\s+! /, '').trim());
+  return { ejecutada: true, graves, texto: graves.filter((g) => /: (texto|contraste): /.test(g)), determinismo: graves.filter((g) => /^determinismo/.test(g)), otros: graves.filter((g) => !/: (texto|contraste): /.test(g) && !/^determinismo/.test(g)) };
+}
+
+/** Filtro de mínimos (todo medido, sin LLM). Devuelve {estado:'PASA'|'FALLA', checks:[{id,estado,msg}], motivos}. */
+export function filtro(mp4, { codigo = null, plan = null, registro = path.join(ROOT, 'data/entregas.json') } = {}) {
+  const checks = [], add = (id, estado, msg) => checks.push({ id, estado, msg });
+  let medidas = null;
+  if (mp4) {
+    if (!fs.existsSync(mp4)) throw new Error(`no existe ${mp4}`);
+    const info = sonda(mp4), { serie, ...vis } = analisisVisual(mp4, info), pr = vis.profundidad;
+    medidas = { dur: info.dur, w: info.w, h: info.h, oscuro_plano_pct: vis.oscuro_plano_pct, plano_pct: vis.plano_pct, profundidad: pr.nivel };
+    // 1. fondo oscuro/plano con profundidad baja (un oscuro con estrellas, bruma o movimiento es válido: spec 022 C12)
+    if (pr.nivel === 'baja' && vis.oscuro_plano_pct >= 30) add('fondo', 'FALLA', `${vis.oscuro_plano_pct} % de cuadros de fondo oscuro/plano con profundidad baja (espacial ${pr.espacial}, textura ${pr.textura}, temporal ${pr.temporal})`);
+    else if (vis.oscuro_plano_pct >= 60) add('fondo', 'FALLA', `${vis.oscuro_plano_pct} % de cuadros casi de un solo tono`);
+    else add('fondo', 'OK', `fondo oscuro/plano ${vis.oscuro_plano_pct} %, profundidad ${String(pr.nivel).split(' ')[0]}`);
+    if (vis.plano_pct >= 60) add('marco', 'AVISO', `${vis.plano_pct} % de cuadros con el marco exterior sin textura ni degradado`);
+    // 2. audio
+    if (!info.audio) add('audio', 'FALLA', 'el mp4 no tiene pista de audio');
+    else {
+      const a = medirAudio(mp4); medidas.audio = a;
+      if (!a) add('audio', 'FALLA', 'no se pudo medir el audio (ebur128)');
+      else {
+        const mal = [a.TP != null && a.TP > AUDIO_TP ? `true peak ${a.TP} dBFS > ${AUDIO_TP}` : null, a.I < AUDIO_I[0] || a.I > AUDIO_I[1] ? `sonoridad ${a.I} LUFS fuera de ${AUDIO_I[0]}…${AUDIO_I[1]}` : null].filter(Boolean);
+        add('audio', mal.length ? 'FALLA' : 'OK', mal.length ? mal.join('; ') : `${a.I} LUFS, true peak ${a.TP} dBFS`);
+      }
+    }
+  }
+  // 3. texto y determinismo (solo con código: auditoría del kit-libre)
+  if (codigo) {
+    const au = auditarProyecto(codigo);
+    if (!au.ejecutada) add('auditoria', 'FALLA', `no se pudo auditar ${codigo}: ${au.error}`);
+    else {
+      add('texto', au.texto.length ? 'FALLA' : 'OK', au.texto.length ? `texto ilegible o desbordado: ${au.texto.slice(0, 3).join(' | ')}${au.texto.length > 3 ? ` (+${au.texto.length - 3})` : ''}` : 'sin texto desbordado, tapado ni de bajo contraste');
+      add('determinismo', au.determinismo.length ? 'FALLA' : 'OK', au.determinismo.length ? au.determinismo[0] : 'mismo md5 al renderizar dos veces');
+      if (au.otros.length) add('auditoria', 'FALLA', `${au.otros.length} fallos graves de la auditoría: ${au.otros.slice(0, 3).join(' | ')}`);
+    }
+  } else if (mp4) { add('texto', 'N/A', 'sin --codigo no hay cajas de texto que auditar'); add('determinismo', 'N/A', 'sin --codigo no se puede comprobar'); }
+  // 4. veto de repetición contra el registro de entregas (modo --entrega)
+  if (plan) {
+    if (!fs.existsSync(plan)) throw new Error(`no existe ${plan}`);
+    if (!fs.existsSync(registro)) add('repeticion', 'AVISO', `no hay registro de entregas (${registro}): sin veto`);
+    else { const v = vetoRepeticion(rasgosDePlan(fs.readFileSync(plan, 'utf8')), JSON.parse(fs.readFileSync(registro, 'utf8'))); add('repeticion', v.estado, v.msg); }
+  }
+  if (!checks.length) throw new Error('nada que filtrar: pasa un <mp4> y/o --entrega <plan.md>');
+  const motivos = checks.filter((c) => c.estado === 'FALLA').map((c) => `${c.id}: ${c.msg}`);
+  return { estado: motivos.length ? 'FALLA' : 'PASA', checks, motivos, medidas };
+}
+
+// ───────────────────────── lámina A/B ─────────────────────────
+const COLW = 960;
+/** Hoja 4×3 y tira de 8 fotogramas (5 fps) del momento clave («giro»), una llamada de ffmpeg cada una. */
+function laminaDe(mp4, tmp, tag) {
+  const info = sonda(mp4), { serie } = analisisVisual(mp4, info), clave = momentosTiras(serie, info.dur, 1)[0].t, cw = COLW / 4;
+  const hoja = path.join(tmp, `${tag}-hoja.jpg`), tira = path.join(tmp, `${tag}-tira.jpg`), paso = 1 / TIRA_FPS, ini = Math.max(0, Math.min(clave - (TIRA_N / 2) * paso, info.dur - TIRA_N * paso - 0.05));
+  sh('ffmpeg', ['-v', 'error', '-y', '-ss', (info.dur / 24).toFixed(3), '-i', mp4, '-vf', `fps=${(NFRAMES / info.dur).toFixed(5)},scale=${cw}:-2,tile=4x3:padding=2:color=0x111111`, '-frames:v', '1', hoja]);
+  sh('ffmpeg', ['-v', 'error', '-y', '-ss', ini.toFixed(3), '-i', mp4, '-vf', `fps=${TIRA_FPS},scale=${cw}:-2,tile=4x2:padding=2:color=0x111111`, '-frames:v', '1', tira]);
+  return { info, clave, hoja, tira };
+}
+/** Lámina comparativa A|B (hojas arriba, tira del momento clave debajo). Ciega: la imagen solo dice A y B. */
+export async function ab(mpA, mpB, out = path.join(panelOut(), 'ab.jpg')) {
+  for (const f of [mpA, mpB]) if (!fs.existsSync(f)) throw new Error(`no existe ${f}`);
+  const { createCanvas, loadImage } = await lienzo(), tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'opus-ab-'));
+  try {
+    const L = [laminaDe(mpA, tmp, 'a'), laminaDe(mpB, tmp, 'b')], img = [];
+    for (const l of L) img.push({ hoja: await loadImage(l.hoja), tira: await loadImage(l.tira) });
+    const M = 12, TH = 34, hH = Math.max(...img.map((i) => i.hoja.height)), tH = Math.max(...img.map((i) => i.tira.height)), W = 2 * COLW + 3 * M, H = TH + hH + 24 + tH + 2 * M;
+    const c = createCanvas(W, H), x = c.getContext('2d'); x.fillStyle = '#0b0b0b'; x.fillRect(0, 0, W, H);
+    L.forEach((l, i) => {
+      const X = M + i * (COLW + M); x.fillStyle = '#fff'; x.font = 'bold 26px sans-serif'; x.fillText('AB'[i], X, 27);
+      x.font = '14px monospace'; x.fillStyle = '#aaa'; x.fillText(`${l.info.dur.toFixed(0)} s · ${l.info.w}×${l.info.h}`, X + 40, 26);
+      x.drawImage(img[i].hoja, X, TH); x.fillText(`momento clave ≈ ${l.clave.toFixed(1)} s (8 fotogramas a ${TIRA_FPS} fps)`, X, TH + hH + 18);
+      x.drawImage(img[i].tira, X, TH + hH + 24);
+    });
+    fs.mkdirSync(path.dirname(path.resolve(out)), { recursive: true }); fs.writeFileSync(out, c.toBuffer('image/jpeg', { quality: 0.88 }));
+    return { out, w: W, h: H, claves: L.map((l) => +l.clave.toFixed(2)), durs: L.map((l) => l.info.dur) };
+  } finally { fs.rmSync(tmp, { recursive: true, force: true }); }
+}
+
 // ───────────────────────── CLI ─────────────────────────
 if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
   const argv = process.argv.slice(2), cmd = argv[0], flag = (k, d) => { const i = argv.indexOf(k); return i >= 0 ? argv[i + 1] : d; };
@@ -423,6 +538,13 @@ if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.me
       console.log(`\nSpearman ρ = ${r.rho == null ? 'n/d' : r.rho.toFixed(3)} sobre ${r.n} películas (umbral ${r.umbral}) → ${r.ok ? 'CALIBRADO' : 'NO CALIBRADO: revisar data/gusto.md antes de usar el panel como juez'}`);
       console.log(`pares: ${r.pares.filter((p) => p.ok).length}/${r.pares.length} en el orden humano`); for (const p of r.pares.filter((p) => !p.ok)) console.log(`  ✗ ${p.mayor} > ${p.menor} (${p.fuerza}) diferencia ${p.diff}  [${p.origen}]`);
       fs.writeFileSync(hm.resultado, JSON.stringify(r, null, 2) + '\n'); process.exit(r.ok ? 0 : 3);
-    } else salir('uso: panel.mjs preparar | registrar | veredicto | prompt | preparar-calibracion | registrar-lote | calibrar   (--help)');
+    } else if (cmd === 'filtro') {
+      const r = filtro(pos[0] ? path.resolve(pos[0]) : null, { codigo: flag('--codigo', null), plan: flag('--entrega', null), registro: flag('--registro', undefined) });
+      for (const c of r.checks) console.log(`  [${c.estado.padEnd(5)}] ${c.id.padEnd(12)} ${c.msg}`);
+      console.log(`${r.estado}${r.motivos.length ? ' · ' + r.motivos.length + ' motivo(s)' : ''}`); process.exit(r.estado === 'PASA' ? 0 : 3);
+    } else if (cmd === 'ab') {
+      if (pos.length < 2) salir('uso: panel.mjs ab <mp4A> <mp4B> [--out lamina.jpg]');
+      const r = await ab(path.resolve(pos[0]), path.resolve(pos[1]), path.resolve(flag('--out', path.join(panelOut(), 'ab.jpg')))); console.log(`lámina A|B en ${r.out} (${r.w}×${r.h}); A = ${pos[0]}, B = ${pos[1]}`);
+    } else salir('uso: panel.mjs preparar | filtro | ab | registrar | veredicto | prompt | preparar-calibracion | registrar-lote | calibrar   (--help)');
   } catch (e) { salir(e); }
 }

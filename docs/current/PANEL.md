@@ -1,5 +1,14 @@
 # Panel de críticos (spec 022)
 
+> **F1 (2026-10): el panel de 3 críticos es OPCIONAL y se abandona la meta ρ ≥ 0,7.** La calibración falló dos veces
+> (lote 1 ρ = 0,338; lote 2 ≈ 0,27 con el director) y con 4 notas humanas no hay base para exigir más (`docs/research/13-estado-gusto-v6.md`).
+> El juez es ahora un **filtro de mínimos sin LLM** + una **lámina A/B**:
+> ```
+> node engine/panel.mjs filtro <mp4> [--codigo <dir>] [--entrega <plan.md>]   # PASA (0) / FALLA (3): fondo oscuro/plano sin profundidad, audio (TP ≤ −1, I −16…−12), texto y determinismo (con código), veto de repetición (--entrega)
+> node engine/panel.mjs ab <mp4A> <mp4B> [--out lamina.jpg]                    # hojas lado a lado + tira del momento clave; el usuario (o un único crítico) elige en 10 s
+> ```
+> Lo de abajo sigue funcionando si se quiere una segunda opinión, pero ya no es puerta de entrega.
+
 Juez autónomo de un film o de un storyboard. Tres miradas independientes puntúan la rúbrica de `data/gusto.md` (0–10)
 y dan 3 arreglos concretos. **SHIP** si la media de las tres miradas es ≥ 8 y ninguna baja de 6; si no, **FIX** (el agente
 productor aplica los arreglos, máximo 2 rondas). Cada crítico es un agente **Sonnet con visión, sin contexto del proyecto**:
@@ -19,7 +28,7 @@ node engine/panel.mjs veredicto out/panel/<film>                                
   y `paquete.<mirada>.md` solo la suya (usa este último).
 - Con un storyboard: el mismo flujo sobre los stills (el director puntúa guion y ritmo; el ojo, composición y color).
 - Un film con nota humana nueva: `node engine/gusto.mjs nota <film> "<texto>" --nota 8`; el paquete siguiente la lleva.
-- Antes de fiarse del panel hay que calibrarlo: `docs/current/PANEL-CALIBRACION.md` (Spearman ≥ 0,7).
+- Calibración (`docs/current/PANEL-CALIBRACION.md`): histórica; la meta Spearman ≥ 0,7 está abandonada (ver arriba).
 
 ## Formato del veredicto
 ```json

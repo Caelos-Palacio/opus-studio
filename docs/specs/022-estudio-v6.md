@@ -55,6 +55,13 @@ Modos (campo `revision` del encargo):
   con el informe del panel.
 - Modelos: Sonnet con visión para las miradas. Haiku solo para leer y resumir las auditorías.
 
+## Enmienda F1 (2026-10): el juez baja a filtro + A/B
+Se **abandona la meta ρ ≥ 0,7** (fila «calibración del panel» y G4 de abajo). Motivo: la calibración falló en dos lotes
+(lote 1 ρ = 0,338; lote 2 ≈ 0,27 con el director) y con 4 notas humanas no es realista. El juez queda como
+`panel.mjs filtro` (mínimos medidos, sin LLM: fondo oscuro/plano sin profundidad, audio, texto, determinismo, veto de
+repetición con `--entrega`) y `panel.mjs ab` (lámina para elegir en 10 s). El panel de 3 críticos se conserva como
+herramienta opcional (`docs/current/PANEL.md`); «panel ≥ 8» deja de ser criterio de entrega. Ver `docs/research/13-estado-gusto-v6.md`.
+
 ## Medibles
 | pieza | medible |
 |---|---|
