@@ -83,11 +83,14 @@ const luminancia = (r, g, b) => 0.2126 * linealizar[r] + 0.7152 * linealizar[g] 
 export function contrasteCaja(c, b) {
   const tam = b.tam ?? b.h, pad = Math.max(3, Math.round(tam * 0.3)), x0 = Math.max(0, Math.floor(b.x - pad)), y0 = Math.max(0, Math.floor(b.y - pad)), x1 = Math.min(c.width, Math.ceil(b.x + b.w + pad)), y1 = Math.min(c.height, Math.ceil(b.y + b.h + pad));
   if (x1 - x0 < 2 || y1 - y0 < 2) return null;
-  const d = c.getContext('2d').getImageData(x0, y0, x1 - x0, y1 - y0).data, tc = hexRgb(b.color), Lt = luminancia(tc[0], tc[1], tc[2]), rs = [];
+  const d = c.getContext('2d').getImageData(x0, y0, x1 - x0, y1 - y0).data, tc = hexRgb(b.color), Lt = luminancia(tc[0], tc[1], tc[2]), al = Math.min(1, Math.max(0, b.alfa ?? 1)), rs = [];
+  let te = tc; // color de texto efectivo: con alfa < 1 es la mezcla con el fondo (estimado con el anillo exterior)
+  if (al < 0.999) { let n = 0; const m = [0, 0, 0]; for (let y = y0; y < y1; y++) for (let x = x0; x < x1; x++) if (x < b.x || x > b.x + b.w || y < b.y || y > b.y + b.h) { const o = ((y - y0) * (x1 - x0) + (x - x0)) * 4; m[0] += d[o]; m[1] += d[o + 1]; m[2] += d[o + 2]; n++; } if (n) te = tc.map((v, k) => al * v + (1 - al) * m[k] / n); }
   for (let y = y0; y < y1; y++) for (let x = x0; x < x1; x++) {
     const o = ((y - y0) * (x1 - x0) + (x - x0)) * 4, dentro = x >= b.x && x <= b.x + b.w && y >= b.y && y <= b.y + b.h;
-    if (dentro && Math.hypot(d[o] - tc[0], d[o + 1] - tc[1], d[o + 2] - tc[2]) < 70) continue; // pixel de texto (o casi)
-    const Lb = luminancia(d[o], d[o + 1], d[o + 2]); rs.push((Math.max(Lt, Lb) + 0.05) / (Math.min(Lt, Lb) + 0.05));
+    if (dentro && Math.hypot(d[o] - te[0], d[o + 1] - te[1], d[o + 2] - te[2]) < 70) continue; // pixel de texto (o casi)
+    const Lb = luminancia(d[o], d[o + 1], d[o + 2]), Le = al >= 0.999 ? Lt : luminancia(Math.round(al * tc[0] + (1 - al) * d[o]), Math.round(al * tc[1] + (1 - al) * d[o + 1]), Math.round(al * tc[2] + (1 - al) * d[o + 2])); // alfa < 1: el color efectivo es la mezcla con el fondo
+    rs.push((Math.max(Le, Lb) + 0.05) / (Math.min(Le, Lb) + 0.05));
   }
   if (rs.length < 8) return { mediana: 1, peor: 1, n: rs.length };
   rs.sort((a, b2) => a - b2); return { mediana: rs[rs.length >> 1], peor: rs[Math.floor(rs.length * 0.1)], n: rs.length };
@@ -106,7 +109,7 @@ export function auditarCuadro({ canvas, cajas, escena = {}, W, H }) {
   if (!des.length) f.push({ check: 'texto', estado: 'OK', msg: `${cj.texto.length} cajas de texto dentro de su contenedor` });
   const tt = textoTapado(cj.texto, cj.objetos); tt.forEach((x) => f.push({ check: 'texto', estado: 'FALLO', msg: `"${x.texto.id ?? ''}" tapado por "${x.objeto.id ?? ''}" (${Math.round(x.area)} px2)` }));
   let peor = null; const cr = [];
-  for (const b of cj.texto) { if (!b.color || (b.alfa ?? 1) < 0.95) continue; const r = contrasteCaja(canvas, b); if (!r) continue; cr.push({ b, r }); if (!peor || r.mediana < peor.r.mediana) peor = { b, r }; }
+  for (const b of cj.texto) { if (!b.color || (b.alfa ?? 1) < 0.1) continue; const r = contrasteCaja(canvas, b); if (!r) continue; cr.push({ b, r }); if (!peor || r.mediana < peor.r.mediana) peor = { b, r }; }
   cr.forEach(({ b, r }) => { if (r.mediana < CONTRASTE_MIN) f.push({ check: 'contraste', estado: 'FALLO', msg: `"${b.id ?? ''}" ${r.mediana.toFixed(1)}:1 contra el fondo real (minimo ${CONTRASTE_MIN}:1)` }); else if (r.peor < 3) f.push({ check: 'contraste', estado: 'AVISO', msg: `"${b.id ?? ''}" mediana ${r.mediana.toFixed(1)}:1 pero zonas de ${r.peor.toFixed(1)}:1` }); });
   if (peor && peor.r.mediana >= CONTRASTE_MIN) f.push({ check: 'contraste', estado: 'OK', msg: `minimo ${peor.r.mediana.toFixed(1)}:1 ("${peor.b.id ?? ''}")` });
   return f;

@@ -1,73 +1,65 @@
-// frame.js: frame(ctx,t) PURA. Disena en 1920x1080 y escala segun ctx.canvas (preview a 1/4). Tres escenas: sobre (objeto por piezas), mapa (costas reales),
-// mar (botella y moneda). Las transiciones son motivadas: la mancha de tinta del sobre revela el mapa; el nivel del agua sube del mapa al mar.
+// frame.js: frame(ctx,t) PURA. Disena en 1920x1080 y escala segun ctx.canvas (preview a 1/4).
+// La GRAMATICA (el medio) se elige con GRAMATICA=neon|tiza|papel (ver README: se elige por tema). La plantilla solo habla con `G`; nada de papel fijo.
+// Tres escenas: titulo (un objeto, un texto, un acento), ruta (una linea que se dibuja entre dos puntos) y cifra (un numero que cuenta). El corte entre escenas es el del medio (G.transicion).
 import { createCanvas } from 'canvas';
-import { outBack, inOutCubic, spring, clamp, smoothstep } from '../kit/base.mjs';
-import { papel, agua, tinta, grano, vineta } from '../kit/materia.mjs';
-import { tubo } from '../kit/formas.mjs';
-import { botella, moneda, sobre } from '../kit/objetos.mjs';
-import { encuadre, dibujarCostas, graticula, proyectar, marcador, ruta } from '../kit/mapa.mjs';
-import { revelarTinta, cortinaAgua } from '../kit/transiciones.mjs';
-import { texto, textoEn, cifrasTabulares, escribirse } from '../kit/texto.mjs';
+import { clamp, smoothstep, inOutCubic, outBack } from '../kit/base.mjs';
+import { elegir, FARO } from '../kit/gramaticas/index.mjs';
 import { conCamara } from '../kit/camara.mjs';
 import { fps, W, H, escenas, cruces } from './timeline.js';
 import { hechos } from './hechos.js';
 export { W, H };
 
-const INK = '#1f2a36', CREMA = '#f4efe2', ULT = { texto: [], objetos: [], sujeto: null };
+export const GRAMATICA = process.env.GRAMATICA || 'tiza';
+const G = elegir(GRAMATICA); // elegir('neon', { a1: '#ffb000' }) cambia la paleta
+const ULT = { texto: [], objetos: [], sujeto: null };
 let REG = true; // solo la escena principal registra cajas (no la que entra durante un cruce)
 const reg = (k, id, b) => { if (REG) ULT[k].push({ id, ...b }); };
-const ENC = encuadre({ lon0: -13, lat0: 41.5, lon1: 6, lat1: 56 }, W, H);
+const grosor = { neon: 15, tiza: 11, papel: 7 }[GRAMATICA], tam = { neon: 100, tiza: 104, papel: 112 }[GRAMATICA], tamCifra = { neon: 230, tiza: 210, papel: 210 }[GRAMATICA];
+const pl = (P, x, y, s) => P.flatMap((q, i) => { const a = i ? P[i - 1] : q, n = i ? Math.max(1, Math.ceil(Math.hypot(q[0] - a[0], q[1] - a[1]) * s / 30)) : 1; return Array.from({ length: n }, (_, k) => i ? [x + (a[0] + (q[0] - a[0]) * (k + 1) / n) * s, y + (a[1] + (q[1] - a[1]) * (k + 1) / n) * s] : [x + q[0] * s, y + q[1] * s]); });
 
-function escenaSobre(g, lt, dur) {
-  papel(g, W, H, { tono: '#e7dcc3', seed: 4 });
-  const caida = outBack(clamp(lt / 1.1), 1.3), abre = inOutCubic(clamp((lt - 1.3) / 1.6));
-  const s = sobre(g, { x: 640, y: 712 - (1 - caida) * 260, w: 900, abierto: abre, rot: -0.03 + (1 - caida) * 0.08, seed: 5 });
-  reg('objetos', 'sobre', s.caja); if (REG) ULT.sujeto = s.caja;
-  const a = smoothstep(0.2, 1, lt);
-  reg('texto', 'titulo', textoEn(g, hechos.titulo, { x: 1160, y: 330, w: 680, h: 270 }, { tam: 96, peso: 'bold', color: INK, alfa: a }));
-  reg('texto', 'subtitulo', escribirse(hechos.subtitulo, lt - 2.2, { cps: 24, ctx: g, x: 1160, y: 660, alinear: 'left', tam: 40, color: '#3a3f46' }));
-  tinta(g, 640, 640, 560, clamp(lt - (dur - 2.4), 0, 9), 3);
+function escenaTitulo(g, lt, t) {
+  G.soporte(g, W, H, t); const u = clamp(lt / 3.2), s = 840, x = 110, y = 120;
+  FARO.cuerpo.forEach((p, i) => { const k = clamp(u * 1.5 - i * 0.05); G.trazo(g, pl(p, x, y, s), { grosor, seed: 10 + i, t, u: k, encendido: k, color: GRAMATICA === 'neon' ? G.paleta.a1 : null }); });
+  FARO.luz.forEach((p, i) => { const k = clamp(u * 1.5 - 0.3); G.trazo(g, pl(p, x, y, s), { grosor: grosor * 0.8, seed: 30 + i, t, u: k, encendido: k, color: G.paleta.a2 }); });
+  reg('objetos', 'faro', { x, y, w: s, h: s }); if (REG) ULT.sujeto = { x, y, w: s, h: s };
+  const a = smoothstep(0.4, 1.4, lt), c = G.texto(g, hechos.titulo, 1000, 330, { tam, t, seed: 3, encendido: a, alfa: GRAMATICA === 'papel' ? a : 1 }); reg('texto', 'titulo', c);
+  G.acento(g, c, { forma: GRAMATICA === 'papel' ? 'mancha' : 'subrayado', u: clamp((lt - 2) / 1.2), t, seed: 6 });
+  reg('texto', 'subtitulo', G.texto(g, hechos.subtitulo, 1000, 600, { tam: tam * 0.38, t, seed: 4, color: GRAMATICA === 'neon' ? G.paleta.a2 : undefined, peso: GRAMATICA === 'papel' ? 'normal' : 'bold', encendido: smoothstep(2.4, 3.4, lt), alfa: smoothstep(2.4, 3.4, lt) }));
 }
 
-function escenaMapa(g, lt) {
-  dibujarCostas(g, ENC, { estilo: 'acuarela', seed: 7 }); graticula(g, ENC);
-  const o = proyectar(hechos.origen.lon, hechos.origen.lat, ENC), d = proyectar(hechos.destino.lon, hechos.destino.lat, ENC), u = clamp((lt - 1.2) / 3.2);
-  ruta(g, o, d, inOutCubic(u), { arco: 0.2, grosor: 5 });
-  const m1 = marcador(g, { x: o[0], y: o[1], nombre: hechos.origen.nombre }, { u: clamp((lt - 0.4) / 1.2) }), m2 = marcador(g, { x: d[0], y: d[1], nombre: hechos.destino.nombre }, { u: clamp((lt - 4) / 1.2) });
-  for (const m of [m1, m2]) if (m) { reg('objetos', 'pin', m.pin); if (m.etiqueta) reg('texto', 'lugar', m.etiqueta); }
-  reg('texto', 'pie', textoEn(g, hechos.mapa, { x: 120, y: 940, w: 900, h: 70 }, { tam: 46, color: INK, fondoVelo: '#eef3f2', alfa: smoothstep(1, 2, lt) }));
+function escenaRuta(g, lt, t) {
+  G.soporte(g, W, H, t, { seed: 5 }); const o = [300, 760], d = [1560, 330], u = inOutCubic(clamp((lt - 1) / 3.6));
+  const curva = Array.from({ length: 40 }, (_, i) => { const q = i / 39; return [o[0] + (d[0] - o[0]) * q + Math.sin(q * 6) * 40, o[1] + (d[1] - o[1]) * q - Math.sin(q * Math.PI) * 220 + Math.cos(q * 9) * 18]; });
+  G.trazo(g, curva, { grosor: grosor * 0.9, seed: 7, t, u, encendido: u, color: GRAMATICA === 'neon' ? G.paleta.a1 : null });
+  for (const [p, n, a] of [[o, hechos.origen, 0.2], [d, hechos.destino, 3.8]]) {
+    const k = clamp((lt - a) / 0.8), r = 34 * outBack(k, 1.4), ring = Array.from({ length: 28 }, (_, i) => [p[0] + Math.cos(i / 27 * 6.4) * r, p[1] + Math.sin(i / 27 * 6.4) * r]);
+    if (k > 0) { G.trazo(g, ring, { grosor: grosor * 0.8, seed: 40, t, color: G.paleta.a2 }); reg('texto', 'lugar', G.texto(g, n, p[0] - 120, p[1] + 60, { tam: tam * 0.45, t, seed: 8, alfa: k, color: GRAMATICA === 'neon' ? G.paleta.a2 : undefined })); reg('objetos', 'pin', { x: p[0] - r, y: p[1] - r, w: 2 * r, h: 2 * r }); }
+  }
+  const c = G.texto(g, hechos.mapa, 960, 900, { tam: tam * 0.55, alinear: 'center', t, seed: 9, encendido: smoothstep(1.5, 2.5, lt), alfa: smoothstep(1.5, 2.5, lt) }); reg('texto', 'pie', c);
   if (REG) ULT.sujeto = { x: 0, y: 0, w: W, h: H };
 }
 
-function escenaMar(g, lt) {
-  agua(g, W, H, lt + 3, { arriba: '#2d6f78', abajo: '#0b2f3b', particulas: 80 });
-  const entra = spring(lt - 0.2, 0.45, 7), by = 620 + (1 - entra) * 500 + Math.sin(lt * 0.9) * 10, b = botella(g, { x: 840, y: by, alto: 1350, rot: 1.32 + Math.sin(lt * 0.9) * 0.025, lleno: 0.4, algas: 0.8, t: lt, seed: 6 });
-  reg('objetos', 'botella', b.caja); if (REG) ULT.sujeto = b.caja;
-  const v = hechos.cifra.valor * inOutCubic(clamp((lt - 1.2) / 3.2)), a = smoothstep(1, 1.6, lt);
-  reg('texto', 'etiqueta', texto(g, hechos.cifra.etiqueta, 120, 80, { tam: 40, color: CREMA, fondoVelo: '#0b2f3b', alfa: a }));
-  reg('texto', 'cifra', cifrasTabulares(g, v, 120, 140, { tam: 150, color: CREMA }));
-  const s1 = Math.sin(lt * 0.9) * 12, s2 = Math.sin(lt * 0.9 - 0.4) * 22;
-  tubo(g, [[1650, -20], [1650 + s1, 160], [1650 + s2, 270]], { grosor: 7, color: '#7b5f3d', seed: 5 });
-  const c = moneda(g, { x: 1650 + s2, y: 380, r: 105, giro: lt * 1.1, leyenda: 'PRIMUS ANNUS', rot: Math.sin(lt * 0.9 - 0.4) * 0.12 }); reg('objetos', 'moneda', c.caja);
-  const f = smoothstep(7, 8, lt); if (f > 0) reg('texto', 'final', texto(g, hechos.final, 1500, 1000, { tam: 48, color: CREMA, alinear: 'center', alfa: f, fondoVelo: '#0b2f3b' }));
+function escenaCifra(g, lt, t) {
+  G.soporte(g, W, H, t, { seed: 8 }); const v = Math.round(hechos.cifra.valor * inOutCubic(clamp((lt - 0.8) / 3.2))), s = String(v).replace(/\B(?=(\d{3})+$)/g, ' ');
+  reg('texto', 'etiqueta', G.texto(g, hechos.cifra.etiqueta, 960, 220, { tam: tam * 0.5, alinear: 'center', t, seed: 11, color: GRAMATICA === 'neon' ? G.paleta.a2 : undefined, encendido: smoothstep(0.2, 1, lt), alfa: smoothstep(0.2, 1, lt) }));
+  const c = G.texto(g, s, 960, 400, { tam: tamCifra, alinear: 'center', t, seed: 12 }); reg('texto', 'cifra', c);
+  G.acento(g, c, { forma: GRAMATICA === 'tiza' ? 'circulo' : GRAMATICA === 'neon' ? 'marco' : 'mancha', u: clamp((lt - 4.2) / 1.2), t, seed: 13 });
+  const f = smoothstep(7, 8, lt); if (f > 0) reg('texto', 'final', G.texto(g, hechos.final, 960, 880, { tam: tam * 0.5, alinear: 'center', t, seed: 14, alfa: f, encendido: f }));
+  if (REG) ULT.sujeto = { x: 0, y: 0, w: W, h: H };
 }
 
-const ESC = [escenaSobre, escenaMapa, escenaMar];
+const ESC = [escenaTitulo, escenaRuta, escenaCifra];
 const inicio = (i) => escenas[i].t0 - (i > 0 ? cruces[i - 1] : 0);
-const TRANS = [
-  (ctx, u, A, B) => revelarTinta(ctx, u, A, B, { origen: { x: 0.33, y: 0.59 }, color: '#17222e', seed: 3 }),
-  (ctx, u, A, B) => cortinaAgua(ctx, u, A, B, { modo: 'sube', color: '#2d6f78' }),
-];
 /** frame(ctx,t): dibuja el fotograma del instante t (segundos); sin estado entre llamadas. */
 export function frame(ctx, t) {
   ULT.texto.length = 0; ULT.objetos.length = 0; ULT.sujeto = null; REG = true;
   const w = ctx.canvas.width, h = ctx.canvas.height, k = w / W, fi = Math.round(t * fps), last = escenas.length - 1;
-  const dib = (c, i, registra) => { REG = registra; const lt = Math.max(0, t - inicio(i)), e = escenas[i]; conCamara(c, lt, 'medio', (g) => { g.scale(k, k); ESC[i](g, lt, e.dur + (i < last ? cruces[i] : 0)); }, { dur: e.dur, seed: i + 1 }); REG = true; };
+  const dib = (c, i, registra) => { REG = registra; const lt = Math.max(0, t - inicio(i)); conCamara(c, lt, 'medio', (g) => { g.scale(k, k); ESC[i](g, lt, t); }, { dur: escenas[i].dur, seed: i + 1 }); REG = true; };
   let i = escenas.findIndex((e) => t < e.t0 + e.dur); if (i < 0) i = last;
   const e = escenas[i], c0 = i < last ? cruces[i] : 0;
-  if (i < last && t > e.t0 + e.dur - c0) TRANS[i](ctx, (t - (e.t0 + e.dur - c0)) / c0, (c) => dib(c, i, true), (c) => dib(c, i + 1, false));
+  if (i < last && t > e.t0 + e.dur - c0) G.transicion(ctx, (t - (e.t0 + e.dur - c0)) / c0, (c) => dib(c, i, true), (c) => dib(c, i + 1, false));
   else dib(ctx, i, true);
-  vineta(ctx, w, h, 0.38); grano(ctx, w, h, fi, 0.05);
+  G.post(ctx, w, h, fi);
 }
 /** cajas(t): {texto, objetos, sujeto} en coordenadas de diseno 1920x1080 para la auditoria. */
 export function cajas(t) { frame(createCanvas(96, 54).getContext('2d'), t); return { texto: ULT.texto.map((b) => ({ ...b })), objetos: ULT.objetos.map((b) => ({ ...b })), sujeto: ULT.sujeto && { ...ULT.sujeto } }; }

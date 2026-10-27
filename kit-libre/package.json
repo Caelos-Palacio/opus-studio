@@ -1,6 +1,6 @@
 {
   "name": "kit-libre",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "private": true,
   "type": "module",
   "license": "MIT",
@@ -11,7 +11,8 @@
     "still": "node plantilla/still.js",
     "test": "node test.mjs",
     "audit": "node kit/auditoria.mjs plantilla",
-    "muestra": "node muestra.mjs"
+    "muestra": "node muestra.mjs",
+    "muestra:gramaticas": "node muestra-gramaticas.mjs"
   },
   "dependencies": {
     "canvas": "^3.2.3"

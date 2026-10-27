@@ -31,13 +31,28 @@ export function revelarTinta(ctx, u, A, B, { origen = { x: 0.5, y: 0.5 }, color 
   ctx.save(); poli(ctx, borde(1)); ctx.clip(); const dentro = borde(1).map(([x, y]) => { const d = Math.hypot(x - ox, y - oy) || 1; return [x - (x - ox) / d * grosor, y - (y - oy) / d * grosor]; }); poli(ctx, dentro); ctx.clip(); ctx.drawImage(b, 0, 0); ctx.restore(); ctx.restore();
 }
 
-/** objetoPincelada: objeto por defecto de barridoObjeto, una pincelada de brocha seca (cientos de cerdas con extremos irregulares). */
-function objetoPincelada(g, { x, y, w, h, vert }, seed = 4) {
-  const r = rng(seed), n = 150, paso = h / n; g.save(); g.translate(x, y); if (vert) g.rotate(Math.PI / 2);
-  for (let i = 0; i < n; i++) {
-    const yy = -h / 2 + i * paso, ini = -w / 2 + (r() * 0.16 - 0.04) * w * (1 + 0.8 * fbm(i * 0.08, 1, seed, 2)), fin = w / 2 - (r() * 0.16 - 0.04) * w * (1 + 0.8 * fbm(i * 0.08, 7, seed, 2));
-    const t = 0.82 + 0.18 * r(); g.fillStyle = `rgba(${Math.round(22 * t)},${Math.round(25 * t)},${Math.round(30 * t)},${0.78 + 0.22 * r()})`; g.fillRect(ini, yy, fin - ini, paso * (0.9 + 0.5 * r()) + 0.8);
-    if (r() < 0.12) { g.fillStyle = 'rgba(255,255,255,0.07)'; g.fillRect(ini + w * 0.05, yy, (fin - ini) * (0.2 + 0.6 * r()), paso * 0.7); }
+/**
+ * objetoPincelada: objeto por defecto de barridoObjeto, un golpe de brocha ancha con pintura densa: frente redondeado con cresta de pintura,
+ * cerdas largas en el sentido del avance (nunca tiras perpendiculares), reflejo humedo y cola de brocha seca con cerdas sueltas que dejan ver lo de atras.
+ */
+function objetoPincelada(g, { x, y, w, h, vert, dir = 'der' }, seed = 4) {
+  const r = rng(seed), ang = { der: 0, abj: Math.PI / 2, izq: Math.PI, arr: -Math.PI / 2 }[dir] ?? (vert ? Math.PI / 2 : 0), n = 110, frente = w * 0.5, cola = -w * 0.5, paso = h / n;
+  g.save(); g.translate(x, y); g.rotate(ang);
+  const borde = (yy, k) => frente - w * 0.05 * Math.pow(Math.abs(yy) / (h / 2), 2) + (fbm(yy * 0.01, k, seed, 3) - 0.5) * w * 0.05;
+  const cuerpo = [], fin = []; for (let i = 0; i <= n; i++) { const yy = -h / 2 + i * paso; cuerpo.push([borde(yy, 3), yy]); fin.push([cola + w * 0.1 * (0.5 + fbm(yy * 0.02, 9, seed, 2)), yy]); }
+  const gr = g.createLinearGradient(cola, 0, frente, 0); gr.addColorStop(0, 'rgba(14,17,22,0.9)'); gr.addColorStop(0.55, 'rgb(20,24,31)'); gr.addColorStop(1, 'rgb(34,40,50)');
+  g.fillStyle = gr; g.beginPath(); cuerpo.forEach(([a, b], i) => i ? g.lineTo(a, b) : g.moveTo(a, b)); [...fin].reverse().forEach(([a, b]) => g.lineTo(a, b)); g.closePath(); g.fill();
+  g.lineCap = 'round'; // cerdas: trazos largos y finos, con ondulacion suave, que siguen el avance
+  for (let i = 0; i < 150; i++) {
+    const yy = (r() - 0.5) * h, a0 = cola + w * (0.08 + r() * 0.5), a1 = Math.min(borde(yy, 3) - w * 0.01, a0 + w * (0.2 + r() * 0.6)), k = r(), amp = h * 0.004 * (0.5 + r());
+    g.strokeStyle = k < 0.5 ? `rgba(0,0,0,${0.12 + 0.25 * r()})` : `rgba(120,135,155,${0.04 + 0.1 * r()})`; g.lineWidth = Math.max(1, h * (0.0012 + 0.003 * r()));
+    g.beginPath(); g.moveTo(a0, yy); g.bezierCurveTo(a0 + (a1 - a0) * 0.35, yy + amp, a0 + (a1 - a0) * 0.7, yy - amp, a1, yy + amp * 0.3); g.stroke();
+  }
+  g.strokeStyle = 'rgba(190,205,225,0.28)'; g.lineWidth = Math.max(2, w * 0.012); g.beginPath(); cuerpo.forEach(([a, b], i) => { const q = [a - w * 0.025, b]; i ? g.lineTo(q[0], q[1]) : g.moveTo(q[0], q[1]); }); g.stroke(); // cresta humeda del frente
+  for (let i = 0; i < 170; i++) { // cerdas sueltas de la cola
+    const yy = (r() - 0.5) * h, a0 = cola + w * 0.12 * r(), L = w * (0.05 + 0.35 * r() * r()), t = 0.8 + 0.2 * r();
+    g.strokeStyle = `rgba(${Math.round(20 * t)},${Math.round(24 * t)},${Math.round(31 * t)},${0.5 + 0.4 * r()})`; g.lineWidth = Math.max(1, h * (0.0015 + 0.0035 * r()));
+    g.beginPath(); g.moveTo(a0, yy); g.quadraticCurveTo(a0 - L * 0.5, yy + (r() - 0.5) * h * 0.006, a0 - L, yy + (r() - 0.5) * h * 0.01); g.stroke();
   }
   g.restore();
 }
