@@ -3,3 +3,8 @@ out/
 assets/cache/footage/
 data/mix*.wav
 .trash/
+
+# estudio v6: lo generado por film (stills, html, render) no se versiona
+kit-libre/films/*/salida/
+kit-libre/films/*/storyboard/
+kit-libre/films/*/storyboard.html
