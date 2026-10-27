@@ -12,6 +12,8 @@ import * as Q from './kit/auditoria.mjs';
 import * as X from './kit/transiciones.mjs';
 import * as G from './kit/mapa.mjs';
 import * as O from './kit/objetos.mjs';
+import { elegir, nombres } from './kit/gramaticas/index.mjs';
+import { limpiarGramaticas } from './kit/gramaticas/comun.mjs';
 
 let fallos = 0;
 const t = async (nombre, fn) => { try { await fn(); console.log('ok   ' + nombre); } catch (e) { fallos++; console.log('FAIL ' + nombre + ': ' + e.message); } };
@@ -117,9 +119,39 @@ await t('audio: master con TP <= -1 dBTP medido con ffmpeg', () => {
   fs.mkdirSync('salida', { recursive: true }); A.escribirWav(p, 'salida/test.wav'); const m = A.medir('salida/test.wav'); console.log('     ', JSON.stringify(m));
   ok(m.TP <= -1 && m.I < -10 && m.I > -30, 'TP/I fuera de rango'); ok(A.picoVerdadero(p) <= -2.9, 'limitador');
 });
+for (const n of nombres) await t(`gramatica ${n}: determinista, pinta, texto >= 4,5:1 y acento/trazo/post presentes`, () => {
+  const G = elegir(n), T0 = 1.7, caja = {}, escena = (g) => { G.soporte(g, W, H, T0, { seed: 2 }); G.trazo(g, [[40, 250], [160, 120], [300, 230], [440, 90]], { grosor: n === 'papel' ? 6 : 12, seed: 3, t: T0 }); Object.assign(caja, G.texto(g, 'Hola mar', 40, 20, { tam: n === 'neon' ? 56 : 52, t: T0, seed: 4 })); G.acento(g, caja, { u: 1, t: T0 }); G.post(g, W, H, 3); };
+  const c1 = pinta(escena); limpiarGramaticas(); M.limpiarCache(); ok(md5(c1) === md5(pinta(escena)), 'no determinista');
+  const solo = pinta((g) => { G.trazo(g, [[40, 150], [440, 150]], { grosor: 12, seed: 1 }); }); ok(llenos(solo) > 0.004, 'el trazo no pinta');
+  const tx = pinta((g) => { G.texto(g, 'Hola', 40, 40, { tam: 80 }); }); ok(llenos(tx) > 0.004, 'el texto no pinta');
+  const fondo = pinta((g) => { G.soporte(g, W, H, T0, { seed: 2 }); }), b = { id: 't', ...caja }, r = Q.contrasteCaja(c1, b); ok(llenos(fondo) > 0.99, 'soporte no cubre'); ok(r.mediana >= 4.5, `contraste ${r.mediana.toFixed(1)}:1 < 4,5`);
+  ok(typeof G.cuando === 'string' && G.cuando.length > 20 && Object.keys(G.paleta).includes('a1'), 'faltan cuando/paleta');
+  const A = (g) => { g.fillStyle = '#123'; g.fillRect(0, 0, W, H); }, Bb = (g) => { g.fillStyle = '#edc'; g.fillRect(0, 0, W, H); }; ok(md5(pinta((g) => G.transicion(g, 0, A, Bb))) === md5(pinta(A)) && md5(pinta((g) => G.transicion(g, 1, A, Bb))) === md5(pinta(Bb)), 'transicion: extremos');
+});
+await t('gramaticas: la paleta se puede cambiar y el diccionario rechaza nombres raros', () => {
+  const a = pinta((g) => elegir('neon').trazo(g, [[40, 150], [440, 150]], { seed: 1 })), b = pinta((g) => elegir('neon', { a1: '#33ff66' }).trazo(g, [[40, 150], [440, 150]], { seed: 1 })); ok(md5(a) !== md5(b), 'la paleta no cambia nada');
+  let fallo = false; try { elegir('rococo'); } catch { fallo = true; } ok(fallo, 'acepto una gramatica inexistente');
+});
+await t('gramaticas: las tres se distinguen (medios distintos, no el mismo con otro color)', () => {
+  const lum = (n) => { const c = pinta((g) => { const G = elegir(n); G.soporte(g, W, H, 1, {}); }), d = c.getContext('2d').getImageData(0, 0, W, H).data; let m = 0, v = 0; for (let i = 0; i < d.length; i += 4) m += d[i] + d[i + 1] + d[i + 2]; m /= d.length / 4 * 3; for (let i = 0; i < d.length; i += 4) v += ((d[i] + d[i + 1] + d[i + 2]) / 3 - m) ** 2; return [m, Math.sqrt(v / (d.length / 4))]; };
+  const [n, tz, pp] = ['neon', 'tiza', 'papel'].map(lum); ok(pp[0] > 150 && n[0] < 60 && tz[0] < 70, 'luminancias de soporte'); ok(md5(pinta((g) => elegir('tiza').soporte(g, W, H, 1))) !== md5(pinta((g) => elegir('neon').soporte(g, W, H, 1))), 'iguales');
+});
+await t('v3: sello >= 10 piezas siempre (golpe 0, .3 y 1)', () => { const g = createCanvas(W, H).getContext('2d'); for (const q of [0, 0.3, 0.45, 1]) { const r = O.sello(g, { x: 240, y: 200, tam: 140, golpe: q }); ok(r.piezas.length >= 10, `golpe ${q}: ${r.piezas.length}`); } });
+await t('v3: contraste con alfa < 0,95 usa el color efectivo (alfa baja = falla)', () => {
+  const m = (a) => { const c = pinta((g) => { g.fillStyle = '#e7dcc3'; g.fillRect(0, 0, W, H); }), g = c.getContext('2d'); T.registrarFuentes(); const b = { id: 't', color: '#1f2a36', ...T.texto(g, 'Contraste', 60, 100, { tam: 48, color: '#1f2a36', alfa: a }) }; return Q.contrasteCaja(c, b).mediana; };
+  ok(m(1) > 9 && m(0.5) < 4.5 && m(0.5) > 1.2, `1: ${m(1)}, .5: ${m(0.5)}`);
+  const c = pinta((g) => { g.fillStyle = '#e7dcc3'; g.fillRect(0, 0, W, H); }), g = c.getContext('2d'), b = { id: 't', color: '#1f2a36', ...T.texto(g, 'Contraste', 60, 100, { tam: 48, color: '#1f2a36', alfa: 0.4 }) };
+  ok(Q.auditarCuadro({ canvas: c, cajas: { texto: [b], objetos: [], sujeto: { x: 0, y: 0, w: W, h: H } }, escena: {}, W, H }).some((x) => x.check === 'contraste' && x.estado === 'FALLO'), 'alfa .4 no marca FALLO');
+});
+await t('v3: barridoObjeto por defecto es una brocha (cerdas en el avance, no tiras verticales) y tinta tiene tentaculos continuos', () => {
+  const Aa = (g) => { g.fillStyle = '#c8553d'; g.fillRect(0, 0, W, H); }, Bb = (g) => { g.fillStyle = '#2d6f78'; g.fillRect(0, 0, W, H); }, c = pinta((g) => X.barridoObjeto(g, 0.5, Aa, Bb, { dir: 'der' })), d = c.getContext('2d').getImageData(0, 0, W, H).data;
+  let h = 0, v = 0; for (let y = 1; y < H - 1; y += 2) for (let x = 1; x < W - 1; x += 2) { const i = (y * W + x) * 4, dx = Math.abs(d[i] - d[i + 4]), dy = Math.abs(d[i] - d[i + W * 4]); h += dx; v += dy; }
+  ok(h > 0 && v > 0, 'sin contenido'); const base = pinta((g) => M.tinta(g, 240, 150, 100, 4, 2)), sin = pinta((g) => M.tinta(g, 240, 150, 100, 0.05, 2)); ok(llenos(base) > llenos(sin), 'tinta no crece');
+  const Rr = 100 * (1 - Math.exp(-2.2 * 4)), dd = base.getContext('2d').getImageData(0, 0, W, H).data; let fuera = 0; for (let y = 0; y < H; y++) for (let x = 0; x < W; x++) if (Math.hypot(x - 240, y - 150) > Rr * 1.35 && dd[(y * W + x) * 4 + 3] > 60) fuera++; ok(fuera > 40, 'sin tentaculos fuera de la mancha: ' + fuera);
+});
 await t('plantilla: renderiza 2 s y pasa la auditoria', () => {
   fs.rmSync('plantilla/salida/test.mp4', { force: true }); execFileSync('node', ['plantilla/render.js', '--preview', '--dur', '2', '--audio', '--salida', 'plantilla/salida/test.mp4'], { stdio: 'pipe' });
   const d = parseFloat(execFileSync('ffprobe', ['-v', 'error', '-show_entries', 'format=duration', '-of', 'csv=p=0', 'plantilla/salida/test.mp4'], { encoding: 'utf8' })); ok(d > 1.8 && d < 2.3, 'duracion ' + d);
-  const r = spawnSync('node', ['kit/auditoria.mjs', 'plantilla'], { encoding: 'utf8' }); ok(r.status === 0, 'auditoria con fallos graves:\n' + r.stdout);
+  for (const gr of nombres) { const r = spawnSync('node', ['kit/auditoria.mjs', 'plantilla', '--escala', '0.5'], { encoding: 'utf8', env: { ...process.env, GRAMATICA: gr } }); ok(r.status === 0, `auditoria (${gr}) con fallos graves:\n` + r.stdout); }
 });
 console.log(fallos ? `\n${fallos} FALLOS` : '\ntodo bien'); process.exit(fallos ? 1 : 0);

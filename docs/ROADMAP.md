@@ -94,7 +94,7 @@ storyboard y clips de ≤ 5 s. Como mucho UNA película completa al final, y es 
   - `opus v6 <encargo>`: idea → guion v2 → `storyboard.html` (solo stills) → `consultar` (pausa y cambios en `plan.md`)
     → producción libre → auditoría → filtro.
   - Se prueba con stills y con un clip de 5 s.
-- **F3 (1 Sonnet, ≈ 1 sesión).**
+- **F3 (1 Sonnet, ≈ 1 sesión) — HECHA (2026-10-27, rama `kit-v3`).**
   - Kit: 2 gramáticas nuevas (neón y tiza/pizarra) para romper la monocultura sepia.
   - Arreglos: barrido por objeto, busto de la moneda, sello ≥ 10 piezas, contraste con alfa, tinta.
   - Se valida con `muestra.jpg`.

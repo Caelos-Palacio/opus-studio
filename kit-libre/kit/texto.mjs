@@ -6,13 +6,15 @@ import { hexRgb, rgba } from './base.mjs';
 let F = null;
 const SERIF = ['Libertinus Serif', 'EB Garamond', 'Crimson Pro', 'Gentium Book Basic', 'Gentium', 'Noto Serif', 'DejaVu Serif', 'Liberation Serif'];
 const MONO = ['Courier Prime', 'Liberation Mono', 'DejaVu Sans Mono', 'JetBrainsMono NFM'];
+const SANS = ['Montserrat', 'Lato', 'Nimbus Sans', 'Liberation Sans', 'DejaVu Sans']; // rotulo de tubo (neon)
+const MANO = ['Caveat', 'Patrick Hand', 'Kalam', 'Comic Neue', 'FantasqueSansM Nerd Font Propo']; // letra de pizarra (tiza); sin ninguna, se usa la mono
 /** registrarFuentes(): busca con fc-list una serif y una mono del sistema, las registra como KitSerif/KitMono y devuelve {serif,mono}. */
 export function registrarFuentes() {
   if (F) return F;
-  F = { serif: 'serif', mono: 'monospace', usadas: [] };
+  F = { serif: 'serif', mono: 'monospace', sans: 'sans-serif', mano: null, usadas: [] };
   let items = [];
   try { items = execFileSync('fc-list', [':', 'file', 'family', 'style'], { encoding: 'utf8' }).split('\n').map((l) => l.match(/^(.+?): (.+?):style=(.*)$/)).filter(Boolean).map((m) => ({ file: m[1], fam: m[2].split(',').map((s) => s.trim().toLowerCase()), st: m[3].toLowerCase() })); } catch { return F; }
-  for (const [lista, alias, k] of [[SERIF, 'KitSerif', 'serif'], [MONO, 'KitMono', 'mono']]) {
+  for (const [lista, alias, k] of [[SERIF, 'KitSerif', 'serif'], [MONO, 'KitMono', 'mono'], [SANS, 'KitSans', 'sans'], [MANO, 'KitMano', 'mano']]) {
     for (const nombre of lista) {
       const mine = items.filter((i) => i.fam.includes(nombre.toLowerCase()) && !/italic|oblique/.test(i.st) && /\.(ttf|otf)$/i.test(i.file));
       const reg = mine.find((i) => /(^|,)(regular|book|roman)(,|$)/.test(i.st)), neg = mine.find((i) => /(^|,)bold(,|$)/.test(i.st));
@@ -24,7 +26,8 @@ export function registrarFuentes() {
 }
 
 const MC = createCanvas(8, 8).getContext('2d'), TC = new Map();
-export const fuenteCss = (peso, tam, mono) => { const f = registrarFuentes(); return `${peso} ${tam}px ${mono ? f.mono : f.serif}`; };
+/** fuenteCss(peso,tam,familia): `familia` = false (serif), true | 'mono', 'sans' o 'mano' (si no hay letra manuscrita instalada, cae a la mono). */
+export const fuenteCss = (peso, tam, mono) => { const f = registrarFuentes(); return `${peso} ${tam}px ${mono === 'sans' ? f.sans : mono === 'mano' ? (f.mano ?? f.mono) : mono ? f.mono : f.serif}`; };
 const WC = new Map();
 const ancho = (font, s) => { const k = font + '|' + s; if (!WC.has(k)) { if (WC.size > 2000) WC.clear(); MC.font = font; WC.set(k, MC.measureText(s).width); } return WC.get(k); };
 // Los textos se rasterizan UNA vez (cache): medir/pintar bajo una escala de camara cambiante cuesta ~300 ms por llamada en pango.

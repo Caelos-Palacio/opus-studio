@@ -114,8 +114,18 @@ export function tinta(ctx, x, y, r, lt, seed = 1, color = '#17222e') {
   for (const k of [1.3, 1.18, 1.08]) { ctx.fillStyle = 'rgba(255,250,240,0.1)'; trazar(ctx, forma(k)); ctx.fill(); }
   const g = ctx.createRadialGradient(x, y, 0, x, y, R * 1.1); g.addColorStop(0, rgba(color, 0.9)); g.addColorStop(1, rgba(color, 0.45));
   ctx.fillStyle = g; trazar(ctx, forma(1)); ctx.fill(); ctx.strokeStyle = rgba(color, 0.5); ctx.lineWidth = Math.max(1, R * 0.015); ctx.stroke();
-  const rr = rng(seed + 3); ctx.fillStyle = rgba(color, 0.75);
-  for (let i = 0; i < 6; i++) { const a = rr() * 6.283, L = R * (0.25 + rr() * 0.45) * smoothstep(0.2, 1, lt), w = (rr() - 0.5) * 0.7; for (let k = 0; k <= 8; k++) { const q = k / 8, an = a + w * q, d = R * 0.9 + L * q; ctx.beginPath(); ctx.arc(x + Math.cos(an) * d, y + Math.sin(an) * d, Math.max(0.8, R * 0.055 * (1 - q)), 0, 6.283); ctx.fill(); } }
+  // tentaculos: cintas continuas que se afinan (nunca puntos sueltos), con ondulacion y un bulbo en la punta
+  const rr = rng(seed + 3); ctx.fillStyle = rgba(color, 0.78);
+  for (let i = 0; i < 6; i++) {
+    const a = rr() * 6.283, L = R * (0.3 + rr() * 0.5) * smoothstep(0.1, 1, lt), w = (rr() - 0.5) * 0.9, fase = rr() * 6.283, N = 18, izq = [], der = [];
+    if (L < 2) continue;
+    for (let k = 0; k <= N; k++) {
+      const q = k / N, an = a + w * q + Math.sin(q * 5 + fase) * 0.06, d = R * 0.85 + L * q, px = x + Math.cos(an) * d, py = y + Math.sin(an) * d, ancho = Math.max(0.6, R * 0.07 * Math.pow(1 - q, 0.8) + R * 0.012), nx = -Math.sin(an), ny = Math.cos(an);
+      izq.push([px + nx * ancho, py + ny * ancho]); der.push([px - nx * ancho, py - ny * ancho]);
+    }
+    trazar(ctx, [...izq, ...der.reverse()]); ctx.fill();
+    const fin = izq[N]; ctx.beginPath(); ctx.arc((fin[0] + der[0][0]) / 2, (fin[1] + der[0][1]) / 2, Math.max(1.2, R * 0.03), 0, 6.283); ctx.fill();
+  }
 }
 
 /** metal(ctx,x,y,r,{tono,desgaste,estrias,seed}): disco metalico, degradado radial anisotropo, relieve +-1px, canto estriado y desgaste. */
