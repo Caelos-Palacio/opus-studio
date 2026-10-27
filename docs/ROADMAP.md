@@ -68,7 +68,7 @@ Principios: el menor número de agentes y tokens posible. Edits pequeños los ha
 agente Sonnet por fase y Haiku solo para correr tests. SIN vídeos completos intermedios: se valida con stills,
 storyboard y clips de ≤ 5 s. Como mucho UNA película completa al final, y es opcional. Ver docs/research/13.
 
-- **F0 (director, sin agentes).**
+- **F0 (director, sin agentes) — HECHO 2026-10-27** (archivo: tag `archivo/film-botella`; congelados anotados abajo).
   - Identidad noreply en los commits (hecho).
   - Brief MODO-LIBRE:
     - la estructura sugerida es guía y nunca texto de pantalla;

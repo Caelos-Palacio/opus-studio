@@ -22,6 +22,21 @@ film.
 - **Bitácora.** Lleva `log.md` y ejecuta `date` al empezar y al terminar cada paso. Si un paso dura más del doble de su
   cuota, recorta alcance y anótalo.
 
+- **La estructura sugerida del encargo es una GUÍA de contenido, nunca texto de pantalla.** Los textos en pantalla
+  los escribes tú, con voz propia; no copies frases del encargo («Pronto: …», «Estructura…») tal cual.
+- **Las cifras de este brief son puntos de partida, no fórmulas.** Varíalas según la pieza. Si todas las piezas salen
+  con los mismos números, todas se parecen.
+
+## 0b. Pliego de sorpresa (antes del plan)
+1. Lee `data/entregas.json`, si te lo dan: las últimas entregas con su paleta, medio, tipografía, sonido y estructura.
+   **No repitas 2 o más de esos 5 rasgos de ninguna de las 3 últimas.** Anota en `plan.md` los 5 rasgos de la tuya.
+2. Elige el **medio** por el tema, no por costumbre (papel, tiza, neón, grabado, collage, cianotipia, tinta china,
+   luz sobre negro, etc.). El `porque` nombra el tema; «para que se vea bonito» no vale.
+3. Escribe una **referencia** (una obra, un oficio o un objeto real) y anota qué tomas de ella y qué evitas.
+4. Decide una **rareza deliberada**: algo pequeño que nadie pediría y que vuelve la pieza única (un tic del objeto,
+   un error que se queda, un sonido fuera de lugar).
+5. Decide el **momento memorable**: unos 3 s sin texto donde gesto, sonido y luz coinciden (a ≤ 2 fotogramas).
+
 ## 1. Plan (cuota ≈ 10 % del tiempo) → `plan.md`
 1. Escribe una frase con el objeto ancla: qué objeto es, qué se mueve y qué significa ese movimiento. **El objeto es la
    explicación.** Nada de cajas y flechas.
@@ -137,7 +152,11 @@ film.
 - **Foco y orden:**
   - Un solo foco de atención por momento.
   - Jerarquía tonal: soporte bajo, estructura media, sujeto alto y UN solo acento de luz.
-  - El sujeto ocupa el 55–65 % del cuadro en sus planos.
+  - El sujeto, en sus planos de detalle, suele ocupar bastante cuadro (orientativo: 40–65 %).
+  - **Aire:** al menos una escena deja mucho espacio vacío con intención (sujeto < 20 %). Un punto sobre una recta
+    puede ser la mejor imagen de la pieza. Decláralo como `aire` (si usas la auditoría del kit: `ocupacion_ok:{porque}`).
+- **Nada se desborda:** todo texto cabe en su contenedor (tarjeta, casilla, cartel) con margen. Un texto cortado o
+  que se sale es un fallo, no un detalle.
 - **El último texto** se lee completo y sin estorbos durante al menos 2 s.
 
 ## 6. Audio (sintetizado; sin voz ni TTS)
@@ -177,6 +196,8 @@ film.
    | 4× | ¿alguna línea acaba en el aire, algo atraviesa algo, hay una cara desnuda o una esquina vacía? |
    | verdad | ¿cifras, lugares y fechas salen de `hechos.js`? |
    | gusto | ¿tiene personalidad o parece una presentación corporativa? |
+   | sorpresa | ¿se distingue de las últimas entregas? ¿están la rareza y el momento memorable? |
+   | desborde | ¿algún texto se sale de su contenedor o aparece cortado? |
 4. Antes del render final, haz una previsualización a ¼ de resolución y 12 fps.
 
 ## 8. Entrega e informe
@@ -201,4 +222,7 @@ film.
 - Fondos negros vacíos.
 - Todo entrando a la vez con el mismo easing.
 - Iconos planos de clip-art.
+- Elementos de interfaz o de producto: botones, cursores, ventanas, pop-ups, cápsulas de mapa o rótulos de app,
+  salvo que el tema sea la interfaz.
+- Texto copiado del encargo o de la estructura sugerida.
 - Mapas inventados a mano: usa coordenadas lat/lon reales, de 60 a 120 puntos por costa, con proyección simple.

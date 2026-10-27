@@ -1,0 +1,8 @@
+{
+  "nota": "Registro de entregas para el pliego de sorpresa (MODO-LIBRE §0b). Rasgos: paleta, medio, tipografia, sonido, estructura. No repetir ≥ 2 de 5 de las últimas 3.",
+  "entregas": [
+    {"film": "botella_aislada", "fecha": "2026-10-11", "paleta": "crema sepia + verde submarino + azul abril", "medio": "papel y acuarela", "tipografia": "serif de libro centrada", "sonido": "agua, foley de papel, piano tenue", "estructura": "objeto ancla con giro de color al 50 %"},
+    {"film": "botella_libre_v2", "fecha": "2026-10-12", "paleta": "crema sepia + verde submarino + azul abril", "medio": "papel y acuarela", "tipografia": "serif centrada + mono", "sonido": "agua, foley, piano", "estructura": "objeto ancla con giro de color al 50 %"},
+    {"film": "botella_v3_haiku_kit", "fecha": "2026-10-12", "paleta": "crema + verde submarino + turquesa", "medio": "papel", "tipografia": "serif centrada", "sonido": "foley + piano + pad", "estructura": "objeto ancla con giro de color al 50 %"}
+  ]
+}
