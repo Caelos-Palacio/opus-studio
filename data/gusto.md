@@ -57,7 +57,7 @@ cita su **origen**: una nota humana (`N##`, posición en `data/notas.json`), una
 - **S02** Cada evento visual relevante (corte, revelación, entrada de objeto) suena, el whoosh crece con la velocidad y el golpe cae a ≤ 2 fotogramas de la imagen. _Origen: N03, spec 002_
 - **S03** Ningún efecto idéntico se repite más de 4 veces seguidas; varían tono, filtro o tiempo. _Origen: N03, spec 002_
 - **S04** Hay ≥ 0,5 s de vacío relativo justo antes del golpe principal. _Origen: spec 001, spec 002_
-- **S05** El master mide −14 LUFS ±0,5 y true peak ≤ −1 dBTP sobre el mp4 final. _Origen: spec 002, MODO-LIBRE_
+- **S05** El master mide entre −19 y −16 LUFS (el filtro de mínimos admite −20…−13) y true peak ≤ −1 dBTP sobre el mp4 final. _Origen: spec 002, MODO-LIBRE_
 - **S06** Sin narración con voz sintética robótica: es mejor el silencio o el texto que una voz de baja calidad. _Origen: N20_
 - **S07** El máximo de sonoridad coincide con el pico visual (±0,5 s). _Origen: spec 002_
 

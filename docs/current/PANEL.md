@@ -4,7 +4,7 @@
 > (lote 1 ρ = 0,338; lote 2 ≈ 0,27 con el director) y con 4 notas humanas no hay base para exigir más (`docs/research/13-estado-gusto-v6.md`).
 > El juez es ahora un **filtro de mínimos sin LLM** + una **lámina A/B**:
 > ```
-> node engine/panel.mjs filtro <mp4> [--codigo <dir>] [--entrega <plan.md>]   # PASA (0) / FALLA (3): fondo oscuro/plano sin profundidad, audio (TP ≤ −1, I −16…−12), texto y determinismo (con código), veto de repetición (--entrega)
+> node engine/panel.mjs filtro <mp4> [--codigo <dir>] [--entrega <plan.md>]   # PASA (0) / FALLA (3): fondo oscuro/plano sin profundidad, audio (TP ≤ −1, I −20…−13), texto y determinismo (con código), veto de repetición (--entrega)
 > node engine/panel.mjs ab <mp4A> <mp4B> [--out lamina.jpg]                    # hojas lado a lado + tira del momento clave; el usuario (o un único crítico) elige en 10 s
 > ```
 > Lo de abajo sigue funcionando si se quiere una segunda opinión, pero ya no es puerta de entrega.

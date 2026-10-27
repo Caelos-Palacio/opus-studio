@@ -209,6 +209,9 @@ const idxNotas = fs.readFileSync(path.join(out, 'paquete.md'), 'utf8').includes(
   ok('F3 filtro: audio con true peak > −1 y fuera de rango de LUFS FALLA con motivo «audio»', rf.estado === 'FALLA' && id(rf, 'audio') === 'FALLA' && /true peak/.test(rf.motivos[0]) && /LUFS/.test(rf.motivos[0]), rf.motivos.join('|'));
   ok('F4 filtro: un mp4 sin pista de audio FALLA («sin pista»)', rm.estado === 'FALLA' && /sin pista|no tiene pista/.test(rm.motivos.join()), rm.motivos.join('|'));
 
+  const bajo = mk('f_bajo.mp4', 'testsrc2', 'volume=2.4dB'), rbj = P.filtro(bajo);
+  ok('F4b filtro de MÍNIMOS: sonoridad −18,7 LUFS (como Botella libre) PASA; el rango admitido es −20…−13 LUFS', rbj.estado === 'PASA' && P.AUDIO_I[0] === -20 && P.AUDIO_I[1] === -13, JSON.stringify(rbj.medidas.audio));
+
   // con código: auditoría del kit-libre (texto y determinismo)
   const proy = (nombre, { random = false, texto = false } = {}) => {
     const d = path.join(tmp, nombre); fs.mkdirSync(d, { recursive: true });

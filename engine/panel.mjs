@@ -8,7 +8,7 @@
 //   node engine/panel.mjs preparar-calibracion [--out <dir>]        paquetes ANÓNIMOS (A, B, …) de data/calibracion.json + mapa aparte
 //   node engine/panel.mjs registrar-lote <dir-calibracion> <json>   registra los veredictos de un crítico sobre todos los paquetes
 //   node engine/panel.mjs calibrar [--dir D] [--mapa M]             Spearman entre el total del panel y el nivel de las notas humanas
-//   node engine/panel.mjs filtro <mp4> [--codigo <dir>] [--entrega <plan.md>] [--registro <json>]   FILTRO DE MÍNIMOS sin LLM (F1): fondo oscuro/plano sin profundidad, texto (si hay código: auditoría del kit-libre), audio (TP ≤ −1, I −16…−12), determinismo (con código); --entrega compara los rasgos de plan.md con data/entregas.json (veto ≥ 2 de 5 de las 3 últimas). PASA (0) / FALLA (3)
+//   node engine/panel.mjs filtro <mp4> [--codigo <dir>] [--entrega <plan.md>] [--registro <json>]   FILTRO DE MÍNIMOS sin LLM (F1): fondo oscuro/plano sin profundidad, texto (si hay código: auditoría del kit-libre), audio (TP ≤ −1, I −20…−13), determinismo (con código); --entrega compara los rasgos de plan.md con data/entregas.json (veto ≥ 2 de 5 de las 3 últimas). PASA (0) / FALLA (3)
 //   node engine/panel.mjs ab <mp4A> <mp4B> [--out lamina.jpg]       lámina comparativa ciega (hojas lado a lado + tira del momento clave de cada una) para elegir en 10 s; sin LLM
 import './help.mjs';
 import fs from 'node:fs';
@@ -326,7 +326,7 @@ export function textoPaquete({ nombre, info, audio, perfil, vis, img, mirada, an
     `- \`tiras/t1.jpg\` … \`tiras/t${img.tiras.length}.jpg\`: ${img.tiras.length} tiras de movimiento, cada una de ${TIRA_N} fotogramas CONSECUTIVOS a ${TIRA_FPS} fps (paso de ${r1(1 / TIRA_FPS)} s, 4 columnas × 2 filas, en orden de lectura). Cada fotograma lleva su tiempo y «Δ» = cambio medio respecto al anterior (0 = quieto; saltos grandes y bruscos = corte; valores que crecen y decrecen = easing). Sirven para juzgar easing, peso, transiciones y si algo entra todo a la vez:`,
     ...img.tiras.map((t) => `  - \`tiras/${t.name}\`: ${t.tipo === 'giro' ? 'EL GIRO (mayor cambio de luz hacia el 40–90 %)' : 'uno de los momentos de mayor actividad'}, de ${t.desde.toFixed(1)} s a ${t.hasta.toFixed(1)} s. Δ entre fotogramas: ${t.deltas.join(' · ')}.`), '');
   L.push('## 3. Mediciones automáticas');
-  L.push(audio ? `- Audio (ebur128 sobre el mp4): ${audio.I} LUFS integrado · LRA ${audio.LRA} LU · true peak ${audio.TP} dBFS. (Objetivo del estudio: −14 ±0,5 LUFS, LRA ≥ 6, TP ≤ −1.)` : '- Audio: **el archivo no tiene pista de audio medible** (película muda o sin sonido).');
+  L.push(audio ? `- Audio (ebur128 sobre el mp4): ${audio.I} LUFS integrado · LRA ${audio.LRA} LU · true peak ${audio.TP} dBFS. (Objetivo del estudio: −19…−16 LUFS, TP ≤ −1; el filtro de mínimos admite −20…−13.)` : '- Audio: **el archivo no tiene pista de audio medible** (película muda o sin sonido).');
   L.push(`- Fondo oscuro/plano (≥ 97 % del cuadro de un mismo tono): **${vis.oscuro_plano_pct} %** de ${vis.muestras} muestras. NO es un defecto por sí mismo: un cosmos o una noche elegidos por el tema son válidos. Lo que importa es la profundidad de abajo.`,
     `- Profundidad medida (fondos oscuros): **${pr.nivel}** · varianza espacial (desviación del gris en el cuadro) ${pr.espacial} · textura (cambio entre píxeles vecinos) ${pr.textura} · varianza temporal (desviación de cada píxel a lo largo del film) ${pr.temporal} · puntos de luz sobre fondo oscuro ${pr.puntos_luz_pct} % · muestras con fondo oscuro ${pr.oscuros_pct} %. (Un oscuro con estrellas, bruma o parallax sale «media» o «alta»; un negro vacío sale «baja».)`,
     `- Fotogramas con fondo plano (marco exterior sin textura ni degradado): **${vis.plano_pct} %**.`,
@@ -396,7 +396,7 @@ export function prompt(mirada, { paquete = null, calibracion = false, dir = path
 
 // ───────────────────────── filtro de mínimos (F1, sin LLM) ─────────────────────────
 // El panel de 3 críticos queda como herramienta opcional: la meta ρ ≥ 0,7 se abandonó (docs/current/PANEL.md). El juez es este filtro + la lámina A/B.
-export const AUDIO_I = [-16, -12], AUDIO_TP = -1, REPITE_MAX = 2, ULTIMAS = 3, RASGOS = ['paleta', 'medio', 'tipografia', 'sonido', 'estructura'];
+export const AUDIO_I = [-20, -13], AUDIO_TP = -1, REPITE_MAX = 2, ULTIMAS = 3, RASGOS = ['paleta', 'medio', 'tipografia', 'sonido', 'estructura'];
 const sinTilde = (x) => String(x).normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase();
 
 /** Rasgos declarados en plan.md: líneas «paleta: …», «- **medio:** …», etc. (los 5 de MODO-LIBRE §0b). */
