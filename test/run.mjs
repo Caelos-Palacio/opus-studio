@@ -76,7 +76,8 @@ async function fixture() {
   finally { rmrf(d); }
 }
 // Scripts autónomos (imprimen sus propias líneas ✓/✗; el código de salida decide).
-const script = (file, args = [], { stderr = true, timeout } = {}) => async () => { const r = await run([path.join(ROOT, file), ...args], timeout ? { timeout } : {}); return { ok: r.status === 0, line: (r.stdout + (stderr || r.status ? r.stderr : '')).trimEnd() }; };
+// carga: true (suite sensible a la carga, p. ej. dsl-perf: cronometra con la máquina compartida): si falla es un AVISO (⚠), no cuenta como fallo ni rompe `--full`.
+const script = (file, args = [], { stderr = true, timeout, carga = false } = {}) => async () => { const r = await run([path.join(ROOT, file), ...args], timeout ? { timeout } : {}); const line = (r.stdout + (stderr || r.status ? r.stderr : '')).trimEnd(); return r.status !== 0 && carga ? { ok: true, aviso: true, line: `${line}\n⚠ AVISO: suite sensible a la carga (test/suites.d, «carga»); su fallo no rompe el perfil. Repítela en reposo: npm test -- --only ${path.basename(file, '.mjs')}` } : { ok: r.status === 0, line }; };
 
 // Suites del manifiesto (test/suites.mjs) + drop-ins test/suites.d/*.json (una suite por archivo, sin conflictos de merge entre ramas).
 const dropins = fs.existsSync(path.join(ROOT, 'test/suites.d')) ? fs.readdirSync(path.join(ROOT, 'test/suites.d')).filter((f) => f.endsWith('.json')).sort().map((f) => JSON.parse(fs.readFileSync(path.join(ROOT, 'test/suites.d', f), 'utf8'))) : [];
@@ -87,12 +88,12 @@ const timed = (name, fn) => async () => { const t = Date.now(), r = await fn(); 
 const t0 = Date.now(), P = pool(jobs), plan = [];   // plan = [{ w, name, fn }]: se encola por peso (lo pesado primero), la salida sigue ese mismo orden fijo
 for (const m of MUT) if (sel(m.name) && (!fast || m.quick)) plan.push({ w: full ? 3 : 2, name: 'mut:' + m.name, fn: () => mutation(m) });
 if (!fast && sel('fixture')) plan.push({ w: 6, name: 'fixture', fn: fixture });
-for (const S of ALL) if (sel(S.name) && !S.skip?.includes(PROFILE)) plan.push({ w: S.w ?? 1, name: S.name, fn: script(S.file, argsFor(S), { stderr: S.stderr !== false, timeout: S.timeout }) });
+for (const S of ALL) if (sel(S.name) && !S.skip?.includes(PROFILE)) plan.push({ w: S.w ?? 1, name: S.name, fn: script(S.file, argsFor(S), { stderr: S.stderr !== false, timeout: S.timeout, carga: !!S.carga }) });
 const tasks = plan.map((p, i) => ({ ...p, i })).sort((a, b) => b.w - a.w || a.i - b.i).map((p) => P(timed(p.name, p.fn)));
-let fail = 0;
-for (const t of tasks) { const r = await t; console.log(r.line); if (!r.ok) fail++; }
+let fail = 0, avisos = 0;
+for (const t of tasks) { const r = await t; console.log(r.line); if (!r.ok) fail++; if (r.aviso) avisos++; }
 const secs = (ms) => (ms / 1000).toFixed(1);
 if (has('--times')) { console.log('\ntiempos por tarea (reloj de pared dentro del pool, no CPU):'); for (const r of (await Promise.all(tasks)).sort((a, b) => b.ms - a.ms)) console.log(`  ${secs(r.ms).padStart(7)} s  ${r.name}`); }
-console.log(`\n${fail ? `${fail} fallos` : 'Todo verde'}  (${secs(Date.now() - t0)} s, ${jobs} en paralelo, perfil ${PROFILE})`);
+console.log(`\n${fail ? `${fail} fallos` : 'Todo verde'}${avisos ? ` (${avisos} aviso${avisos > 1 ? 's' : ''} de suites sensibles a la carga)` : ''}  (${secs(Date.now() - t0)} s, ${jobs} en paralelo, perfil ${PROFILE})`);
 try { fs.mkdirSync(path.join(ROOT, 'out'), { recursive: true }); fs.writeFileSync(path.join(ROOT, 'out/tests.json'), JSON.stringify({ ts: new Date().toISOString(), fail, fast, profile: PROFILE, only })); } catch {}   // lo lee engine/status.mjs (STATUS.md)
 process.exit(fail ? 1 : 0);

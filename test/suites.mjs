@@ -7,6 +7,9 @@
 //     skip   : perfiles en los que NO corre, p. ej. ['fast'].  (Documenta en docs/handoff/deuda2.md qué pierde cada perfil.)
 //     stderr : false si su stderr son avisos esperados (se omite del informe).
 //     timeout: tope propio de la suite en ms (por defecto 900000, el de test/lib.mjs `run`). Solo para suites cuyo cronómetro de rendimiento depende de la carga (dsl-perf).
+//     carga  : true = suite SENSIBLE A LA CARGA (cronómetros de rendimiento: el resultado depende de cuántos procesos comparten la máquina). Si falla es un AVISO (⚠ en el informe,
+//              no cuenta en «N fallos» ni rompe `--full`). Criterio para marcarla: la suite mide TIEMPO (razones entre cronómetros, topes de ms) y no una propiedad lógica; una suite que
+//              compara píxeles, hashes o valores NUNCA lleva `carga`. Ante un aviso: repetirla en reposo (`npm test -- --only <name>`); si falla también en reposo, es una regresión real.
 //   Perfiles (docs/handoff/deuda2.md): fast (iterar, ~1 min) < quick (`npm test`, < 240 s, TODAS las suites con fixtures reducidas) < full (`npm test -- --full` / `npm run test:nightly`, todo).
 //   Cada suite recibe el perfil en OPUS_TEST_PROFILE (leído con `PROFILE`/`FULL` de test/lib.mjs) y decide qué reduce; nunca borra un escenario sin que otro perfil lo corra.
 // Registrar una suite nueva: añade AQUÍ una línea, o (sin conflictos de merge entre ramas) un archivo test/suites.d/<name>.json con el mismo objeto.
