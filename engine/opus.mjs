@@ -8,6 +8,7 @@
 //   node engine/opus.mjs recetas [list|show <r>|medir|audit]   catálogo de recetas
 //   node engine/opus.mjs boceto [film] [--shot X] [--desde t --hasta t]   boceto en segundos: mp4 a ¼ de resolución + hoja de contacto, sin gates (spec 019; engine/boceto.mjs)
 //   node engine/opus.mjs preview [film] [--port N]                        preview en vivo en 127.0.0.1 con scrubber y recarga al guardar (spec 019; engine/livepreview.mjs)
+//   node engine/opus.mjs v6 nuevo|storyboard|consultar|aprobar|producir|verificar|entregar|estado <id> …   estudio v6 (F2; engine/v6.mjs, docs/current/V6.md)
 //   (npm run use -- <film>)
 // Prioridad al resolver: --timeline X (flag) > OPUS_TIMELINE (env) > out/.film (esto) > demo. Cada herramienta imprime en su
 // 1.ª línea «film: <clave> (<ruta>, fuente: flag|env|use|demo)».
@@ -18,7 +19,7 @@ import { fileURLToPath } from 'node:url';
 import { spawnSync } from 'node:child_process';
 import { USE_FILE, findFilm, resolveFilm, filmId } from './filmid.mjs';
 
-const SUB = { boceto: 'boceto.mjs', preview: 'livepreview.mjs' };               // spec 019: delegan en su script (su --help, su isMain)
+const SUB = { boceto: 'boceto.mjs', preview: 'livepreview.mjs', v6: 'v6.mjs' };               // spec 019: delegan en su script (su --help, su isMain)
 if (SUB[process.argv[2]]) process.exit(spawnSync(process.execPath, [fileURLToPath(new URL(SUB[process.argv[2]], import.meta.url)), ...process.argv.slice(3)], { stdio: 'inherit' }).status ?? 1);
 
 if (['new', 'recetas'].includes(process.argv[2])) { const { cli } = await import('./recetas.mjs'); process.exit(await cli(process.argv[2] === 'new' ? process.argv.slice(3) : process.argv.slice(3).length ? process.argv.slice(3) : ['list'])); }

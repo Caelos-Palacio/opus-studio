@@ -90,7 +90,7 @@ storyboard y clips de ≤ 5 s. Como mucho UNA película completa al final, y es 
   - Se abandona la meta ρ ≥ 0,7.
   - `dsl-perf` queda marcado como sensible a la carga.
   - Una sola `--full`, corrida por Haiku.
-- **F2 (1 Sonnet, ≈ 1–2 sesiones).**
+- **F2 (1 Sonnet, ≈ 1–2 sesiones) — HECHO 2026-10-27.** `engine/v6.mjs` (`opus v6 …`), `docs/current/V6.md`, `test/v6.mjs`; handoff `docs/handoff/v6.md`.
   - `opus v6 <encargo>`: idea → guion v2 → `storyboard.html` (solo stills) → `consultar` (pausa y cambios en `plan.md`)
     → producción libre → auditoría → filtro.
   - Se prueba con stills y con un clip de 5 s.

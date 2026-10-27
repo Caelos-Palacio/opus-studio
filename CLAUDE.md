@@ -4,6 +4,7 @@
 - Proceso 3DD (docs/specs/README.md): Claude escribe specs desde la intención del usuario → escenarios BDD → tests en
   rojo → código. Estudio v6 (spec 022): AUTÓNOMO por defecto; el gusto vive en `data/gusto.md` + panel de críticos (director, ojo,
   escéptico); la nota del usuario es opcional y calibra. Storyboard con modo `autonomo` | `consultar` (el usuario opina o cambia el plan).
+- Estudio v6 (F2): `node engine/opus.mjs v6 nuevo|storyboard|consultar|aprobar|producir|verificar|entregar|estado` — flujo y prompts en docs/current/V6.md.
 - Producción: Sonnet libre con `frame(ctx,t)`, brief docs/current/MODO-LIBRE.md y `kit-libre/`; se controla el RESULTADO (determinismo,
   auditoría, audio, panel). DSL/recetas/presets/toolbox/gobernanza pesada: CONGELADOS (se usan si aportan, sin funciones nuevas).
 - Gusto del usuario: asombro, épico/vibrante, con personalidad. Anti-patrones: monotonía, prisa, audio pobre,
