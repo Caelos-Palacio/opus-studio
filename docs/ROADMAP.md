@@ -82,7 +82,9 @@ storyboard y clips de ≤ 5 s. Como mucho UNA película completa al final, y es 
   - Archivar `film-botella` con un tag.
   - Congelar y anotar como no prioritario: π lento, presets flojos, eval del toolbox, voz piper, rehacer Consta,
     defectos de Botella v2.
-- **F1 (1 Sonnet, ≈ 1 sesión).**
+- **F1 (1 Sonnet, ≈ 1 sesión) — HECHO 2026-10-27.** `panel.mjs filtro|ab`. Deuda vista: `dsl-cov` C3/C3b falla en P03/P04
+  también en commits antes verdes → deriva del entorno (fuentes del sistema tras instalar paquetes el 24-oct). Arreglo barato:
+  fijar fuente empaquetada para esos shots o regenerar sus hashes de referencia tras verificar a ojo.
   - Integrar `gusto` y bajar el panel a filtro de mínimos (auditoría automática sin LLM: clip-art, negro vacío, texto
     ilegible, audio, determinismo) más una comparación A/B opcional.
   - Se abandona la meta ρ ≥ 0,7.

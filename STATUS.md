@@ -59,15 +59,15 @@ Archivos (test/*.mjs): `arc.mjs` `bench-skia.mjs` `boceto.mjs` `consta.mjs` `cri
 <!-- estatico:fin -->
 
 ---
-## Estado vivo (2026-10-13T06:07Z, no verificado)
+## Estado vivo (2026-10-27T18:55Z, no verificado)
 
 ## Veredictos
 
-Film activo: `main` · engineHash `ac53f4628f2426c76bf7df7b12ba01d4b315d08104e6bcb2fd47eb6859382145` · filmHash `ef361edd948577f7`
+Film activo: `main` · engineHash `ac53f4628f2426c76bf7df7b12ba01d4b315d08104e6bcb2fd47eb6859382145` · filmHash `e6bd4f1ffd170d93`
 
-- out/lint.json: no existe
-- out/critic.json: no existe
-- veredictos por shot: 0 vigentes, 0 caducados
+- out/lint.json: SHIP · CADUCADO
+- out/critic.json: SHIP · CADUCADO
+- veredictos por shot: 0 vigentes, 3 caducados
 
 ### Estado de gates (out/gates.json)
 
@@ -75,40 +75,45 @@ Film activo: `main` · engineHash `ac53f4628f2426c76bf7df7b12ba01d4b315d08104e6b
 
 ## Ramas sin integrar
 
-- `backup/pre-limpieza` (+136 commits)
-- `film-botella` (+12 commits)
-- `gobernanza` (+96 commits)
-- `gusto` (+2 commits)
-- `harness` (+101 commits)
-- `medios` (+57 commits)
-- `metricas` (+76 commits)
-- `orquestacion` (+101 commits)
-- `perf` (+53 commits)
-- `semantica` (+101 commits)
-- `video-mate` (+33 commits)
-- `video-reel` (+34 commits)
-- `video-regla` (+34 commits)
-- `voz` (+10 commits)
-- `webgl` (+54 commits)
-- `worktree-agent-a049889bf20ebb2cd` (+13 commits)
-- `worktree-agent-a1f3f4cce9534ba97` (+13 commits)
-- `worktree-agent-a351ba6d1439c5e43` (+1 commits)
-- `worktree-agent-a45af98f7a4cfb3f6` (+2 commits)
-- `worktree-agent-a55c05dc1fd0f272f` (+60 commits)
-- `worktree-agent-a616aaafdca8853f3` (+16 commits)
-- `worktree-agent-ab093d854c5aaefeb` (+13 commits)
-- `worktree-agent-abde1344f4aeba643` (+1 commits)
-- `worktree-agent-aeb50bfa4294a3a73` (+1 commits)
-- `worktree-agent-aeecba00c45e50119` (+2 commits)
-- `world3d` (+75 commits)
+- `backup/pre-limpieza` (+138 commits)
+- `boceto` (+164 commits)
+- `deuda` (+34 commits)
+- `deuda2` (+127 commits)
+- `diagramas` (+152 commits)
+- `dsl80` (+54 commits)
+- `film-botella` (+169 commits)
+- `film-consta` (+234 commits)
+- `film-veinticuatro` (+170 commits)
+- `fondo` (+107 commits)
+- `fondos` (+130 commits)
+- `fondos-libres` (+220 commits)
+- `gobernanza` (+98 commits)
+- `harness` (+103 commits)
+- `kit-v2` (+237 commits)
+- `medios` (+59 commits)
+- `medios2` (+35 commits)
+- `metricas` (+78 commits)
+- `motor` (+40 commits)
+- `narr` (+106 commits)
+- `orquestacion` (+103 commits)
+- `perf` (+55 commits)
+- `prod-potencias` (+87 commits)
+- `prod-reel` (+82 commits)
+- `prod-regla` (+82 commits)
+- `recetas` (+129 commits)
+- `rem-macos` (+2 commits)
+- `rem-main` (+1 commits)
+- `respaldo-antes-identidad` (+238 commits)
+- `respaldo-gusto-antes-identidad` (+239 commits)
+- … y 29 más
 
 ## Último run de tests
 
-- 2026-10-13T06:07:33.650Z: todo verde (perfil quick)
+- 2026-10-27T18:52:59.099Z: 1 fallos (perfil full)
 
 ## Ledger
 
-- cadena: íntegra · 3 entradas (3 encadenadas, 0 heredadas, 0 firmadas) · códigos 100 %
+- cadena: íntegra · 16 entradas (5 encadenadas, 11 heredadas, 0 firmadas) · códigos 100 %
 
 ## Presupuestos
 
