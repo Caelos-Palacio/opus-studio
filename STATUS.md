@@ -42,28 +42,28 @@ Definición (gates.json); el estado de cierre está en la parte viva.
 
 ## Motor
 
-- versión: 5.0.0 (package.json) · módulos engine/: 103
+- versión: 5.0.0 (package.json) · módulos engine/: 104
 - roles: modo `enforce` (*, director, dp, investigador, td, productor, animator, review) · digest `35a737817acffefa`
 - presupuestos: data/budgets.json digest `5290bbde06ea538a`
 
 ## DSL de escenas (spec 010)
 
-- cobertura: **96.7 %** (88/91 shots en DSL; honesta: los 1 pendientes de otra rama cuentan en contra; sin ellos 97.8 %) · umbral ratchet 95 %
-- clases: dsl 88 · escape 2 · pendiente:world3d2 1 · shots 100 % nativos 29 · el resto usa objetos respaldados por una función de módulo (plot/axis/world/hud/word…) con semántica y deps declaradas
+- cobertura: **94.6 %** (88/93 shots en DSL; honesta: los 1 pendientes de otra rama cuentan en contra; sin ellos 95.7 %) · umbral ratchet 95 %
+- clases: dsl 88 · escape 2 · falta 2 · pendiente:world3d2 1 · shots 100 % nativos 29 · el resto usa objetos respaldados por una función de módulo (plot/axis/world/hud/word…) con semántica y deps declaradas
 - escapes: A1 (objetivo de las mutaciones de test/run.mjs, golden.mjs, gov.mjs y orch: esos tests editan su JS por texto); A2 (objetivo de las mutaciones de test/run.mjs, golden.mjs, gov.mjs y orch: esos tests editan su JS por texto)
 - pendientes: D01 (world3d2)
 
 ## Tests
 
-Archivos (test/*.mjs): `arc.mjs` `bench-skia.mjs` `boceto.mjs` `consta.mjs` `critic.mjs` `cut-render.mjs` `diagramas.mjs` `dsl-cov.mjs` `film.mjs` `fondo.mjs` `fondos-libres.mjs` `fondos.mjs` `fuzz.mjs` `golden.mjs` `gov.mjs` `guard.mjs` `gusto.mjs` `harness.mjs` `hash.mjs` `lib.mjs` `medios.mjs` `memoria.mjs` `metrics.mjs` `motor.mjs` `narr.mjs` `orch.mjs` `orquestacion.mjs` `params.mjs` `perf.mjs` `prores.mjs` `recetas.mjs` `run.mjs` `schema.mjs` `semantica.mjs` `sound.mjs` `suites.mjs` `tools.mjs` `unit.mjs` `vectores.mjs` `veinticuatro.mjs` `world3d.mjs`
+Archivos (test/*.mjs): `arc.mjs` `bench-skia.mjs` `boceto.mjs` `consta.mjs` `critic.mjs` `cut-render.mjs` `diagramas.mjs` `dsl-cov.mjs` `film.mjs` `fondo.mjs` `fondos-libres.mjs` `fondos.mjs` `fuzz.mjs` `golden.mjs` `gov.mjs` `guard.mjs` `gusto.mjs` `harness.mjs` `hash.mjs` `lib.mjs` `medios.mjs` `memoria.mjs` `metrics.mjs` `motor.mjs` `narr.mjs` `orch.mjs` `orquestacion.mjs` `params.mjs` `perf.mjs` `prores.mjs` `recetas.mjs` `run.mjs` `schema.mjs` `semantica.mjs` `sound.mjs` `suites.mjs` `tools.mjs` `unit.mjs` `v6.mjs` `vectores.mjs` `veinticuatro.mjs` `world3d.mjs`
 <!-- estatico:fin -->
 
 ---
-## Estado vivo (2026-10-27T18:55Z, no verificado)
+## Estado vivo (2026-10-28T04:47Z, no verificado)
 
 ## Veredictos
 
-Film activo: `main` · engineHash `ac53f4628f2426c76bf7df7b12ba01d4b315d08104e6bcb2fd47eb6859382145` · filmHash `e6bd4f1ffd170d93`
+Film activo: `main` · engineHash `ac53f4628f2426c76bf7df7b12ba01d4b315d08104e6bcb2fd47eb6859382145` · filmHash `6ec52381bb16a11c`
 
 - out/lint.json: SHIP · CADUCADO
 - out/critic.json: SHIP · CADUCADO
@@ -101,11 +101,11 @@ Film activo: `main` · engineHash `ac53f4628f2426c76bf7df7b12ba01d4b315d08104e6b
 - `prod-reel` (+82 commits)
 - `prod-regla` (+82 commits)
 - `recetas` (+129 commits)
-- `rem-macos` (+2 commits)
-- `rem-main` (+1 commits)
-- `respaldo-antes-identidad` (+238 commits)
-- `respaldo-gusto-antes-identidad` (+239 commits)
-- … y 29 más
+- `semantica` (+103 commits)
+- `toolbox` (+122 commits)
+- `vectores` (+203 commits)
+- `video-mate` (+35 commits)
+- … y 21 más
 
 ## Último run de tests
 
