@@ -77,7 +77,10 @@ try {
   srv = await arranque();
   const info = JSON.parse((await get(srv.port, '/info')).body);
   ok('B4 sirve /info del film con duración y shots', info.duration === 6 && info.shots.length === 3 && info.error === null);
-  const ln = spawnSync('ss', ['-ltnH', `sport = :${srv.port}`], { encoding: 'utf8' }).stdout.trim().split('\n').map((l) => l.trim().split(/\s+/)[3]);   // columna «dirección local»
+  // direcciones de escucha del puerto: `ss` (Linux; columna «dirección local») o `lsof` (macOS no trae ss; salida -F: líneas «n<dir>:<puerto>»)
+  const ss = spawnSync('ss', ['-ltnH', `sport = :${srv.port}`], { encoding: 'utf8' });
+  const ln = (ss.error ? spawnSync('lsof', ['-nP', `-iTCP:${srv.port}`, '-sTCP:LISTEN', '-Fn'], { encoding: 'utf8' }).stdout.split('\n').filter((l) => l.startsWith('n')).map((l) => l.slice(1))
+    : ss.stdout.trim().split('\n').map((l) => l.trim().split(/\s+/)[3])).filter(Boolean);
   ok('B4 solo escucha en 127.0.0.1 (no 0.0.0.0, no otras interfaces)', ln.length > 0 && ln.every((a) => a === `127.0.0.1:${srv.port}`), ln.join(' '));
   const ext = Object.values(os.networkInterfaces()).flat().find((i) => i && i.family === 'IPv4' && !i.internal);
   if (ext) { const rechazo = await new Promise((r) => { const s = net.connect(srv.port, ext.address); s.on('connect', () => { s.destroy(); r(false); }); s.on('error', () => r(true)); setTimeout(() => r(true), 3000); }); ok(`B4 la IP de red ${ext.address} rechaza la conexión`, rechazo); }

@@ -134,14 +134,19 @@ if (!SOLO_PERF) {
     ok('C3c shots nativos: nacieron en DSL (sin JS legado), son generados desde su .scene.json, llevan razón y cuentan en la cobertura', NS.every((id) => !fix.includes(id) && dslShots().includes(id) && typeof nat[id] === 'string' && nat[id].length > 8 && CV.coverage(ROOT).rows.find((r) => r.id === id)?.counts), NS.filter((id) => fix.includes(id) || !dslShots().includes(id)).join(' ')); }
   const bad = [], t0 = Date.now();
   const films = await Promise.all(Object.keys(FILMS).map(async (film) => { const tl = JSON.parse(fs.readFileSync(path.join(ROOT, FILMS[film]), 'utf8')).shots.map((s) => s.id); const ids = sample(tl.filter((i) => mine.includes(i))); return ids.length ? [film, ids, await renderFilm(film, { ids })] : null; }));   // solo los shots DSL (antes se renderizaba el film entero); perfil quick: 1 de cada 3, full: todos
-  let n = 0; for (const f of films.filter(Boolean)) for (const id of f[1]) { n++; if (JSON.stringify(f[2][id]) !== JSON.stringify(H[id])) bad.push(id); }
-  ok(`C3 ${n} shots DSL${FULL ? '' : ' (muestra 1/3, perfil ' + PROFILE + ')'}: sha256 de píxeles == JS legado en 6 instantes (${((Date.now() - t0) / 1000).toFixed(0)} s)`, !bad.length && n > 0, 'difieren: ' + bad.join(' '));
-  if (!fast) {   // el JS legado de los fixtures reproduce los mismos hashes (los hashes no se han contaminado)
-    const { copyRepo, rmrf } = await import('./lib.mjs'), badL = [];
+  // Los hashes de test/fixtures/dsl-legacy/hashes.json se generaron en Linux (DejaVu por fonts.conf): en otra plataforma el texto/AA
+  // de CUALQUIER shot difiere (CoreText ignora fonts.conf) aunque DSL y JS sean idénticos entre sí. Ahí la referencia es el JS legado
+  // renderizado en ESTA misma máquina (mismo proceso de render, mismas fuentes): sigue probando DSL == JS sin depender de la fuente.
+  const LOCAL = process.platform !== 'linux' || process.env.DSL_COV_LOCAL === '1', { copyRepo, rmrf } = await import('./lib.mjs');
+  const legacyRender = async (film, ids) => { const d = copyRepo(); try { for (const id of ids) { fs.copyFileSync(path.join(ROOT, 'test/fixtures/dsl-legacy', id + '.mjs'), path.join(d, 'shots', id + '.mjs')); fs.rmSync(path.join(d, 'shots', id + '.scene.json'), { force: true }); } return await renderFilm(film, { cwd: d, ids }); } finally { rmrf(d); } };
+  const ref = Object.fromEntries(await Promise.all(films.filter(Boolean).map(async (f) => [f[0], LOCAL ? await legacyRender(f[0], f[1]) : H])));
+  let n = 0; for (const f of films.filter(Boolean)) for (const id of f[1]) { n++; if (JSON.stringify(f[2][id]) !== JSON.stringify(ref[f[0]][id])) bad.push(id); }
+  ok(`C3 ${n} shots DSL${FULL ? '' : ' (muestra 1/3, perfil ' + PROFILE + ')'}: sha256 de píxeles == JS legado en 6 instantes${LOCAL ? ' (JS legado renderizado en esta máquina)' : ''} (${((Date.now() - t0) / 1000).toFixed(0)} s)`, !bad.length && n > 0, 'difieren: ' + bad.join(' '));
+  if (!fast && !LOCAL) {   // el JS legado de los fixtures reproduce los mismos hashes (los hashes no se han contaminado); solo con la plataforma de los hashes
+    const badL = [];
     await Promise.all(Object.keys(FILMS).map(async (film) => {
       const tl = JSON.parse(fs.readFileSync(path.join(ROOT, FILMS[film]), 'utf8')).shots.map((s) => s.id), ids = sample(tl.filter((i) => mine.includes(i))); if (!ids.length) return;
-      const d = copyRepo(); try { for (const id of ids) { fs.copyFileSync(path.join(ROOT, 'test/fixtures/dsl-legacy', id + '.mjs'), path.join(d, 'shots', id + '.mjs')); fs.rmSync(path.join(d, 'shots', id + '.scene.json'), { force: true }); }
-        const g = await renderFilm(film, { cwd: d, ids }); for (const id of ids) if (JSON.stringify(g[id]) !== JSON.stringify(H[id])) badL.push(id); } finally { rmrf(d); } }));
+      const g = await legacyRender(film, ids); for (const id of ids) if (JSON.stringify(g[id]) !== JSON.stringify(H[id])) badL.push(id); }));
     ok('C3b el JS legado (fixtures) renderiza exactamente los hashes de referencia', !badL.length, badL.join(' '));
   }
 }

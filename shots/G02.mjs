@@ -1,2 +1,596 @@
-import { demo } from './G_lib.mjs';
-export default { draw(ctx, t, u, shot, film, api) { demo(ctx, t, shot, film, api); } };
+// GENERADO desde shots/G02.scene.json por `node engine/dsl.mjs build` (spec 006). No editar a mano: edita el .scene.json y regenera.
+import { shot } from '../engine/dsl-core.mjs';
+export default shot({
+ "dsl": 1,
+ "id": "G02",
+ "doc": "[GIF de demo del README] seek(t): una sola función periódica de t (T = 8 s) → bucle sin costura. Misma escena en G01 y G02; las dos mitades solo difieren en la cámara de la línea de tiempo. Asas sin discontinuo (el DSL no tiene setLineDash).",
+ "camera": {
+  "move": "pull"
+ },
+ "transition": {
+  "out": "cut"
+ },
+ "objects": [
+  {
+   "id": "p",
+   "type": "let",
+   "value": {
+    "$expr": "(t % 8) / 8"
+   }
+  },
+  {
+   "id": "tri",
+   "type": "let",
+   "value": {
+    "$expr": "1 - abs(1 - 2*p)"
+   }
+  },
+  {
+   "id": "ph",
+   "type": "let",
+   "value": {
+    "$expr": "tau*p"
+   }
+  },
+  {
+   "id": "a1",
+   "type": "let",
+   "value": {
+    "$expr": "tri - (1.95*tri - 2.85*tri^2 + 1.9*tri^3 - tri) / (1.95 - 5.7*tri + 5.7*tri^2)"
+   }
+  },
+  {
+   "id": "a2",
+   "type": "let",
+   "value": {
+    "$expr": "a1 - (1.95*a1 - 2.85*a1^2 + 1.9*a1^3 - tri) / (1.95 - 5.7*a1 + 5.7*a1^2)"
+   }
+  },
+  {
+   "id": "a3",
+   "type": "let",
+   "value": {
+    "$expr": "a2 - (1.95*a2 - 2.85*a2^2 + 1.9*a2^3 - tri) / (1.95 - 5.7*a2 + 5.7*a2^2)"
+   }
+  },
+  {
+   "id": "a4",
+   "type": "let",
+   "value": {
+    "$expr": "a3 - (1.95*a3 - 2.85*a3^2 + 1.9*a3^3 - tri) / (1.95 - 5.7*a3 + 5.7*a3^2)"
+   }
+  },
+  {
+   "id": "a5",
+   "type": "let",
+   "value": {
+    "$expr": "a4 - (1.95*a4 - 2.85*a4^2 + 1.9*a4^3 - tri) / (1.95 - 5.7*a4 + 5.7*a4^2)"
+   }
+  },
+  {
+   "id": "a6",
+   "type": "let",
+   "value": {
+    "$expr": "a5 - (1.95*a5 - 2.85*a5^2 + 1.9*a5^3 - tri) / (1.95 - 5.7*a5 + 5.7*a5^2)"
+   }
+  },
+  {
+   "id": "s",
+   "type": "let",
+   "value": {
+    "$expr": "3*a6^2 - 2*a6^3"
+   }
+  },
+  {
+   "id": "q1x",
+   "type": "let",
+   "value": {
+    "$expr": "160 + 40*sin(ph)"
+   }
+  },
+  {
+   "id": "q1y",
+   "type": "let",
+   "value": {
+    "$expr": "155 + 20*cos(ph)"
+   }
+  },
+  {
+   "id": "q2x",
+   "type": "let",
+   "value": {
+    "$expr": "400 - 40*cos(ph)"
+   }
+  },
+  {
+   "id": "q2y",
+   "type": "let",
+   "value": {
+    "$expr": "350 - 30*sin(ph)"
+   }
+  },
+  {
+   "type": "group",
+   "depth": 0.25,
+   "children": [
+    {
+     "type": "repeat",
+     "n": 170,
+     "children": [
+      {
+       "type": "shape",
+       "shape": "rect",
+       "x": {
+        "$expr": "floor(i/10)*50 - 1"
+       },
+       "y": {
+        "$expr": "(i % 10)*50 - 1"
+       },
+       "w": 2,
+       "h": 2,
+       "color": "shade",
+       "alpha": 0.28
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "type": "lines",
+   "color": "shade",
+   "lineWidth": 1,
+   "alpha": 0.55,
+   "segs": [
+    {
+     "$expr": "vec(70, 335, q1x, q1y)"
+    },
+    {
+     "$expr": "vec(520, 175, q2x, q2y)"
+    }
+   ]
+  },
+  {
+   "type": "curve",
+   "n": 80,
+   "color": "accent",
+   "lineWidth": 2,
+   "x": {
+    "$expr": "(1-(i/n))^3*70 + 3*(1-(i/n))^2*(i/n)*q1x + 3*(1-(i/n))*(i/n)^2*q2x + (i/n)^3*520"
+   },
+   "y": {
+    "$expr": "(1-(i/n))^3*335 + 3*(1-(i/n))^2*(i/n)*q1y + 3*(1-(i/n))*(i/n)^2*q2y + (i/n)^3*175"
+   }
+  },
+  {
+   "type": "shape",
+   "shape": "circle",
+   "x": {
+    "$expr": "70"
+   },
+   "y": {
+    "$expr": "335"
+   },
+   "r": 4.5,
+   "color": "paper"
+  },
+  {
+   "type": "shape",
+   "shape": "circle",
+   "x": {
+    "$expr": "70"
+   },
+   "y": {
+    "$expr": "335"
+   },
+   "r": 4.5,
+   "color": "shade",
+   "stroke": true,
+   "lineWidth": 1.5
+  },
+  {
+   "type": "shape",
+   "shape": "circle",
+   "x": {
+    "$expr": "q1x"
+   },
+   "y": {
+    "$expr": "q1y"
+   },
+   "r": 3.5,
+   "color": "paper"
+  },
+  {
+   "type": "shape",
+   "shape": "circle",
+   "x": {
+    "$expr": "q1x"
+   },
+   "y": {
+    "$expr": "q1y"
+   },
+   "r": 3.5,
+   "color": "shade",
+   "stroke": true,
+   "lineWidth": 1.5
+  },
+  {
+   "type": "shape",
+   "shape": "circle",
+   "x": {
+    "$expr": "q2x"
+   },
+   "y": {
+    "$expr": "q2y"
+   },
+   "r": 3.5,
+   "color": "paper"
+  },
+  {
+   "type": "shape",
+   "shape": "circle",
+   "x": {
+    "$expr": "q2x"
+   },
+   "y": {
+    "$expr": "q2y"
+   },
+   "r": 3.5,
+   "color": "shade",
+   "stroke": true,
+   "lineWidth": 1.5
+  },
+  {
+   "type": "shape",
+   "shape": "circle",
+   "x": {
+    "$expr": "520"
+   },
+   "y": {
+    "$expr": "175"
+   },
+   "r": 4.5,
+   "color": "paper"
+  },
+  {
+   "type": "shape",
+   "shape": "circle",
+   "x": {
+    "$expr": "520"
+   },
+   "y": {
+    "$expr": "175"
+   },
+   "r": 4.5,
+   "color": "shade",
+   "stroke": true,
+   "lineWidth": 1.5
+  },
+  {
+   "type": "layer",
+   "opts": {
+    "bloom": {
+     "threshold": 0.5,
+     "strength": 0.9,
+     "radius": 10
+    },
+    "motionBlur": {
+     "shutter": 0.6,
+     "samples": 5
+    }
+   },
+   "children": [
+    {
+     "id": "Lp",
+     "type": "let",
+     "value": {
+      "$expr": "(t % 8) / 8"
+     }
+    },
+    {
+     "id": "Ltri",
+     "type": "let",
+     "value": {
+      "$expr": "1 - abs(1 - 2*Lp)"
+     }
+    },
+    {
+     "id": "Lph",
+     "type": "let",
+     "value": {
+      "$expr": "tau*Lp"
+     }
+    },
+    {
+     "id": "La1",
+     "type": "let",
+     "value": {
+      "$expr": "Ltri - (1.95*Ltri - 2.85*Ltri^2 + 1.9*Ltri^3 - Ltri) / (1.95 - 5.7*Ltri + 5.7*Ltri^2)"
+     }
+    },
+    {
+     "id": "La2",
+     "type": "let",
+     "value": {
+      "$expr": "La1 - (1.95*La1 - 2.85*La1^2 + 1.9*La1^3 - Ltri) / (1.95 - 5.7*La1 + 5.7*La1^2)"
+     }
+    },
+    {
+     "id": "La3",
+     "type": "let",
+     "value": {
+      "$expr": "La2 - (1.95*La2 - 2.85*La2^2 + 1.9*La2^3 - Ltri) / (1.95 - 5.7*La2 + 5.7*La2^2)"
+     }
+    },
+    {
+     "id": "La4",
+     "type": "let",
+     "value": {
+      "$expr": "La3 - (1.95*La3 - 2.85*La3^2 + 1.9*La3^3 - Ltri) / (1.95 - 5.7*La3 + 5.7*La3^2)"
+     }
+    },
+    {
+     "id": "La5",
+     "type": "let",
+     "value": {
+      "$expr": "La4 - (1.95*La4 - 2.85*La4^2 + 1.9*La4^3 - Ltri) / (1.95 - 5.7*La4 + 5.7*La4^2)"
+     }
+    },
+    {
+     "id": "La6",
+     "type": "let",
+     "value": {
+      "$expr": "La5 - (1.95*La5 - 2.85*La5^2 + 1.9*La5^3 - Ltri) / (1.95 - 5.7*La5 + 5.7*La5^2)"
+     }
+    },
+    {
+     "id": "Ls",
+     "type": "let",
+     "value": {
+      "$expr": "3*La6^2 - 2*La6^3"
+     }
+    },
+    {
+     "id": "Lq1x",
+     "type": "let",
+     "value": {
+      "$expr": "160 + 40*sin(Lph)"
+     }
+    },
+    {
+     "id": "Lq1y",
+     "type": "let",
+     "value": {
+      "$expr": "155 + 20*cos(Lph)"
+     }
+    },
+    {
+     "id": "Lq2x",
+     "type": "let",
+     "value": {
+      "$expr": "400 - 40*cos(Lph)"
+     }
+    },
+    {
+     "id": "Lq2y",
+     "type": "let",
+     "value": {
+      "$expr": "350 - 30*sin(Lph)"
+     }
+    },
+    {
+     "id": "Ldx",
+     "type": "let",
+     "value": {
+      "$expr": "(1-Ls)^3*70 + 3*(1-Ls)^2*Ls*Lq1x + 3*(1-Ls)*Ls^2*Lq2x + Ls^3*520"
+     }
+    },
+    {
+     "id": "Ldy",
+     "type": "let",
+     "value": {
+      "$expr": "(1-Ls)^3*335 + 3*(1-Ls)^2*Ls*Lq1y + 3*(1-Ls)*Ls^2*Lq2y + Ls^3*175"
+     }
+    },
+    {
+     "type": "shape",
+     "shape": "circle",
+     "x": {
+      "$expr": "Ldx"
+     },
+     "y": {
+      "$expr": "Ldy"
+     },
+     "r": 6,
+     "color": "ink"
+    }
+   ]
+  },
+  {
+   "id": "dx",
+   "type": "let",
+   "value": {
+    "$expr": "(1-s)^3*70 + 3*(1-s)^2*s*q1x + 3*(1-s)*s^2*q2x + s^3*520"
+   }
+  },
+  {
+   "id": "dy",
+   "type": "let",
+   "value": {
+    "$expr": "(1-s)^3*335 + 3*(1-s)^2*s*q1y + 3*(1-s)*s^2*q2y + s^3*175"
+   }
+  },
+  {
+   "type": "focus",
+   "x": {
+    "$expr": "dx - 8"
+   },
+   "y": {
+    "$expr": "dy - 8"
+   },
+   "w": 16,
+   "h": 16,
+   "label": "punto",
+   "weight": 1
+  },
+  {
+   "type": "shape",
+   "shape": "rect",
+   "x": 570,
+   "y": 170,
+   "w": 130,
+   "h": 130,
+   "color": "shade",
+   "stroke": true,
+   "lineWidth": 1,
+   "alpha": 0.5
+  },
+  {
+   "type": "curve",
+   "n": 60,
+   "color": "accent2",
+   "lineWidth": 1.5,
+   "x": {
+    "$expr": "(1-(i/n))^3*570 + 3*(1-(i/n))^2*(i/n)*654.5 + 3*(1-(i/n))*(i/n)^2*615.5 + (i/n)^3*700"
+   },
+   "y": {
+    "$expr": "(1-(i/n))^3*300 + 3*(1-(i/n))^2*(i/n)*300 + 3*(1-(i/n))*(i/n)^2*170 + (i/n)^3*170"
+   }
+  },
+  {
+   "id": "mx",
+   "type": "let",
+   "value": {
+    "$expr": "570 + tri*130"
+   }
+  },
+  {
+   "id": "my",
+   "type": "let",
+   "value": {
+    "$expr": "300 - s*130"
+   }
+  },
+  {
+   "type": "lines",
+   "color": "shade",
+   "lineWidth": 1,
+   "alpha": 0.6,
+   "segs": [
+    {
+     "$expr": "vec(mx, 300, mx, my)"
+    },
+    {
+     "$expr": "vec(mx, my, 570, my)"
+    }
+   ]
+  },
+  {
+   "type": "shape",
+   "shape": "circle",
+   "x": {
+    "$expr": "mx"
+   },
+   "y": {
+    "$expr": "my"
+   },
+   "r": 4,
+   "color": "ink"
+  },
+  {
+   "type": "text",
+   "text": "ease .65 0 .35 1",
+   "x": 570,
+   "y": 318,
+   "role": "label",
+   "size": 12,
+   "color": "shade",
+   "align": "left"
+  },
+  {
+   "type": "formula",
+   "tex": "B(s)=\\sum_{i=0}^{3}\\binom{3}{i}(1-s)^{3-i}s^{i}P_i",
+   "x": 705,
+   "y": 66,
+   "size": 13,
+   "align": "right",
+   "color": "shade",
+   "screen": true
+  },
+  {
+   "type": "repeat",
+   "n": 121,
+   "children": [
+    {
+     "type": "shape",
+     "shape": "rect",
+     "x": {
+      "$expr": "70 + (i/120)*645 - 0.5"
+     },
+     "y": {
+      "$expr": "384 - (i % 15 == 0 ? 7 : 3)"
+     },
+     "w": 1,
+     "h": {
+      "$expr": "i % 15 == 0 ? 14 : 6"
+     },
+     "color": "shade",
+     "alpha": {
+      "$expr": "i % 15 == 0 ? 0.9 : 0.35"
+     }
+    }
+   ]
+  },
+  {
+   "type": "shape",
+   "shape": "rect",
+   "x": {
+    "$expr": "70 + p*645 - 1"
+   },
+   "y": 372,
+   "w": 2,
+   "h": 24,
+   "color": "accent"
+  },
+  {
+   "type": "text",
+   "text": "seek(t)",
+   "x": 70,
+   "y": 62,
+   "role": "h1",
+   "color": "ink",
+   "align": "left",
+   "screen": true
+  },
+  {
+   "type": "text",
+   "text": "every frame is a pure function of time",
+   "x": 70,
+   "y": 92,
+   "role": "label",
+   "size": 13,
+   "color": "shade",
+   "align": "left",
+   "screen": true
+  },
+  {
+   "type": "text",
+   "text": "0",
+   "x": 70,
+   "y": 402,
+   "role": "label",
+   "size": 12,
+   "color": "shade",
+   "align": "left"
+  },
+  {
+   "type": "text",
+   "text": "8 s",
+   "x": 715,
+   "y": 402,
+   "role": "label",
+   "size": 12,
+   "color": "shade",
+   "align": "right"
+  }
+ ]
+}, {  });

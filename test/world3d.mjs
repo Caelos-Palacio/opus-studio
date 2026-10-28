@@ -12,7 +12,7 @@ const E = (p) => import(pathToFileURL(path.join(ROOT, p)).href);
 let n = 0, bad = 0; const skipped = [];
 const ok = (c, m) => { n++; if (!c) { bad++; console.log('  ✗ world3d:', m); } else if (has('--v')) console.log('  ✓', m); };
 // Backend de referencia = Linux + Mesa llvmpipe (ahí se generaron los golden y se calibraron umbrales). En otros (macOS: GL de Apple, otro
-// redondeo, sin AA por software, ~10× más lento) se valida la misma propiedad con tolerancia de backend: ver docs/handoff/deuda2.md §3.
+// redondeo, sin AA por software) el backend NO está disponible (loadBackend) y esta suite salta; REF solo acota Linux con llvmpipe.
 const REF = process.platform === 'linux' && (process.env.GALLIUM_DRIVER ?? 'llvmpipe') === 'llvmpipe';
 const near = (a, b, tol = 3, frac = 0.002) => { let c = 0; for (let i = 0; i < a.length; i += 4) if (Math.abs(a[i] - b[i]) > tol || Math.abs(a[i + 1] - b[i + 1]) > tol || Math.abs(a[i + 2] - b[i + 2]) > tol) c++; return c <= frac * (a.length / 4); };
 const f2 = (x) => (Number.isFinite(x) ? x.toFixed(2) : String(x));

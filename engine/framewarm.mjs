@@ -37,7 +37,7 @@ export function lintFrames(film, { lfps = 12, scope = null } = {}) {
 const MIN_FRAMES = +(process.env.OPUS_WARM_MIN ?? (process.env.OPUS_WARM === '1' ? 20 : 400));
 export async function prewarm({ film, FCL, FCS_, FCF = null, lfps, scope, needLayout = true, needSmall = true, needFondo = false }) {
   if (process.env.OPUS_NOCACHE === '1' || process.env.OPUS_WARM === '0') return 0;
-  const cpus = os.availableParallelism?.() ?? os.cpus().length; if (cpus < 4) return 0;
+  const cpus = os.availableParallelism?.() ?? os.cpus().length; if (cpus < 4 && process.env.OPUS_WARM !== '1') return 0;   // <4 núcleos (p.ej. runner macOS de 3): no compensa, salvo que se fuerce con OPUS_WARM=1
   const F = lintFrames(film, { lfps, scope }), jobs = [needLayout ? FCL.missing(F.layout) : [], needSmall ? FCS_.missing(F.small) : [], needFondo && FCF ? FCF.missing(F.fondo) : []];
   const total = jobs[0].length + jobs[1].length + jobs[2].length; if (total < MIN_FRAMES) return 0;
   const k = Math.max(2, Math.min(cpus - 2, Math.ceil(total / 40))), me = fileURLToPath(import.meta.url);

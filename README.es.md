@@ -4,7 +4,7 @@
 
 ![demo](docs/media/demo.gif)
 
-<sub>GIF renderizado con el propio motor (`npm run demo:gif`; fuente en `data/demo-gif/`, `shots/G_lib.mjs`, `styles/suite.json`).</sub>
+<sub>GIF renderizado con el propio motor (`npm run demo:gif`; fuente en `data/demo-gif/`, `shots/G01.scene.json`, `styles/suite.json`).</sub>
 
 Estudio para agentes (Claude Code / Opus), v5.0.0. v3.5 codificaba la **dirección** (cámara con razón, gramática de cortes, gusto medible).
 v4 añadió el **motor gráfico y de producción**: geometría Bézier universal, TeX real, scene graph, 2.5D, compositor de efectos,

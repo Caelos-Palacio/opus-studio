@@ -68,7 +68,7 @@ jobs:
 
       - name: npm test (macOS)
         if: runner.os == 'macOS'
-        run: npm test   # perfil quick (macOS es experimental; world3d con tolerancias por backend: docs/handoff/deuda2.md)
+        run: npm test   # perfil quick (golden propio darwin-arm64; world3d no disponible fuera de Linux ⇒ saltado)
 
       - name: Si falla golden, regenera las miniaturas actuales para comparar
         if: failure()

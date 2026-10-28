@@ -40,6 +40,8 @@
   "V11": "film veinticuatro: nació en DSL (generado por data/veinticuatro/escenas.mjs; no hubo JS previo)",
   "V12": "film veinticuatro: nació en DSL (generado por data/veinticuatro/escenas.mjs; no hubo JS previo)",
   "VT01": "film vectores: nació en DSL (VT01 a mano; VT02 generado desde shots/VT02.diagrama.json); no hubo JS previo",
-  "VT02": "film vectores: nació en DSL (VT01 a mano; VT02 generado desde shots/VT02.diagrama.json); no hubo JS previo"
+  "VT02": "film vectores: nació en DSL (VT01 a mano; VT02 generado desde shots/VT02.diagrama.json); no hubo JS previo",
+  "G01": "demo-gif del README (spec 006): GIF de demo, reescrito del JS original (G_lib.mjs, retirado) como escena DSL nativa (shots/G0x.scene.json): misma función periódica de t, <1 % de píxeles distintos (sin discontinuo en asas/guías)",
+  "G02": "demo-gif del README (spec 006): GIF de demo, reescrito del JS original (G_lib.mjs, retirado) como escena DSL nativa (shots/G0x.scene.json): misma función periódica de t, <1 % de píxeles distintos (sin discontinuo en asas/guías)"
  }
 }

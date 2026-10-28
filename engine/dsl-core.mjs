@@ -31,11 +31,11 @@ export const TYPES = {
   focus: { props: ['x', 'y', 'w', 'h', 'label', 'weight', 'hollow', 'bleed'], req: ['x', 'y', 'w', 'h'] },
   shape: { props: ['shape', 'x', 'y', 'r', 'w', 'h', 'color', 'stroke', 'lineWidth', 'alpha', 'sweep'], req: ['shape', 'x', 'y', 'color'] },
   glow: { props: ['x', 'y', 'r', 'color', 'alpha'], req: ['x', 'y', 'r'] },
-  text: { props: ['text', 'x', 'y', 'role', 'alpha', 'color', 'align'], req: ['text', 'x', 'y'] },
+  text: { props: ['text', 'x', 'y', 'role', 'alpha', 'color', 'align', 'size', 'screen'], req: ['text', 'x', 'y'] },
   equation: { props: ['steps', 'color', 'stagger'], req: ['steps'] },
   group: { props: ['depth', 'translate', 'children'], req: ['children'] },
   let: { props: ['value', ...LIBP], req: [], value: true },
-  formula: { props: ['tex', 'x', 'y', 'size', 'align', 'color', 'write', 'morphTo', 'u', 'stagger'], req: ['tex', 'x', 'y'] },
+  formula: { props: ['tex', 'x', 'y', 'size', 'align', 'color', 'write', 'morphTo', 'u', 'stagger', 'screen'], req: ['tex', 'x', 'y'] },
   layer: { props: ['opts', 'children'], req: ['children'] },
   smear: { props: ['x', 'y', 'vx', 'vy', 'children'], req: ['x', 'y', 'vx', 'vy', 'children'] },
   word: { props: ['lib', 'fn', 'str', 'x', 'y', 'size', 'opts', 'per'], req: ['lib', 'str', 'x', 'y', 'size'], out: ['x', 'y', 'w', 'h'] },
@@ -314,7 +314,7 @@ export function shot(scene, libs = {}) {
           if (styled) ctx.restore(); break; }
         case 'glow': api.glow(val(o.x), val(o.y), val(o.r), ...(o.color != null ? [val(o.color)] : []), ...(o.alpha != null ? [val(o.alpha)] : [])); break;
         case 'arrow': api.arrow(val(o.x0), val(o.y0), val(o.x1), val(o.y1), pick(o, ['u', 'color', 'lw', 'head'], val)); break;
-        case 'text': api.text(val(o.text), val(o.x), val(o.y), pick(o, ['role', 'alpha', 'color', 'align'], val)); break;
+        case 'text': api.text(val(o.text), val(o.x), val(o.y), pick(o, ['role', 'alpha', 'color', 'align', 'size', 'screen'], val)); break;
         case 'equation': { const EQ = Array.isArray(o.steps) ? o.steps : pathGet(libs[o.steps.lib], o.steps.export), q = eqAt(EQ, t); if (q) api.tex(q.tex, q.x * film.width, q.y * film.height, { size: q.s * film.height, align: 'center', color: o.color ?? 'ink', write: q.write, morphTo: q.morphTo, u: q.u, stagger: o.stagger ?? 0.55 }); break; }
         case 'group': { const body = () => { if (o.translate) { const [tx, ty] = val(o.translate); ctx.save(); ctx.translate(tx, ty); try { run(o.children); } finally { ctx.restore(); } } else run(o.children); }; if (o.depth != null) api.depth(val(o.depth), body); else body(); break; }
         case 'word': { const opts = { ...(val(o.opts ?? {})) }; if (o.per) opts.per = (kk, nn) => { const sk = [env.pk, env.pn]; env.pk = kk; env.pn = nn; const q = {}; for (const [key, ex] of Object.entries(o.per)) { const v = val(ex); if (v !== undefined) q[key] = v; } [env.pk, env.pn] = sk; return q; };
@@ -322,7 +322,7 @@ export function shot(scene, libs = {}) {
         case 'box': { const b = { x: val(o.x), y: val(o.y), w: val(o.w), h: val(o.h) }; env.boxes.push(b); if (BOX_VIS.some((k) => k in o)) api.box(b.x, b.y, b.w, b.h, pick(o, BOX_VIS, val)); break; }
         case 'impact': api.impact(val(o.at), val(o.opts ?? {})); break;
         case 'let': if (o.lib) { const A = { ctx, api, film, t: env.t, u, shot: shotDef }; publish(o, getFn(o.lib, o.fn)(...(o.args ?? []).map((a) => (typeof a === 'string' ? A[a] : val(a))))); } else publish(o, val(o.value)); break;
-        case 'formula': api.tex(val(o.tex), val(o.x), val(o.y), pick(o, ['size', 'align', 'color', 'write', 'morphTo', 'u', 'stagger'], val)); break;
+        case 'formula': api.tex(val(o.tex), val(o.x), val(o.y), pick(o, ['size', 'align', 'color', 'write', 'morphTo', 'u', 'stagger', 'screen'], val)); break;
         case 'layer': api.layer(val(o.opts ?? {}), (c, tt, A) => { const sv = [cur.ctx, cur.api, env.t, env.lt]; cur.ctx = c; cur.api = A; env.t = tt; env.lt = tt - shotDef.t[0]; try { run(o.children); } finally { [cur.ctx, cur.api, env.t, env.lt] = sv; } }); break;
         case 'smear': api.smear(val(o.x), val(o.y), val(o.vx), val(o.vy), () => run(o.children)); break;
         case 'particles': { const n = val(o.n), R = rng(val(o.seed)), sI = env.i, sN = env.n; env.n = n;

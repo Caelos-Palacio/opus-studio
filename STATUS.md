@@ -48,8 +48,8 @@ Definición (gates.json); el estado de cierre está en la parte viva.
 
 ## DSL de escenas (spec 010)
 
-- cobertura: **94.6 %** (88/93 shots en DSL; honesta: los 1 pendientes de otra rama cuentan en contra; sin ellos 95.7 %) · umbral ratchet 95 %
-- clases: dsl 88 · escape 2 · falta 2 · pendiente:world3d2 1 · shots 100 % nativos 29 · el resto usa objetos respaldados por una función de módulo (plot/axis/world/hud/word…) con semántica y deps declaradas
+- cobertura: **96.8 %** (90/93 shots en DSL; honesta: los 1 pendientes de otra rama cuentan en contra; sin ellos 97.8 %) · umbral ratchet 95 %
+- clases: dsl 90 · escape 2 · pendiente:world3d2 1 · shots 100 % nativos 31 · el resto usa objetos respaldados por una función de módulo (plot/axis/world/hud/word…) con semántica y deps declaradas
 - escapes: A1 (objetivo de las mutaciones de test/run.mjs, golden.mjs, gov.mjs y orch: esos tests editan su JS por texto); A2 (objetivo de las mutaciones de test/run.mjs, golden.mjs, gov.mjs y orch: esos tests editan su JS por texto)
 - pendientes: D01 (world3d2)
 
@@ -59,15 +59,15 @@ Archivos (test/*.mjs): `arc.mjs` `bench-skia.mjs` `boceto.mjs` `consta.mjs` `cri
 <!-- estatico:fin -->
 
 ---
-## Estado vivo (2026-10-28T04:47Z, no verificado)
+## Estado vivo (2026-10-28T05:24Z, no verificado)
 
 ## Veredictos
 
-Film activo: `main` · engineHash `ac53f4628f2426c76bf7df7b12ba01d4b315d08104e6bcb2fd47eb6859382145` · filmHash `6ec52381bb16a11c`
+Film activo: `main` · engineHash `505b494d5afa4d33eeebac3a044a3226022f2f09ebd793e7050bc48cea8a6450` · filmHash `48a24bee37a3ec62`
 
-- out/lint.json: SHIP · CADUCADO
-- out/critic.json: SHIP · CADUCADO
-- veredictos por shot: 0 vigentes, 3 caducados
+- out/lint.json: no existe
+- out/critic.json: no existe
+- veredictos por shot: 0 vigentes, 0 caducados
 
 ### Estado de gates (out/gates.json)
 
@@ -84,6 +84,7 @@ Film activo: `main` · engineHash `ac53f4628f2426c76bf7df7b12ba01d4b315d08104e6b
 - `film-botella` (+169 commits)
 - `film-consta` (+234 commits)
 - `film-veinticuatro` (+170 commits)
+- `fix/macos-ci` (+10 commits)
 - `fondo` (+107 commits)
 - `fondos` (+130 commits)
 - `fondos-libres` (+220 commits)
@@ -104,16 +105,15 @@ Film activo: `main` · engineHash `ac53f4628f2426c76bf7df7b12ba01d4b315d08104e6b
 - `semantica` (+103 commits)
 - `toolbox` (+122 commits)
 - `vectores` (+203 commits)
-- `video-mate` (+35 commits)
-- … y 21 más
+- … y 22 más
 
 ## Último run de tests
 
-- 2026-10-27T18:52:59.099Z: 1 fallos (perfil full)
+- 2026-10-28T05:12:52.165Z: 3 fallos (perfil full)
 
 ## Ledger
 
-- cadena: íntegra · 16 entradas (5 encadenadas, 11 heredadas, 0 firmadas) · códigos 100 %
+- cadena: íntegra · 1 entradas (1 encadenadas, 0 heredadas, 0 firmadas) · códigos 100 %
 
 ## Presupuestos
 

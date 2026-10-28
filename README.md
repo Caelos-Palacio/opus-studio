@@ -6,7 +6,7 @@
 
 ![opus-studio demo: a Bézier curve breathes while a point travels along it with eased timing, camera pushing in and pulling out](docs/media/demo.gif)
 
-<sub>This GIF was rendered by opus-studio itself (`seek(t)` → frames → ffmpeg): camera push/pull, cubic Béziers, an easing curve, real TeX, and a bloom + motion-blur compositor layer. Regenerate it with `npm run demo:gif`. Source: [`data/demo-gif/timeline.json`](data/demo-gif/timeline.json), [`shots/G_lib.mjs`](shots/G_lib.mjs), [`styles/suite.json`](styles/suite.json).</sub>
+<sub>This GIF was rendered by opus-studio itself (`seek(t)` → frames → ffmpeg): camera push/pull, cubic Béziers, an easing curve, real TeX, and a bloom + motion-blur compositor layer. Regenerate it with `npm run demo:gif`. Source: [`data/demo-gif/timeline.json`](data/demo-gif/timeline.json), [`shots/G01.scene.json`](shots/G01.scene.json), [`styles/suite.json`](styles/suite.json).</sub>
 
 ## Why `seek(t)`
 
