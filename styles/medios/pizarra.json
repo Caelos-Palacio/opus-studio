@@ -1,0 +1,235 @@
+{
+ "name": "pizarra",
+ "description": "Tiza sobre pizarra verde-gris: trazo de tiza con polvo (erosión alta, doble pasada, halo de polvo), pasadas de borrador que borran parte de lo anterior y fantasmas de fórmulas ya borradas. Neutro tiza blanca + acentos amarillo y azul tiza.",
+ "seed": 3391,
+ "font": "DejaVu Serif, serif",
+ "blend": "screen",
+ "accents": [
+  "#F2D06B",
+  "#8EC9E8"
+ ],
+ "palette": {
+  "paper": "#2C3A35",
+  "ink": "#ECF1EA",
+  "accent": "#F2D06B",
+  "accent2": "#8EC9E8",
+  "quant": "#F2D06B",
+  "anom": "#ECF1EA",
+  "shade": "#566860"
+ },
+ "support": {
+  "kind": "pizarra",
+  "base": "#2C3A35",
+  "mottle": {
+   "amount": 0.09,
+   "cell": 190,
+   "warm": "#44544C",
+   "cool": "#1E2925"
+  },
+  "tooth": 0.07,
+  "fibers": {
+   "n": 500,
+   "len": [
+    8,
+    40
+   ],
+   "alpha": [
+    0.04,
+    0.12
+   ],
+   "color": "#7C8C84",
+   "light": "#C8D6CE",
+   "width": 0.9
+  }
+ },
+ "layers": [
+  {
+   "name": "borrador",
+   "depth": 0.3,
+   "smudge": {
+    "n": 6,
+    "len": [
+     420,
+     950
+    ],
+    "width": [
+     70,
+     150
+    ],
+    "erase": 0.45,
+    "dust": 0.06,
+    "color": "#D6E2DA"
+   }
+  },
+  {
+   "name": "restos",
+   "depth": 0.15,
+   "ghost": {
+    "color": "#D6E2DA",
+    "texts": {
+     "n": 10,
+     "size": [
+      38,
+      90
+     ],
+     "alpha": [
+      0.05,
+      0.1
+     ],
+     "list": [
+      "∫ e^{iθ} dθ",
+      "sin²+cos²=1",
+      "π/2",
+      "dz/dt",
+      "Σ 1/n²",
+      "e^{iπ}=−1",
+      "z²",
+      "∮",
+      "Δ",
+      "lim"
+     ]
+    },
+    "curves": {
+     "n": 4,
+     "len": [
+      260,
+      520
+     ],
+     "amp": [
+      30,
+      70
+     ],
+     "alpha": [
+      0.05,
+      0.09
+     ],
+     "width": [
+      2.5,
+      4
+     ]
+    }
+   },
+   "smudge": {
+    "n": 5,
+    "len": [
+     380,
+     900
+    ],
+    "width": [
+     60,
+     140
+    ],
+    "erase": 0.55,
+    "dust": 0.05,
+    "color": "#D6E2DA"
+   }
+  },
+  {
+   "name": "polvo fino",
+   "depth": 0.55,
+   "specks": {
+    "n": 500,
+    "r": [
+     0.6,
+     1.6
+    ],
+    "alpha": [
+     0.1,
+     0.3
+    ],
+    "color": "#B8C8BF"
+   }
+  },
+  {
+   "name": "polvo",
+   "depth": 1.45,
+   "over": true,
+   "fibers": {
+    "n": 8,
+    "len": [
+     30,
+     90
+    ],
+    "alpha": [
+     0.06,
+     0.14
+    ],
+    "color": "#C8D6CE",
+    "width": 2.0
+   },
+   "specks": {
+    "n": 36,
+    "r": [
+     1.5,
+     3.4
+    ],
+    "alpha": [
+     0.05,
+     0.12
+    ],
+    "color": "#C8D6CE"
+   }
+  }
+ ],
+ "ink": {
+  "alpha": 0.94,
+  "erosion": {
+   "amount": 0.5,
+   "cell": 4,
+   "fps": 10
+  },
+  "misregister": {
+   "dx": 1.5,
+   "dy": 1.1,
+   "alpha": 0.3
+  },
+  "jitter": {
+   "amp": 0.9,
+   "band": 3,
+   "fps": 8
+  },
+  "halo": [
+   {
+    "lv": 2,
+    "a": 0.3
+   },
+   {
+    "lv": 4,
+    "a": 0.4
+   }
+  ]
+ },
+ "grain": {
+  "amount": 0.045,
+  "fps": 12,
+  "tiles": 5
+ },
+ "vignette": {
+  "amount": 0.3,
+  "color": "#0A100E",
+  "inner": 0.5
+ },
+ "grade": {
+  "vignette": 0,
+  "grain": 0,
+  "post": {
+   "bloom": null,
+   "color": null,
+   "chroma": 0
+  }
+ },
+ "rules": {
+  "glow": true,
+  "gradients": false,
+  "glowScale": 1.0
+ },
+ "composition": {
+  "edgeMargin": 0.05,
+  "anchor": "free",
+  "negativeSpace": 0.5
+ },
+ "encode": {
+  "crf": 23,
+  "tune": "grain"
+ }
+}

@@ -241,3 +241,5 @@ export function drawTicks(api, film, t) {
   if (t >= 34.4) { const f = 1 - seg(t, 84.5, 87.5); lab('1', [1, 0], seg(t, 34.4, 36.4) * f, 10 * k, dy); if (t >= 36.4) lab('i', [0, 0.55], seg(t, 36.4, 37.6) * f * (1 - seg(t, 70.2, 71.6)), 18 * k * 1.5, 0, 'quant'); }
   if (t >= T.land + 0.1 && t < 84) api.text('−1', X(V, [-1, 0]) - 4 * k, V.oy + dy, { role: 'body', alpha: seg(t, T.land + 0.1, T.land + 0.9) * (1 - seg(t, 83.5, 85)) });
 }
+// DSL (spec 010): inicio de la tirada i del polígono de M05 (función pura; el JSON del shot no indexa listas).
+export const runStart = (i) => T.run[i][0];

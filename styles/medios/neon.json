@@ -1,0 +1,242 @@
+{
+ "name": "neon",
+ "description": "Callejón de ladrillo oscuro con atmósfera: muro con textura y grietas, bruma de color, bokeh, suelo mojado; tubos de luz aditiva (núcleo blanco + halo magenta/cian) con parpadeo sutil y reflejo ondulado en el suelo húmedo. Nunca negro plano.",
+ "seed": 7741,
+ "font": "DejaVu Sans Mono, monospace",
+ "blend": "screen",
+ "accents": [
+  "#FF2E93",
+  "#2EE6FF"
+ ],
+ "palette": {
+  "paper": "#0C0A16",
+  "ink": "#F4F0FF",
+  "accent": "#FF2E93",
+  "accent2": "#2EE6FF",
+  "quant": "#FF2E93",
+  "anom": "#F4F0FF",
+  "shade": "#3A3A6A"
+ },
+ "support": {
+  "kind": "muro_mojado",
+  "base": "#0C0A16",
+  "mottle": {
+   "amount": 0.13,
+   "cell": 170,
+   "warm": "#2A1233",
+   "cool": "#0A1C2E"
+  },
+  "tooth": 0.1,
+  "fibers": {
+   "n": 160,
+   "len": [
+    20,
+    120
+   ],
+   "alpha": [
+    0.06,
+    0.16
+   ],
+   "color": "#05040A",
+   "light": "#3A3F66",
+   "width": 1.2
+  },
+  "decor": {
+   "bricks": {
+    "w": 74,
+    "h": 30,
+    "light": "#2A2A52",
+    "dark": "#050410",
+    "vary": [
+     0.08,
+     0.28
+    ],
+    "mortar": "#04030A",
+    "mortarAlpha": 0.55,
+    "ymax": 0.72
+   }
+  },
+  "wet": {
+   "y": 0.72,
+   "color": "#2E2A6A",
+   "color2": "#0B0A1F",
+   "alpha": 0.35,
+   "streaks": 70,
+   "streakLen": [
+    40,
+    260
+   ],
+   "streakAlpha": [
+    0.03,
+    0.1
+   ],
+   "streak": "#6E6AD0",
+   "line": "#8F8BFF",
+   "lineAlpha": 0.25
+  }
+ },
+ "layers": [
+  {
+   "name": "bruma",
+   "depth": 0.12,
+   "haze": {
+    "n": 7,
+    "r": [
+     200,
+     460
+    ],
+    "colors": [
+     "#FF2E93",
+     "#2EE6FF",
+     "#5B2EFF"
+    ],
+    "alpha": [
+     0.03,
+     0.07
+    ]
+   }
+  },
+  {
+   "name": "bokeh",
+   "depth": 0.4,
+   "bokeh": {
+    "n": 16,
+    "r": [
+     8,
+     34
+    ],
+    "colors": [
+     "#FF2E93",
+     "#2EE6FF"
+    ],
+    "alpha": [
+     0.06,
+     0.16
+    ]
+   }
+  },
+  {
+   "name": "motas",
+   "depth": 0.75,
+   "specks": {
+    "n": 220,
+    "r": [
+     0.5,
+     1.4
+    ],
+    "alpha": [
+     0.1,
+     0.4
+    ],
+    "color": "#9FA8FF"
+   }
+  },
+  {
+   "name": "lluvia",
+   "depth": 1.45,
+   "over": true,
+   "fibers": {
+    "n": 14,
+    "len": [
+     30,
+     90
+    ],
+    "alpha": [
+     0.04,
+     0.1
+    ],
+    "color": "#7C85FF",
+    "width": 1.2
+   },
+   "specks": {
+    "n": 40,
+    "r": [
+     1,
+     2.6
+    ],
+    "alpha": [
+     0.05,
+     0.14
+    ],
+    "color": "#9FA8FF"
+   }
+  }
+ ],
+ "ink": {
+  "alpha": 1,
+  "erosion": {
+   "amount": 0.1,
+   "cell": 5,
+   "fps": 12
+  },
+  "misregister": {
+   "dx": 2,
+   "dy": 0,
+   "alpha": 0.25
+  },
+  "flicker": {
+   "amount": 0.06,
+   "fps": 24,
+   "hum": 1.7,
+   "dropout": 0.02
+  },
+  "halo": [
+   {
+    "lv": 2,
+    "a": 0.55
+   },
+   {
+    "lv": 4,
+    "a": 0.8
+   },
+   {
+    "lv": 6,
+    "a": 0.7
+   }
+  ],
+  "reflection": {
+   "y": 0.72,
+   "alpha": 0.4,
+   "fade": 0.26,
+   "ripple": 2.5,
+   "band": 3
+  }
+ },
+ "grain": {
+  "amount": 0.05,
+  "fps": 15,
+  "tiles": 5
+ },
+ "vignette": {
+  "amount": 0.35,
+  "color": "#02010A",
+  "inner": 0.5
+ },
+ "grade": {
+  "vignette": 0,
+  "grain": 0,
+  "post": {
+   "bloom": {
+    "threshold": 0.45,
+    "strength": 0.8,
+    "radius": 28
+   },
+   "color": null,
+   "chroma": 0
+  }
+ },
+ "rules": {
+  "glow": true,
+  "gradients": false,
+  "glowScale": 1.0
+ },
+ "composition": {
+  "edgeMargin": 0.05,
+  "anchor": "free",
+  "negativeSpace": 0.5
+ },
+ "encode": {
+  "crf": 24,
+  "tune": "grain"
+ }
+}

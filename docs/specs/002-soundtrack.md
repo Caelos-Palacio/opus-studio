@@ -98,4 +98,4 @@ Entregable: `out/potencias_v2.mp4` (vídeo `-c:v copy`, audio AAC 256 k medido c
 |---|---|---|
 | sfx originales | ~5 | planos, monótonos |
 | música PoC (score.mjs) | 6–7 | arco y tensión prometedores; falta refinar, sistematizar y el resto del soundtrack |
-| potencias v2 | pendiente de calificación | soundtrack completo (música + diseño sonoro + mezcla); medibles en verde, falta el oído del usuario |
+| potencias v2 | **8** (2026-10-05) | "algo mejor, sí": objetivo ≥ 8 alcanzado en soundtrack; música + diseño sonoro + mezcla sistematizados |

@@ -4,43 +4,663 @@
   "title": "story.json — spine dramático (F5, engine/arc.mjs)",
   "description": "Capa de dramaturgia sobre el timeline. Tiempos en segundos de film. Lo declarado aquí se CONTRASTA con lo medido (energía, cajas, audio); declarar no basta para pasar.",
   "type": "object",
-  "required": ["idea", "question", "beats", "accommodation"],
+  "required": [
+    "idea",
+    "question",
+    "beats",
+    "accommodation"
+  ],
   "properties": {
-    "idea": { "type": "string", "minLength": 3, "description": "idea central en una frase" },
+    "v": {
+      "enum": [
+        1,
+        2
+      ],
+      "description": "versión del story. 2 = storytelling auténtico (spec 013): exige forma, voz, punto_de_vista, ancla, giro, apuesta, subtexto, tono, imperfeccion, cierre, frescura y question.creencia_previa. Sin v (o 1) = v1, sigue siendo válido."
+    },
+    "idea": {
+      "type": "string",
+      "minLength": 3,
+      "description": "idea central en una frase"
+    },
     "question": {
-      "type": "object", "description": "brecha de información (Loewenstein): la pregunta del gancho",
-      "required": ["text", "posed_at", "answered_at"],
+      "type": "object",
+      "description": "brecha de información (Loewenstein): la pregunta del gancho",
+      "required": [
+        "text",
+        "posed_at",
+        "answered_at"
+      ],
       "properties": {
-        "text": { "type": "string", "minLength": 3 },
-        "posed_at": { "type": "number", "minimum": 0 },
-        "answered_at": { "type": "number", "minimum": 0 },
-        "on_screen": { "type": "boolean", "description": "true: arc exige ver en pantalla un texto con palabras de la pregunta en el primer 10 %" }
+        "text": {
+          "type": "string",
+          "minLength": 3
+        },
+        "posed_at": {
+          "type": "number",
+          "minimum": 0
+        },
+        "answered_at": {
+          "type": "number",
+          "minimum": 0
+        },
+        "on_screen": {
+          "type": "boolean",
+          "description": "true: arc exige ver en pantalla un texto con palabras de la pregunta en el primer 10 %"
+        },
+        "creencia_previa": {
+          "type": "string",
+          "minLength": 3,
+          "description": "v2: qué creía el espectador (y le gustaba creer) antes del giro"
+        },
+        "por_que_no_sabia": {
+          "type": "string",
+          "description": "v2: por qué no se había hecho la pregunta"
+        }
       }
     },
     "beats": {
-      "type": "array", "minItems": 2, "description": "spine (Parker/Stone): link = conector con el beat ANTERIOR",
+      "type": "array",
+      "minItems": 2,
+      "description": "spine (Parker/Stone): link = conector con el beat ANTERIOR",
       "items": {
-        "type": "object", "required": ["t", "text"],
+        "type": "object",
+        "required": [
+          "t",
+          "text"
+        ],
         "properties": {
-          "id": { "type": "string" }, "t": { "type": "number", "minimum": 0 }, "text": { "type": "string" }, "shot": { "type": "string" },
-          "link": { "enum": ["pero", "por lo tanto", "but", "therefore", "y luego", "and then", null] }
+          "id": {
+            "type": "string"
+          },
+          "t": {
+            "type": "number",
+            "minimum": 0
+          },
+          "text": {
+            "type": "string"
+          },
+          "shot": {
+            "type": "string"
+          },
+          "link": {
+            "enum": [
+              "pero",
+              "por lo tanto",
+              "but",
+              "therefore",
+              "y luego",
+              "and then",
+              null
+            ]
+          },
+          "w3d": {
+            "type": "object",
+            "description": "S10 (spec 009): beat 3D declarado desde el guion; todo shot con world3d debe caer en uno (lint arc: w3d.sin-guion). El beat dura hasta el siguiente beat.",
+            "required": [
+              "concepto",
+              "porque"
+            ],
+            "properties": {
+              "concepto": {
+                "type": "string",
+                "minLength": 3,
+                "description": "concepto de la memoria que el 3D encarna"
+              },
+              "porque": {
+                "type": "string",
+                "minLength": 3,
+                "description": "por qué el volumen aporta aquí y lo plano no"
+              }
+            }
+          },
+          "concreto": {
+            "type": "string",
+            "description": "v2: qué cosa física ocurre en el beat (un beat sin cosa física es abstracto)"
+          },
+          "peso": {
+            "enum": [
+              "corto",
+              "medio",
+              "largo",
+              "pausa"
+            ],
+            "description": "v2: peso declarado del beat (ritmo irregular)"
+          }
         }
       }
     },
     "accommodation": {
-      "type": "object", "description": "modelo roto (Keltner/Haidt): el momento en que el espectador reorganiza su modelo",
-      "required": ["t", "type"],
-      "properties": { "t": { "type": "number", "minimum": 0 }, "type": { "enum": ["regla", "escala", "idea"] }, "text": { "type": "string" } }
+      "type": "object",
+      "description": "modelo roto (Keltner/Haidt): el momento en que el espectador reorganiza su modelo",
+      "required": [
+        "t",
+        "type"
+      ],
+      "properties": {
+        "t": {
+          "type": "number",
+          "minimum": 0
+        },
+        "type": {
+          "enum": [
+            "regla",
+            "escala",
+            "idea",
+            "creencia"
+          ],
+          "description": "creencia (v2): cambia lo que se creía de algo concreto"
+        },
+        "text": {
+          "type": "string"
+        }
+      }
     },
     "scale": {
-      "type": "array", "description": "saltos de escala y su referencia humana previa",
-      "items": { "type": "object", "required": ["at"], "properties": { "at": { "type": "number" }, "ref_at": { "type": "number" }, "ref": { "type": "string" } } }
+      "type": "array",
+      "description": "saltos de escala y su referencia humana previa",
+      "items": {
+        "type": "object",
+        "required": [
+          "at"
+        ],
+        "properties": {
+          "at": {
+            "type": "number"
+          },
+          "ref_at": {
+            "type": "number"
+          },
+          "ref": {
+            "type": "string"
+          }
+        }
+      }
     },
-    "impacts": { "type": "array", "description": "impactos declarados además de los registrados por api.impact", "items": { "type": "object", "required": ["t"], "properties": { "t": { "type": "number" }, "shot": { "type": "string" } } } },
-    "sakuga": { "type": "object", "description": "id de shot → hero|normal|simple (alternativa a shot.sakuga en el timeline)", "additionalProperties": { "enum": ["hero", "normal", "simple"] } },
-    "accent": { "type": "object", "properties": { "means": { "type": "string", "description": "qué significa el acento (color con función)" } } },
-    "narration": { "type": "array", "description": "frases del guion/voz con tiempo (pedagogía: coherencia, redundancia)", "items": { "type": "object", "required": ["t", "text"], "properties": { "t": { "type": "number" }, "end": { "type": "number" }, "text": { "type": "string" } } } },
-    "concepts": { "type": "array", "description": "términos nuevos y cuándo se nombran (señalización, contigüidad, carga)", "items": { "type": "object", "required": ["term", "t"], "properties": { "term": { "type": "string" }, "t": { "type": "number" }, "focus": { "type": "string", "description": "label del api.focus/primitiva que representa el concepto" } } } },
-    "segments": { "type": "array", "description": "segmentos de una idea [a,b] (explainer: 20–90 s)", "items": { "type": "array", "minItems": 2, "maxItems": 2, "items": { "type": "number" } } }
+    "impacts": {
+      "type": "array",
+      "description": "impactos declarados además de los registrados por api.impact",
+      "items": {
+        "type": "object",
+        "required": [
+          "t"
+        ],
+        "properties": {
+          "t": {
+            "type": "number"
+          },
+          "shot": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "sakuga": {
+      "type": "object",
+      "description": "id de shot → hero|normal|simple (alternativa a shot.sakuga en el timeline)",
+      "additionalProperties": {
+        "enum": [
+          "hero",
+          "normal",
+          "simple"
+        ]
+      }
+    },
+    "medium": {
+      "type": "object",
+      "description": "spec 012: el medio que el guion elige para este film y por qué (el timeline lo aplica con `medium`)",
+      "required": [
+        "id",
+        "porque"
+      ],
+      "properties": {
+        "id": {
+          "type": "string",
+          "minLength": 2
+        },
+        "porque": {
+          "type": "string",
+          "minLength": 8
+        }
+      }
+    },
+    "accent": {
+      "type": "object",
+      "properties": {
+        "means": {
+          "type": "string",
+          "description": "qué significa el acento (color con función)"
+        }
+      }
+    },
+    "narration": {
+      "type": "array",
+      "description": "frases del guion/voz con tiempo (pedagogía: coherencia, redundancia)",
+      "items": {
+        "type": "object",
+        "required": [
+          "t",
+          "text"
+        ],
+        "properties": {
+          "t": {
+            "type": "number"
+          },
+          "end": {
+            "type": "number"
+          },
+          "text": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "concepts": {
+      "type": "array",
+      "description": "términos nuevos y cuándo se nombran (señalización, contigüidad, carga)",
+      "items": {
+        "type": "object",
+        "required": [
+          "term",
+          "t"
+        ],
+        "properties": {
+          "term": {
+            "type": "string"
+          },
+          "t": {
+            "type": "number"
+          },
+          "focus": {
+            "type": "string",
+            "description": "label del api.focus/primitiva que representa el concepto"
+          }
+        }
+      }
+    },
+    "segments": {
+      "type": "array",
+      "description": "segmentos de una idea [a,b] (explainer: 20–90 s)",
+      "items": {
+        "type": "array",
+        "minItems": 2,
+        "maxItems": 2,
+        "items": {
+          "type": "number"
+        }
+      }
+    },
+    "forma": {
+      "enum": [
+        "causal",
+        "kisho",
+        "espiral",
+        "cuenta_atras"
+      ],
+      "description": "v2: forma narrativa. causal = pero/por lo tanto (arc exige el spine); kisho = sin conflicto, giro lateral; espiral = repetición con variación; cuenta_atras = el pico va al final. arc.mjs lee la forma (engine/arc.json: formas)"
+    },
+    "voz": {
+      "type": "object",
+      "description": "v2: el texto en pantalla y el sonido hablan 'como alguien'",
+      "required": [
+        "quien",
+        "actitud",
+        "persona",
+        "registro"
+      ],
+      "properties": {
+        "quien": {
+          "type": "string",
+          "minLength": 3,
+          "maxLength": 80,
+          "description": "quién habla (oficio/estado de ánimo), no 'narrador'"
+        },
+        "actitud": {
+          "type": "string",
+          "minLength": 3,
+          "maxLength": 80,
+          "description": "su postura ante lo que cuenta"
+        },
+        "persona": {
+          "enum": [
+            "yo",
+            "nosotros",
+            "tu",
+            "impersonal",
+            "tercera"
+          ]
+        },
+        "tiempo": {
+          "enum": [
+            "presente",
+            "pasado",
+            "mixto"
+          ]
+        },
+        "registro": {
+          "type": "array",
+          "maxItems": 3,
+          "minItems": 1,
+          "items": {
+            "type": "string"
+          }
+        },
+        "tic": {
+          "type": "string",
+          "description": "costumbre verbal recurrente; narr exige que aparezca 2–6 veces en pantalla"
+        },
+        "prohibido": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "punto_de_vista": {
+      "type": "object",
+      "description": "v2: una afirmación que alguien podría rebatir y la creencia que ataca",
+      "required": [
+        "tesis_discutible",
+        "contra"
+      ],
+      "properties": {
+        "tesis_discutible": {
+          "type": "string",
+          "minLength": 3
+        },
+        "contra": {
+          "type": "string",
+          "minLength": 3
+        }
+      }
+    },
+    "ancla": {
+      "type": "object",
+      "description": "v2: el detalle concreto que sostiene el film y que se VE y se oye",
+      "required": [
+        "objeto",
+        "detalle",
+        "dato"
+      ],
+      "properties": {
+        "objeto": {
+          "type": "string",
+          "minLength": 3
+        },
+        "detalle": {
+          "type": "string",
+          "minLength": 3
+        },
+        "dato": {
+          "type": "object",
+          "description": "cifra o nombre propio con fuente",
+          "required": [
+            "valor",
+            "fuente"
+          ],
+          "properties": {
+            "valor": {
+              "type": "string",
+              "minLength": 1
+            },
+            "unidad": {
+              "type": "string"
+            },
+            "fuente": {
+              "type": "string",
+              "minLength": 1
+            }
+          }
+        },
+        "en_pantalla_antes_de": {
+          "type": "number",
+          "minimum": 0,
+          "description": "s; el ancla debe verse o leerse en pantalla antes (narr: ancla.visible)"
+        },
+        "tacto": {
+          "type": "string"
+        }
+      }
+    },
+    "giro": {
+      "type": "object",
+      "description": "v2: qué creía → qué cree; qué beat anterior se relee",
+      "required": [
+        "t",
+        "de",
+        "a",
+        "cambia_lo_visto"
+      ],
+      "properties": {
+        "t": {
+          "type": "number",
+          "minimum": 0
+        },
+        "de": {
+          "type": "string",
+          "minLength": 3
+        },
+        "a": {
+          "type": "string",
+          "minLength": 3
+        },
+        "cambia_lo_visto": {
+          "type": "string",
+          "minLength": 3
+        }
+      }
+    },
+    "apuesta": {
+      "type": "object",
+      "description": "v2: valor en juego (McKee) y razón humana",
+      "required": [
+        "valor",
+        "polo_inicial",
+        "polo_final",
+        "por_que_importa"
+      ],
+      "properties": {
+        "valor": {
+          "type": "string",
+          "minLength": 3
+        },
+        "polo_inicial": {
+          "type": "string",
+          "minLength": 3
+        },
+        "polo_final": {
+          "type": "string",
+          "minLength": 3
+        },
+        "por_que_importa": {
+          "type": "string",
+          "minLength": 3
+        }
+      }
+    },
+    "subtexto": {
+      "type": "object",
+      "description": "v2: superficie vs. lo que va por debajo",
+      "required": [
+        "dice",
+        "significa"
+      ],
+      "properties": {
+        "dice": {
+          "type": "string",
+          "minLength": 3
+        },
+        "significa": {
+          "type": "string",
+          "minLength": 3
+        }
+      }
+    },
+    "tono": {
+      "type": "object",
+      "description": "v2: tono principal; narr.diversidad compara tono.primario entre films de una oleada",
+      "required": [
+        "primario"
+      ],
+      "properties": {
+        "primario": {
+          "type": "string",
+          "minLength": 3
+        },
+        "secundario": {
+          "type": "string"
+        },
+        "contradiccion": {
+          "type": "string"
+        }
+      }
+    },
+    "imperfeccion": {
+      "type": "array",
+      "minItems": 1,
+      "description": "v2: asimetría elegida (narr: imperfeccion.presente la contrasta con el timeline)",
+      "items": {
+        "type": "object",
+        "description": "",
+        "required": [
+          "t",
+          "que",
+          "porque"
+        ],
+        "properties": {
+          "t": {
+            "type": "number",
+            "minimum": 0
+          },
+          "que": {
+            "type": "string",
+            "minLength": 3
+          },
+          "porque": {
+            "type": "string",
+            "minLength": 3
+          }
+        }
+      }
+    },
+    "cierre": {
+      "type": "object",
+      "description": "v2: cómo termina; evitar el retorno de plantilla",
+      "required": [
+        "tipo",
+        "ultima_linea"
+      ],
+      "properties": {
+        "tipo": {
+          "enum": [
+            "corte",
+            "eco",
+            "golpe",
+            "silencio",
+            "abierto",
+            "cicatriz"
+          ],
+          "description": "eco (retorno al inicio) es una opción, no una regla: exige `porque`"
+        },
+        "ultima_linea": {
+          "type": "string",
+          "minLength": 1
+        },
+        "porque": {
+          "type": "string"
+        },
+        "sin_moraleja": {
+          "type": "boolean"
+        }
+      }
+    },
+    "frescura": {
+      "type": "object",
+      "description": "v2: resultado del test de frescura (`node engine/narr.mjs frescura <story>`)",
+      "required": [
+        "puntos"
+      ],
+      "properties": {
+        "puntos": {
+          "type": "object",
+          "description": "7 criterios 0–2 (research §4.1): ancla, pregunta, hecho_raro, giro_relee, apuesta, distancia_default, distancia_archivo",
+          "additionalProperties": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 2
+          }
+        },
+        "descartados": {
+          "type": "array",
+          "items": {
+            "type": "object"
+          }
+        },
+        "version_por_defecto": {
+          "type": "string"
+        },
+        "distancia": {
+          "type": "string"
+        }
+      }
+    },
+    "oleada": {
+      "type": "string",
+      "description": "v2: id de la oleada de films; narr.diversidad exige medio y tono distintos dentro de una oleada"
+    },
+    "narr_ok": {
+      "type": "array",
+      "description": "excepciones al lint narrativo: {check, porque}. Una excepción sin porqué es FIX",
+      "items": {
+        "type": "object",
+        "required": [
+          "check"
+        ],
+        "properties": {
+          "check": {
+            "type": "string"
+          },
+          "porque": {
+            "type": "string"
+          }
+        }
+      }
+    }
+  },
+  "if": {
+    "required": [
+      "v"
+    ],
+    "properties": {
+      "v": {
+        "const": 2
+      }
+    }
+  },
+  "then": {
+    "required": [
+      "forma",
+      "voz",
+      "punto_de_vista",
+      "ancla",
+      "giro",
+      "apuesta",
+      "subtexto",
+      "tono",
+      "imperfeccion",
+      "cierre",
+      "frescura"
+    ],
+    "properties": {
+      "question": {
+        "required": [
+          "text",
+          "posed_at",
+          "answered_at",
+          "creencia_previa"
+        ]
+      }
+    }
   }
 }

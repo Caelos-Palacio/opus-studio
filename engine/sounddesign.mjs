@@ -6,13 +6,14 @@
 // de escala/cámara; ambiente por escala (plano) y sección; risers que resuelven; tics del ×10 que ascienden por la escala del estilo y
 // siguen la curva de intensidad, cada uno distinto (tono, caída y brillo sembrados por evento).
 import { SR, TAU, clamp, lerp, mtof, db2lin, rng, hashStr, stereo, reverb } from './dsp.mjs';
+import { FOLEY } from './foley.mjs';   // spec 017: foley de archivo (llave, sello, pluma, secante, reloj, mosca), opt-in por tipo
 
 const SIZE = { ECU: 0, CU: 0, MCU: 1, MS: 2, MWS: 2.5, WS: 3, EWS: 4 }, rank = (s) => SIZE[s?.size] ?? 2;
 const TRANS = ['morph', 'cut', 'scale-cut', 'hold-cut'];
 const BANDS = { impact: [1, 0.3, 0.3],   // el golpe cede solo los graves: el acorde del clímax canta por encima del sub
-   bloom: [0.8, 1, 0.8], riser: [0.5, 1, 1], whoosh: [0.5, 1, 1], shimmer: [0.7, 0.8, 1], anom: [0.9, 1, 0.8], resolve: [1, 0.8, 0.7], accent: [1, 0.6, 0.4], tick: [0, 0.5, 1], pop: [0.3, 1, 0.6], click: [0, 0.4, 1] };
-const GAIN = { impact: 1.25, bloom: 1.1, riser: 1, shimmer: 1.4, anom: 1, pop: 1.5, click: 1, drone: 0.4, air: 0.5 };   // escala sobre el gain declarado (calibra el banco propio frente al v1)
-const SEND = { impact: 0.45, bloom: 0.65, riser: 0.3, whoosh: 0.18, shimmer: 0.6, anom: 0.4, resolve: 0.4, accent: 0.25, tick: 0.14, pop: 0.2, click: 0.1, drone: 0.1, air: 0.1 };
+   bloom: [0.8, 1, 0.8], riser: [0.5, 1, 1], whoosh: [0.5, 1, 1], shimmer: [0.7, 0.8, 1], anom: [0.9, 1, 0.8], resolve: [1, 0.8, 0.7], accent: [1, 0.6, 0.4], tick: [0, 0.5, 1], pop: [0.3, 1, 0.6], click: [0, 0.4, 1], buzz: [0.2, 0.7, 0.6], llave: [0.2, 1, 1], sello: [1, 1, 0.7], sello_seco: [1, 0.8, 0.5], pluma: [0, 0.4, 1], secante: [0.2, 1, 0.7], reloj: [0.2, 0.8, 1], mosca: [0, 0.8, 0.9], gota: [0.1, 0.8, 1], nota: [0.7, 1, 0.5] };
+const GAIN = { impact: 1.25, bloom: 1.1, riser: 1, shimmer: 1.4, anom: 1, pop: 1.5, click: 1, drone: 0.4, air: 0.5, buzz: 0.5, llave: 1, sello: 1, sello_seco: 1, pluma: 1, secante: 1, reloj: 1, mosca: 1, gota: 1.4, nota: 1 };   // escala sobre el gain declarado (calibra el banco propio frente al v1)
+const SEND = { impact: 0.45, bloom: 0.65, riser: 0.3, whoosh: 0.18, shimmer: 0.6, anom: 0.4, resolve: 0.4, accent: 0.25, tick: 0.14, pop: 0.2, click: 0.1, drone: 0.1, buzz: 0.05, air: 0.1, llave: 0.12, sello: 0.14, sello_seco: 0.1, pluma: 0.04, secante: 0.04, reloj: 0.08, mosca: 0.05, gota: 0.45, nota: 0.55 };
 const keyMidi = (k) => { const pc = ({ C: 0, D: 2, E: 4, F: 5, G: 7, A: 9, B: 11 })[k.root[0]] + (k.root[1] === '#' ? 1 : k.root[1] === 'b' ? -1 : 0); return (pc + 12) % 12; };   // clase de altura de la tónica
 
 // ───────── eventos ─────────
@@ -28,6 +29,8 @@ export function designEvents(tl, plan, style) {
     for (const e of s.sfx ?? []) {
       const t = s.t[0] + e.at, base = { t, gain: e.gain ?? 0.8, pan: [e.pan ?? 0, e.pan ?? 0], src: `${s.id}.sfx`, decl: true };
       if (e.type === 'drone') push({ ...base, type: 'drone', bus: 'amb', priority: 0, dur: e.dur ?? 4, lead: 0, gain: (e.gain ?? 0.3) * GAIN.drone });
+      else if (e.type === 'nota') push({ ...base, type: 'nota', bus: 'amb', priority: 0, dur: e.dur ?? 8, lead: 0, gain: base.gain * GAIN.nota });                  // nota larga y quieta (cuerda/sintetizador)
+      else if (e.type === 'gota') push({ ...base, type: 'gota', bus: 'sfx', en: e.energia ?? 0.4, gain: base.gain * GAIN.gota });                                // clic de agua: la altura sube con la energía del evento
       else if (e.type === 'whoosh') push({ ...base, type: 'whoosh', bus: 'sfx', dur: e.dur ?? 0.8, speed: speedOf(si), gain: (e.gain ?? 0.5) * 1.2 });
       else { const ty = e.type === 'rev' ? 'bloom' : e.type; push({ ...base, type: ty, bus: ty === 'impact' ? 'hit' : 'sfx', dur: e.dur, gain: base.gain * (GAIN[ty] ?? 1) }); }
     }
@@ -42,11 +45,14 @@ export function designEvents(tl, plan, style) {
   }
   for (const e of ev) if (e.type === 'whoosh') e.pan = e.decl ? [-0.5 * (shotIdx(e.t) % 2 ? -1 : 1), 0.5 * (shotIdx(e.t) % 2 ? -1 : 1)] : e.pan;
   // revelaciones de la memoria sin sonido propio
-  for (const g of plan.giros) if (!ev.some((e) => e.type === 'bloom' && Math.abs(e.t - g.en) < 0.4)) push({ t: g.en, type: 'bloom', bus: 'sfx', gain: 0.8, src: `giro:${g.id}`, derived: 'giro' });
+  for (const g of plan.giros) if (DV.giro !== 0 && !ev.some((e) => e.type === 'bloom' && Math.abs(e.t - g.en) < 0.4)) push({ t: g.en, type: 'bloom', bus: 'sfx', gain: 0.8, src: `giro:${g.id}`, derived: 'giro' });
   // risers que resuelven: el remate (suave) cae justo al terminar si no hay otro evento ahí
   for (const r of ev.filter((e) => e.type === 'riser')) if (!ev.some((e) => e !== r && e.type !== 'riser' && e.type !== 'drone' && e.t >= r.t - 0.1 && e.t <= r.t + 0.6)) push({ t: r.t, type: 'resolve', bus: 'sfx', gain: 0.8 * r.gain / 0.4, src: `${r.src}:resuelve`, derived: 'riser' });
   // ambientes por escala: una cama por plano (cruza 1 s con el vecino); los drones declarados son la cama grave
   if (SX.air !== false) shots.forEach((s) => push({ t: s.t[0] - 1, type: 'air', bus: 'amb', priority: 0, dur: s.t[1] - s.t[0] + 2, lead: 0, gain: GAIN.air, p: { rank: rank(s) }, src: `${s.id}.ambiente`, derived: 'ambiente' }));
+  // zumbido de tubo (opt-in, SX.buzz = {gain, signal}): una cama continua en el bus de ambiente; su inestabilidad sigue la señal `signal` del timeline
+  // (1 = ruido: caídas y chisporroteo; 0 = enganchado: hum limpio afinado a la tónica). El vacío del golpe la corta como un apagón. Estilos sin SX.buzz: nada.
+  if (SX.buzz) { const ks = (tl.signals?.[SX.buzz.signal ?? 'chaos']?.keys ?? []).map((k) => [k.t, k.v]); for (const [a, b] of SX.buzz.spans ?? [[0, tl.duration + 0.5]]) push({ t: a, type: 'buzz', bus: 'amb', priority: 0, dur: b - a, lead: 0, gain: SX.buzz.gain ?? 0.3, p: { keys: ks.length ? ks : [[0, SX.buzz.c ?? 0.5]] }, src: `letrero.zumbido@${a}`, derived: 'medio' }); }   // spans: tramos [t0,t1] donde suena (silencio fuera); c: inestabilidad fija 0..1
   ev.sort((a, b) => a.t - b.t);
   // tics: ascienden por la escala del estilo dentro de cada racha; nivel y brillo siguen la intensidad
   const ticks = ev.filter((e) => e.type === 'tick'); let run = 0, last = -9;
@@ -61,6 +67,8 @@ export function designEvents(tl, plan, style) {
     const R = rng(hashStr(`${e.src}:${e.type}:${e.t.toFixed(4)}`)); e.id = id; e.seed = hashStr(`${e.src}:${e.t.toFixed(4)}`);
     e.priority ??= e.type === 'whoosh' ? (e.speed >= 0.55 ? SX.priority.whoosh : 1) : SX.priority[e.type] ?? 1;
     e.bands = BANDS[e.type] ?? [0.5, 0.5, 0.5]; e.send = SEND[e.type] ?? 0.2; e.intensity = I(e.t);
+    if (e.type === 'gota') e.p = { f0: 380 + 1350 * clamp(e.en), rise: 0.9 + 0.8 * R(), decay: 0.026 + 0.03 * R(), ft: 2 * (380 + 1350 * clamp(e.en)) * (1 + 0.004 * (R() - 0.5)) };
+    if (FOLEY[e.type]) { e.p = {}; e.dur ??= FOLEY[e.type].dur; }
     if (e.type === 'pop') e.p = { f0: 760 + 360 * R(), decay: 0.04 + 0.03 * R() };
     if (e.type === 'click') e.p = { f: 1800 + 900 * R(), decay: 0.004 + 0.004 * R() };
     if (e.type === 'accent') e.p = { f: 70 + 25 * R(), pf: 620 + 280 * R() };
@@ -70,17 +78,36 @@ export function designEvents(tl, plan, style) {
     if (e.type === 'shimmer') e.p = { det: R(), oct: 0 };
     if (e.type === 'anom') e.p = { det: R() };
     if (e.type === 'bloom') e.p = { inten: 0.7 + 0.3 * e.intensity, chord: 0.16, thump: 0.5, ...(SX.bloom ?? {}) };
-    e.dur = e.type === 'riser' ? e.p.dur : e.type === 'impact' ? 4.5 : e.type === 'bloom' ? 5 : e.type === 'shimmer' ? 2.8 : e.type === 'anom' ? 2.4 : e.dur ?? (e.type === 'tick' ? 0.35 : e.type === 'resolve' ? 0.6 : e.type === 'accent' ? 0.35 : 0.3);
+    e.dur = e.type === 'riser' ? e.p.dur : e.type === 'impact' ? 4.5 : e.type === 'bloom' ? 5 : e.type === 'shimmer' ? 2.8 : e.type === 'anom' ? 2.4 : e.dur ?? (e.type === 'tick' ? 0.35 : e.type === 'gota' ? 0.55 : e.type === 'resolve' ? 0.6 : e.type === 'accent' ? 0.35 : 0.3);
   });
   return ev;
 }
 
 // ───────── voces ─────────
 // Cada voz devuelve {x: mono, lead: segundos antes del instante de sincronía en que empieza x}.
+const hash01 = (n) => { let h = (Math.imul(n | 0, 374761393) + 668265263) | 0; h = Math.imul(h ^ (h >>> 13), 1274126177); return ((h ^ (h >>> 16)) >>> 0) / 4294967296; };
 const env = (t, a, d) => (t < a ? t / a : Math.exp(-(t - a) / d));
 const mk = (sec) => new Float32Array(Math.max(1, Math.round(sec * SR)));
 const VOICE = {
   tick(e) { const p = e.p, f = mtof(p.midi), x = mk(0.35); for (let i = 0; i < x.length; i++) { const t = i / SR; x[i] = e.gain * 0.6 * env(t, 0.0015, p.decay) * (Math.sin(TAU * f * t) + 0.35 * p.bright * Math.sin(TAU * f * 2.76 * t) * Math.exp(-t / (p.decay * 0.4)) + 0.2 * p.bright * Math.sin(TAU * f * 5.4 * t) * Math.exp(-t / (p.decay * 0.2))); } return { x, lead: 0 }; },
+  gota(e, R) { // clic de agua: chasquido + burbuja que sube de tono al romperse + un tono tenue que fija la altura (más agudo = más energía)
+    const p = e.p, x = mk(0.55); let ph = 0;
+    for (let i = 0; i < x.length; i++) {
+      const t = i / SR; ph += (TAU * p.f0 * (1 + p.rise * (1 - Math.exp(-t / 0.018)))) / SR;
+      x[i] = e.gain * (0.75 * Math.sin(ph) * env(t, 0.0008, p.decay) + 0.3 * Math.sin(TAU * p.ft * t) * env(t, 0.004, p.decay * 3.4) + 0.45 * (R() * 2 - 1) * Math.exp(-t / 0.0011));
+    }
+    return { x, lead: 0 };
+  },
+  nota(e, R, C) { // una sola nota larga, quieta: tónica a 220 Hz de sierras filtradas, entrada y salida lentas, vibrato que aparece despacio
+    const d = e.dur, x = mk(d), f = mtof(48 + keyMidi(C.style.key)), ph = [R(), R(), R()]; let lp = 0, lp2 = 0;
+    for (let i = 0; i < x.length; i++) {
+      const t = i / SR, a = Math.min(1, t / 3.2, (d - t) / 3.5) ** 1.6, vib = 1 + 0.0035 * Math.min(1, t / 5) * Math.sin(TAU * 4.7 * t); let s = 0;
+      [0.997, 1, 1.003].forEach((dt, k) => { ph[k] += (f * dt * vib) / SR; if (ph[k] >= 1) ph[k] -= 1; s += 2 * ph[k] - 1; });
+      const fc = 700 + 500 * a, al = 1 - Math.exp((-TAU * fc) / SR); lp += al * (s - lp); lp2 += al * (lp - lp2);
+      x[i] = e.gain * 0.5 * a * lp2;
+    }
+    return { x, lead: 0 };
+  },
   pop(e, R) { const p = e.p, x = mk(0.2); let ph = 0; for (let i = 0; i < x.length; i++) { const t = i / SR; ph += (TAU * (p.f0 * Math.exp(-t * 30) + 180)) / SR; x[i] = e.gain * Math.sin(ph) * env(t, 0.002, p.decay + 0.01); } void R; return { x, lead: 0 }; },
   click(e, R) { const p = e.p, x = mk(0.05); for (let i = 0; i < x.length; i++) { const t = i / SR; x[i] = e.gain * (0.6 * Math.sin(TAU * p.f * t) + 0.5 * (R() * 2 - 1)) * env(t, 0.0004, p.decay); } return { x, lead: 0 }; },
   accent(e, R) { const p = e.p, x = mk(0.4); let ph = 0, ph2 = 0; for (let i = 0; i < x.length; i++) { const t = i / SR; ph += (TAU * (p.f * (1 + 0.8 * Math.exp(-t * 25)))) / SR; ph2 += (TAU * p.pf * Math.exp(-t * 20)) / SR; x[i] = e.gain * (0.8 * Math.sin(ph) * env(t, 0.003, 0.12) + 0.5 * Math.sin(ph2) * env(t, 0.002, 0.04) + 0.1 * (R() * 2 - 1) * env(t, 0.001, 0.01)); } return { x, lead: 0 }; },
@@ -138,6 +165,23 @@ const VOICE = {
     for (let i = 0; i < x.length; i++) { const t = i / SR, a = Math.min(1, t / 0.8, (d - t) / 0.8), it = C.I(e.t + t); x[i] = e.gain * a * (0.5 + 0.9 * it) * (Math.sin(TAU * f * t + ph0) + 0.6 * Math.sin(TAU * f * 1.5 * t + 0.6 * Math.sin(0.3 * t)) + 0.2 * Math.sin(TAU * f * 2 * t + Math.sin(t))); }
     return { x, lead: 0 };
   },
+  buzz(e, R, C) { // zumbido de un tubo de neón: hum de armónicos afinado a la tónica (sierra filtrada) + caídas y chisporroteo según la inestabilidad (señal 0..1)
+    const d = e.dur, x = mk(d), f0 = mtof(36 + keyMidi(C.style.key)), K = e.p.keys, NH = 12, ph = Array.from({ length: NH }, () => R());
+    const at = (t) => { if (t <= K[0][0]) return K[0][1]; for (let k = 1; k < K.length; k++) if (t <= K[k][0]) { const u = (t - K[k - 1][0]) / Math.max(1e-6, K[k][0] - K[k - 1][0]); return K[k - 1][1] + (K[k][1] - K[k - 1][1]) * u; } return K[K.length - 1][1]; };
+    let lp = 0, g = 1, hp = 0, burst = 0;
+    for (let i = 0; i < x.length; i++) {
+      const t = i / SR, c = clamp(at(t)), it = C.I(e.t + t), step = Math.floor(t * 11), drop = hash01(step * 3 + 99) < c * 0.32 ? 0.12 : 1, n = R() * 2 - 1;
+      g += (drop - g) * (drop < g ? 0.02 : 0.004);                                                      // cae rápido, vuelve lento (el tubo se reencima)
+      if (R() < c * 22 / SR * 3) burst = 0.004 * SR * (0.5 + R());                                      // chisporroteo: ráfagas de ruido de pocos ms
+      const cr = burst > 0 ? (burst-- / (0.006 * SR)) * (n - hp) : 0; hp += 0.2 * (n - hp);
+      let sg = 0; const wob = 1 + 0.0015 * c * Math.sin(TAU * 7 * t);
+      for (let h = 0; h < NH; h++) { ph[h] += (f0 * (h + 1) * wob) / SR; if (ph[h] >= 1) ph[h] -= 1; sg += Math.sin(TAU * ph[h]) / (1 + 0.55 * h); }
+      const fc = 260 + 700 * (1 - c) + 500 * it, a = 1 - Math.exp((-TAU * fc) / SR); lp += a * (sg - lp);
+      const am = Math.min(1, t / 0.4, (d - t) / 0.4);
+      x[i] = e.gain * am * (0.4 + 0.6 * it) * (g * lp * (0.7 + 0.3 * (1 - c)) + 0.5 * c * cr);
+    }
+    return { x, lead: 0 };
+  },
   air(e, R, C) { // aire/ambiente por escala del plano: íntimo y cálido (CU) → amplio y frío con destellos de estrellas (EWS)
     const d = e.dur, x = mk(d), rk = e.p.rank, wide = clamp(rk / 4); let l1 = 0, l2 = 0, b1 = 0, b2 = 0; const tw = [];
     if (rk >= 3) for (let t = R() * 1.5; t < d; t += 1 / (0.3 + 0.9 * wide) * (0.5 + R())) tw.push([t, 2000 + 3500 * R(), 0.3 + 0.7 * R()]);
@@ -152,9 +196,12 @@ const VOICE = {
     return { x, lead: 0 };
   },
 };
+for (const [k, f] of Object.entries(FOLEY)) VOICE[k] = (e, R) => { const r = f.synth(e, R), g = e.gain ?? 1; for (let i = 0; i < r.x.length; i++) r.x[i] *= g; return r; };   // las voces del banco escalan por e.gain dentro
+// Sintetizador de UN evento (mono, determinista por e.seed): lo usan renderEvents y la medida de los tests.
+export const eventSynth = (plan, style) => { const C = { I: plan.intensity, style }; return (e) => VOICE[e.type](e, rng(e.seed), C); };
 export function renderEvents(events, plan, style, N) {
-  const mkBus = () => ({ ...stereo(N), wL: new Float32Array(N), wR: new Float32Array(N) }), buses = { sfx: mkBus(), hit: mkBus(), amb: mkBus() }, C = { I: plan.intensity, style };
-  const dry = (e) => { const R = rng(e.seed); return VOICE[e.type](e, R, C); };
+  const mkBus = () => ({ ...stereo(N), wL: new Float32Array(N), wR: new Float32Array(N) }), buses = { sfx: mkBus(), hit: mkBus(), amb: mkBus() };
+  const dry = eventSynth(plan, style);
   for (const e of events) {
     if (!VOICE[e.type]) continue; const { x, lead } = dry(e); e.lead = lead; const b = buses[e.bus], s0 = Math.round((e.t - lead) * SR), n = x.length, dl = Math.round(0.011 * SR), wd = e.type === 'bloom' || e.type === 'shimmer' || e.bus === 'amb' ? 0.5 : e.type === 'impact' ? 0.25 : 0.1;
     for (let i = 0; i < n; i++) {

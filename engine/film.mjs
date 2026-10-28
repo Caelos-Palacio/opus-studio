@@ -1,6 +1,7 @@
 // Carga (Node): timeline, perfiles, estilos, audio.json, shots/*.mjs y ASSETS (TeX, imágenes, footage); delega en seek.mjs.
 //   Overrides sin tocar archivos:  --style noir --profile cinematic --timeline data/showcase.json --edit data/edit.json
 //   (o env OPUS_STYLE / OPUS_PROFILE / OPUS_TIMELINE / OPUS_EDIT)
+//   --medium kraft / OPUS_MEDIUM: aplica un medio (styles/medios/) a cualquier film sin tocar su timeline (spec 003).
 //   F4: capas de overrides data/layers/*.json + variantes (--variant 9x16 / OPUS_VARIANT; --layers dir|none / OPUS_LAYERS):
 //   resolve(timeline, capas) UNA vez aquí; seek(t) trabaja sobre lo resuelto (docs/PARAMS.md).
 import fs from 'node:fs';
@@ -8,19 +9,24 @@ import { rootFrom } from './paths.mjs';
 import path from 'node:path';
 import canvasPkg from 'canvas';
 import { compile } from './seek.mjs';
-import { makeSandbox } from './sandbox.mjs';
+import { makeSandbox, SandboxError } from './sandbox.mjs';
+import { hrtime } from 'node:process';                  // binding real: el sandbox sustituye el GLOBAL process, no este módulo
+import { scanSource } from './guard.mjs';
+import { eventosDeFilm } from './fondo-eventos.mjs';
 import { makeTexStore, texReady } from './tex.mjs';
-import { assertTimeline } from './schema.mjs';
+import { assertTimeline, suggest as suggestName } from './schema.mjs';
 import { assertEdit, assertAudio, assertMedio } from './inputs.mjs';
 import { resolveTimeline, assertParams } from './params.mjs';
 import { bindParams } from './signal.mjs';
+import { degradar } from './boceto-degrada.mjs';
 import { createWorld3d } from './world3d/index.mjs';
 import { usesWorld3d } from './hash.mjs';
+import { cargarSvg } from './svg-io.mjs';
 import { filmId, sibling, activeTimeline, announceFilm, filmFile, resolveFilm } from './filmid.mjs';
 export { seek, activeShots, shotBeats } from './seek.mjs';
 const { createCanvas, Image } = canvasPkg;
 
-for (const k of ['style', 'profile', 'timeline', 'edit', 'variant', 'layers']) { const i = process.argv.indexOf('--' + k); if (i >= 0 && process.argv[i + 1]) process.env['OPUS_' + k.toUpperCase()] = process.argv[i + 1]; }
+for (const k of ['style', 'profile', 'timeline', 'edit', 'variant', 'layers', 'medium']) { const i = process.argv.indexOf('--' + k); if (i >= 0 && process.argv[i + 1]) process.env['OPUS_' + k.toUpperCase()] = process.argv[i + 1]; }
 
 export const ROOT = rootFrom(import.meta.url);
 const rd = (p) => JSON.parse(fs.readFileSync(path.join(ROOT, p), 'utf8'));
@@ -39,6 +45,7 @@ export function makeAssets(root) {
   const tex = makeTexStore(root), imgs = lru(32), frames = lru(48), metas = new Map();
   return {
     tex: (s, display = true) => tex.get(s, display),
+    svg: (id) => cargarSvg(id, root),                                    // spec 020: SVG sanitizado de assets/ (síncrono, cacheado)
     image: (id) => { const f = [path.join(root, 'assets', id), path.join(root, id)].find((p) => fs.existsSync(p)); return f ? imgs.get(f, () => loadImg(f)) : null; },
     footage: (id) => {
       if (!metas.has(id)) { const mf = path.join(root, 'assets/cache/footage', id, 'meta.json'); metas.set(id, fs.existsSync(mf) ? JSON.parse(fs.readFileSync(mf, 'utf8')) : null); }
@@ -61,18 +68,57 @@ export function buildTimeMap(edit, film) {
   return { map, duration: acc, items };
 }
 
+// Eventos del film (fondo-eventos.mjs): lee las escenas DSL y el story del film activo.
+function eventosDe(film, timeline) {
+  const escenas = {}; for (const s of film.shots) { const f = path.join(ROOT, 'shots', `${s.id}.scene.json`); if (fs.existsSync(f)) { try { escenas[s.id] = JSON.parse(fs.readFileSync(f, 'utf8')); } catch { /* la escena rota la reporta dsl validate */ } } }
+  let story = null; try { const sp = process.env.OPUS_STORY ?? film.story ?? filmFile('story.json', filmId() === 'main' ? 'data/story.json' : null, timeline); if (sp && fs.existsSync(path.join(ROOT, sp))) story = JSON.parse(fs.readFileSync(path.join(ROOT, sp), 'utf8')); } catch { story = null; }
+  return eventosDeFilm({ shots: film.shots, story, escenas, W: film.width, H: film.height });
+}
+// Capa `codigo` (spec 021 §B): cada shots/fondos/<n>.mjs pasa la guardia AST de los shots (FIX ⇒ NO se carga, la capa falla cerrada), se importa bajo el hook de
+// imports del sandbox y se ejecuta con los globales del shot (Date congelado, Math.random sembrado, sin red/proceso/timers). Se mide el coste por cuadro.
+export async function cargarCodigoFondos(film, sb) {
+  const dir = path.join(ROOT, 'shots', 'fondos'), mods = new Map(); film.codigoRechazados = {}; film.codigoCoste = {};
+  if (fs.existsSync(dir)) for (const f of fs.readdirSync(dir).filter((x) => x.endsWith('.mjs')).sort()) {
+    const name = `fondos/${f}`, fixes = scanSource(fs.readFileSync(path.join(dir, f), 'utf8'), name.replace(/\.mjs$/, '')).filter((x) => x.level === 'FIX');
+    if (fixes.length) { film.codigoRechazados[name] = fixes.map((x) => x.problem).join('; '); continue; }
+    const fn = await sb.importShot(path.join(dir, f), name);
+    if (typeof fn === 'function') mods.set(name, fn); else film.codigoRechazados[name] = 'no exporta por defecto una función (ctx, t, E)';
+  }
+  const wrapped = new Map();
+  film.codigo = (archivo) => {
+    if (film.codigoRechazados[archivo]) throw new Error(`fondo: codigo "${archivo}" rechazado por la guardia: ${film.codigoRechazados[archivo]}`);
+    const fn = mods.get(archivo); if (!fn) return undefined;
+    let w = wrapped.get(archivo);
+    if (!w) {
+      w = (ctx, t, E) => {
+        const t0 = hrtime.bigint();
+        try { return sb.run(archivo, () => fn(ctx, t, E)); } catch (e) { if (e instanceof SandboxError) return undefined; throw e; }
+        finally { const ms = Number(hrtime.bigint() - t0) / 1e6, c = (film.codigoCoste[archivo] ??= { n: 0, total: 0, max: 0 }); c.n++; c.total += ms; if (ms > c.max) c.max = ms; }
+      };
+      wrapped.set(archivo, w);
+    }
+    return w;
+  };
+}
 export async function loadFilm({ timeline = timelinePath(), animatic = false, style, profile, edit = process.env.OPUS_EDIT } = {}) {
   await texReady();
   const aj = path.join(ROOT, sibling('audio.json', 'data/audio.json', timeline)), R = resolveTimeline(assertTimeline(rd(timeline), timeline), timeline), tl = R.timeline;   // E8 + F4: capas resueltas
   tl.style = style ?? process.env.OPUS_STYLE ?? tl.style ?? 'editorial';
   if (profile ?? process.env.OPUS_PROFILE) tl.profile = profile ?? process.env.OPUS_PROFILE;
+  if (process.env.OPUS_MEDIUM) {                                                         // override: cualquier film con cualquier medio (hojas A/B, pruebas); sin env, el timeline manda
+    const ms = fs.readdirSync(path.join(ROOT, 'styles/medios')).filter((f) => f.endsWith('.json') && !f.startsWith('_')).map((f) => f.slice(0, -5));
+    if (!ms.includes(process.env.OPUS_MEDIUM)) { const g = suggestName(process.env.OPUS_MEDIUM, ms); throw new Error(`OPUS_MEDIUM: medio "${process.env.OPUS_MEDIUM}" no existe en styles/medios/ — ${g ? `¿quisiste decir "${g}"?` : 'disponibles: ' + ms.join(' ')}`); }
+    tl.medium = process.env.OPUS_MEDIUM;
+  }
   if (tl.medium) tl.mediumDef = assertMedio(rd(`styles/medios/${tl.medium}.json`), `styles/medios/${tl.medium}.json`);                  // spec 003: el medio como datos (compile lo aplica)
   const film = compile(tl, rd('engine/profiles.json'), loadStyles(), fs.existsSync(aj) ? assertAudio(JSON.parse(fs.readFileSync(aj, 'utf8')), path.relative(ROOT, aj)) : null);
   film.timelinePath = timeline;
-  if (process.env.OPUS_FXFAST === '1') film.P.fxFast = true;                          // R3 opt-in (fx baratos): entra en el hash vía film.P; también por perfil/overrides
+  if (process.env.OPUS_FXFAST === '1') film.P.fxFast = true; else if (process.env.OPUS_FXFAST === '0') film.P.fxFast = false;   // spec 009: lint/peek/review lo activan por defecto; 0 lo fuerza fuera                          // R3 opt-in (fx baratos): entra en el hash vía film.P; también por perfil/overrides
+  if (process.env.OPUS_BOCETO === '1') degradar(film);                                   // spec 019: boceto = degradación declarada (engine/boceto-degrada.mjs); film.P.boceto entra en todos los hashes
   film.resolution = R;
   film.assets = makeAssets(ROOT);
   film.canvas = (w, h) => createCanvas(w, h);
+  film.eventos = eventosDe(film, timeline);                                              // spec 021: impactos, cues y beats del relato para los fondos reactivos y los keyframes con ancla
   film.world3d = createWorld3d();                                                       // spec 004: backend 3D (gl/three solo se cargan si algún shot usa api.world3d)
   if (!animatic && usesWorld3d(tl.shots.map((s) => s.id))) { film.world3d.available; film.world3d.sig(); }   // precarga FUERA del sandbox de shots (que congela process/Date); si falta, api.world3d degrada y lint da FIX
   if (!animatic) {
@@ -81,6 +127,7 @@ export async function loadFilm({ timeline = timelinePath(), animatic = false, st
       const f = path.join(ROOT, 'shots', `${s.id}.mjs`);
       if (fs.existsSync(f)) film.mods[s.id] = sb.wrap(await sb.importShot(f, s.id), s.id);
     }
+    await cargarCodigoFondos(film, sb);                                             // spec 021: capas `codigo` (shots/fondos/*.mjs) bajo el mismo sandbox y guardia
     bindParams(film); assertParams(film);                                           // defaults de los esquemas promovidos + validación
   }
   const ac = path.join(ROOT, 'data/autocam', filmId(timeline) === 'main' ? path.basename(timeline) : filmId(timeline) + '.json');                 // cámaras 'auto' horneadas (válidas solo si el hash coincide)

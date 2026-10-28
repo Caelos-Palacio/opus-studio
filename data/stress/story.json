@@ -1,0 +1,122 @@
+{
+ "idea": "Todo lo que existe cabe en 27 multiplicaciones por diez desde ti: contar los pasos es tomar un logaritmo, y tú eres el paso cero.",
+ "question": {
+  "text": "¿Cuántos pasos hasta el borde de lo visible?",
+  "posed_at": 6.8,
+  "answered_at": 58.1,
+  "on_screen": true
+ },
+ "medium": {
+  "id": "tecnico_bermellon",
+  "porque": "Potencias es una medición: cada ventana es una cota y el contador, un logaritmo. El plano técnico (cianotipia con cuadrícula milimetrada, cotas y hoja de plano) hace de la escala el propio lenguaje visual y deja el fondo con textura y luz en vez de negro vacío. El acento es el bermellón del redline de ingeniero (no el ámbar sobre azul noche): marca la ventana, la unidad que se multiplica."
+ },
+ "beats": [
+  {
+   "id": "b1",
+   "t": 0.3,
+   "text": "Una persona dentro de una ventana de un metro: la referencia",
+   "shot": "P01"
+  },
+  {
+   "id": "b2",
+   "t": 6.0,
+   "text": "por lo tanto cada ventana es diez veces la anterior, y empieza el alejamiento",
+   "link": "por lo tanto",
+   "shot": "P02"
+  },
+  {
+   "id": "b3",
+   "t": 11.5,
+   "text": "por lo tanto en cinco pasos salimos de lo cotidiano: una ciudad que todavía se recorre a pie, con volumen",
+   "link": "por lo tanto",
+   "shot": "P03",
+   "w3d": {
+    "concepto": "la ciudad como volumen: lo que aún es habitable tiene profundidad (torres, calles, sombra); la cámara se eleva al alejarnos",
+    "porque": "es el último tramo a escala humana: el 3D encarna lo que se puede recorrer, y su aplanamiento en plano y luego en punto es el primer síntoma de que la escala nos saca del cuerpo"
+   }
+  },
+  {
+   "id": "b4",
+   "t": 19.0,
+   "text": "pero el suelo curvo era una esfera: la Tierra entera y la órbita de la Luna",
+   "link": "pero",
+   "shot": "P04",
+   "w3d": {
+    "concepto": "el suelo plano era una esfera: el planeta como volumen iluminado, con la luz que en el paso siguiente será el Sol",
+    "porque": "es el único paso donde lo plano se revela volumen (premisa de P04); un globo con terminador y luz lo dice sin texto, y la luz lateral prepara la entrada del Sol en P05"
+   }
+  },
+  {
+   "id": "b5",
+   "t": 23.5,
+   "text": "por lo tanto la regla sigue: el Sol, Neptuno, las estrellas vecinas, la galaxia, Andrómeda; más allá del cuerpo solo hay puntos y la ventana",
+   "link": "por lo tanto",
+   "shot": "P05"
+  },
+  {
+   "id": "b6",
+   "t": 46.0,
+   "text": "pero choca con el borde: no hay un paso 28 observable",
+   "link": "pero",
+   "shot": "P10"
+  },
+  {
+   "id": "b7",
+   "t": 55.5,
+   "text": "por lo tanto los 27 pasos, puestos en fila, son iguales: contar es tomar el logaritmo",
+   "link": "por lo tanto",
+   "shot": "P11"
+  },
+  {
+   "id": "b8",
+   "t": 71.0,
+   "text": "por lo tanto volvemos a 10^0: tú eres el paso cero",
+   "link": "por lo tanto",
+   "shot": "P13"
+  }
+ ],
+ "accommodation": {
+  "t": 58.1,
+  "type": "escala",
+  "text": "los pasos desiguales eran iguales: la regla de 27 es un logaritmo"
+ },
+ "scale": [
+  {
+   "at": 58.1,
+   "ref_at": 0.3,
+   "ref": "persona en su ventana de 1 m"
+  }
+ ],
+ "accent": {
+  "means": "bermellón = tú y la ventana (la unidad que se multiplica); cian = luz y medida (atmósfera, estrellas, borde)"
+ },
+ "segments": [
+  [
+   0,
+   23.5
+  ],
+  [
+   23.5,
+   55.5
+  ],
+  [
+   55.5,
+   78
+  ]
+ ],
+ "sakuga": {
+  "P01": "normal",
+  "P02": "normal",
+  "P03": "normal",
+  "P04": "normal",
+  "P05": "simple",
+  "P06": "simple",
+  "P07": "simple",
+  "P08": "normal",
+  "P09": "simple",
+  "P10": "hero",
+  "P11": "normal",
+  "P12": "simple",
+  "P13": "normal"
+ }
+}

@@ -66,4 +66,21 @@ Todos los escenarios miden fotogramas reales (640×360) en los instantes 6, 30, 
 | versión | nota | comentario |
 |---|---|---|
 | mate v1 (nocturno) | "bien, no wow" (hereda la crítica de 003) | fondo negro plano |
-| mate_papel (medio papel crema + tinta cobalto/violeta) | pendiente de calificación | A/B en out/ab/mate.jpg; falta el ojo del usuario |
+| mate_papel (medio papel crema + tinta cobalto/violeta) | **9,5** (2026-10-05) | "muy god"; único reparo: tal vez el efecto del morado (acento violeta) |
+
+## BDD — medios nuevos (rama `medios2`; test/medios.mjs, tools/medios-sheets.mjs, tools/medios-variantes.mjs)
+Cuatro medios con identidad propia (no variantes de color del papel): **kraft** (estraza, tinta negra + acento rojo sello, sellos, fibras gruesas), **pizarra** (tiza: erosión alta, doble pasada, halo de polvo, borrador y fantasmas de fórmulas), **técnico** (blueprint: cuadrícula milimetrada, 2.ª rejilla en parallax, cotas, HUD mono), **neón** (muro de ladrillo mojado con bruma/bokeh, luz aditiva con halo, parpadeo sutil y reflejo en suelo húmedo). Se aplican a cualquier film con `OPUS_MEDIUM=<medio>` / `--medium`.
+| # | Escenario | Medible |
+|---|---|---|
+| K1–K4 | identidad por medio | datos+píxel: kraft 1 acento y fibras ≥50 px; pizarra tiza clara, `ghost`+`smudge`, erosión ≥0,4; técnico rejilla en soporte, cotas, texto mono; neón aditivo con parpadeo, reflejo y atmósfera |
+| X1 | los 5 medios se distinguen | color medio del fondo, L1 ≥ 40/255 entre cualquier par |
+| M1–M4 por medio | no plano, paleta (≥92 % saturados en acentos o tinte del soporte), grano a su cadencia, parallax | como M1–M4 |
+| N1–N3 | neón: no negro plano; parpadeo σ ≥0,4 % y caída ≤15 %; reflejo bajo el horizonte y nada encima | píxeles |
+| T1 | técnico: cuadrícula periódica | autocorrelación del soporte |
+| C1–C2 | compresión por medio: `encode {crf,tune}`; mate_papel ≤ 40 % del tamaño de crf 16 con ≥70 % del grano | medido con ffmpeg |
+| V1–V4 | variantes del acento morado: A ciruela `#4A2F7A`, B terracota `#B4532A`; el film por defecto no cambia | datos |
+| H1 | hoja A/B por medio | archivo generado |
+
+### Calificación 2026-10-06 (medios nuevos y acento)
+- kraft, pizarra, técnico y neón: "están bien, pero cada vídeo debería tener libertad para ello". → El medio es decisión del film (story/timeline `medium`), justificada por su tono; no hay medio impuesto.
+- Acento de mate_papel: "cualquiera de los 3 está bien, pero tal vez terracota" → mate_papel pasa a `papel_crema_terracota`.

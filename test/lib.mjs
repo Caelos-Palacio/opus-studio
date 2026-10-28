@@ -6,6 +6,13 @@ import path from 'node:path';
 import { spawn } from 'node:child_process';
 
 export const ROOT = rootFrom(import.meta.url);
+// Aislamiento del film activo: la suite nunca debe depender de out/.film ni de OPUS_TIMELINE del usuario (`npm run use -- <film>`).
+// (OPUS_TIMELINE heredado lo limpia run.mjs, no aquí: los workers de los tests lo reciben a propósito del padre.)
+// OPUS_USE_FILE apunta a una ruta inexistente (se hereda en todos los procesos hijos); los tests que prueban `use` la sobreescriben con ''.
+process.env.OPUS_USE_FILE ||= path.join(os.tmpdir(), `opus-nofilm-${process.pid}`, '.film');
+// Perfil de la suite (test/suites.mjs): run.mjs lo pasa en OPUS_TEST_PROFILE ('fast' | 'quick' | 'full'). Un test suelto sin perfil = 'full' (como siempre).
+export const PROFILE = process.env.OPUS_TEST_PROFILE || (process.argv.includes('--fast') ? 'fast' : 'full');
+export const FULL = PROFILE === 'full';
 export const FONTS_CONF = path.join(ROOT, 'test/golden/fonts.conf');
 // Solo lo que el motor lee al renderizar/lintar/montar. Antes se copiaba TODO el repo (incluidos docs/, test/ y, en el
 // checkout principal, .claude/worktrees/* con sus copias enteras): lento y frágil.
@@ -13,7 +20,7 @@ const NEEDED = ['engine', 'shots', 'styles', 'data', 'assets', 'storyboard', 'pa
 
 // Copia temporal aislada (node_modules enlazado). fixture = dir con shots/ + timeline.json → shots/ y data/<name>.json
 export function copyRepo({ fixture, name = 'fixture' } = {}) {
-  const d = fs.mkdtempSync(path.join(os.tmpdir(), 'opus-test-'));
+  const d = fs.realpathSync(fs.mkdtempSync(path.join(os.tmpdir(), 'opus-test-')));   // realpath: en macOS tmpdir() = /var/… (symlink a /private/var) y el motor ve rutas reales
   for (const e of NEEDED) { const s = path.join(ROOT, e); if (fs.existsSync(s)) fs.cpSync(s, path.join(d, e), { recursive: true }); }
   fs.rmSync(path.join(d, 'data/autocam'), { recursive: true, force: true });        // cámaras horneadas locales: se regeneran
   fs.symlinkSync(path.join(ROOT, 'node_modules'), path.join(d, 'node_modules'));
@@ -28,7 +35,8 @@ export const rmrf = (d) => fs.rmSync(d, { recursive: true, force: true });
 // spawn → promesa {status, stdout, stderr}; nunca rechaza (el test decide qué es fallo).
 export function run(args, { cwd = ROOT, env = {}, timeout = 900000 } = {}) {
   return new Promise((res) => {
-    const p = spawn(process.execPath, args, { cwd, env: { ...process.env, ...env } }); let out = '', err = '';
+    const p = spawn(process.execPath, args, { cwd, env: { OPUS_WARM: '0', ...process.env, ...env } });   // spec 009: el precalentamiento paralelo del lint no suma dentro de una suite que ya reparte la CPU
+    let out = '', err = '';
     const k = setTimeout(() => p.kill('SIGKILL'), timeout);
     p.stdout.on('data', (b) => (out += b)); p.stderr.on('data', (b) => (err += b));
     p.on('close', (status) => { clearTimeout(k); res({ status, stdout: out, stderr: err }); });

@@ -23,10 +23,12 @@ import { ROOT, timelinePath } from './film.mjs';
 import { rng, hashStr } from './core.mjs';
 import { closure, fileDigest, sha } from './hash.mjs';
 import { loadSoundStyle, soundStylePath, analyzeFilm, composeScore, renderScore } from './score.mjs';
-import { designEvents, renderEvents } from './sounddesign.mjs';
+import { designEvents, renderEvents, eventSynth } from './sounddesign.mjs';
+import { memo, codeSig, fingerprint, astats } from './audiocache.mjs';
 import { mixdown } from './mixer.mjs';
 import { wavBuffer } from './dsp.mjs';
 import { filmId } from './filmid.mjs';
+import { FOLEY } from './foley.mjs';
 
 const SR = 48000, TAU = Math.PI * 2;
 const env = (t, a, d) => (t < a ? t / a : Math.exp(-(t - a) / d));
@@ -42,13 +44,18 @@ export const VOICES = {
   shimmer: { doc: 'parciales agudos que se apagan (revelación)', fn: (o, w) => { for (let i = 0; i < 2.5 * SR; i++) { const t = i / SR; let s = 0; for (const [f, g] of [[1568, 1], [2093, 0.7], [2637, 0.5], [3136, 0.35]]) s += g * Math.sin(TAU * f * t + g); w(i, 0.25 * s * env(t, 0.02, 0.7)); } } },
   drone: { doc: 'lecho grave en quintas (dur s)', fn: (o, w) => { const d = o.dur ?? 4; for (let i = 0; i < d * SR; i++) { const t = i / SR, a = Math.min(1, t / 0.8, (d - t) / 0.8); w(i, 0.3 * a * (Math.sin(TAU * 55 * t) + 0.6 * Math.sin(TAU * 82.4 * t) + 0.2 * Math.sin(TAU * 110 * t + Math.sin(t)))); } } },
   rev: { doc: 'acorde de revelación (legado cues)', fn: (o, w) => { for (let i = 0; i < 2.8 * SR; i++) { const t = i / SR; w(i, (0.5 * Math.sin(TAU * 392 * t) + 0.35 * Math.sin(TAU * 587.3 * (t - 0.12)) * (t > 0.12) + 0.16 * Math.sin(TAU * 784 * (t - 0.24)) * (t > 0.24)) * env(t, 0.01, 0.9)); } } },
+  gota: { doc: 'clic de agua con tono (altura = energía del evento)', fn: (o, w) => { const R = rng(o.seed), f0 = 380 + 1350 * Math.min(1, Math.max(0, o.energia ?? 0.4)); let ph = 0; for (let i = 0; i < 0.5 * SR; i++) { const t = i / SR; ph += (TAU * f0 * (1 + 1.2 * (1 - Math.exp(-t / 0.018)))) / SR; w(i, 0.7 * Math.sin(ph) * env(t, 0.0008, 0.04) + 0.3 * Math.sin(TAU * 2 * f0 * t) * env(t, 0.004, 0.12) + 0.4 * (R() * 2 - 1) * Math.exp(-t / 0.0011)); } } },
+  nota: { doc: 'nota larga y quieta (dur s): tónica con entrada y salida lentas', fn: (o, w) => { const d = o.dur ?? 8; for (let i = 0; i < d * SR; i++) { const t = i / SR, a = Math.min(1, t / 3.2, (d - t) / 3.5) ** 1.6; w(i, 0.22 * a * (Math.sin(TAU * 220 * t) + 0.35 * Math.sin(TAU * 440.8 * t))); } } },
   anom: { doc: 'batido disonante (legado cues)', fn: (o, w) => { for (let i = 0; i < 2.2 * SR; i++) { const t = i / SR; w(i, 0.45 * (Math.asin(Math.sin(TAU * 146.8 * t)) + Math.asin(Math.sin(TAU * 155.6 * t))) * env(t, 0.01, 0.7)); } } },
 };
+
+// spec 017: el foley de archivo también está en la ruta legada (misma síntesis; sin música ni ducking)
+for (const [k, f] of Object.entries(FOLEY)) VOICES[k] = { doc: f.doc, lead: (o) => f.synth({ ...o, dur: o.dur ?? f.dur }, rng(o.seed ?? 1)).lead, fn: (o, w) => { const { x } = f.synth({ ...o, dur: o.dur ?? f.dur }, rng(o.seed ?? 1)); for (let i = 0; i < x.length; i++) w(i, x[i]); } };
 
 export function collectEvents(tl) {
   const ev = [], A = tl.autoSfx === true ? { morph: true, beat: true, cut: true } : tl.autoSfx || {}, shots = [...tl.shots].sort((a, b) => a.t[0] - b.t[0]);
   for (const s of shots) {
-    for (const e of s.sfx ?? []) ev.push({ t: s.t[0] + e.at, type: e.type, gain: e.gain ?? 0.8, pan: e.pan ?? 0, dur: e.dur, src: `${s.id}.sfx` });
+    for (const e of s.sfx ?? []) ev.push({ t: s.t[0] + e.at, type: e.type, gain: e.gain ?? 0.8, pan: e.pan ?? 0, dur: e.dur, energia: e.energia, src: `${s.id}.sfx` });
     for (const c of s.cues ?? []) ev.push({ t: s.t[0] + c.at, type: c.type, gain: 0.7, pan: 0, src: `${s.id}.cues` });
     if (A.beat) for (const b of s.on_beat_at ?? []) ev.push({ t: s.t[0] + b, type: A.beat === true ? 'pop' : A.beat, gain: 0.55, pan: 0, src: `${s.id}.on_beat_at` });
   }
@@ -74,11 +81,25 @@ export function mixHash(tl) {
   return sha(tl, M ? fileDigest(path.join(ROOT, M.file)) : null, v2, code.files.map((f) => f + ':' + fileDigest(path.join(ROOT, f))), code.pkgs);
 }
 // v2: construye partitura, eventos y mezcla en memoria. Devuelve plan, partitura, eventos, buses/stems, master y medidas.
-export function build(tl, { memoria } = {}) {
+// R7 (spec 009): la síntesis de la música y de los buses de efectos sale de caché por CONTENIDO (engine/audiocache.mjs): la clave de cada etapa
+// es lo que esa etapa lee (partitura + plan + estilo + código); editar un sfx no re-sintetiza la música, ni tocar un shot sin efecto en el audio
+// re-sintetiza nada. Bit a bit igual a sintetizar de cero. OPUS_NOCACHE=1 lo desactiva. build.timing = ms por etapa (OPUS_STATS=1 lo imprime).
+export function build(tl, { memoria, tag = filmId(timelinePath()) } = {}) {
+  const T = {}, tm = (k, f) => { const t0 = Date.now(); const r = f(); T[k] = Date.now() - t0; return r; };
   const sd = tl.sound ?? { style: 'epico' }, style = loadSoundStyle(sd.style ?? 'epico', sd.overrides ?? {}), mem = memoria ?? memoriaOf(tl);
-  const plan = analyzeFilm(tl, mem, style), part = composeScore(plan, style), N = Math.ceil((tl.duration + 1.5) * SR);
-  const music = renderScore(part, plan, style, { N }), events = designEvents(tl, plan, style), { buses, renderEvent } = renderEvents(events, plan, style, N);
-  return { sr: SR, plan, style, partitura: part, events, renderEvent, ...mixdown({ plan, style, music, buses, events }) };
+  const plan = tm('plan', () => analyzeFilm(tl, mem, style)), part = tm('compose', () => composeScore(plan, style)), N = Math.ceil((tl.duration + 1.5) * SR);
+  // Claves = SOLO lo que cada etapa lee: renderScore lee la partitura + {impacts, vac, rev0, ret, dur} + I(t); renderEvents, los eventos + I(t). (El plan lleva shots y sfx enteros: no sirven de clave.)
+  const sj = JSON.stringify(style), pI = fingerprint(null, { fn: plan.intensity, dur: plan.dur + 2 }), pM = fingerprint({ impacts: plan.impacts, vac: plan.vac, rev0: plan.rev0, ret: plan.ret, dur: plan.dur });
+  const M = tm('music', () => memo(tag, 'music', sha('music', codeSig('engine/score.mjs'), sj, N, pI, pM, JSON.stringify(part.notes)), () => { const m = renderScore(part, plan, style, { N }); return { arrays: [m.L, m.R] }; }));
+  const music = { L: M.arrays[0], R: M.arrays[1] }, events = tm('design', () => designEvents(tl, plan, style));
+  const E = tm('events', () => memo(tag, 'events', sha('events', codeSig('engine/sounddesign.mjs'), sj, N, pI, JSON.stringify(events)), () => {
+    const { buses: b } = renderEvents(events, plan, style, N);
+    return { arrays: [b.sfx.L, b.sfx.R, b.hit.L, b.hit.R, b.amb.L, b.amb.R], meta: { leads: events.map((e) => e.lead) } };
+  }));
+  events.forEach((e, i) => { e.lead = E.meta.leads[i]; });                       // el render fija e.lead (la mezcla lo lee para el ducking)
+  const [a, b2, c, d, e2, f] = E.arrays, buses = { sfx: { L: a, R: b2 }, hit: { L: c, R: d }, amb: { L: e2, R: f } };
+  const out = tm('mixdown', () => mixdown({ plan, style, music, buses, events }));
+  return { sr: SR, plan, style, partitura: part, events, renderEvent: ((syn) => (e) => syn(e).x)(eventSynth(plan, style)), ...out, timing: T, cache: { music: M.hit, events: E.hit } };
 }
 // Remezcla solo si falta el wav o cambió el hash de entradas. → true si remezcló.
 export function ensureMix(tl, suffix = mixName()) {
@@ -89,6 +110,7 @@ export function ensureMix(tl, suffix = mixName()) {
 export function mix(tl, suffix = mixName()) {
   if (tl.sound) {
     const b = build(tl), inputs = mixHash(tl);
+    if (process.env.OPUS_STATS === '1') console.log(`audio: ${JSON.stringify(b.timing)} caché música ${b.cache.music ? 'acierto' : 'fallo'} · efectos ${b.cache.events ? 'acierto' : 'fallo'}`);
     fs.writeFileSync(path.join(ROOT, `data/mix${suffix}.wav`), wavBuffer(b.master.L, b.master.R));
     fs.mkdirSync(path.join(ROOT, 'out'), { recursive: true });
     const { S, ...rep } = b.report;

@@ -1,0 +1,120 @@
+{
+  "id": "febrero1900",
+  "tema": "29 de febrero de 1900",
+  "fase": "entregado",
+  "revision": "consultar",
+  "creado": "2026-10-27T20:50:42.306Z",
+  "rondas_plan": 0,
+  "historial": [
+    {
+      "t": "2026-10-27T20:50:42.307Z",
+      "evento": "nuevo",
+      "fase": "plan",
+      "revision": "consultar"
+    },
+    {
+      "t": "2026-10-27T20:55:32.857Z",
+      "evento": "storyboard",
+      "fase": "storyboard_listo",
+      "filtro": "PASA",
+      "stills": 8
+    },
+    {
+      "t": "2026-10-27T20:56:02.501Z",
+      "evento": "consultar",
+      "fase": "esperando_usuario"
+    },
+    {
+      "t": "2026-10-27T21:02:08.314Z",
+      "evento": "aprobar",
+      "fase": "producir",
+      "cambios": "1) Mantener 27,6 s. 2) Quitar la franja oscura de subtítulos: la voz se escribe en la propia hoja (columna B como notas, o tecleada en celdas), usando todo el cuadro; el reloj 03:12 puede quedar como dato pequeño en una celda o cabecera. 3) Sin música (confirmado). 4) Corrección de hechos: arreglar el error de datos en hechos.js y plan.md — si se corrigiera, se moverían un día casi todas las fechas POSTERIORES al 28/02/1900 (la cascada de la fila 60 hacia abajo ya es correcta); no las anteriores. 5) Quitar el pad de piano de la plantilla; audio propio (teclas, rueda, ventilador que se calla en A60, tic)."
+    },
+    {
+      "t": "2026-10-27T21:03:20.901Z",
+      "evento": "storyboard",
+      "fase": "storyboard_listo",
+      "filtro": "PASA",
+      "stills": 8
+    },
+    {
+      "t": "2026-10-27T21:03:26.655Z",
+      "evento": "consultar",
+      "fase": "esperando_usuario"
+    },
+    {
+      "t": "2026-10-27T21:03:32.066Z",
+      "evento": "aprobar",
+      "fase": "producir",
+      "cambios": "cambios 1-5 ya aplicados; storyboard regenerado"
+    },
+    {
+      "t": "2026-10-27T21:03:40.311Z",
+      "evento": "producir",
+      "fase": "producido",
+      "modo": "preview"
+    },
+    {
+      "t": "2026-10-27T21:05:52.524Z",
+      "evento": "producir",
+      "fase": "producido",
+      "modo": "final"
+    },
+    {
+      "t": "2026-10-27T21:06:05.818Z",
+      "evento": "verificar",
+      "fase": "verificado",
+      "resultado": "PASA"
+    },
+    {
+      "t": "2026-10-27T21:06:10.164Z",
+      "evento": "entregar",
+      "fase": "producir",
+      "destino": "out/entregas"
+    },
+    {
+      "t": "2026-10-28T03:18:02.531Z",
+      "evento": "producir",
+      "fase": "producido",
+      "modo": "final"
+    },
+    {
+      "t": "2026-10-28T03:18:09.450Z",
+      "evento": "verificar",
+      "fase": "verificado_falla",
+      "resultado": "FALLA"
+    },
+    {
+      "t": "2026-10-28T03:18:25.652Z",
+      "evento": "verificar",
+      "fase": "verificado",
+      "resultado": "PASA"
+    },
+    {
+      "t": "2026-10-28T03:18:25.780Z",
+      "evento": "entregar",
+      "fase": "entregado",
+      "destino": "out/entregas"
+    }
+  ],
+  "storyboard": {
+    "n_stills": 8,
+    "escenas": 7,
+    "filtro": "PASA",
+    "html": "storyboard.html",
+    "jpg": "storyboard.jpg"
+  },
+  "produccion": {
+    "modo": "final",
+    "mp4": "salida/final.mp4",
+    "completo": true,
+    "t": "2026-10-28T03:18:02.530Z"
+  },
+  "verificacion": {
+    "resultado": "PASA",
+    "motivos": [],
+    "mp4": "salida/final.mp4",
+    "completo": true,
+    "t": "2026-10-28T03:18:25.652Z"
+  }
+}

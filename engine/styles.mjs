@@ -12,7 +12,10 @@ export const DEFAULTS = {
   light: { enabled: false, az: 135, shadow: 0.18, highlight: 0.3 },   // luz como vector: az° (135 = arriba-izquierda), sombra de contacto y brillo de borde
   // world3d (spec 004): el estilo manda sobre el 3D. shading: toon (bandas) | soft (lambert suave) | ink (hatching); contorno con la tinta del 2D (grosor ×k como api.path lw 3);
   // snap = fuerza de la cuantización suave a la paleta (null = por modo: toon .8, soft .25, ink .7); la luz clave sale de `light.az` (la misma del 2D); ssaa = supermuestreo; motionBlur: {samples, shutter} | null
-  world3d: { shading: 'toon', bands: 3, outline: { width: 3, color: 'ink' }, snap: null, ssaa: 2, shadowMix: 0.55, light: { el: 28 }, contact: 0.5, hatch: 6, motionBlur: null },
+  // v2 (spec 009): shadows = sombras proyectadas (shadow map; toon = bandas duras, soft/ink = PCF) · shadowMap = resolución · shadowStrength 0..1 · ao = oclusión de contacto 0..1 (0 = off)
+  // rim = luz de borde {color, strength, width px} | false · groundLit = charco de luz del suelo 0..1 · bloom = bloom de los emisivos por el post 2D (fx.bloom). shadows:false + ao:0 + rim:false = v1.
+  world3d: { shading: 'toon', bands: 3, outline: { width: 3, color: 'ink' }, snap: null, ssaa: 2, shadowMix: 0.55, light: { el: 28 }, contact: 0.5, hatch: 6, motionBlur: null,
+    shadows: true, shadowMap: 2048, shadowStrength: 0.8, ao: 0.5, rim: { color: 'accent', strength: 0.85, width: 3 }, groundLit: 0.12, bloom: false },
   compose: { edgeMargin: 0.04, anchor: 'thirds', anchorTol: 0.14, negativeSpace: 0.4 },
   rules: { glow: false, gradients: false, maxColors: 6, maxChroma: 0.22 }, // popRatio: umbral de picos de movimiento (por defecto el del perfil)
   bans: ['crossfade', 'blur-in', 'brightness', '3d flip', 'flip'],

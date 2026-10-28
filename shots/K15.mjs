@@ -1,19 +1,301 @@
-import { PARAMS, word, focusOf, since, fit, stack, shake, glitch, clamp } from './K_tipo.mjs';
-// K15 · pulsos 36 → 38. R·O·M·P·E: una letra por semicorchea, cada una a pantalla completa; después ROM / PE entero titila con tiras y canales crecientes.
-// Cinco golpes seguidos (tick ascendente de la sonoridad) = tensión por densidad, no por volumen.
-const LET = [0, 0.2, 0.4, 0.6, 0.8];
-export default {
-  params: PARAMS,
-  draw(ctx, t, u, shot, film, api) {
-    const S = api.safe, P = api.params, boxes = [], [jx, jy] = shake(P, t, 24 + 30 * P.tension, 15), whole = since(film, shot, t, 1);
-    if (whole < 0) {
-      let i = -1; LET.forEach((k, j) => { if (since(film, shot, t, k) >= 0) i = j; });
-      if (i >= 0) { const ch = 'ROMPE'[i], size = fit(ch, S.w * 0.9); boxes.push(word(ctx, api, ch, S.cx + jx, S.cy + jy, size, { reg: false, split: 28, label: ch })); }
-      boxes.push({ x: S.cx - 40, y: S.cy - 40, w: 80, h: 80 });
-    } else {
-      const c = api.ease('inOut', clamp(whole / 0.55));                      // sin titileo: la palabra entera se aprieta despacio (la calma que precede al golpe)
-      stack(api, ['ROM', 'PE'], { width: S.w * 0.78, cy: S.cy }).forEach((l, i) => boxes.push(word(ctx, api, l.str, l.cx, l.cy, l.size, { label: 'ROMPE', split: 12 * (1 - c * 0.5), color: 'ink' })));
-    }
-    focusOf(api, boxes, 'rotura');
+// GENERADO desde shots/K15.scene.json por `node engine/dsl.mjs build` (spec 006). No editar a mano: edita el .scene.json y regenera.
+import { shot } from '../engine/dsl-core.mjs';
+import * as K_tipo from './K_tipo.mjs';
+export default shot({
+ "dsl": 1,
+ "id": "K15",
+ "doc": "K15 · pulsos 36 → 38. R·O·M·P·E: una letra por semicorchea, cada una a pantalla completa; después ROM / PE entero titila con tiras y canales crecientes. Cinco golpes seguidos (tick ascendente de la sonoridad) = tensión por densidad, no por volumen.",
+ "libs": {
+  "K_tipo": "./K_tipo.mjs"
+ },
+ "fns": {
+  "since": {
+   "lib": "K_tipo",
+   "fn": "since",
+   "bind": [
+    "film",
+    "shot",
+    "t"
+   ]
   },
-};
+  "fit": {
+   "lib": "K_tipo",
+   "fn": "fit"
+  },
+  "shake": {
+   "lib": "K_tipo",
+   "fn": "shake",
+   "bind": [
+    "P",
+    "t"
+   ],
+   "reads": [
+    "chaos"
+   ]
+  }
+ },
+ "params": {
+  "kick": {
+   "type": "number",
+   "range": [
+    0,
+    2
+   ],
+   "default": 0,
+   "semantic": "envolvente de los onsets del bombo: golpe de escala"
+  },
+  "snare": {
+   "type": "number",
+   "range": [
+    0,
+    2
+   ],
+   "default": 0,
+   "semantic": "envolvente de caja/palmas/toms: destello y corte de tiras"
+  },
+  "hat": {
+   "type": "number",
+   "range": [
+    0,
+    2
+   ],
+   "default": 0,
+   "semantic": "envolvente de hats: titileo"
+  },
+  "tom": {
+   "type": "number",
+   "range": [
+    0,
+    2
+   ],
+   "default": 0,
+   "semantic": "envolvente de toms: cuarta voz del secuenciador"
+  },
+  "chaos": {
+   "type": "number",
+   "range": [
+    0,
+    1
+   ],
+   "default": 0.5,
+   "semantic": "desorden: 1 = ruido (tiras y temblor), 0 = todo alineado"
+  },
+  "lock": {
+   "type": "number",
+   "range": [
+    0,
+    1
+   ],
+   "default": 0,
+   "semantic": "cuánto se pega el contenido a la rejilla visible"
+  },
+  "shock": {
+   "type": "number",
+   "range": [
+    0,
+    2
+   ],
+   "default": 0,
+   "semantic": "onda de choque tras el golpe (sacudida, canales, anillo)"
+  },
+  "tension": {
+   "type": "number",
+   "range": [
+    0,
+    1.5
+   ],
+   "default": 0,
+   "semantic": "tensión acumulada del crescendo (compresión, brillo del acento)"
+  },
+  "drift": {
+   "type": "number",
+   "range": [
+    -1,
+    1
+   ],
+   "default": 0,
+   "semantic": "deriva lenta (LFO): respiración en los respiros"
+  },
+  "text": {
+   "type": "string",
+   "semantic": "texto principal del shot (default shot.text)"
+  }
+ },
+ "objects": [
+  {
+   "id": "J",
+   "type": "let",
+   "value": {
+    "$expr": "shake(24 + 30 * tension, 15)"
+   },
+   "fields": [
+    "0",
+    "1"
+   ]
+  },
+  {
+   "id": "whole",
+   "type": "let",
+   "value": {
+    "$expr": "since(1)"
+   }
+  },
+  {
+   "id": "letras",
+   "type": "group",
+   "when": "whole < 0",
+   "children": [
+    {
+     "id": "li",
+     "type": "let",
+     "value": {
+      "$expr": "(since(0) >= 0) + (since(0.2) >= 0) + (since(0.4) >= 0) + (since(0.6) >= 0) + (since(0.8) >= 0) - 1"
+     }
+    },
+    {
+     "id": "letra",
+     "type": "group",
+     "when": "li >= 0",
+     "children": [
+      {
+       "id": "ch",
+       "type": "let",
+       "value": {
+        "$expr": "chr('ROMPE', li)"
+       }
+      },
+      {
+       "id": "size",
+       "type": "let",
+       "value": {
+        "$expr": "fit(ch, S_w * 0.9)"
+       }
+      },
+      {
+       "type": "word",
+       "lib": "K_tipo",
+       "str": {
+        "$expr": "ch"
+       },
+       "x": {
+        "$expr": "S_cx + J_0"
+       },
+       "y": {
+        "$expr": "S_cy + J_1"
+       },
+       "size": {
+        "$expr": "size"
+       },
+       "opts": {
+        "reg": false,
+        "split": 28,
+        "label": {
+         "$expr": "ch"
+        }
+       }
+      }
+     ]
+    },
+    {
+     "type": "box",
+     "x": {
+      "$expr": "S_cx - 40"
+     },
+     "y": {
+      "$expr": "S_cy - 40"
+     },
+     "w": 80,
+     "h": 80
+    }
+   ]
+  },
+  {
+   "id": "entera",
+   "type": "group",
+   "when": "whole >= 0",
+   "children": [
+    {
+     "id": "c",
+     "type": "let",
+     "value": {
+      "$expr": "ease('inOut', clamp(whole / 0.55))"
+     }
+    },
+    {
+     "id": "lines",
+     "type": "let",
+     "lib": "K_tipo",
+     "fn": "stack",
+     "args": [
+      "api",
+      [
+       "ROM",
+       "PE"
+      ],
+      {
+       "width": {
+        "$expr": "S_w * 0.78"
+       },
+       "cy": {
+        "$expr": "S_cy"
+       }
+      }
+     ]
+    },
+    {
+     "id": "L",
+     "type": "repeat",
+     "items": {
+      "$expr": "lines"
+     },
+     "fields": [
+      "str",
+      "cx",
+      "cy",
+      "size",
+      "cap"
+     ],
+     "children": [
+      {
+       "type": "word",
+       "lib": "K_tipo",
+       "str": {
+        "$expr": "L_str"
+       },
+       "x": {
+        "$expr": "L_cx"
+       },
+       "y": {
+        "$expr": "L_cy"
+       },
+       "size": {
+        "$expr": "L_size"
+       },
+       "opts": {
+        "label": "ROMPE",
+        "split": {
+         "$expr": "12 * (1 - c * 0.5)"
+        },
+        "color": "ink"
+       }
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "type": "focusOf",
+   "lib": "K_tipo",
+   "fn": "focusOf",
+   "args": [
+    "api",
+    {
+     "$expr": "boxes"
+    },
+    {
+     "$lit": "rotura"
+    }
+   ]
+  }
+ ]
+}, { K_tipo });

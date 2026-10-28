@@ -22,6 +22,13 @@ function vignette(film, ctx, W, H, v) {
   }
   ctx.save(); ctx.setTransform(1, 0, 0, 1, 0, 0); ctx.drawImage(o, 0, 0); ctx.restore();
 }
+// Grano del estilo (motas deterministas por fotograma). Aparte para que el export con alfa (`cut --alpha --alpha-grain`) lo reutilice sobre el sujeto.
+export function applyGrain(ctx, film, t) {
+  const g = film.S.grade, W = film.width, H = film.height; if (!(g.grain > 0)) return;
+  const r = rng(Math.floor(t * 24) * 7919 + 17), n = Math.round(W * H * g.grain * 0.02), s = 1.4 * Math.max(1, W / 1280);
+  ctx.fillStyle = 'rgba(255,255,255,0.10)'; for (let i = 0; i < n; i++) ctx.fillRect(r() * W, r() * H, s, s);
+  ctx.fillStyle = 'rgba(0,0,0,0.12)'; for (let i = 0; i < n; i++) ctx.fillRect(r() * W, r() * H, s, s);
+}
 function applyGrade_(ctx, film, t) {
   const g = film.S.grade, W = film.width, H = film.height, post = g.post ?? {};
   if (post.bloom || post.chroma) {                                        // post global sobre el fotograma ya compuesto (px de dispositivo)
@@ -30,11 +37,7 @@ function applyGrade_(ctx, film, t) {
     if (post.bloom) bloom(film, ctx, snap, { ...post.bloom, radius: (post.bloom.radius ?? 24) * (cv.width / W) });
   }
   if (g.vignette > 0) vignette(film, ctx, W, H, g.vignette);
-  if (g.grain > 0) {
-    const r = rng(Math.floor(t * 24) * 7919 + 17), n = Math.round(W * H * g.grain * 0.02), s = 1.4 * Math.max(1, W / 1280);
-    ctx.fillStyle = 'rgba(255,255,255,0.10)'; for (let i = 0; i < n; i++) ctx.fillRect(r() * W, r() * H, s, s);
-    ctx.fillStyle = 'rgba(0,0,0,0.12)'; for (let i = 0; i < n; i++) ctx.fillRect(r() * W, r() * H, s, s);
-  }
+  applyGrain(ctx, film, t);
   const f = g.fade ?? {}; let a = 0;
   if (f.in > 0 && t < f.in) a = 1 - t / f.in;
   if (f.out > 0 && t > film.duration - f.out) a = Math.max(a, (t - (film.duration - f.out)) / f.out);

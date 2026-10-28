@@ -5,6 +5,13 @@
     "questionBy": "hi", "answerAfter": "lo", "accomTol": "hi", "accentShare": "hi", "accentFocus": "lo", "heroShare": "hi",
     "conceptsPerMin": "hi", "maxAnimated": "hi", "contiguity": "hi", "signal": "lo", "linearDev": "lo"
   },
+  "formas": {
+    "_doc": "Geometría del arco por forma narrativa (story.forma, spec 013). peakPos = ventana del pico de energía (null = la del perfil); giroPos = ventana del giro (lo lee engine/narr.mjs: giro.posicion); accomTol = tolerancia pico↔acomodación en fracción del metraje (null = la del perfil); endDrop = tope de la energía final / pico (null = perfil); spine: estricto = pero/por lo tanto en cada beat (FIX si 'y luego'), libre = sin conector obligatorio. causal reproduce EXACTAMENTE el comportamiento v1 (los films v1 no cambian de resultado).",
+    "causal": { "peakPos": null, "giroPos": [0.55, 0.92], "accomTol": null, "endDrop": null, "spine": "estricto" },
+    "kisho": { "peakPos": [0.5, 0.9], "giroPos": [0.45, 0.8], "accomTol": 0.25, "endDrop": null, "spine": "libre" },
+    "espiral": { "peakPos": [0.5, 0.95], "giroPos": [0.5, 0.9], "accomTol": 0.2, "endDrop": null, "spine": "libre" },
+    "cuenta_atras": { "peakPos": [0.8, 1.0], "giroPos": [0.85, 1.0], "accomTol": null, "endDrop": 1.0, "spine": "estricto" }
+  },
   "priors": {
     "reel": {
       "peakRatio": 3, "peakPos": [0.6, 0.85], "calmWin": 1.0, "calmRatio": 1.0, "endDrop": 0.5, "holdMin": 0.25, "holdWin": 1.5,

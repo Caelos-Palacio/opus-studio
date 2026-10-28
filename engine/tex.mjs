@@ -7,6 +7,7 @@ import path from 'node:path';
 import { hashStr } from './core.mjs';
 import { parsePath, mapPts } from './geom.mjs';
 import { withLockSync, writeAtomic } from './lock.mjs';
+import { trusted } from './sandbox.mjs';
 
 let MJ = null;
 async function boot() {
@@ -30,6 +31,7 @@ function parseTransform(s) {
   }
   return m;
 }
+const MAX_TEX = 2000;
 export const texKey = (tex, display = true) => (hashStr((display ? 'D:' : 'I:') + tex) >>> 0).toString(36);
 
 // Compila (síncrono tras boot) y devuelve { tex, w, h, glyphs:[{c, shape}] } en unidades em, origen arriba-izquierda.
@@ -63,11 +65,14 @@ export function makeTexStore(root) {
       let hit = null; try { hit = JSON.parse(fs.readFileSync(f, 'utf8')); } catch {}
       if (hit) v = hit;
       else {
-        v = compileTexSync(tex, display); writeAtomic(f, JSON.stringify(v));
+        if (typeof tex !== 'string' || tex.length > MAX_TEX) throw new Error(`tex: expresión no válida (cadena de ≤ ${MAX_TEX} caracteres)`);
+        // Fallo de caché = TeX generado por el shot (p. ej. una ecuación por década): se compila AQUÍ, en el servicio del motor, con los
+        // globales reales (el shot solo cede una cadena y recibe contornos; el resultado es función pura de la cadena → determinista).
+        trusted(() => { v = compileTexSync(tex, display); writeAtomic(f, JSON.stringify(v));
         withLockSync('tex-cache', () => {                                     // RMW del manifiesto bajo lock: dos agentes no se pisan entradas
           const ix = path.join(dir, 'index.json'); let I = {}; try { I = JSON.parse(fs.readFileSync(ix, 'utf8')); } catch {}
           I[k] = { tex, display }; writeAtomic(ix, JSON.stringify(I, null, 1));   // manifiesto para el navegador
-        });
+        }); });
       }
       mem.set(k, v); return v;
     },

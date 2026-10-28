@@ -1,0 +1,234 @@
+{
+ "dsl": 1,
+ "id": "V08",
+ "doc": "Los tres contadores (11, 8, 5) se funden en un 24; al lado, un 25 fantasma a medio apagar.",
+ "camera": {
+  "move": "static"
+ },
+ "transition": {
+  "out": "cut"
+ },
+ "objects": [
+  {
+   "type": "fondo",
+   "preset": "cuba_oscura",
+   "ajustes": {
+    "agua": {
+     "stops": [
+      "#01070c",
+      "#03141d",
+      "#010305"
+     ]
+    },
+    "haces": {
+     "intensidad": 0.045
+    },
+    "turbidez": {
+     "alfa": 0.1
+    },
+    "bruma": {
+     "densidad": 0.2
+    },
+    "pmtLejanos": {
+     "brillo": 0.22,
+     "alfa": 0.4
+    },
+    "pmtCercanos": {
+     "brillo": 0.3,
+     "alfa": 0.6
+    },
+    "vineta": {
+     "fuerza": 0.9
+    }
+   }
+  },
+  {
+   "id": "c0",
+   "type": "objeto",
+   "when": "lt < 3.2",
+   "objeto": "contador",
+   "x": {
+    "$expr": "300 + (640 - 300) * ease('inOut', seg(lt, 1.9, 3.0))"
+   },
+   "y": 290,
+   "size": 260,
+   "alfa": {
+    "$expr": "seg(lt, 0.1, 0.6) * (1 - seg(lt, 2.5, 3.1))"
+   },
+   "params": {
+    "digitos": 2,
+    "tipo": "numerico"
+   },
+   "partes": {
+    "valor": 11,
+    "brillo": 0.95
+   },
+   "color": "#07141c",
+   "relleno": "#0a1a24",
+   "acento": "#5FA8CF"
+  },
+  {
+   "id": "l0",
+   "type": "text",
+   "when": "lt < 2.0",
+   "text": "KAMIOKANDE-II",
+   "x": 300,
+   "y": 372,
+   "role": "label",
+   "align": "center",
+   "color": "#5FA8CF",
+   "alpha": {
+    "$expr": "0.75 * seg(lt, 0.2, 0.6) * (1 - seg(lt, 1.6, 1.95))"
+   }
+  },
+  {
+   "id": "c1",
+   "type": "objeto",
+   "when": "lt < 3.2",
+   "objeto": "contador",
+   "x": {
+    "$expr": "640 + (640 - 640) * ease('inOut', seg(lt, 1.9, 3.0))"
+   },
+   "y": 290,
+   "size": 260,
+   "alfa": {
+    "$expr": "seg(lt, 0.1, 0.6) * (1 - seg(lt, 2.5, 3.1))"
+   },
+   "params": {
+    "digitos": 2,
+    "tipo": "numerico"
+   },
+   "partes": {
+    "valor": 8,
+    "brillo": 0.95
+   },
+   "color": "#07141c",
+   "relleno": "#0a1a24",
+   "acento": "#7f9bff"
+  },
+  {
+   "id": "l1",
+   "type": "text",
+   "when": "lt < 2.0",
+   "text": "IMB",
+   "x": 640,
+   "y": 372,
+   "role": "label",
+   "align": "center",
+   "color": "#7f9bff",
+   "alpha": {
+    "$expr": "0.75 * seg(lt, 0.2, 0.6) * (1 - seg(lt, 1.6, 1.95))"
+   }
+  },
+  {
+   "id": "c2",
+   "type": "objeto",
+   "when": "lt < 3.2",
+   "objeto": "contador",
+   "x": {
+    "$expr": "980 + (640 - 980) * ease('inOut', seg(lt, 1.9, 3.0))"
+   },
+   "y": 290,
+   "size": 260,
+   "alfa": {
+    "$expr": "seg(lt, 0.1, 0.6) * (1 - seg(lt, 2.5, 3.1))"
+   },
+   "params": {
+    "digitos": 2,
+    "tipo": "numerico"
+   },
+   "partes": {
+    "valor": 5,
+    "brillo": 0.95
+   },
+   "color": "#07141c",
+   "relleno": "#0a1a24",
+   "acento": "#f0d060"
+  },
+  {
+   "id": "l2",
+   "type": "text",
+   "when": "lt < 2.0",
+   "text": "BAKSAN",
+   "x": 980,
+   "y": 372,
+   "role": "label",
+   "align": "center",
+   "color": "#f0d060",
+   "alpha": {
+    "$expr": "0.75 * seg(lt, 0.2, 0.6) * (1 - seg(lt, 1.6, 1.95))"
+   }
+  },
+  {
+   "id": "tot",
+   "type": "objeto",
+   "when": "lt > 2.5",
+   "objeto": "contador",
+   "x": 640,
+   "y": 300,
+   "size": 480,
+   "alfa": {
+    "$expr": "seg(lt, 2.7, 3.2)"
+   },
+   "params": {
+    "digitos": 2,
+    "tipo": "numerico"
+   },
+   "partes": {
+    "valor": 24,
+    "brillo": 1
+   },
+   "color": "#07141c",
+   "relleno": "#0a1a24",
+   "acento": "#e9e6ef"
+  },
+  {
+   "id": "fan",
+   "type": "text",
+   "when": "lt > 3.2",
+   "text": "25",
+   "x": 1020,
+   "y": 300,
+   "role": "display",
+   "align": "center",
+   "color": "ink",
+   "alpha": {
+    "$expr": "seg(lt, 3.2, 3.8) * (0.36 + 0.14 * sin(lt * 5.5))"
+   }
+  },
+  {
+   "id": "t0",
+   "type": "text",
+   "text": "Contamos veinticuatro.",
+   "x": {
+    "$expr": "S_cx"
+   },
+   "y": {
+    "$expr": "S_y1 - 74"
+   },
+   "role": "body",
+   "align": "center",
+   "color": "ink",
+   "alpha": {
+    "$expr": "1 * seg(lt, 0.6, 1.4) * (1 - seg(lt, 3.8, 4.6))"
+   }
+  },
+  {
+   "id": "t1",
+   "type": "text",
+   "text": "Veinticinco, si vale el sexto.",
+   "x": {
+    "$expr": "S_cx"
+   },
+   "y": {
+    "$expr": "S_y1 - 34"
+   },
+   "role": "label",
+   "align": "center",
+   "color": "ink",
+   "alpha": {
+    "$expr": "0.85 * seg(lt, 1.4, 2.2) * (1 - seg(lt, 3.8, 4.6))"
+   }
+  }
+ ]
+}

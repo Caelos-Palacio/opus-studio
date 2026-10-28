@@ -1,0 +1,45 @@
+{
+ "_doc": "Spec 010. Entrada de `dsl coverage`. pendiente: shots que toca otra rama (no se convierten aquí; SIGUEN contando en el denominador honesto). escape: shots que se quedan en JS con razón. libfn: función de lib/módulo auxiliar → tipo DSL que la sustituye (si el tipo existe en dsl-core, el shot es convertible).",
+ "pendiente": {
+  "D01": "world3d2"
+ },
+ "escape": {
+  "A1": "objetivo de las mutaciones de test/run.mjs, golden.mjs, gov.mjs y orch: esos tests editan su JS por texto",
+  "A2": "objetivo de las mutaciones de test/run.mjs, golden.mjs, gov.mjs y orch: esos tests editan su JS por texto"
+ },
+ "libfn": {},
+ "ratchet": {
+  "_doc": "Umbral de cobertura honesta (% de shots en DSL sobre TODOS los shots, pendientes incluidos). Solo sube: test/dsl-cov.mjs C7 falla si baja; súbelo al convertir más.",
+  "min": 95.0
+ },
+ "nativo": {
+  "C1": "film consta: nació en DSL desde recetas (spec 016; no hubo JS previo)",
+  "C2": "film consta: nació en DSL desde recetas (spec 016; no hubo JS previo)",
+  "C3": "film consta: nació en DSL desde recetas (spec 016; no hubo JS previo)",
+  "C4": "film consta: nació en DSL desde recetas (spec 016; no hubo JS previo)",
+  "C5": "film consta: nació en DSL desde recetas (spec 016; no hubo JS previo)",
+  "C6": "film consta: nació en DSL desde recetas (spec 016; no hubo JS previo)",
+  "C7": "film consta: nació en DSL desde recetas (spec 016; no hubo JS previo)",
+  "C8": "film consta: nació en DSL desde recetas (spec 016; no hubo JS previo)",
+  "S01": "diagrama del film sistema: nació en DSL (no hubo JS previo)",
+  "S02": "diagrama del film sistema: nació en DSL (no hubo JS previo)",
+  "S03": "diagrama del film sistema: nació en DSL (no hubo JS previo)",
+  "S04": "diagrama del film sistema: nació en DSL (no hubo JS previo)",
+  "S05": "diagrama del film sistema: nació en DSL (no hubo JS previo)",
+  "FL01": "demo de fondos libres (spec 021): nació en DSL; la capa codigo vive en shots/fondos/burbujas.mjs",
+  "V01": "film veinticuatro: nació en DSL (generado por data/veinticuatro/escenas.mjs; no hubo JS previo)",
+  "V02": "film veinticuatro: nació en DSL (generado por data/veinticuatro/escenas.mjs; no hubo JS previo)",
+  "V03": "film veinticuatro: nació en DSL (generado por data/veinticuatro/escenas.mjs; no hubo JS previo)",
+  "V04": "film veinticuatro: nació en DSL (generado por data/veinticuatro/escenas.mjs; no hubo JS previo)",
+  "V05": "film veinticuatro: nació en DSL (generado por data/veinticuatro/escenas.mjs; no hubo JS previo)",
+  "V06": "film veinticuatro: nació en DSL (generado por data/veinticuatro/escenas.mjs; no hubo JS previo)",
+  "V07": "film veinticuatro: nació en DSL (generado por data/veinticuatro/escenas.mjs; no hubo JS previo)",
+  "V08": "film veinticuatro: nació en DSL (generado por data/veinticuatro/escenas.mjs; no hubo JS previo)",
+  "V09": "film veinticuatro: nació en DSL (generado por data/veinticuatro/escenas.mjs; no hubo JS previo)",
+  "V10": "film veinticuatro: nació en DSL (generado por data/veinticuatro/escenas.mjs; no hubo JS previo)",
+  "V11": "film veinticuatro: nació en DSL (generado por data/veinticuatro/escenas.mjs; no hubo JS previo)",
+  "V12": "film veinticuatro: nació en DSL (generado por data/veinticuatro/escenas.mjs; no hubo JS previo)",
+  "VT01": "film vectores: nació en DSL (VT01 a mano; VT02 generado desde shots/VT02.diagrama.json); no hubo JS previo",
+  "VT02": "film vectores: nació en DSL (VT01 a mano; VT02 generado desde shots/VT02.diagrama.json); no hubo JS previo"
+ }
+}

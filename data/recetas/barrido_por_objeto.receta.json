@@ -1,0 +1,13 @@
+{
+"meta": {"id":"barrido_por_objeto","grupo":"transicion","resumen":"un objeto cruza el cuadro y su paso borra el plano","tags":["barrido","wipe","cortinilla","cruzar","objeto","transición"],"params":{"tam":"number","barre":"number"},"cuando":"el cambio de plano lo hace un objeto del propio mundo al cruzar delante"},
+"scene": {"dsl":1,"id":"$ID","doc":"[receta:barrido_por_objeto] un objeto cruza el cuadro en el último tramo y tapa el plano.",
+ "params": {"tam":{"type":"number","range":[20,200],"unit":"px","default":80,"semantic":"radio del ancla"},
+  "barre":{"type":"number","range":[0.3,2],"unit":"s","default":0.9,"semantic":"duración del barrido"}},
+ "camera": {"move":"slide","why":"follow","dir":[1,0],"amount":0.04}, "transition": {"out":"wipe-obj"},
+ "objects": [
+  {"id":"fondo","type":"ground","fy":0.86,"alpha":0.22},
+  {"id":"ancla","type":"shape","shape":"circle","x":{"$expr":"S_cx"},"y":{"$expr":"S_cy"},"r":{"$expr":"tam"},"color":"accent","semantic":"$hueco: el objeto que se queda en el plano"},
+  {"id":"foco","type":"focus","x":{"$expr":"S_cx - tam"},"y":{"$expr":"S_cy - tam"},"w":{"$expr":"2 * tam"},"h":{"$expr":"2 * tam"},"label":"ancla"},
+  {"id":"cortina","type":"shape","shape":"rect","x":{"$expr":"mix(-W, 0, seg(lt, dur - barre, dur))"},"y":0,"w":{"$expr":"W"},"h":{"$expr":"H"},"color":"accent2","semantic":"$hueco: el objeto que cruza y borra el plano"}
+ ]}
+}

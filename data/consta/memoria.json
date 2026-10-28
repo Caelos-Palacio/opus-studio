@@ -1,0 +1,248 @@
+{
+ "version": 1,
+ "titulo": "Consta",
+ "timeline": "data/consta/timeline.json",
+ "memoria": {
+  "vidaMedia": 14,
+  "piso": 0.12,
+  "umbral": 0.15
+ },
+ "conceptos": [
+  {
+   "id": "cilindro",
+   "label": "el cilindro de platino bajo tres campanas: el kilo",
+   "kind": "entidad",
+   "saliencia": 0.95,
+   "planta": true,
+   "anclas": [
+    {
+     "shot": "C1"
+    },
+    {
+     "shot": "C8"
+    }
+   ],
+   "estados": [
+    {
+     "t": [
+      0,
+      31
+     ],
+     "lectura": "un objeto guardado con extremo cuidado: lo que es un kilo",
+     "siente": "respeto, solemnidad de museo",
+     "espera": "que alguien explique por qué tanto cuidado"
+    },
+    {
+     "t": [
+      31,
+      45
+     ],
+     "lectura": "un objeto sin guardia, que ya no define nada",
+     "siente": "desamparo seco",
+     "espera": "que alguien lo vuelva a pesar"
+    }
+   ]
+  },
+  {
+   "id": "llaves",
+   "label": "tres llaves de tres manos: nadie abre solo",
+   "kind": "entidad",
+   "saliencia": 0.7,
+   "anclas": [
+    {
+     "shot": "C1"
+    },
+    {
+     "shot": "C6"
+    }
+   ],
+   "estados": [
+    {
+     "t": [
+      0,
+      31
+     ],
+     "lectura": "la prueba de que el kilo es verdad",
+     "siente": "seguridad",
+     "espera": "nada"
+    },
+    {
+     "t": [
+      31,
+      36.4
+     ],
+     "lectura": "la prueba de que nadie lo tocó, no de que no cambiara",
+     "siente": "un pequeño vértigo",
+     "espera": "que algo se rompa"
+    }
+   ]
+  },
+  {
+   "id": "diferencia",
+   "label": "50 microgramos de diferencia con las copias",
+   "kind": "tensión",
+   "saliencia": 0.8,
+   "abre": 4.4,
+   "anclas": [
+    {
+     "shot": "C2"
+    },
+    {
+     "shot": "C4"
+    }
+   ],
+   "estados": [
+    {
+     "t": [
+      4.4,
+      45
+     ],
+     "lectura": "una diferencia que alguien tiene que haber causado",
+     "siente": "curiosidad",
+     "espera": "un culpable"
+    }
+   ],
+   "abiertaAPropósito": "la diferencia nunca se explica: el film termina donde el acta no puede atribuirla"
+  },
+  {
+   "id": "quien-se-movio",
+   "label": "quién se movió: el cilindro o las copias",
+   "kind": "pregunta",
+   "saliencia": 0.95,
+   "abre": 4.4,
+   "anclas": [
+    {
+     "shot": "C3"
+    },
+    {
+     "shot": "C5"
+    }
+   ],
+   "estados": [
+    {
+     "t": [
+      4.4,
+      27.2
+     ],
+     "lectura": "una pregunta con respuesta sencilla (el cilindro perdió, o las copias ganaron)",
+     "siente": "intriga",
+     "espera": "una pesada que lo decida"
+    },
+    {
+     "t": [
+      27.2,
+      45
+     ],
+     "lectura": "una casilla en blanco que nunca se rellenó",
+     "siente": "vértigo seco",
+     "espera": "nada: consta que no consta"
+    }
+   ],
+   "abiertaAPropósito": "no consta: es la casilla en blanco del acta; resolverla sería mentir"
+  },
+  {
+   "id": "acta",
+   "label": "el acta: lo que consta y lo que no",
+   "kind": "motivo",
+   "saliencia": 0.6,
+   "anclas": [
+    {
+     "shot": "C3"
+    },
+    {
+     "shot": "C7"
+    },
+    {
+     "shot": "C8"
+    }
+   ],
+   "estados": [
+    {
+     "t": [
+      8.4,
+      45
+     ],
+     "lectura": "el procedimiento que registra sin resolver",
+     "siente": "humor seco",
+     "espera": "la siguiente línea"
+    }
+   ]
+  },
+  {
+   "id": "incertidumbre",
+   "label": "10 microgramos de incertidumbre propia del cilindro",
+   "kind": "revelación",
+   "saliencia": 0.9,
+   "anclas": [
+    {
+     "shot": "C8"
+    }
+   ],
+   "estados": [
+    {
+     "t": [
+      39,
+      45
+     ],
+     "lectura": "por primera vez el patrón puede estar equivocado",
+     "siente": "vértigo, algo se agranda",
+     "espera": "nada"
+    }
+   ]
+  }
+ ],
+ "relaciones": [
+  {
+   "id": "diferencia-pregunta",
+   "tipo": "prepara",
+   "de": "diferencia",
+   "a": "quien-se-movio",
+   "t": 8.4,
+   "why": "si hay diferencia, alguien tiene que haberse movido"
+  },
+  {
+   "id": "sin-tercer-kilo",
+   "tipo": "causa",
+   "de": "quien-se-movio",
+   "a": "llaves",
+   "t": 31,
+   "why": "sin un tercer kilo con que comprobarlo, las llaves solo garantizaban la custodia"
+  },
+  {
+   "id": "sin-guardia",
+   "tipo": "revela",
+   "de": "incertidumbre",
+   "a": "cilindro",
+   "t": 39,
+   "why": "al dejar de ser el kilo, el cilindro puede medirse: y errar"
+  }
+ ],
+ "reinterpretaciones": [
+  {
+   "id": "llaves-custodia",
+   "en": 31,
+   "por": "quien-se-movio",
+   "objetivo": "llaves",
+   "tramo": [
+    0,
+    4.4
+   ],
+   "antes": "las llaves protegían la verdad del kilo",
+   "despues": "las llaves protegían su custodia: que nadie lo tocara, no que no cambiara",
+   "why": "no consta cuál se movió: lo único garantizado era el procedimiento"
+  },
+  {
+   "id": "cilindro-error",
+   "en": 41.8,
+   "por": "incertidumbre",
+   "objetivo": "cilindro",
+   "tramo": [
+    0,
+    31
+   ],
+   "antes": "el patrón no puede fallar por definición",
+   "despues": "el cilindro puede por fin estar equivocado; antes no podía serlo ni aunque lo estuviera",
+   "why": "su incertidumbre era cero por decreto; desde 2019 es de 10 microgramos"
+  }
+ ]
+}

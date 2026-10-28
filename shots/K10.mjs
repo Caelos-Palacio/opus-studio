@@ -1,18 +1,316 @@
-import { PARAMS, word, focusOf, since, pop, fit, gridlines, ROWS, clamp, shake, snapTo, playhead, barPhase } from './K_tipo.mjs';
-// K10 · pulsos 20 → 24 (compás 6). Las cuatro filas, ya clavadas a la rejilla, laten con su pista: la letra salta cuando suena su instrumento
-// (hop escalonado por letra) y un cursor lima recorre el compás. Aquí `lock` ≈ 0,8–1 y `chaos` cae con cada bombo (expresión sobre dos señales).
-export default {
-  params: PARAMS,
-  draw(ctx, t, u, shot, film, api) {
-    const S = api.safe, P = api.params, boxes = [], size = Math.min(330, fit('CLAC', S.w * 0.7)), lamp = 70;
-    gridlines(ctx, api, { cols: 4, rows: 8, alpha: 0.35 + 0.6 * P.lock, lit: P.kick });
-    playhead(ctx, api, barPhase(film, shot, t), { alpha: 0.9 });
-    ROWS.forEach(([str, track], i) => {
-      const e = P[track], cy = S.cy + ((i - 1.5) * S.h * 0.88) / 4, [jx, jy] = shake(P, t, 10, 19 + i), [sx, sy] = snapTo(api, S.x0, cy, P.lock * 0.9), n = str.length;
-      const per = (k) => { const w = clamp(e - k * 0.12); return { dy: -w * 0.16 * size * Math.sin((k + 1) * 1.1), s: 1 + 0.08 * w, color: w > 0.35 ? 'accent' : null }; };
-      boxes.push(word(ctx, api, str, sx + jx + 50, sy + jy, size * (1 + 0.05 * e), { align: 'left', per }));
-      const L = lamp * (1 + 0.5 * e); ctx.save(); ctx.fillStyle = api.color(e > 0.1 ? 'accent' : 'shade'); ctx.globalAlpha = 0.35 + 0.65 * clamp(e); ctx.fillRect(S.x1 - 50 - L, cy - L / 2, L, L); ctx.restore(); void n;
-    });
-    focusOf(api, boxes, 'secuenciador');
+// GENERADO desde shots/K10.scene.json por `node engine/dsl.mjs build` (spec 006). No editar a mano: edita el .scene.json y regenera.
+import { shot } from '../engine/dsl-core.mjs';
+import * as K_tipo from './K_tipo.mjs';
+export default shot({
+ "dsl": 1,
+ "id": "K10",
+ "doc": "K10 · pulsos 20 → 24 (compás 6). Las cuatro filas, ya clavadas a la rejilla, laten con su pista: la letra salta cuando suena su instrumento (hop escalonado por letra) y un cursor lima recorre el compás. Aquí `lock` ≈ 0,8–1 y `chaos` cae con cada bombo (expresión sobre dos señales).",
+ "libs": {
+  "K_tipo": "./K_tipo.mjs"
+ },
+ "fns": {
+  "barPhase": {
+   "lib": "K_tipo",
+   "fn": "barPhase",
+   "bind": [
+    "film",
+    "shot",
+    "t"
+   ]
   },
-};
+  "fit": {
+   "lib": "K_tipo",
+   "fn": "fit"
+  },
+  "shake": {
+   "lib": "K_tipo",
+   "fn": "shake",
+   "bind": [
+    "P",
+    "t"
+   ],
+   "reads": [
+    "chaos"
+   ]
+  },
+  "snapTo": {
+   "lib": "K_tipo",
+   "fn": "snapTo",
+   "bind": [
+    "api"
+   ]
+  }
+ },
+ "params": {
+  "kick": {
+   "type": "number",
+   "range": [
+    0,
+    2
+   ],
+   "default": 0,
+   "semantic": "envolvente de los onsets del bombo: golpe de escala"
+  },
+  "snare": {
+   "type": "number",
+   "range": [
+    0,
+    2
+   ],
+   "default": 0,
+   "semantic": "envolvente de caja/palmas/toms: destello y corte de tiras"
+  },
+  "hat": {
+   "type": "number",
+   "range": [
+    0,
+    2
+   ],
+   "default": 0,
+   "semantic": "envolvente de hats: titileo"
+  },
+  "tom": {
+   "type": "number",
+   "range": [
+    0,
+    2
+   ],
+   "default": 0,
+   "semantic": "envolvente de toms: cuarta voz del secuenciador"
+  },
+  "chaos": {
+   "type": "number",
+   "range": [
+    0,
+    1
+   ],
+   "default": 0.5,
+   "semantic": "desorden: 1 = ruido (tiras y temblor), 0 = todo alineado"
+  },
+  "lock": {
+   "type": "number",
+   "range": [
+    0,
+    1
+   ],
+   "default": 0,
+   "semantic": "cuánto se pega el contenido a la rejilla visible"
+  },
+  "shock": {
+   "type": "number",
+   "range": [
+    0,
+    2
+   ],
+   "default": 0,
+   "semantic": "onda de choque tras el golpe (sacudida, canales, anillo)"
+  },
+  "tension": {
+   "type": "number",
+   "range": [
+    0,
+    1.5
+   ],
+   "default": 0,
+   "semantic": "tensión acumulada del crescendo (compresión, brillo del acento)"
+  },
+  "drift": {
+   "type": "number",
+   "range": [
+    -1,
+    1
+   ],
+   "default": 0,
+   "semantic": "deriva lenta (LFO): respiración en los respiros"
+  },
+  "text": {
+   "type": "string",
+   "semantic": "texto principal del shot (default shot.text)"
+  }
+ },
+ "objects": [
+  {
+   "id": "size",
+   "type": "let",
+   "value": {
+    "$expr": "min(330, fit('CLAC', S_w * 0.7))"
+   }
+  },
+  {
+   "id": "lamp",
+   "type": "let",
+   "value": 70
+  },
+  {
+   "type": "gridlines",
+   "lib": "K_tipo",
+   "fn": "gridlines",
+   "args": [
+    "ctx",
+    "api",
+    {
+     "cols": 4,
+     "rows": 8,
+     "alpha": {
+      "$expr": "0.35 + 0.6 * lock"
+     },
+     "lit": {
+      "$expr": "kick"
+     }
+    }
+   ]
+  },
+  {
+   "type": "playhead",
+   "lib": "K_tipo",
+   "fn": "playhead",
+   "args": [
+    "ctx",
+    "api",
+    {
+     "$expr": "barPhase()"
+    },
+    {
+     "alpha": 0.9
+    }
+   ]
+  },
+  {
+   "id": "fila",
+   "type": "repeat",
+   "items": [
+    [
+     "PUM",
+     "kick"
+    ],
+    [
+     "TIC",
+     "hat"
+    ],
+    [
+     "CLAC",
+     "snare"
+    ],
+    [
+     "TOC",
+     "tom"
+    ]
+   ],
+   "fields": [
+    "str",
+    "track"
+   ],
+   "children": [
+    {
+     "id": "en",
+     "type": "let",
+     "value": {
+      "$expr": "pget(fila_track)"
+     }
+    },
+    {
+     "id": "cy",
+     "type": "let",
+     "value": {
+      "$expr": "S_cy + ((i - 1.5) * S_h * 0.88) / 4"
+     }
+    },
+    {
+     "id": "J",
+     "type": "let",
+     "value": {
+      "$expr": "shake(10, 19 + i)"
+     },
+     "fields": [
+      "0",
+      "1"
+     ]
+    },
+    {
+     "id": "sn",
+     "type": "let",
+     "value": {
+      "$expr": "snapTo(S_x0, cy, lock * 0.9)"
+     },
+     "fields": [
+      "0",
+      "1"
+     ]
+    },
+    {
+     "type": "word",
+     "lib": "K_tipo",
+     "str": {
+      "$expr": "fila_str"
+     },
+     "x": {
+      "$expr": "sn_0 + J_0 + 50"
+     },
+     "y": {
+      "$expr": "sn_1 + J_1"
+     },
+     "size": {
+      "$expr": "size * (1 + 0.05 * en)"
+     },
+     "opts": {
+      "align": "left"
+     },
+     "per": {
+      "dy": {
+       "$expr": "-clamp(en - pk * 0.12) * 0.16 * size * sin((pk + 1) * 1.1)"
+      },
+      "s": {
+       "$expr": "1 + 0.08 * clamp(en - pk * 0.12)"
+      },
+      "color": {
+       "$expr": "clamp(en - pk * 0.12) > 0.35 ? 'accent' : nil()"
+      }
+     }
+    },
+    {
+     "id": "Ls",
+     "type": "let",
+     "value": {
+      "$expr": "lamp * (1 + 0.5 * en)"
+     }
+    },
+    {
+     "type": "shape",
+     "shape": "rect",
+     "color": {
+      "$expr": "en > 0.1 ? 'accent' : 'shade'"
+     },
+     "alpha": {
+      "$expr": "0.35 + 0.65 * clamp(en)"
+     },
+     "x": {
+      "$expr": "S_x1 - 50 - Ls"
+     },
+     "y": {
+      "$expr": "cy - Ls / 2"
+     },
+     "w": {
+      "$expr": "Ls"
+     },
+     "h": {
+      "$expr": "Ls"
+     }
+    }
+   ]
+  },
+  {
+   "type": "focusOf",
+   "lib": "K_tipo",
+   "fn": "focusOf",
+   "args": [
+    "api",
+    {
+     "$expr": "boxes"
+    },
+    {
+     "$lit": "secuenciador"
+    }
+   ]
+  }
+ ]
+}, { K_tipo });

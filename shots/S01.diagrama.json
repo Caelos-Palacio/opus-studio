@@ -1,0 +1,22 @@
+{
+  "receta": "diagrama_flujo",
+  "id": "S01",
+  "doc": "Diagrama 1 · pipeline de producción: doce etapas del brief a la nota, en serpiente; el color dice quién decide (Claude, el código o el usuario).",
+  "disposicion": "serpiente",
+  "cols": 4,
+  "leyenda": [["accent2", "decide Claude (texto)"], ["ink", "lo hace el código"], ["accent", "juzga el usuario"]],
+  "nodos": [
+    ["brief", "pieza · arco mute", "look · lo que no haré", "accent2"],
+    ["story v2", "voz · ancla · giro", "pregunta con respuesta tardía", "accent2"],
+    ["estilo + medio", "paleta · tipo · soporte", "salen del encargo", "accent2"],
+    ["audio / score", "la pista es el reloj", "score · sounddesign · mixer", "ink"],
+    ["timeline", "shots · cámara · acción", "validate hasta SHIP", "ink"],
+    ["shots", "DSL · recetas · objetos", "puros: seek(t) sin azar", "ink"],
+    ["lint", "narr · fondo · arc · layout", "escalera determinista", "ink"],
+    ["crítico", "hoja de contacto (peek)", "solo con lint SHIP", "ink"],
+    ["gate", "SHIP vigente", "+ crítico sin FIX", "ink"],
+    ["master", "fragmentos con hash", "techo −3 dBTP", "ink"],
+    ["nota del usuario", "nota 1–10 + comentario", "es el juez de gusto", "accent"],
+    ["lección", "vuelve a la spec (3DD)", "falso negativo → escenario", "accent"]
+  ]
+}

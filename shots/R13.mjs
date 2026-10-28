@@ -1,10 +1,64 @@
-import { renderShot, world } from './R_mundo.mjs';
-import { lerp, seg } from '../engine/core.mjs';
-// R13 · el hilo rojo del atacante regresa por la izquierda y se detiene ante la criatura; ella ya es de oro. «SE ADAPTA.»
-export default {
-  draw(ctx, t, u, shot, film, api) {
-    world(film); const e = api.ease('outExpo', seg(t, shot.t[0] + 0.2, shot.t[1] - 0.2));
-    renderShot(ctx, api, film, shot, t, { view: { x: 0, y: 0.05, z: 0.95 }, thread: { x: lerp(-1.0, -0.42, e), k: 1.1, a: 1 },
-      caps: [{ str: 'SE ADAPTA.', t0: shot.t[0] + 0.6, t1: shot.t[1] - 0.2, color: 'accent2', role: 'h1', at: api.at(0.5, 0.93) }] });
+// GENERADO desde shots/R13.scene.json por `node engine/dsl.mjs build` (spec 006). No editar a mano: edita el .scene.json y regenera.
+import { shot } from '../engine/dsl-core.mjs';
+import * as R_mundo from './R_mundo.mjs';
+export default shot({
+ "dsl": 1,
+ "id": "R13",
+ "doc": "el hilo rojo del atacante regresa por la izquierda y se detiene ante la criatura; ella ya es de oro. «SE ADAPTA.»",
+ "libs": {
+  "R_mundo": "./R_mundo.mjs"
+ },
+ "objects": [
+  {
+   "id": "ee",
+   "type": "let",
+   "value": {
+    "$expr": "ease('outExpo', seg(t, t0 + 0.2, t1 - 0.2))"
+   }
   },
-};
+  {
+   "id": "mundo",
+   "type": "world",
+   "lib": "R_mundo",
+   "fn": "renderShot",
+   "args": [
+    "ctx",
+    "api",
+    "film",
+    "shot",
+    "t",
+    {
+     "view": {
+      "x": 0,
+      "y": 0.05,
+      "z": 0.95
+     },
+     "thread": {
+      "x": {
+       "$expr": "lerp(-1.0, -0.42, ee)"
+      },
+      "k": 1.1,
+      "a": 1
+     },
+     "caps": [
+      {
+       "str": "SE ADAPTA.",
+       "t0": {
+        "$expr": "t0 + 0.6"
+       },
+       "t1": {
+        "$expr": "t1 - 0.2"
+       },
+       "color": "accent2",
+       "role": "h1",
+       "at": {
+        "$expr": "at(0.5, 0.93)"
+       }
+      }
+     ]
+    }
+   ],
+   "semantic": "la criatura, la rueda y el decorado 2.5D del plano (lee la fuerza de los golpes de OTROS planos: opaco a propósito)"
+  }
+ ]
+}, { R_mundo });

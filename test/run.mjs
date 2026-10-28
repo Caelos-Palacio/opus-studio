@@ -1,21 +1,32 @@
 #!/usr/bin/env node
 // Suite de regresión del propio verificador: cada mutación rompe el contrato y el lint DEBE detectarla.
 // Corre en copias temporales mínimas del repo (node_modules enlazado): nunca toca tus archivos.
-//   npm test [-- --only nombre] [-- --fast] [-- --jobs N]
-//   --fast : unidades + golden de píxel + cada mutación con solo la etapa del lint que la detecta. Sin fixture lint ni cut.
+//   npm test                   perfil QUICK (por defecto, < 240 s en una máquina de 12 núcleos): TODAS las suites con fixtures reducidas
+//   npm test -- --full         perfil FULL (= npm run test:nightly): todo, incl. renders pesados. OBLIGATORIO antes de integrar a main
+//   npm test -- --fast         perfil FAST (iterar): unidades + golden + cada mutación con solo la etapa del lint que la detecta; sin fixture ni cut
+//   npm test -- --only nombre  una sola suite o mutación (nombres: test/suites.mjs y MUT)   ·   --jobs N  tareas en paralelo   ·   --times  tabla de tiempos por tarea
+// Qué pierde cada perfil (detalle en docs/handoff/deuda2.md): ver SUITES (test/suites.mjs, columna args/skip) y los `FULL` de cada suite.
 // Las tareas corren en paralelo con límite de CPU (--jobs, por defecto nº de CPUs); la salida sale en orden fijo.
+// Aislamiento: la suite NUNCA lee tu film fijado (out/.film → OPUS_USE_FILE a una ruta inexistente) ni OPUS_TIMELINE heredado.
 import '../engine/summary.mjs';   // T2: modo agente = solo ✗ y el total
 import fs from 'node:fs';
 import path from 'node:path';
 import { ROOT, CPUS, copyRepo, rmrf, run, pool } from './lib.mjs';
+import { SUITES } from './suites.mjs';
 
 const argv = process.argv.slice(2), has = (k) => argv.includes(k), arg = (k) => (has(k) ? argv[argv.indexOf(k) + 1] : null);
-const only = arg('--only'), fast = has('--fast'), jobs = Math.max(1, +(arg('--jobs') ?? CPUS));
+const PROFILE = has('--full') ? 'full' : has('--fast') ? 'fast' : (arg('--profile') ?? 'quick');
+if (!['fast', 'quick', 'full'].includes(PROFILE)) { console.error(`perfil «${PROFILE}» desconocido (fast | quick | full)`); process.exit(2); }
+delete process.env.OPUS_TIMELINE;                 // film activo del usuario: fuera. Los tests pasan el suyo explícito.
+process.env.OPUS_TEST_PROFILE = PROFILE;          // lo heredan todas las suites (test/lib.mjs: PROFILE, FULL)
+const only = arg('--only'), fast = PROFILE === 'fast', full = PROFILE === 'full', stageOnly = !full, jobs = Math.max(1, +(arg('--jobs') ?? CPUS));
 const inject = (code) => (src) => src.replace(/api\.text\(shot\.text,/, `${code} api.text(shot.text,`);
 // quick: etapa del lint que basta para detectarla en modo --fast (la suite completa corre siempre el lint entero).
 const MUT = [
   { name: 'base-ship', file: null, expect: { verdict: 'SHIP' }, quick: 'layout' },
   { name: 'impact-sin-pop', file: 'shots/A2.mjs', edit: inject("api.impact(1, { frames: 2, mode: 'invert' });"), expect: { nowarn: /pop:/ }, quick: 'motion' },   // deuda F3: un impact declarado no es un pop
+  // deuda 3: TeX generado por el shot (una cadena por década, no literal) se compila en el servicio síncrono del motor, fuera del sandbox del shot.
+  { name: 'tex-dinamico', file: 'shots/A2.mjs', edit: inject("{ const dec = 4200 + Math.floor(t * 2); api.tex(String.raw`\\approx 10^{${dec}}\\,\\mathrm{m}`, 640, 120, { size: 40 }); }"), expect: { verdict: 'SHIP', nofix: /sandbox|process/ }, quick: 'validate' },
   { name: 'math-random', file: 'shots/A2.mjs', edit: inject("ctx.fillStyle='#f00'; ctx.fillRect(50+Math.random()*30,50,20,20);"), expect: { fix: /Math\.random en shots\/A2/ }, quick: 'validate' },
   { name: 'estado-global', file: 'shots/A2.mjs', edit: (s) => inject("ctx.fillStyle='#f00'; ctx.fillRect(50+(n++%2)*30,50,20,20);")(s.replace('export default {', 'let n = 0;\nexport default {')), expect: { fix: /no determinista en este shot/, shot: 'A2' }, quick: 'determinism' },
   { name: 'filltext-crudo', file: 'shots/A2.mjs', edit: inject("ctx.font='8px sans-serif'; ctx.fillStyle='#000'; ctx['fill'+'Text']('OCULTO', 300, 300);"), expect: { fix: /ctx\.fillText/ }, quick: 'layout' },
@@ -35,18 +46,19 @@ const MUT = [
 const sel = (name) => !only || only === name;
 
 async function mutation(m) {
-  const d = copyRepo(), lint = ['engine/lint.mjs', ...(fast ? ['--only', m.quick] : [])];
+  const d = copyRepo(), lint = ['engine/lint.mjs', ...(stageOnly ? ['--only', m.quick] : [])];
   try {
     if (m.file) { const f = path.join(d, m.file), a = fs.readFileSync(f, 'utf8'), b = m.edit(a); if (a === b) throw new Error('la mutación no se aplicó'); fs.writeFileSync(f, b); }
-    const r = await run(lint, { cwd: d, timeout: 300000 }), lf = path.join(d, fast ? `out/lint/main/_only-${m.quick}.json` : 'out/lint.json');   // --only nunca escribe el global (F1)
+    const r = await run(lint, { cwd: d, timeout: 300000 }), lf = path.join(d, stageOnly ? `out/lint/main/_only-${m.quick}.json` : 'out/lint.json');   // --only nunca escribe el global (F1)
     if (!fs.existsSync(lf)) throw new Error('lint no escribió out/lint.json: ' + (r.stderr || r.stdout).slice(-400));
     const L = JSON.parse(fs.readFileSync(lf, 'utf8')), e = m.expect, fx = L.issues.filter((i) => i.level === 'FIX'), wn = L.issues.filter((i) => i.level === 'WARN');
     let ok = true;
-    if (e.verdict) ok &&= L.verdict === (fast && e.verdict === 'SHIP' ? 'PASS' : e.verdict);
+    if (e.verdict) ok &&= L.verdict === (stageOnly && e.verdict === 'SHIP' ? 'PASS' : e.verdict);
     if (e.fix) ok &&= fx.some((i) => e.fix.test(i.problem) && (!e.shot || i.shot === e.shot));
     if (e.warn) ok &&= wn.some((i) => e.warn.test(i.problem));
+    if (e.nofix) ok &&= !fx.some((i) => e.nofix.test(i.problem));
     if (e.nowarn) ok &&= !wn.some((i) => e.nowarn.test(i.problem));
-    return { ok, line: `${ok ? '✓' : '✗'} ${m.name.padEnd(16)} ${L.verdict}${fast ? `  (lint --only ${m.quick})` : ''}  ${ok ? '' : r.stdout.split('\n').slice(-12).join('\n   ')}` };
+    return { ok, line: `${ok ? '✓' : '✗'} ${m.name.padEnd(16)} ${L.verdict}${stageOnly ? `  (lint --only ${m.quick})` : ''}  ${ok ? '' : r.stdout.split('\n').slice(-12).join('\n   ')}` };
   } catch (err) { return { ok: false, line: `✗ ${m.name}: ${err.message}` }; }
   finally { rmrf(d); }
 }
@@ -64,17 +76,24 @@ async function fixture() {
   finally { rmrf(d); }
 }
 // Scripts autónomos (imprimen sus propias líneas ✓/✗; el código de salida decide).
-const script = (file, args = [], { stderr = true } = {}) => async () => { const r = await run([path.join(ROOT, file), ...args]); return { ok: r.status === 0, line: (r.stdout + (stderr || r.status ? r.stderr : '')).trimEnd() }; };
+// carga: true (suite sensible a la carga, p. ej. dsl-perf: cronometra con la máquina compartida): si falla es un AVISO (⚠), no cuenta como fallo ni rompe `--full`.
+const script = (file, args = [], { stderr = true, timeout, carga = false } = {}) => async () => { const r = await run([path.join(ROOT, file), ...args], timeout ? { timeout } : {}); const line = (r.stdout + (stderr || r.status ? r.stderr : '')).trimEnd(); return r.status !== 0 && carga ? { ok: true, aviso: true, line: `${line}\n⚠ AVISO: suite sensible a la carga (test/suites.d, «carga»); su fallo no rompe el perfil. Repítela en reposo: npm test -- --only ${path.basename(file, '.mjs')}` } : { ok: r.status === 0, line }; };
 
-const t0 = Date.now(), P = pool(jobs), tasks = [];
-for (const m of MUT) if (sel(m.name) && (!fast || m.quick)) tasks.push(P(() => mutation(m)));
-if (!fast && sel('fixture')) tasks.push(P(fixture));
-if (sel('golden')) tasks.push(P(script('test/golden.mjs')));
-if (!fast && sel('cut')) tasks.push(P(script('test/cut-render.mjs')));
-tasks.push(P(script('test/unit.mjs')));
-for (const t of ['schema', 'critic', 'gov', 'guard', 'hash', 'params', 'memoria', 'arc', 'sound', 'film', 'perf', 'orch', 'medios', 'world3d', 'metrics', 'harness', 'fuzz', 'orquestacion', 'semantica']) if (sel(t)) tasks.push(P(script(`test/${t}.mjs`, (t === 'sound' || t === 'semantica') && fast ? ['--fast'] : [], { stderr: t !== 'guard' })));   // guard: su stderr son los bloqueos esperados del sandbox   // esquema (E8), crítico honesto (E4), gobernanza (F1), guardia AST (E7), hash por contenido (E5), parámetros/capas (F4), soundtrack (spec 002; --fast = fixture ×0,6)                                   // unidades puras (geometría, partículas, sims): siempre
-let fail = 0;
-for (const t of tasks) { const r = await t; console.log(r.line); if (!r.ok) fail++; }
-console.log(`\n${fail ? `${fail} fallos` : 'Todo verde'}  (${((Date.now() - t0) / 1000).toFixed(1)} s, ${jobs} en paralelo${fast ? ', --fast' : ''})`);
-try { fs.mkdirSync(path.join(ROOT, 'out'), { recursive: true }); fs.writeFileSync(path.join(ROOT, 'out/tests.json'), JSON.stringify({ ts: new Date().toISOString(), fail, fast, only })); } catch {}   // lo lee engine/status.mjs (STATUS.md)
+// Suites del manifiesto (test/suites.mjs) + drop-ins test/suites.d/*.json (una suite por archivo, sin conflictos de merge entre ramas).
+const dropins = fs.existsSync(path.join(ROOT, 'test/suites.d')) ? fs.readdirSync(path.join(ROOT, 'test/suites.d')).filter((f) => f.endsWith('.json')).sort().map((f) => JSON.parse(fs.readFileSync(path.join(ROOT, 'test/suites.d', f), 'utf8'))) : [];
+const ALL = [...SUITES, ...dropins], names = ALL.map((x) => x.name);
+if (new Set(names).size !== names.length) { console.error('suites duplicadas en el manifiesto: ' + names.filter((n, i) => names.indexOf(n) !== i).join(', ')); process.exit(2); }
+const argsFor = (S) => (Array.isArray(S.args) ? S.args : S.args?.[PROFILE] ?? []);
+const timed = (name, fn) => async () => { const t = Date.now(), r = await fn(); r.name = name; r.ms = Date.now() - t; return r; };
+const t0 = Date.now(), P = pool(jobs), plan = [];   // plan = [{ w, name, fn }]: se encola por peso (lo pesado primero), la salida sigue ese mismo orden fijo
+for (const m of MUT) if (sel(m.name) && (!fast || m.quick)) plan.push({ w: full ? 3 : 2, name: 'mut:' + m.name, fn: () => mutation(m) });
+if (!fast && sel('fixture')) plan.push({ w: 6, name: 'fixture', fn: fixture });
+for (const S of ALL) if (sel(S.name) && !S.skip?.includes(PROFILE)) plan.push({ w: S.w ?? 1, name: S.name, fn: script(S.file, argsFor(S), { stderr: S.stderr !== false, timeout: S.timeout, carga: !!S.carga }) });
+const tasks = plan.map((p, i) => ({ ...p, i })).sort((a, b) => b.w - a.w || a.i - b.i).map((p) => P(timed(p.name, p.fn)));
+let fail = 0, avisos = 0;
+for (const t of tasks) { const r = await t; console.log(r.line); if (!r.ok) fail++; if (r.aviso) avisos++; }
+const secs = (ms) => (ms / 1000).toFixed(1);
+if (has('--times')) { console.log('\ntiempos por tarea (reloj de pared dentro del pool, no CPU):'); for (const r of (await Promise.all(tasks)).sort((a, b) => b.ms - a.ms)) console.log(`  ${secs(r.ms).padStart(7)} s  ${r.name}`); }
+console.log(`\n${fail ? `${fail} fallos` : 'Todo verde'}${avisos ? ` (${avisos} aviso${avisos > 1 ? 's' : ''} de suites sensibles a la carga)` : ''}  (${secs(Date.now() - t0)} s, ${jobs} en paralelo, perfil ${PROFILE})`);
+try { fs.mkdirSync(path.join(ROOT, 'out'), { recursive: true }); fs.writeFileSync(path.join(ROOT, 'out/tests.json'), JSON.stringify({ ts: new Date().toISOString(), fail, fast, profile: PROFILE, only })); } catch {}   // lo lee engine/status.mjs (STATUS.md)
 process.exit(fail ? 1 : 0);

@@ -1,6 +1,7 @@
 {
  "title": "Potencias — de ti al borde de lo observable en 27 pasos",
- "style": "cosmos",
+ "style": "cosmos_plano",
+ "medium": "tecnico_bermellon",
  "profile": "explainer",
  "styleOverrides": {
   "typeface": {
@@ -18,7 +19,51 @@
  "duration": 78,
  "autoSfx": false,
  "music": null,
- "sound": { "style": "epico", "memoria": "data/stress/memoria.json" },
+ "sound": {
+  "style": "epico",
+  "memoria": "data/stress/memoria.json",
+  "overrides": {
+   "dynamics": {
+    "floorDb": -27,
+    "pow": 1.1,
+    "revDb": -3
+   },
+   "mix": {
+    "macro": {
+     "floorDb": -20,
+     "pow": 1.0
+    }
+   },
+   "impact": {
+    "mix": {
+     "sd": 1.0,
+     "bd": 1.0,
+     "trn": 1.6,
+     "rb": 0.6
+    }
+   },
+   "layers": {
+    "riser": {
+     "frac": 0.43,
+     "gain": 0.26
+    },
+    "roll": {
+     "frac": 0.215,
+     "gain": [
+      0.09,
+      0.38
+     ]
+    },
+    "tom": {
+     "thr": 0.56,
+     "gain": [
+      0.18,
+      0.36
+     ]
+    }
+   }
+  }
+ },
  "motif": {
   "id": "ventana",
   "states": [
@@ -124,7 +169,7 @@
     6
    ],
    "size": "CU",
-   "action": "de noche, una persona se dibuja; a su alrededor, una ventana de 1 m (ámbar). El contador escribe 10^0 m",
+   "action": "sobre el plano, una persona se dibuja; a su alrededor, una ventana de 1 m acotada (coral). El contador escribe 10^0 m",
    "on_beat": "la ventana se cierra alrededor de la persona",
    "on_beat_at": [
     2.4
@@ -201,7 +246,7 @@
     19
    ],
    "size": "WS",
-   "action": "10^1–10^6 m: árboles, casas, una ciudad, montañas; el aire se acaba a 100 km y el suelo se curva",
+   "action": "10^1–10^6 m: árboles, casas, una ciudad que ES VOLUMEN (beat 3D b3: se eleva la cámara y se aplana en silueta), montañas; el aire se acaba a 100 km y el suelo se curva",
    "on_beat": "cada ×10 un tic",
    "text": "UNA CIUDAD · EL AIRE TERMINA A 100 KM",
    "transition_out": "morph",
@@ -246,6 +291,11 @@
      "type": "drone",
      "dur": 18,
      "gain": 0.3
+    },
+    {
+     "at": 0.45,
+     "type": "shimmer",
+     "gain": 0.22
     }
    ]
   },
@@ -256,7 +306,7 @@
     23.5
    ],
    "size": "MS",
-   "action": "10^6–10^9 m: la Tierra entera (globo) y la órbita de la Luna (scene graph Tierra→brazo→Luna)",
+   "action": "10^6–10^9 m: la Tierra entera como globo 3D con luz (beat 3D b4: el suelo plano era una esfera) y la órbita de la Luna (scene graph Tierra→brazo→Luna, 2D)",
    "on_beat": "la Tierra cabe en la ventana",
    "text": "LA TIERRA · ÓRBITA LUNAR",
    "transition_out": "morph",
@@ -292,6 +342,11 @@
      "type": "whoosh",
      "dur": 1.2,
      "gain": 0.25
+    },
+    {
+     "at": 0.75,
+     "type": "rev",
+     "gain": 0.45
     }
    ]
   },
@@ -565,6 +620,22 @@
      "at": 4.917,
      "type": "impact",
      "gain": 0.8
+    },
+    {
+     "at": 4.917,
+     "type": "riser",
+     "dur": 7.5,
+     "gain": 0.3
+    },
+    {
+     "at": 4.95,
+     "type": "rev",
+     "gain": 0.7
+    },
+    {
+     "at": 5.5,
+     "type": "shimmer",
+     "gain": 0.35
     }
    ]
   },
@@ -717,7 +788,13 @@
  "variants": {
   "w3d": {
    "ops": [
-    { "op": "add", "path": "/shots/P03/params", "value": { "w3d": true } }
+    {
+     "op": "add",
+     "path": "/shots/P03/params",
+     "value": {
+      "w3d": true
+     }
+    }
    ]
   }
  }

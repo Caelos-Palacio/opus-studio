@@ -1,0 +1,14 @@
+{
+"meta": {"id":"corte_eco","grupo":"transicion","resumen":"una forma o un sonido sigue vivo y cruza el corte al siguiente plano","tags":["eco","corte","continuar","anillo","sonido","puente"],"params":{"tam":"number","eco":"number"},"cuando":"el corte seco necesita un hilo: lo que suena o se ve no termina con el plano"},
+"scene": {"dsl":1,"id":"$ID","doc":"[receta:corte_eco] un anillo se expande en el último segundo; el siguiente plano arranca con la misma forma en el mismo sitio.",
+ "params": {"tam":{"type":"number","range":[20,200],"unit":"px","default":80,"semantic":"radio del ancla"},
+  "eco":{"type":"number","range":[0.3,2],"unit":"s","default":0.8,"semantic":"duración del eco antes del corte"}},
+ "camera": {"move":"static"}, "transition": {"out":"cut"},
+ "cues": [{"id":"eco","at":{"$expr":"dur - eco"},"dur":{"$expr":"eco"},"semantic":"el anillo del eco se expande"}],
+ "objects": [
+  {"id":"fondo","type":"ground","fy":0.86,"alpha":0.22},
+  {"id":"ancla","type":"shape","shape":"circle","x":{"$expr":"S_cx"},"y":{"$expr":"S_cy"},"r":{"$expr":"tam"},"color":"accent","semantic":"$hueco: la forma o el sonido que cruza el corte"},
+  {"id":"anillo","type":"shape","shape":"circle","stroke":true,"lineWidth":4,"cue":"eco","x":{"$expr":"S_cx"},"y":{"$expr":"S_cy"},"r":{"$expr":"tam * (1 + 2 * seg(lt, dur - eco, dur))"},"color":"accent","alpha":{"$expr":"1 - seg(lt, dur - eco, dur)"}},
+  {"id":"foco","type":"focus","x":{"$expr":"S_cx - tam"},"y":{"$expr":"S_cy - tam"},"w":{"$expr":"2 * tam"},"h":{"$expr":"2 * tam"},"label":"ancla"}
+ ]}
+}

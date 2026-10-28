@@ -1,14 +1,280 @@
-import { PARAMS, word, shatter, ring, dot, stack, clamp, lerp, beatX } from './K_tipo.mjs';
-// K19 · respiro (hold, a treses). Las esquirlas flotan casi quietas y apagadas; el compás SIGUE en silencio: un anillo lima late en cada pulso virtual de la rejilla.
-export default {
-  params: PARAMS,
-  draw(ctx, t, u, shot, film, api) {
-    const S = api.safe, P = api.params, age = t - shot.t[0], a = clamp(age / 0.5) * 0.3;
-    stack(api, ['ROM', 'PE'], { cy: S.cy, gap: 0.22 }).forEach((l, i) => shatter(ctx, api, l.str, l.cx + 24 * P.drift, l.cy - 18 * P.drift * (i ? -1 : 1), l.size, { u: 1, seed: 31 + i, power: 0.55, cols: 10, rows: 5, alpha: a, color: 'shade' }));
-    const bx = beatX(film, t), f = bx - Math.floor(bx), e = api.ease('outExpo', f);
-    ring(ctx, api, S.cx, S.cy, 30 + 420 * e, 6, 'accent', (1 - f) * 0.55);
-    dot(ctx, api, S.cx, S.cy, 14 * (1 + 0.35 * P.drift), 'accent', 1);
-    api.focus(S.cx - 60, S.cy - 60, 120, 120, 'punto', { weight: 1, bleed: true, hollow: 0.9 });
-    void word; void lerp;
+// GENERADO desde shots/K19.scene.json por `node engine/dsl.mjs build` (spec 006). No editar a mano: edita el .scene.json y regenera.
+import { shot } from '../engine/dsl-core.mjs';
+import * as K_tipo from './K_tipo.mjs';
+export default shot({
+ "dsl": 1,
+ "id": "K19",
+ "doc": "K19 · respiro (hold, a treses). Las esquirlas flotan casi quietas y apagadas; el compás SIGUE en silencio: un anillo lima late en cada pulso virtual de la rejilla.",
+ "libs": {
+  "K_tipo": "./K_tipo.mjs"
+ },
+ "fns": {
+  "beatX": {
+   "lib": "K_tipo",
+   "fn": "beatX",
+   "bind": [
+    "film",
+    "t"
+   ]
+  }
+ },
+ "params": {
+  "kick": {
+   "type": "number",
+   "range": [
+    0,
+    2
+   ],
+   "default": 0,
+   "semantic": "envolvente de los onsets del bombo: golpe de escala"
   },
-};
+  "snare": {
+   "type": "number",
+   "range": [
+    0,
+    2
+   ],
+   "default": 0,
+   "semantic": "envolvente de caja/palmas/toms: destello y corte de tiras"
+  },
+  "hat": {
+   "type": "number",
+   "range": [
+    0,
+    2
+   ],
+   "default": 0,
+   "semantic": "envolvente de hats: titileo"
+  },
+  "tom": {
+   "type": "number",
+   "range": [
+    0,
+    2
+   ],
+   "default": 0,
+   "semantic": "envolvente de toms: cuarta voz del secuenciador"
+  },
+  "chaos": {
+   "type": "number",
+   "range": [
+    0,
+    1
+   ],
+   "default": 0.5,
+   "semantic": "desorden: 1 = ruido (tiras y temblor), 0 = todo alineado"
+  },
+  "lock": {
+   "type": "number",
+   "range": [
+    0,
+    1
+   ],
+   "default": 0,
+   "semantic": "cuánto se pega el contenido a la rejilla visible"
+  },
+  "shock": {
+   "type": "number",
+   "range": [
+    0,
+    2
+   ],
+   "default": 0,
+   "semantic": "onda de choque tras el golpe (sacudida, canales, anillo)"
+  },
+  "tension": {
+   "type": "number",
+   "range": [
+    0,
+    1.5
+   ],
+   "default": 0,
+   "semantic": "tensión acumulada del crescendo (compresión, brillo del acento)"
+  },
+  "drift": {
+   "type": "number",
+   "range": [
+    -1,
+    1
+   ],
+   "default": 0,
+   "semantic": "deriva lenta (LFO): respiración en los respiros"
+  },
+  "text": {
+   "type": "string",
+   "semantic": "texto principal del shot (default shot.text)"
+  }
+ },
+ "objects": [
+  {
+   "id": "age",
+   "type": "let",
+   "value": {
+    "$expr": "lt"
+   }
+  },
+  {
+   "id": "a",
+   "type": "let",
+   "value": {
+    "$expr": "clamp(age / 0.5) * 0.3"
+   }
+  },
+  {
+   "id": "lines",
+   "type": "let",
+   "lib": "K_tipo",
+   "fn": "stack",
+   "args": [
+    "api",
+    [
+     "ROM",
+     "PE"
+    ],
+    {
+     "cy": {
+      "$expr": "S_cy"
+     },
+     "gap": 0.22
+    }
+   ]
+  },
+  {
+   "id": "L",
+   "type": "repeat",
+   "items": {
+    "$expr": "lines"
+   },
+   "fields": [
+    "str",
+    "cx",
+    "cy",
+    "size",
+    "cap"
+   ],
+   "children": [
+    {
+     "type": "shatter",
+     "lib": "K_tipo",
+     "fn": "shatter",
+     "args": [
+      "ctx",
+      "api",
+      {
+       "$expr": "L_str"
+      },
+      {
+       "$expr": "L_cx + 24 * drift"
+      },
+      {
+       "$expr": "L_cy - 18 * drift * (i ? -1 : 1)"
+      },
+      {
+       "$expr": "L_size"
+      },
+      {
+       "u": 1,
+       "seed": {
+        "$expr": "31 + i"
+       },
+       "power": 0.55,
+       "cols": 10,
+       "rows": 5,
+       "alpha": {
+        "$expr": "a"
+       },
+       "color": "shade"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "bx",
+   "type": "let",
+   "value": {
+    "$expr": "beatX()"
+   }
+  },
+  {
+   "id": "f",
+   "type": "let",
+   "value": {
+    "$expr": "bx - floor(bx)"
+   }
+  },
+  {
+   "id": "ea",
+   "type": "let",
+   "value": {
+    "$expr": "ease('outExpo', f)"
+   }
+  },
+  {
+   "type": "ring",
+   "lib": "K_tipo",
+   "fn": "ring",
+   "args": [
+    "ctx",
+    "api",
+    {
+     "$expr": "S_cx"
+    },
+    {
+     "$expr": "S_cy"
+    },
+    {
+     "$expr": "30 + 420 * ea"
+    },
+    {
+     "$expr": "6"
+    },
+    {
+     "$lit": "accent"
+    },
+    {
+     "$expr": "(1 - f) * 0.55"
+    }
+   ]
+  },
+  {
+   "type": "dot",
+   "lib": "K_tipo",
+   "fn": "dot",
+   "args": [
+    "ctx",
+    "api",
+    {
+     "$expr": "S_cx"
+    },
+    {
+     "$expr": "S_cy"
+    },
+    {
+     "$expr": "14 * (1 + 0.35 * drift)"
+    },
+    {
+     "$lit": "accent"
+    },
+    {
+     "$expr": "1"
+    }
+   ]
+  },
+  {
+   "type": "focus",
+   "x": {
+    "$expr": "S_cx - 60"
+   },
+   "y": {
+    "$expr": "S_cy - 60"
+   },
+   "w": 120,
+   "h": 120,
+   "label": "punto",
+   "weight": 1,
+   "bleed": true,
+   "hollow": 0.9
+  }
+ ]
+}, { K_tipo });

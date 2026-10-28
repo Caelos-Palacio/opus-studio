@@ -1,17 +1,349 @@
-import { PARAMS, word, focusOf, since, pop, shake, stack, playhead, barPhase, beatX, shotBeat0, clamp, lerp } from './K_tipo.mjs';
-// K12 · pulsos 28 → 32 (compás 8). A / COMPÁS: la A gigante (cartel justificado) y un cursor lima que barre el compás; abajo los cuatro pulsos numerados
-// (1 2 3 4), cada uno se enciende en el suyo. «A COMPÁS» es el primer enunciado: lo roto cae al pulso.
-export default {
-  params: PARAMS,
-  draw(ctx, t, u, shot, film, api) {
-    const S = api.safe, P = api.params, boxes = [], a0 = since(film, shot, t, 0), p = pop(api, a0, { from: 1.1 }), [jx, jy] = shake(P, t, 10, 31);
-    const bx = beatX(film, t) - shotBeat0(film, shot), cur = clamp(Math.floor(bx), 0, 3), within = bx - Math.floor(bx);
-    playhead(ctx, api, barPhase(film, shot, t), { alpha: 1 });
-    stack(api, ['A', 'COMPÁS'], { width: S.w * 0.8, cy: S.cy - 90, gap: 0.22 }).forEach((l, i) => boxes.push(word(ctx, api, l.str, l.cx + jx, l.cy + jy, l.size * p.s * (1 + 0.04 * P.kick), { label: 'A COMPÁS', split: 10 * Math.exp(-a0 * 11) + 8 * P.snare })));
-    for (let i = 0; i < 4; i++) {                                           // los cuatro pulsos del compás
-      const x = S.x0 + (S.w * (i + 0.5)) / 4, on = i === cur, e = on ? Math.exp(-within * 5) : 0;
-      boxes.push(word(ctx, api, String(i + 1), x, S.y1 - 150, 100 * (1 + 0.5 * e), { color: on ? 'accent' : 'shade', alpha: on ? 1 : 0.7, label: 'pulso ' + (i + 1) }));
-    }
-    focusOf(api, boxes, 'compás');
+// GENERADO desde shots/K12.scene.json por `node engine/dsl.mjs build` (spec 006). No editar a mano: edita el .scene.json y regenera.
+import { shot } from '../engine/dsl-core.mjs';
+import * as K_tipo from './K_tipo.mjs';
+export default shot({
+ "dsl": 1,
+ "id": "K12",
+ "doc": "K12 · pulsos 28 → 32 (compás 8). A / COMPÁS: la A gigante (cartel justificado) y un cursor lima que barre el compás; abajo los cuatro pulsos numerados (1 2 3 4), cada uno se enciende en el suyo. «A COMPÁS» es el primer enunciado: lo roto cae al pulso.",
+ "libs": {
+  "K_tipo": "./K_tipo.mjs"
+ },
+ "fns": {
+  "since": {
+   "lib": "K_tipo",
+   "fn": "since",
+   "bind": [
+    "film",
+    "shot",
+    "t"
+   ]
   },
-};
+  "beatX": {
+   "lib": "K_tipo",
+   "fn": "beatX",
+   "bind": [
+    "film",
+    "t"
+   ]
+  },
+  "shotBeat0": {
+   "lib": "K_tipo",
+   "fn": "shotBeat0",
+   "bind": [
+    "film",
+    "shot"
+   ]
+  },
+  "barPhase": {
+   "lib": "K_tipo",
+   "fn": "barPhase",
+   "bind": [
+    "film",
+    "shot",
+    "t"
+   ]
+  },
+  "shake": {
+   "lib": "K_tipo",
+   "fn": "shake",
+   "bind": [
+    "P",
+    "t"
+   ],
+   "reads": [
+    "chaos"
+   ]
+  }
+ },
+ "params": {
+  "kick": {
+   "type": "number",
+   "range": [
+    0,
+    2
+   ],
+   "default": 0,
+   "semantic": "envolvente de los onsets del bombo: golpe de escala"
+  },
+  "snare": {
+   "type": "number",
+   "range": [
+    0,
+    2
+   ],
+   "default": 0,
+   "semantic": "envolvente de caja/palmas/toms: destello y corte de tiras"
+  },
+  "hat": {
+   "type": "number",
+   "range": [
+    0,
+    2
+   ],
+   "default": 0,
+   "semantic": "envolvente de hats: titileo"
+  },
+  "tom": {
+   "type": "number",
+   "range": [
+    0,
+    2
+   ],
+   "default": 0,
+   "semantic": "envolvente de toms: cuarta voz del secuenciador"
+  },
+  "chaos": {
+   "type": "number",
+   "range": [
+    0,
+    1
+   ],
+   "default": 0.5,
+   "semantic": "desorden: 1 = ruido (tiras y temblor), 0 = todo alineado"
+  },
+  "lock": {
+   "type": "number",
+   "range": [
+    0,
+    1
+   ],
+   "default": 0,
+   "semantic": "cuánto se pega el contenido a la rejilla visible"
+  },
+  "shock": {
+   "type": "number",
+   "range": [
+    0,
+    2
+   ],
+   "default": 0,
+   "semantic": "onda de choque tras el golpe (sacudida, canales, anillo)"
+  },
+  "tension": {
+   "type": "number",
+   "range": [
+    0,
+    1.5
+   ],
+   "default": 0,
+   "semantic": "tensión acumulada del crescendo (compresión, brillo del acento)"
+  },
+  "drift": {
+   "type": "number",
+   "range": [
+    -1,
+    1
+   ],
+   "default": 0,
+   "semantic": "deriva lenta (LFO): respiración en los respiros"
+  },
+  "text": {
+   "type": "string",
+   "semantic": "texto principal del shot (default shot.text)"
+  }
+ },
+ "objects": [
+  {
+   "id": "a0",
+   "type": "let",
+   "value": {
+    "$expr": "since(0)"
+   }
+  },
+  {
+   "id": "p",
+   "type": "let",
+   "lib": "K_tipo",
+   "fn": "pop",
+   "args": [
+    "api",
+    {
+     "$expr": "a0"
+    },
+    {
+     "from": 1.1
+    }
+   ],
+   "fields": [
+    "s",
+    "a"
+   ]
+  },
+  {
+   "id": "J",
+   "type": "let",
+   "value": {
+    "$expr": "shake(10, 31)"
+   },
+   "fields": [
+    "0",
+    "1"
+   ]
+  },
+  {
+   "id": "bx",
+   "type": "let",
+   "value": {
+    "$expr": "beatX() - shotBeat0()"
+   }
+  },
+  {
+   "id": "cur",
+   "type": "let",
+   "value": {
+    "$expr": "clamp(floor(bx), 0, 3)"
+   }
+  },
+  {
+   "id": "within",
+   "type": "let",
+   "value": {
+    "$expr": "bx - floor(bx)"
+   }
+  },
+  {
+   "type": "playhead",
+   "lib": "K_tipo",
+   "fn": "playhead",
+   "args": [
+    "ctx",
+    "api",
+    {
+     "$expr": "barPhase()"
+    },
+    {
+     "alpha": 1
+    }
+   ]
+  },
+  {
+   "id": "lines",
+   "type": "let",
+   "lib": "K_tipo",
+   "fn": "stack",
+   "args": [
+    "api",
+    [
+     "A",
+     "COMPÁS"
+    ],
+    {
+     "width": {
+      "$expr": "S_w * 0.8"
+     },
+     "cy": {
+      "$expr": "S_cy - 90"
+     },
+     "gap": 0.22
+    }
+   ]
+  },
+  {
+   "id": "L",
+   "type": "repeat",
+   "items": {
+    "$expr": "lines"
+   },
+   "fields": [
+    "str",
+    "cx",
+    "cy",
+    "size",
+    "cap"
+   ],
+   "children": [
+    {
+     "type": "word",
+     "lib": "K_tipo",
+     "str": {
+      "$expr": "L_str"
+     },
+     "x": {
+      "$expr": "L_cx + J_0"
+     },
+     "y": {
+      "$expr": "L_cy + J_1"
+     },
+     "size": {
+      "$expr": "L_size * p_s * (1 + 0.04 * kick)"
+     },
+     "opts": {
+      "label": "A COMPÁS",
+      "split": {
+       "$expr": "10 * exp(-a0 * 11) + 8 * snare"
+      }
+     }
+    }
+   ]
+  },
+  {
+   "id": "pulsos",
+   "type": "repeat",
+   "n": 4,
+   "children": [
+    {
+     "id": "x",
+     "type": "let",
+     "value": {
+      "$expr": "S_x0 + (S_w * (i + 0.5)) / 4"
+     }
+    },
+    {
+     "id": "on",
+     "type": "let",
+     "value": {
+      "$expr": "i == cur"
+     }
+    },
+    {
+     "id": "en",
+     "type": "let",
+     "value": {
+      "$expr": "on ? exp(-within * 5) : 0"
+     }
+    },
+    {
+     "type": "word",
+     "lib": "K_tipo",
+     "str": {
+      "$expr": "str(i + 1)"
+     },
+     "x": {
+      "$expr": "x"
+     },
+     "y": {
+      "$expr": "S_y1 - 150"
+     },
+     "size": {
+      "$expr": "100 * (1 + 0.5 * en)"
+     },
+     "opts": {
+      "color": {
+       "$expr": "on ? 'accent' : 'shade'"
+      },
+      "alpha": {
+       "$expr": "on ? 1 : 0.7"
+      },
+      "label": {
+       "$expr": "cat('pulso ', i + 1)"
+      }
+     }
+    }
+   ]
+  },
+  {
+   "type": "focusOf",
+   "lib": "K_tipo",
+   "fn": "focusOf",
+   "args": [
+    "api",
+    {
+     "$expr": "boxes"
+    },
+    {
+     "$lit": "compás"
+    }
+   ]
+  }
+ ]
+}, { K_tipo });

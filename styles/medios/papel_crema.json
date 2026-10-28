@@ -174,5 +174,9 @@
   "edgeMargin": 0.05,
   "anchor": "free",
   "negativeSpace": 0.5
+ },
+ "encode": {
+  "crf": 24,
+  "tune": "grain"
  }
 }

@@ -1,0 +1,28 @@
+{
+  "_doc": "Lista anti-cliche (spec 013, research 11 §5.3). Texto normalizado (minusculas, sin tildes, enye conservada); las citas «…» “…” \"…\" se ignoran. p = frase literal con limites de palabra; re = expresion regular. Esta lista contiene a proposito sinonimos prohibidos y frases de poster: NO entra en el lint de vocab (engine/vocab.mjs la excluye explicitamente). Caduca: se retira una entrada que pase 3 oleadas sin saltar (campo vista = oleadas sin saltar).",
+  "version": 1,
+  "caducidad_oleadas": 3,
+  "grupos": {
+    "A": { "nombre": "aperturas", "nivel": "FIX", "check": "cliche.apertura", "zona": "apertura", "entradas": [
+      { "p": "que pasaria si" }, { "p": "y si te dijera" }, { "p": "alguna vez te has preguntado" }, { "p": "alguna vez has" }, { "re": "imagina (un|que)" },
+      { "re": "en un mundo (donde|en el que)" }, { "re": "desde (el principio de los tiempos|la antiguedad)" }, { "p": "hoy en dia" }, { "p": "en la era de" },
+      { "p": "sabias que" }, { "p": "te has parado a pensar" } ] },
+    "B": { "nombre": "estructuras", "nivel": "WARN", "check": "paralelismo.neg", "zona": "pantalla", "min": 2, "entradas": [
+      { "re": "no es (solo )?[^.]{1,40}, (es|sino)" }, { "re": "no solo [^.]{1,40} sino" }, { "re": "mas que [^.]{1,30}, es" }, { "re": "la clave (esta|reside) en" },
+      { "re": "lo que (realmente|de verdad) importa" }, { "p": "y es que" }, { "p": "porque, en el fondo" }, { "p": "se trata de" }, { "p": "al fin y al cabo" } ] },
+    "C": { "nombre": "cierres moralizantes", "nivel": "FIX", "check": "cliche.cierre", "zona": "cierre", "entradas": [
+      { "re": "al final[, ] ?(todos|somos)" }, { "p": "todos somos" }, { "p": "somos polvo de estrellas" }, { "p": "nada volvera a ser igual" }, { "re": "la verdadera [^.]{1,30} era" },
+      { "re": "(siempre|ha) estado ahi" }, { "re": "el viaje (continua|acaba de empezar)" }, { "re": "\\by tu[,?]" }, { "re": "(lo|la) que (realmente|de verdad) (importa|cuenta)" },
+      { "re": "cambia tu (vida|forma de)" }, { "p": "quizas la respuesta" }, { "re": "\\btu eres (el|la)\\b" } ] },
+    "D": { "nombre": "vocabulario de poster", "nivel": "WARN", "check": "cliche.poster", "zona": "pantalla", "entradas": [
+      { "p": "fascinante" }, { "p": "increible" }, { "p": "asombroso" }, { "p": "sorprendente" }, { "re": "un viaje (a|por|hacia)" }, { "p": "un universo de" }, { "p": "tapiz" },
+      { "p": "sinfonia de" }, { "p": "danza de" }, { "p": "susurro" }, { "p": "sumergirnos" }, { "p": "adentrarnos" }, { "p": "desentrañar" }, { "re": "navegar (por|entre)" },
+      { "p": "revolucionario" }, { "p": "crucial" }, { "p": "fundamental" }, { "re": "esencial(mente)?" }, { "p": "en esencia" }, { "p": "descubre como" }, { "p": "el poder de" } ] },
+    "E": { "nombre": "abstractos de relleno", "nivel": "WARN", "check": "abstracto.densidad", "umbral_por_100": 4, "palabras": [
+      "esencia", "concepto", "escala", "idea", "sistema", "proceso", "todo", "nada", "infinito", "universo", "vida", "tiempo", "realidad", "existencia", "mundo", "verdad", "sentido", "misterio", "profundo", "inmenso" ] },
+    "F": { "nombre": "tics propios", "nivel": "WARN", "entradas": [
+      { "zona": "retorno", "check": "cliche.cierre", "re": "\\b(vuelve|vuelven|volvemos|regresa|regresan|regresamos)\\b", "nota": "retorno en los ultimos 3 beats sin cierre.tipo eco" },
+      { "zona": "cierre", "check": "cliche.cierre", "re": "pero si .+, ?¿", "nota": "cierre en pregunta retorica" },
+      { "zona": "beats_sujeto", "check": "concreto.ratio", "re": "^(una |un |la |el )?(criatura|cosa|algo)\\b", "nota": "sujeto de beat sin objeto concreto" } ] }
+  }
+}

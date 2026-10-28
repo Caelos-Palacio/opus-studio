@@ -71,6 +71,14 @@ const ped = analyze(M(arcE, { profile: 'explainer', frames: [fr(0, [box('tornill
 ok(ped.issues.some((i) => /huérfano "tornillo"/.test(i.problem)), 'Mayer: elemento sin frase → FIX (explainer)');
 ok(ped.issues.some((i) => /conceptos nuevos/.test(i.problem)), 'Mayer: >3 conceptos/min → WARN');
 ok(ped.issues.some((i) => /elementos animados/.test(i.problem)), 'Mayer: >4 animados a la vez → WARN');
+// S10 (spec 009 lección): un shot con world3d debe pertenecer a un beat 3D declarado (beat.w3d = {concepto, porque}); si no, WARN w3d.sin-guion
+const w3dBeats = { ...story, beats: story.beats.map((b, i) => (i === 2 ? { ...b, w3d: { concepto: 'la escala como volumen', porque: 'el punto revela que era una escala entera' } } : b)) };
+const w3dSin = analyze(M(arcE, { w3d: ['S2'] }), story, T);
+ok(w3dSin.issues.some((i) => i.level === 'WARN' && /w3d\.sin-guion/.test(i.problem) && i.shot === 'S2'), 'S10: shot world3d sin beat 3D declarado → WARN w3d.sin-guion', JSON.stringify(w3dSin.issues.map((i) => i.problem)));
+ok(!analyze(M(arcE, { w3d: ['S2'] }), w3dBeats, T).issues.some((i) => /w3d\.sin-guion/.test(i.problem)), 'S10: shot world3d dentro de un beat 3D declarado → sin aviso');
+ok(analyze(M(arcE, { w3d: ['S1'] }), w3dBeats, T).issues.some((i) => /w3d\.sin-guion/.test(i.problem)), 'S10: world3d fuera del tramo del beat 3D → WARN');
+ok(!analyze(M(arcE), story, T).issues.some((i) => /w3d\.sin-guion/.test(i.problem)), 'S10: sin world3d no hay aviso');
+ok(validateStory({ ...story, beats: story.beats.map((b, i) => (i === 2 ? { ...b, w3d: { concepto: 'x' } } : b)) }).length > 0, 'S10: beat.w3d sin "porque" → esquema inválido');
 console.log(`${bad ? '✗' : '✓'} arc unidades    ${n - bad}/${n}`);
 
 // ───────── (2) A/B sobre render real + (3) demo sin story ─────────

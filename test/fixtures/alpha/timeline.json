@@ -1,0 +1,14 @@
+{
+ "title": "fixture alpha — export ProRes 4444 con fondo transparente",
+ "style": "cosmos",
+ "profile": "cinematic",
+ "fps": 12,
+ "width": 1280,
+ "height": 720,
+ "duration": 2,
+ "handoffs": [],
+ "shots": [
+  { "id": "AL1", "t": [0, 1], "size": "WS", "action": "círculo sujeto en el centro sobre fondo vacío", "text": "", "cam": { "move": "static" }, "transition_out": "cut" },
+  { "id": "AL2", "t": [1, 2], "size": "WS", "action": "cuadrado sujeto en el centro sobre fondo vacío", "text": "", "cam": { "move": "static" }, "transition_out": "cut" }
+ ]
+}

@@ -4,8 +4,8 @@
 Escribes: out/**, docs/handoff/**, .trash/**, **  (roles.json, modo enforce)
 
 Lee (puntero ruta@digest):
-- CLAUDE.md@fdb70ee2
-- docs/HANDOFF.md@0bfb99d6
+- CLAUDE.md@b116fe2c
+- docs/HANDOFF.md@13d13053
 - docs/ROADMAP.md@7eebe5a0
 - ORQUESTADOR.md@55527209
 - gates.json@b815789c

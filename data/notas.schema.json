@@ -60,6 +60,26 @@
           },
           "medible": {
             "type": "boolean"
+          },
+          "voz": {
+            "type": "object",
+            "description": "¿tuvo voz? (spec 013): sí/no + comentario; opcional",
+            "required": [
+              "tuvo"
+            ],
+            "additionalProperties": false,
+            "properties": {
+              "tuvo": {
+                "enum": [
+                  "sí",
+                  "no"
+                ]
+              },
+              "texto": {
+                "type": "string",
+                "maxLength": 2000
+              }
+            }
           }
         }
       }

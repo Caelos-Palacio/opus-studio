@@ -2,6 +2,7 @@
 // T1: paquetes de contexto por rol, deterministas, ≤ maxTokens (≈ chars/4). Fuentes: roles.json + data/ctx.json + package.json
 // + data/commands.json + gates.json + orch.json. Los punteros de lectura llevan el digest del archivo (verificables).
 //   node engine/ctx.mjs            genera docs/ctx/<rol>.md        node engine/ctx.mjs --check   exit 1 si alguno está caducado
+import { isMain } from './paths.mjs';
 import fs from 'node:fs';
 import path from 'node:path';
 import { ROOT, digest } from './ledger.mjs';
@@ -30,7 +31,7 @@ export function build() {
   for (const r of Object.keys(cfg.roles ?? {})) out[`docs/ctx/${r}.md`] = pack(r);
   return out;
 }
-if (import.meta.url === `file://${process.argv[1]}`) {
+if (isMain(import.meta.url)) {
   const B = build(), stale = [];
   for (const [f, t] of Object.entries(B)) {
     const cur = fs.existsSync(path.join(ROOT, f)) ? fs.readFileSync(path.join(ROOT, f), 'utf8') : null;

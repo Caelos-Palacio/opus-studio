@@ -3,7 +3,7 @@
 - Pieza: explainer de 78 s. Desde una persona hasta el borde del universo observable en saltos de ×10, a ritmo constante
   (homenaje explícito a *Powers of Ten*, Eames 1977: ×10 cada 10 s; aquí ×10 cada 1,5 s). Después, la regla se rompe
   (no hay 10^27 observable), el viaje entero se pliega en una regla de 27 pasos iguales y volvemos a casa.
-- Estilo: `cosmos` (nocturno, ámbar + cian, bloom físico, niebla/DOF) con `styleOverrides` de tipo (Lato: Helvetica cae a Nimbus Sans aquí).
+- Estilo: `cosmos_plano` (cosmos: asombro, bloom, niebla) sobre el medio `tecnico_bermellon` (plano técnico/cianotipia con cuadrícula, cotas y hoja de plano; ver `medium.porque` en story.json). v3 (2026-10-06): sustituye el nocturno azul-negro con ámbar (anti-patrón «dorado sobre azul noche» y «fondo negro vacío»). `styleOverrides` de tipo (Lato).
 - Energía: baja → media constante → pico → silencio → baja.
 - Perfil: `explainer` (causalidad `after`, hechos con fuente en `data/facts.json`).
 - Modo: autónomo (gates cerrados por el propio agente; ver `docs/research/06-estres.md`).
@@ -15,7 +15,8 @@
   Tierra a la red cósmica (observación) → **no hay más allá observable** (la regla se rompe: anomalía) → los 27 pasos,
   puestos en fila, son iguales: eso es un logaritmo (modelo → formalismo) → volvemos a 10^0: tú eres el punto de partida.
 - Motivo: la **ventana** cuadrada (frame) → cada ventana se vuelve un **punto** de la regla (dot) → la regla (bar) → casa (home).
-- Color: ámbar = tú y la ventana (la unidad que se multiplica); cian = luz (atmósfera, estrellas, borde CMB); tinta = mundo.
+- Color: coral (bermellón suave) = tú y la ventana, que es una cota (la unidad que se multiplica); cian = luz y medida (atmósfera, borde CMB, rayado del terreno); blanco de plano = mundo.
+- 3D solo donde el guion lo pide (story.json, beats b3 y b4 con `w3d`): la ciudad como volumen (P03) y el suelo plano que era una esfera (P04). El resto del viaje es dibujo plano a propósito: más allá del cuerpo solo hay puntos y la ventana.
 - Referencias: Eames, *Powers of Ten* (copiar: ritmo constante, centro fijo, contador; no copiar: el picnic, la vuelta al átomo).
   3Blue1Brown (la ecuación llega después del fenómeno y se construye desde lo que está en pantalla).
 - Lo que no haré: partículas decorativas, zoom de cámara falso (la escala es contenido, no cámara), afirmar posiciones reales

@@ -43,4 +43,4 @@ El 3D NO es un vídeo pegado: es una CAPA del compositor 2D. Pasa por la misma c
 | versión | nota | comentario |
 |---|---|---|
 | spike datacenter | — | prototipo; aprobado integrar con estas condiciones |
-| world3d v1 (datacenter D01 + variante w3d de Potencias P03) | — | implementado (docs/handoff/world3d.md); pendiente de juicio de gusto |
+| world3d v1 (datacenter D01 + variante w3d de Potencias P03) | **8** (2026-10-05) | bien para demo, fluido, estilo acorde; PERO plano, falla la integración con el escenario y el ángulo; quería verlo en vídeo (solo hubo hoja de contacto del A/B) |

@@ -53,9 +53,19 @@ const KS2 = [[1, -2, 1], [1, -1.99004745483398, 0.99007225036621]];             
 const kw = (x) => { const y = new Float64Array(x.length); let a1 = 0, a2 = 0, b1 = 0, b2 = 0, c1 = 0, c2 = 0, d1 = 0, d2 = 0; const [[p0, p1, p2], [, q1, q2]] = KS1, [[r0, r1, r2], [, s1, s2]] = KS2;
   for (let i = 0; i < x.length; i++) { const v = x[i], u = p0 * v + p1 * a1 + p2 * a2 - q1 * b1 - q2 * b2; a2 = a1; a1 = v; b2 = b1; b1 = u; const w = r0 * u + r1 * c1 + r2 * c2 - s1 * d1 - s2 * d2; c2 = c1; c1 = u; d2 = d1; d1 = w; y[i] = w; } return y; };
 // energía media K-ponderada por subbloque de 100 ms
+// R7: filtro K de ambos canales en streaming (sin los Float64Array de N muestras que antes se reservaban por llamada: GC); mismas operaciones y orden → bit a bit igual.
 function subEnergies(L, R) {
-  const n = Math.floor(L.length / 4800), kl = kw(L), kr = kw(R), z = new Float64Array(n);
-  for (let j = 0; j < n; j++) { let s = 0; for (let i = j * 4800; i < (j + 1) * 4800; i++) s += kl[i] * kl[i] + kr[i] * kr[i]; z[j] = s / 4800; }
+  const n = Math.floor(L.length / 4800), z = new Float64Array(n), [[p0, p1, p2], [, q1, q2]] = KS1, [[r0, r1, r2], [, s1, s2]] = KS2;
+  let la1 = 0, la2 = 0, lb1 = 0, lb2 = 0, lc1 = 0, lc2 = 0, ld1 = 0, ld2 = 0, ra1 = 0, ra2 = 0, rb1 = 0, rb2 = 0, rc1 = 0, rc2 = 0, rd1 = 0, rd2 = 0;
+  for (let j = 0; j < n; j++) {
+    let s = 0;
+    for (let i = j * 4800, e = (j + 1) * 4800; i < e; i++) {
+      const vl = L[i], ul = p0 * vl + p1 * la1 + p2 * la2 - q1 * lb1 - q2 * lb2; la2 = la1; la1 = vl; lb2 = lb1; lb1 = ul; const wl = r0 * ul + r1 * lc1 + r2 * lc2 - s1 * ld1 - s2 * ld2; lc2 = lc1; lc1 = ul; ld2 = ld1; ld1 = wl;
+      const vr = R[i], ur = p0 * vr + p1 * ra1 + p2 * ra2 - q1 * rb1 - q2 * rb2; ra2 = ra1; ra1 = vr; rb2 = rb1; rb1 = ur; const wr = r0 * ur + r1 * rc1 + r2 * rc2 - s1 * rd1 - s2 * rd2; rc2 = rc1; rc1 = ur; rd2 = rd1; rd1 = wr;
+      s += wl * wl + wr * wr;
+    }
+    z[j] = s / 4800;
+  }
   return z;
 }
 const lufs = (e) => -0.691 + 10 * Math.log10(Math.max(e, 1e-14));
@@ -78,19 +88,20 @@ export function truePeak(L, R) {
   return lin2db(pk);
 }
 // Limitador "ladrillo" offline con lookahead (mínimo móvil + media móvil: nunca supera el techo) y liberación exponencial.
-export function limiter(L, R, ceil, { look = 144, release = 0.09 } = {}) {
-  const N = L.length, need = new Float32Array(N), mn = new Float32Array(N);
+export function limiter(L, R, ceil, { look = 144, release = 0.09, scratch = null } = {}) {
+  const N = L.length, S = scratch ?? {}; for (const k of ['need', 'mn', 'rr', 'outL', 'outR']) if (!S[k] || S[k].length !== N) S[k] = new Float32Array(N); if (!S.dq || S.dq.length !== N + 1) S.dq = new Int32Array(N + 1);   // R7: el bucle del master reutiliza los 6 arrays
+  const need = S.need, mn = S.mn;
   const th = ceil * 0.45;   // pico VERDADERO (×4): solo se interpola donde hay riesgo de superar el techo
   for (let i = 0; i < N; i++) {
     let p = Math.max(Math.abs(L[i]), Math.abs(R[i]));
     if ((p > th || Math.max(Math.abs(L[i + 1] ?? 0), Math.abs(R[i + 1] ?? 0)) > th) && i >= 11 && i < N - 12) for (const x of [L, R]) for (let ph = 1; ph < 4; ph++) { let q = 0; const h = TPK[ph]; for (let k = 0; k < 24; k++) q += h[k] * x[i - 11 + k]; if (Math.abs(q) > p) p = Math.abs(q); }
     need[i] = p > ceil ? ceil / p : 1;
   }
-  const dq = new Int32Array(N + 1); let h = 0, t = 0;                         // mínimo móvil de need[i..i+look−1]
+  const dq = S.dq; let h = 0, t = 0;                         // mínimo móvil de need[i..i+look−1]
   for (let i = N - 1; i >= 0; i--) { while (t > h && need[dq[t - 1]] >= need[i]) t--; dq[t++] = i; while (dq[h] > i + look - 1) h++; mn[i] = need[dq[h]]; }
-  const a = Math.exp(-1 / (release * SR)), rr = new Float32Array(N); let g = 1;
+  const a = Math.exp(-1 / (release * SR)), rr = S.rr; let g = 1;
   for (let i = 0; i < N; i++) { g = Math.min(mn[i], g * a + (1 - a)); rr[i] = g; }
-  let acc = 0; const outL = new Float32Array(N), outR = new Float32Array(N);
+  let acc = 0; const outL = S.outL, outR = S.outR;
   for (let i = 0; i < N; i++) { acc += rr[i]; if (i >= look) acc -= rr[i - look]; const k = i < look ? acc / (i + 1) : acc / look, gg = Math.min(k, need[i]); outL[i] = L[i] * gg; outR[i] = R[i] * gg; }
   return { L: outL, R: outR };
 }

@@ -73,3 +73,51 @@ lo que otro ya sabía; (5) Opus usado en tareas mecánicas; (6) informes largos 
   TeX, golden y `npm test` verdes.
 - Pendiente de la tabla: P3, P4, P6, P7 (lint incremental, hash por check, workers, caché de texturas) y los de proceso A2–A5.
 - Nota: modificar engine/lint.mjs/filmid.mjs caduca los veredictos de todos los films (hash del motor): relanzar `npm run lint` tras `use <film>`.
+
+## Motor: resultados (spec 009, rama motor, 2026-10-06)
+Medido en Potencias (13 shots, 78 s) con 12 CPUs y la máquina cargada por otros agentes (load 5–24): el reloj es ruidoso, la CPU (user+sys) no.
+| medida | antes | después |
+|---|---|---|
+| master en frío (mezcla ya hecha) | 167 s reloj / 791 s CPU (referencia histórica 282 s) | 84 s / 615 s (preset faster, hilos auto, troceo 120 + LPT) |
+| lint completo en frío | 70 s | 16,8 s (R1 + precalentamiento paralelo); avisos idénticos |
+| lint completo en caliente | 70 s | 1,5 s |
+| lint --shot P05 tras cambiar ese shot | 68 s | 6,3 s |
+| mezcla de sonido Potencias | 15,7 s | 11,0 s en frío; música/efectos de caché: solo mixdown (3,7 s) |
+| mezcla de sonido Mate (piano) | 55,7 s CPU | 12 s CPU (WAV: 24 de 8,8 M muestras difieren 1 LSB) |
+| npm test | 285 s / 1415 s CPU | 269 s con el test nuevo (motor, 23 comprobaciones) |
+Causa del ×3 del sonido: no se reproduce 40→133 s en aislado; el coste real era `piano` (41 %), `Float32Array.from(cb)` en el bucle del master (~4 s), GC por alocaciones por iteración y cos/sin del paneo por muestra. Corregido (potencias bit a bit igual).
+Hallazgo fuera de alcance: cada tamaño de fuente nuevo cuesta 40–130 ms (fontconfig con 2 451 fuentes), por proceso.
+
+## Toolbox: descubrimiento progresivo de herramientas (spec 015, rama toolbox, 2026-10-07)
+Problema: un agente que produce un film leía CLAUDE.md, SKILL.md, CRAFT, CINE, STYLES, MOTOR, API, STATUS, HANDOFF y ROADMAP y aun así no sabía qué herramienta tocaba en cada paso.
+Solución: `node engine/tools.mjs` — registro generado del código (319 entradas: 70 cli, 34 prim, 35 dsl, 66 métricas, 79 checks, 12 estilos, 9 medios, 4 sonidos, 10 voces; más fondos/objetos cuando exista su `META`),
+búsqueda léxica local (BM25 + sinónimos curados y del canon, sin red ni LLM), plan por estado real y brief por rol.
+| medida | antes | después |
+|---|---|---|
+| contexto mínimo de arranque (chars/4) | ≈ 15 300 tokens (10 documentos) | CLAUDE.md 451 + `tools brief` 890–950 ≈ 1 400 tokens (−91 %) |
+| «qué herramienta uso para X» | leer API.md (1 770) + STYLES/MOTOR o adivinar | `tools find` ≈ 120–250 tokens por consulta (top-5, una línea c/u) |
+| «qué hago ahora» | releer HANDOFF/STATUS/SKILL (~4 300) | `tools plan` ≈ 250–350 tokens, con comando exacto y bloqueos del gate |
+| acierto de la búsqueda | — | recall@3 = 100 % sobre 51 intenciones (41 de diseño + 10 de contraste redactadas después de afinar; 1 de ellas falló antes de añadir el sinónimo «voces») |
+Reproducir: `node engine/tools.mjs measure` (tokens), `node engine/tools.mjs eval` (recall), `node test/tools.mjs`.
+Mantenimiento: tras añadir una primitiva, tipo DSL, métrica, estilo o script → `node engine/tools.mjs build` (el test falla si el índice está caducado). Lo curado (cuándo, tags, siguiente, sinónimos, reglas) vive en `data/tools.meta.json`.
+
+## Recetas: el agente llena huecos en vez de escribir el scene (spec 016, rama recetas, 2026-10-07)
+Problema: un shot DSL típico son 300–400 tokens de JSON que el agente escribía entero (estructura, expresiones de muelle, foco, cámara) aunque lo único que decide en el film es qué objeto, qué texto y qué cifra.
+Solución: `node engine/opus.mjs new shot <id> --receta <r> [--param k=v] [--llenar objeto.prop=texto] [--mov temblor]` escribe un `.scene.json` propio (scaffold, sin herencia) con `$hueco` donde va lo concreto. 17 recetas ≤ 25 líneas y ≤ 4 params (`node engine/recetas.mjs list`; descubribles con `tools find "…" --kind receta`).
+Medida (R7, `node engine/recetas.mjs medir`, tokens ≈ caracteres/4, 3 shots inspirados en los guiones). «Con receta» = el comando (con `--param`/`--llenar`) + una llamada de herramienta de overhead (15 tok) + lo que aún se edita a mano (old_string con 16 caracteres de contexto + new_string + 15 de overhead). «Desde cero» = el scene entero + 15 de overhead. «Peor caso» = reescribir líneas enteras en vez de fragmentos.
+| shot | con receta | desde cero | ahorro | peor caso |
+|---|---|---|---|---|
+| contar · Veinticuatro (24 neutrinos en 13 s) | 103 | 347 | −70 % | −58 % |
+| documento · Consta (acta del kilo y sello) | 109 | 379 | −71 % | −61 % |
+| presentar_objeto · Botella (tarjeta de 1906) | 108 | 323 | −67 % | −53 % |
+Primer intento, descartado: llenar los huecos con una `Edit` por hueco daba solo −41…−45 % (cada edición paga old_string + new_string + overhead); lo que cruza el 50 % es poder pasar `--param` y `--llenar` en el mismo comando. No se mide el coste de LEER (`tools find` ≈ 150 tok + el comando imprime los huecos que quedan): es del mismo orden en ambos caminos.
+Límite honesto: la medida es de escritura, no de calidad. «Ningún output audiovisual está hecho sin la nota del usuario» (H1: que la oleada E2 no se sienta hecha con plantilla) sigue abierto; por eso `receta.repeticion` avisa si una receta es > 50 % de los shots de un film.
+
+## Diagramas del sistema (rama diagramas, 2026-10-07)
+Las cifras de la lámina 5 (`shots/S05.scene.json`, film `sistema`) salen de estas filas y de las tablas de arriba; el test `test/diagramas.mjs` (D5) comprueba que cada cifra pintada está en la documentación.
+| medida | antes | después | fuente |
+|---|---|---|---|
+| npm test (perfil quick) | ≈ 890 s (`docs/handoff/deuda2.md`) | 188 s (medido: 12 en paralelo, 12 CPUs, 2026-10-07) | esta tabla |
+| cobertura DSL honesta | 3,2 % | 95,2 % (`STATUS.md`) | `docs/handoff/dsl80.md` |
+| mp4 de Mate, 5 s a 1280×720 | 15,9 MB (papel crf 16) | 3,8 MB (tune grain crf 24) | `docs/current/MEDIOS.md` |
+No verificada y por eso NO pintada: «mp4 Mate papel 292 → 83 MB» (no aparece en docs/ ni en los handoffs).

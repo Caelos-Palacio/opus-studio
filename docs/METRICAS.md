@@ -592,6 +592,19 @@ Dimensiones base: T tiempo · A ángulo · L longitud · S log₂ de razón de l
 - **Norma / referencia**: Zeigarnik 1927 (tareas abiertas); Loewenstein 1994 (curiosidad)
 - **Rango típico (indicativo)**: sin rango por género establecido
 
+## fondo
+
+### `fondo.profundidad` — Profundidad del fondo
+
+- **Unidad**: % · **dimensión**: 1 (luma en % de escala completa) · **clase**: estimado · **tipo**: scalar
+- **Fuente**: píxeles del fotograma (384 px, con gradación) y cajas focus/text (máscara de sujeto); ventanas de 2 s a 4 fps
+- **Definición formal**: Y' = luma sRGB codificada en % de escala completa; fondo = píxeles fuera de las cajas focus/text ensanchadas 4 % del lado menor. P = σ_esp + σ_grad + τ, con σ_esp = RMS de la imagen integrada de la ventana respecto a la media de bloques de ancho/6 (estrellas, niebla, textura; el grano se promedia), σ_grad = desv. típica de las medias de bloque 6×3 (viñeta, degradado), τ = mediana de |Δ media de bloque ancho/48| entre fotogramas consecutivos (parpadeo, parallax, deriva). Fondo oscuro: mediana de Y' ≤ 18 %. fondo.vacio: oscuro ∧ P < 1,0 %
+- **Estimador**: imagen media de ventana (8 fotogramas) + diferencias de bloque; mediana de τ
+- **Incertidumbre**: grano de la gradación atenuado ×1/√8 en σ_esp (residuo ≈ 0,1 %); sensibilidad a la resolución: estrellas finas suben con los píxeles (+30 % de 192 a 1280)
+- **Invariancia / normalización**: rejilla relativa al ancho ⇒ razonablemente invariante a resolución ≥ 384; no a fps (τ por fotograma a 4 fps)
+- **Norma / referencia**: convención propia calibrada con films reales (docs/handoff/fondo.md); luma Rec.709 (ITU-R BT.709)
+- **Rango típico (indicativo)**: negro vacío: 0–1 %; oscuro con profundidad: 1.5–10 %; soporte con textura: 8–40 % (orientativo: contrastar con la fuente; sin calibrar con corpus propio)
+
 ## drama
 
 ### `drama.peakPos` — Posición del clímax

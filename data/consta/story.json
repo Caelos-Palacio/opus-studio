@@ -1,0 +1,186 @@
+{
+  "v": 2,
+  "oleada": "013-a",
+  "forma": "causal",
+  "idea": "El cilindro que define el kilo no puede perder peso, y aun así pesa 50 microgramos menos que sus copias: consta la diferencia, no consta de quién.",
+  "voz": {
+    "quien": "un funcionario de archivo con treinta años de oficio y ninguna prisa",
+    "actitud": "impasible ante un absurdo que él ve perfectamente; levanta acta de lo que no puede resolver",
+    "persona": "impersonal",
+    "tiempo": "presente",
+    "registro": [
+      "acta",
+      "deadpan",
+      "papel secante"
+    ],
+    "tic": "consta",
+    "prohibido": [
+      "fascinante",
+      "increíble",
+      "imagina",
+      "al final",
+      "paradoja"
+    ]
+  },
+  "punto_de_vista": {
+    "tesis_discutible": "Que el kilo adelgazara nunca fue un hecho de la balanza: fue un hueco del procedimiento. Nadie guardó con qué comprobarlo.",
+    "contra": "que un patrón físico se desgasta (o no) como cualquier objeto y que bastaba pesarlo para saberlo"
+  },
+  "ancla": {
+    "objeto": "cilindro de platino-iridio de 39 mm en un sótano de Sèvres, bajo tres campanas de cristal",
+    "detalle": "tres llaves en tres manos: nadie abre la cámara solo",
+    "dato": {
+      "valor": "≈ 50 µg de divergencia respecto a sus copias en unos 100 años; sin datos históricos que digan cuál se movió",
+      "unidad": "µg",
+      "fuente": "BIPM vía https://en.wikipedia.org/wiki/International_Prototype_of_the_Kilogram ; NIST https://www.nist.gov/si-redefinition/kilogram-introduction (ver docs/guiones/consta.md) ; incertidumbre de 10 µg desde el 20-V-2019: BIPM, CCM 'Note on dissemination of the kilogram after redefinition' (u_mIPK ≡ 0 → 10 µg)"
+    },
+    "en_pantalla_antes_de": 8,
+    "tacto": "papel de estraza, tampón de tinta roja, hilo y lacre, papel secante, vidrio frío"
+  },
+  "question": {
+    "text": "Si el patrón del kilo pierde 50 microgramos, respecto a qué los pierde.",
+    "posed_at": 4.4,
+    "answered_at": 27.2,
+    "on_screen": false,
+    "creencia_previa": "que el kilo es una cantidad fija de la naturaleza, y que un patrón que se desgasta se nota en la balanza",
+    "por_que_no_sabia": "nadie piensa en qué cosa concreta se pesó para decidir cuánto es un kilo, ni en contra qué se pesaría esa cosa"
+  },
+  "giro": {
+    "t": 27.2,
+    "de": "el cilindro adelgaza (o las copias engordan: alguien tiene que haber cambiado)",
+    "a": "no se puede saber cuál de los dos se movió: por definición el cilindro no pierde, y no existe un tercer kilo contra el que comprobarlo",
+    "cambia_lo_visto": "las tres llaves y las campanas parecían proteger la verdad del kilo; protegían su custodia: garantizaban que nadie lo tocara, no que no cambiara"
+  },
+  "apuesta": {
+    "valor": "verdad / custodia",
+    "polo_inicial": "el kilo es un hecho que alguien guarda bien",
+    "polo_final": "el kilo era una promesa guardada con llaves; al dejar de serlo, el cilindro puede por fin estar equivocado, y eso es lo que nunca pudo ser",
+    "por_que_importa": "cada pesada del planeta colgó de ese cilindro (o de copias de copias) hasta el 20 de mayo de 2019"
+  },
+  "subtexto": {
+    "dice": "50 microgramos de diferencia entre un cilindro y sus copias",
+    "significa": "una autoridad que nadie puede comprobar tampoco puede ser corregida; solo al perder su autoridad, el cilindro gana la posibilidad de error"
+  },
+  "tono": {
+    "primario": "humor seco",
+    "secundario": "vértigo",
+    "contradiccion": "la solemnidad de un acta para un hecho sin remedio"
+  },
+  "beats": [
+    {
+      "id": "b1",
+      "t": 0.4,
+      "peso": "medio",
+      "concreto": "tres llaves de latón sobre papel de estraza; tres manos las recogen una a una; cilindro de platino bajo tres campanas de cristal en un sótano de Sèvres; un tampón sin tinta todavía",
+      "text": "Consta: bajo tres campanas de cristal, un cilindro es el kilo."
+    },
+    {
+      "id": "b2",
+      "t": 4.4,
+      "peso": "corto",
+      "link": "pero",
+      "concreto": "balanza de cruz de latón: el cilindro y una copia gemela, cada uno bajo su campana; la aguja no vuelve al cero",
+      "text": "Consta una diferencia con sus copias: 50 microgramos en cien años."
+    },
+    {
+      "id": "b3",
+      "t": 8.4,
+      "peso": "largo",
+      "link": "por lo tanto",
+      "concreto": "una pluma escribe «ha perdido» en el acta y lo tacha dos veces; sello rojo SIN VARIACIÓN; el funcionario seca la tinta con papel secante",
+      "text": "Consta que no puede perder peso. Lo que él pesa, eso es un kilo."
+    },
+    {
+      "id": "b4",
+      "t": 18.4,
+      "peso": "corto",
+      "link": "por lo tanto",
+      "concreto": "seis copias en fila, cada una bajo dos campanas; un plato de balanza baja un pelo con cada una",
+      "text": "Han engordado, entonces, las copias."
+    },
+    {
+      "id": "b5",
+      "t": 27.2,
+      "peso": "pausa",
+      "link": "pero",
+      "concreto": "el cuaderno de verificaciones: tres filas, 1889, 1948, 1989; la columna «quién se movió» está en blanco; una mosca camina por la casilla; un reloj de pared",
+      "text": "No consta."
+    },
+    {
+      "id": "b6",
+      "t": 31.0,
+      "peso": "medio",
+      "link": "por lo tanto",
+      "concreto": "tres llaves giran en tres cerraduras, una tras otra; la cámara se cierra; el cilindro bajo el vidrio no hace nada",
+      "text": "Tres llaves: que nadie lo tocase. No que no cambiara."
+    },
+    {
+      "id": "b7",
+      "t": 36.4,
+      "peso": "corto",
+      "link": "pero",
+      "concreto": "el sello baja sobre el acta junto a «h = 6,62607015 × 10⁻³⁴ J·s»; casi un trámite; el cilindro sigue en su sitio, sin guardia",
+      "text": "Ya no es el kilo."
+    },
+    {
+      "id": "b8",
+      "t": 39.0,
+      "peso": "largo",
+      "link": "por lo tanto",
+      "concreto": "en el acta se abre una casilla nueva, «incertidumbre», y la pluma escribe «10 µg» junto al cilindro; la cámara aguarda tres segundos de más; el sello baja sin tinta",
+      "text": "Desde hoy consta su incertidumbre: 10 µg. Por primera vez, consta que puede equivocarse."
+    }
+  ],
+  "accommodation": {
+    "t": 27.2,
+    "type": "creencia",
+    "text": "lo que parecía un patrón que adelgaza era una diferencia sin culpable: no hay tercer kilo con que comprobarlo"
+  },
+  "imperfeccion": [
+    {
+      "t": 41,
+      "que": "el acta se queda sin la tercera firma y la cámara aguarda tres segundos de más; el sello baja sin tinta sobre la casilla de la incertidumbre",
+      "porque": "la burocracia registra, no resuelve; el hueco en la firma es el dato"
+    },
+    {
+      "t": 27.2,
+      "que": "cuatro segundos de pausa en blanco, sin música, con una mosca recorriendo la casilla vacía",
+      "porque": "el film se detiene donde la respuesta no existe, y pesa más que una frase"
+    }
+  ],
+  "cierre": {
+    "tipo": "cicatriz",
+    "ultima_linea": "Por primera vez, consta que puede equivocarse.",
+    "sin_moraleja": true
+  },
+  "medium": {
+    "id": "kraft",
+    "porque": "El kilo es un archivo y un trámite notarial: la pieza es un expediente de papel de estraza con tampones, hilo y lacre, y el soporte es la metáfora (custodia, acta, papel secante). Un fondo oscuro no sirve al tema: aquí se mide, se firma y se guarda."
+  },
+  "accent": {
+    "means": "el rojo del sello SIN VARIACIÓN: lo oficial, lo que nadie comprobó"
+  },
+  "frescura": {
+    "puntos": {
+      "ancla": 2,
+      "pregunta": 2,
+      "hecho_raro": 2,
+      "giro_relee": 2,
+      "apuesta": 1,
+      "distancia_default": 1,
+      "distancia_archivo": 2
+    },
+    "version_por_defecto": "El kilo patrón pierde peso: historia del Gran K, la deriva de 50 µg, la constante de Planck lo salva en 2019 y 'la ciencia siempre avanza' (explainer limpio con voz en off, giro = 'ahora ya no depende de un objeto')",
+    "descartados": [
+      {
+        "logline": "el mundo engordó, no el kilo (giro del research §3.3)",
+        "razon": "no se sostiene con los hechos: no hay datos históricos que digan si el cilindro perdió o las copias ganaron; el giro verdadero es 'no se puede saber'"
+      },
+      {
+        "logline": "las 7 unidades SI y su historia",
+        "razon": "enciclopédico, sin giro"
+      }
+    ],
+    "distancia": "mismo tema que el explainer por defecto (el kilo se redefine), ángulo distinto: el film no celebra la redefinición, la despacha en un beat y se queda en la casilla en blanco de quién se movió"
+  }
+}

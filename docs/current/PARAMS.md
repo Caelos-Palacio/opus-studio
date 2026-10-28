@@ -89,7 +89,7 @@ Las rutas se aplican sobre una **vista** del timeline donde `shots` es un **mapa
 direcciona shots por id, nunca por índice. Otras rutas válidas: `/shots/<id>/meta/...`, `/shots/<id>/<campo>`,
 `/signals/<nombre>[/...]`, `/style`, `/meta/...` (cualquier campo del esquema; el resultado se valida igual que la base).
 
-**Capa** = un archivo `data/layers/<nombre>.json` (film `main`; otros films: `data/layers/<film>/`; `--layers dir|none`
+**Capa** = un archivo `data/layers/<nombre>.json` (film `main`; films con carpeta propia (`data/<film>/timeline.json`, `data/regla/regla.json`): `<carpeta>/layers/` si existe; otros films: `data/layers/<film>/`; `--layers dir|none`
 u `OPUS_LAYERS`):
 
 ```json

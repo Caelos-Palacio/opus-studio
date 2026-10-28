@@ -247,6 +247,10 @@
   "tex": "\\approx 1\\,\\mathrm{km}",
   "display": true
  },
+ "hem7wg": {
+  "tex": "h = 6{,}62607015 \\times 10^{-34}\\ \\mathrm{J\\,s}",
+  "display": true
+ },
  "1w7m1a1": {
   "tex": "B(s)=\\sum_{i=0}^{3}\\binom{3}{i}(1-s)^{3-i}s^{i}P_i",
   "display": true

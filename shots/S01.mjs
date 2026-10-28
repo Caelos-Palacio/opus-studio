@@ -1,0 +1,426 @@
+// GENERADO desde shots/S01.scene.json por `node engine/dsl.mjs build` (spec 006). No editar a mano: edita el .scene.json y regenera.
+import { shot } from '../engine/dsl-core.mjs';
+export default shot({
+ "dsl": 1,
+ "id": "S01",
+ "doc": "[receta:diagrama_flujo] Diagrama 1 · pipeline de producción: doce etapas del brief a la nota, en serpiente; el color dice quién decide (Claude, el código o el usuario). GENERADO desde shots/S01.diagrama.json por `node engine/diagramas.mjs build` (spec 020): edita ese archivo y regenera.",
+ "objects": [
+  {
+   "id": "titulo",
+   "type": "text",
+   "text": {
+    "$shot": "text"
+   },
+   "x": {
+    "$expr": "W / 2"
+   },
+   "y": {
+    "$expr": "H * 0.0926"
+   },
+   "role": "h2",
+   "color": "ink"
+  },
+  {
+   "type": "shape",
+   "shape": "rect",
+   "x": {
+    "$expr": "W * 0.2448"
+   },
+   "y": {
+    "$expr": "H * 0.15"
+   },
+   "w": {
+    "$expr": "k * 22"
+   },
+   "h": {
+    "$expr": "k * 22"
+   },
+   "color": "accent2"
+  },
+  {
+   "type": "text",
+   "text": "decide Claude (texto)",
+   "x": {
+    "$expr": "W * 0.2635"
+   },
+   "y": {
+    "$expr": "H * 0.1602"
+   },
+   "role": "label",
+   "color": "ink",
+   "align": "left"
+  },
+  {
+   "type": "shape",
+   "shape": "rect",
+   "x": {
+    "$expr": "W * 0.4688"
+   },
+   "y": {
+    "$expr": "H * 0.15"
+   },
+   "w": {
+    "$expr": "k * 22"
+   },
+   "h": {
+    "$expr": "k * 22"
+   },
+   "color": "ink"
+  },
+  {
+   "type": "text",
+   "text": "lo hace el código",
+   "x": {
+    "$expr": "W * 0.4875"
+   },
+   "y": {
+    "$expr": "H * 0.1602"
+   },
+   "role": "label",
+   "color": "ink",
+   "align": "left"
+  },
+  {
+   "type": "shape",
+   "shape": "rect",
+   "x": {
+    "$expr": "W * 0.6927"
+   },
+   "y": {
+    "$expr": "H * 0.15"
+   },
+   "w": {
+    "$expr": "k * 22"
+   },
+   "h": {
+    "$expr": "k * 22"
+   },
+   "color": "accent"
+  },
+  {
+   "type": "text",
+   "text": "juzga el usuario",
+   "x": {
+    "$expr": "W * 0.7115"
+   },
+   "y": {
+    "$expr": "H * 0.1602"
+   },
+   "role": "label",
+   "color": "ink",
+   "align": "left"
+  },
+  {
+   "id": "b",
+   "type": "repeat",
+   "items": [
+    [
+     0.17,
+     0.3433,
+     0.1848,
+     0.1562,
+     "01",
+     "brief\npieza · arco mute\nlook · lo que no haré",
+     "accent2",
+     0.2
+    ],
+    [
+     0.39,
+     0.3433,
+     0.1848,
+     0.1562,
+     "02",
+     "story v2\nvoz · ancla · giro\npregunta con respuesta tardía",
+     "accent2",
+     0.5
+    ],
+    [
+     0.61,
+     0.3433,
+     0.1848,
+     0.1562,
+     "03",
+     "estilo + medio\npaleta · tipo · soporte\nsalen del encargo",
+     "accent2",
+     0.8
+    ],
+    [
+     0.83,
+     0.3433,
+     0.1848,
+     0.1562,
+     "04",
+     "audio / score\nla pista es el reloj\nscore · sounddesign · mixer",
+     "ink",
+     1.1
+    ],
+    [
+     0.83,
+     0.58,
+     0.1848,
+     0.1562,
+     "05",
+     "timeline\nshots · cámara · acción\nvalidate hasta SHIP",
+     "ink",
+     1.4
+    ],
+    [
+     0.61,
+     0.58,
+     0.1848,
+     0.1562,
+     "06",
+     "shots\nDSL · recetas · objetos\npuros: seek(t) sin azar",
+     "ink",
+     1.7
+    ],
+    [
+     0.39,
+     0.58,
+     0.1848,
+     0.1562,
+     "07",
+     "lint\nnarr · fondo · arc · layout\nescalera determinista",
+     "ink",
+     2
+    ],
+    [
+     0.17,
+     0.58,
+     0.1848,
+     0.1562,
+     "08",
+     "crítico\nhoja de contacto (peek)\nsolo con lint SHIP",
+     "ink",
+     2.3
+    ],
+    [
+     0.17,
+     0.8167,
+     0.1848,
+     0.1562,
+     "09",
+     "gate\nSHIP vigente\n+ crítico sin FIX",
+     "ink",
+     2.6
+    ],
+    [
+     0.39,
+     0.8167,
+     0.1848,
+     0.1562,
+     "10",
+     "master\nfragmentos con hash\ntecho −3 dBTP",
+     "ink",
+     2.9
+    ],
+    [
+     0.61,
+     0.8167,
+     0.1848,
+     0.1562,
+     "11",
+     "nota del usuario\nnota 1–10 + comentario\nes el juez de gusto",
+     "accent",
+     3.2
+    ],
+    [
+     0.83,
+     0.8167,
+     0.1848,
+     0.1562,
+     "12",
+     "lección\nvuelve a la spec (3DD)\nfalso negativo → escenario",
+     "accent",
+     3.5
+    ]
+   ],
+   "fields": [
+    "x",
+    "y",
+    "w",
+    "h",
+    "n",
+    "t",
+    "c",
+    "d"
+   ],
+   "children": [
+    {
+     "type": "box",
+     "x": {
+      "$expr": "(b_x - b_w / 2) * W"
+     },
+     "y": {
+      "$expr": "(b_y - b_h / 2) * H"
+     },
+     "w": {
+      "$expr": "b_w * W"
+     },
+     "h": {
+      "$expr": "b_h * H"
+     },
+     "label": {
+      "$expr": "b_t"
+     },
+     "tag": {
+      "$expr": "b_n"
+     },
+     "color": {
+      "$expr": "b_c"
+     },
+     "fill": "paper",
+     "banda": 9,
+     "lw": 3,
+     "sombra": true,
+     "alpha": {
+      "$expr": "seg(lt, b_d, b_d + 0.45)"
+     }
+    }
+   ]
+  },
+  {
+   "id": "a",
+   "type": "repeat",
+   "items": [
+    [
+     0.2672,
+     0.3433,
+     0.2928,
+     0.3433,
+     "accent2",
+     0.62
+    ],
+    [
+     0.4872,
+     0.3433,
+     0.5128,
+     0.3433,
+     "accent2",
+     0.92
+    ],
+    [
+     0.7072,
+     0.3433,
+     0.7328,
+     0.3433,
+     "accent2",
+     1.22
+    ],
+    [
+     0.83,
+     0.4299,
+     0.83,
+     0.4934,
+     "ink",
+     1.52
+    ],
+    [
+     0.7328,
+     0.58,
+     0.7072,
+     0.58,
+     "ink",
+     1.82
+    ],
+    [
+     0.5128,
+     0.58,
+     0.4872,
+     0.58,
+     "ink",
+     2.12
+    ],
+    [
+     0.2928,
+     0.58,
+     0.2672,
+     0.58,
+     "ink",
+     2.42
+    ],
+    [
+     0.17,
+     0.6666,
+     0.17,
+     0.7301,
+     "ink",
+     2.72
+    ],
+    [
+     0.2672,
+     0.8167,
+     0.2928,
+     0.8167,
+     "ink",
+     3.02
+    ],
+    [
+     0.4872,
+     0.8167,
+     0.5128,
+     0.8167,
+     "ink",
+     3.32
+    ],
+    [
+     0.7072,
+     0.8167,
+     0.7328,
+     0.8167,
+     "accent",
+     3.62
+    ]
+   ],
+   "fields": [
+    "x0",
+    "y0",
+    "x1",
+    "y1",
+    "c",
+    "d"
+   ],
+   "children": [
+    {
+     "type": "arrow",
+     "x0": {
+      "$expr": "a_x0 * W"
+     },
+     "y0": {
+      "$expr": "a_y0 * H"
+     },
+     "x1": {
+      "$expr": "a_x1 * W"
+     },
+     "y1": {
+      "$expr": "a_y1 * H"
+     },
+     "u": {
+      "$expr": "seg(lt, a_d, a_d + 0.4)"
+     },
+     "color": {
+      "$expr": "a_c"
+     }
+    }
+   ]
+  },
+  {
+   "type": "focus",
+   "x": {
+    "$expr": "W * 0.063"
+   },
+   "y": {
+    "$expr": "H * 0.225"
+   },
+   "w": {
+    "$expr": "W * 0.88"
+   },
+   "h": {
+    "$expr": "H * 0.71"
+   },
+   "label": "diagrama",
+   "weight": 1,
+   "hollow": true
+  }
+ ]
+}, {  });

@@ -1,0 +1,14 @@
+{
+  "receta": "diagrama_flujo",
+  "id": "VT02",
+  "doc": "Del archivo SVG a la lámina: cinco etapas.",
+  "disposicion": "fila",
+  "leyenda": [["accent2", "lo escribe una persona"], ["ink", "lo hace el motor"]],
+  "nodos": [
+    ["SVG", "assets/svg/*.svg", "dibujado a mano", "accent2"],
+    ["sanea", "sin scripts ni href", "falla con mensaje", "ink"],
+    ["traza", "por longitud de path", "trazo 0..1", "ink"],
+    ["recolorea", "roles del medio", "data-fill / mono", "ink"],
+    ["lámina", "box + flechas", "desde ~20 líneas", "accent2"]
+  ]
+}

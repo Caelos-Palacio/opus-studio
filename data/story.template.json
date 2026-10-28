@@ -1,13 +1,64 @@
 {
-  "idea": "Un punto contiene una escala entera: lo pequeño y lo vasto son la misma cosa vista desde otro sitio.",
-  "question": { "text": "¿Cabe una escala en un punto?", "posed_at": 0.3, "answered_at": 7.0, "on_screen": true },
+  "v": 2,
+  "oleada": "ejemplo",
+  "forma": "causal",
+  "idea": "Si la cosa que define el kilo adelgaza, no pierde ella peso: lo gana todo lo demás.",
+  "voz": {
+    "quien": "un funcionario de archivo con 30 años de oficio y ninguna prisa",
+    "actitud": "escrupulosamente impasible ante un absurdo que él ve perfectamente",
+    "persona": "impersonal",
+    "tiempo": "presente",
+    "registro": ["acta", "deadpan"],
+    "tic": "cada afirmación empieza por 'consta'",
+    "prohibido": ["fascinante", "increíble", "imagina"]
+  },
+  "punto_de_vista": {
+    "tesis_discutible": "Que el patrón se desgaste no es un fallo del kilo sino del resto del mundo.",
+    "contra": "que un patrón físico pesa lo que pesa"
+  },
+  "ancla": {
+    "objeto": "el cilindro de platino-iridio en el sótano de Sèvres, bajo tres campanas de cristal",
+    "detalle": "tres llaves: ninguna persona puede abrirlo sola",
+    "dato": { "valor": "≈ 50 microgramos de diferencia respecto a sus copias en un siglo", "unidad": "µg", "fuente": "BIPM (verificar antes de producir)" },
+    "en_pantalla_antes_de": 8,
+    "tacto": "vidrio, platino, papel de acta, sello de tampón"
+  },
+  "question": {
+    "text": "¿Cuánto pesa lo que define cuánto pesa todo?",
+    "posed_at": 2.5, "answered_at": 27, "on_screen": true,
+    "creencia_previa": "un kilo es un kilo, un número fijo desde siempre",
+    "por_que_no_sabia": "nadie piensa en qué cosa concreta se pesó para decidir el primer kilo"
+  },
+  "giro": {
+    "t": 27,
+    "de": "el cilindro está adelgazando",
+    "a": "por definición el cilindro pesa 1 kg; lo que cambia es todo lo demás",
+    "cambia_lo_visto": "las tres llaves y las tres campanas protegían al patrón de lo único imposible: ser medido por otro"
+  },
+  "apuesta": {
+    "valor": "verdad / convención",
+    "polo_inicial": "el kilo es un hecho de la naturaleza",
+    "polo_final": "el kilo era un pacto, y el pacto se rompió sin un solo culpable",
+    "por_que_importa": "cada pesada de tu vida colgó de ese cilindro hasta 2019"
+  },
+  "subtexto": { "dice": "un cilindro pierde unas mil millonésimas", "significa": "la autoridad que no puede cuestionarse también envejece" },
+  "tono": { "primario": "vértigo", "secundario": "humor seco", "contradiccion": "la solemnidad de un acta para un hecho sin remedio" },
   "beats": [
-    { "id": "b1", "t": 0.3, "text": "Una persona mira un punto diminuto" },
-    { "id": "b2", "t": 2.6, "text": "pero el punto empieza a moverse hacia ella", "link": "pero" },
-    { "id": "b3", "t": 5.4, "text": "por lo tanto, al llegar, el punto revela que era una escala entera", "link": "por lo tanto" },
-    { "id": "b4", "t": 7.0, "text": "pero la escala vuelve a caber en un punto", "link": "pero" }
+    { "id": "b1", "t": 0.5, "peso": "medio", "concreto": "tres llaves sobre un mantel, tres manos", "text": "Consta: hay un cilindro en Sèvres que es el kilo." },
+    { "id": "b2", "t": 8, "peso": "corto", "link": "pero", "concreto": "la balanza compara el cilindro con su copia", "text": "Consta también que ha adelgazado." },
+    { "id": "b3", "t": 14, "peso": "largo", "link": "por lo tanto", "concreto": "el sello SIN VARIACIÓN sobre un acta con una cifra tachada", "text": "Consta que no puede adelgazar: es el kilo por definición." },
+    { "id": "b4", "t": 27, "peso": "pausa", "link": "por lo tanto", "concreto": "una moneda, un pan y un gato en la balanza, cada uno con un grano más", "text": "Todo lo demás ha engordado." },
+    { "id": "b5", "t": 41, "peso": "corto", "link": "pero", "concreto": "mayo de 2019: el cilindro baja de su pedestal", "text": "2019: se jubila. Ahora el kilo es una constante." }
   ],
-  "accommodation": { "t": 5.4, "type": "escala", "text": "el punto era una escala" },
-  "scale": [{ "at": 5.4, "ref_at": 0.3, "ref": "persona" }],
-  "accent": { "means": "lo vasto" }
+  "accommodation": { "t": 27, "type": "creencia", "text": "lo que pesaba menos era el patrón, y por eso pesa más todo" },
+  "imperfeccion": [{ "t": 21, "que": "el acta se queda sin la firma de uno de los tres", "porque": "la burocracia no resuelve; solo registra" }],
+  "cierre": { "tipo": "cicatriz", "ultima_linea": "Consta que pesó lo que pesó.", "sin_moraleja": true },
+  "medium": { "id": "kraft", "porque": "el kilo es un archivo: papel de embalaje, etiquetas, tampones, hilo y lacre; la pieza es un expediente." },
+  "frescura": {
+    "puntos": { "ancla": 2, "pregunta": 2, "hecho_raro": 2, "giro_relee": 2, "apuesta": 1, "distancia_default": 2, "distancia_archivo": 2 },
+    "version_por_defecto": "¿Y si el kilo cambiara? Historia del kilo patrón y la constante de Planck (documental informativo)",
+    "descartados": [{ "logline": "las 7 unidades SI y su historia", "razon": "enciclopédico, sin giro" }],
+    "distancia": "tema y ángulo distintos del por defecto"
+  },
+  "accent": { "means": "el sello de tampón: lo oficial" }
 }

@@ -11,8 +11,43 @@
       "maxLength": 100
     },
     "background": {
-      "type": "string",
-      "maxLength": 64
+      "anyOf": [
+        {
+          "type": "string",
+          "maxLength": 64
+        },
+        {
+          "type": "object",
+          "properties": {
+            "top": {
+              "type": "string",
+              "maxLength": 64
+            },
+            "bottom": {
+              "type": "string",
+              "maxLength": 64
+            },
+            "stops": {
+              "type": "array",
+              "minItems": 2,
+              "maxItems": 8,
+              "items": {
+                "anyOf": [
+                  {
+                    "type": "string",
+                    "maxLength": 64
+                  },
+                  {
+                    "type": "array",
+                    "minItems": 2,
+                    "maxItems": 2
+                  }
+                ]
+              }
+            }
+          }
+        }
+      ]
     },
     "fog": {
       "anyOf": [
@@ -60,6 +95,25 @@
             },
             "contact": {
               "type": "boolean"
+            },
+            "lit": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 1,
+              "description": "v2: cuánto se ilumina el suelo en el charco de luz (por defecto el del estilo world3d.groundLit)"
+            },
+            "catcher": {
+              "type": "boolean",
+              "description": "v2: el suelo solo dibuja la sombra proyectada (alfa) para componerla sobre el suelo 2D del shot"
+            },
+            "mat": {
+              "type": "string",
+              "maxLength": 32
+            },
+            "y": {
+              "type": "number",
+              "minimum": -1000000.0,
+              "maximum": 1000000.0
             }
           }
         }
@@ -107,6 +161,40 @@
           "type": "number",
           "minimum": -90,
           "maximum": 90
+        },
+        "fromShot": {
+          "type": "boolean",
+          "description": "v2: deriva elevación/lente del horizonte y la línea de suelo del shot"
+        },
+        "scale": {
+          "type": "string",
+          "maxLength": 16
+        },
+        "horizon": {
+          "type": "number",
+          "minimum": -5,
+          "maximum": 5
+        },
+        "override": {
+          "type": "boolean"
+        },
+        "heroic": {
+          "type": "boolean"
+        },
+        "groundY": {
+          "type": "number",
+          "minimum": -5,
+          "maximum": 5
+        },
+        "ppm": {
+          "type": "number",
+          "exclusiveMinimum": 0,
+          "maximum": 1000000000.0
+        },
+        "roll": {
+          "type": "number",
+          "minimum": -360,
+          "maximum": 360
         }
       }
     },
@@ -197,6 +285,22 @@
                   "maximum": 1000000.0
                 }
               }
+            }
+          },
+          "cast": {
+            "type": "boolean",
+            "description": "v2: proyecta sombra (por defecto sí si es sólido con luz)"
+          },
+          "id": {
+            "type": "string",
+            "maxLength": 100
+          },
+          "rot": {
+            "type": "array",
+            "minItems": 3,
+            "maxItems": 3,
+            "items": {
+              "type": "number"
             }
           }
         }

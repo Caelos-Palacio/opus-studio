@@ -54,7 +54,7 @@ export function validateStory(st) {
   if (!Array.isArray(st.beats) || st.beats.length < 2) e.push('beats: mínimo 2');
   else st.beats.forEach((b, i) => { if (!num(b?.t) || typeof b?.text !== 'string') e.push(`beats[${i}] sin t/text`); });
   const a = st.accommodation;
-  if (!a || !num(a.t) || !['regla', 'escala', 'idea'].includes(a.type)) e.push('accommodation {t, type: regla|escala|idea} incompleta');
+  if (!a || !num(a.t) || !['regla', 'escala', 'idea', 'creencia'].includes(a.type)) e.push('accommodation {t, type: regla|escala|idea|creencia} incompleta');
   for (const [i, s] of (st.scale ?? []).entries()) if (!num(s?.at)) e.push(`scale[${i}] sin at`);
   for (const [k, v] of Object.entries(st.sakuga ?? {})) if (!['hero', 'normal', 'simple'].includes(v)) e.push(`sakuga.${k} = "${v}" (hero|normal|simple)`);
   return e;
@@ -81,13 +81,17 @@ export function camShape(shot, film) {
   return { move: sp.move, ease: sp.ease, linearDev: +dev.toFixed(4), overshoot: +Math.max(0, over).toFixed(4) };
 }
 
-export async function measure({ fps = 12, story = null, width = 1280, height = 720 } = {}) {
-  const { makeRenderer } = await import('./render.mjs');
-  const R = await makeRenderer({ size: `192x${Math.round((192 * height) / width / 2) * 2}`, grade: false }), film = R.film, W = R.W, H = R.H;
-  const n = Math.round(film.duration * fps), E = [], accent = [], frames = [], acc = rgb(film.S.palette.accent), impacts = new Map(), smear = {};
+export async function measure({ fps = 12, story = null, width = 1280, height = 720, film: F0 = null, fc = null, cacheOnly = false } = {}) {
+  // R1 (spec 009): los fotogramas salen de la caché compartida (engine/framecache.mjs); lint pasa su film y su caché (el renderizador solo se crea en el 1.er fallo).
+  const size = `192x${Math.round((192 * height) / width / 2) * 2}`;
+  let R0 = null;
+  if (!fc) { const { makeRenderer } = await import('./render.mjs'); R0 = await makeRenderer({ size, grade: false }); fc = (await import('./framecache.mjs')).frameCache({ film: R0.film, size, grade: false, make: async () => R0 }); }
+  const film = F0 ?? R0.film, n = Math.round(film.duration * fps);
+  if (cacheOnly && !fc.hasAll(Array.from({ length: n + 1 }, (_, i) => i / fps), { px: true })) return null;
+  const E = [], accent = [], frames = [], acc = rgb(film.S.palette.accent), impacts = new Map(), smear = {}, w3d = new Set();
   let prev = null;
   for (let i = 0; i <= n; i++) {
-    const t = i / fps, boxes = R.frame(t), d = R.ctx.getImageData(0, 0, W, H).data;
+    const t = i / fps, F = await fc.get(t, { px: true }), boxes = F.boxes, d = F.data, W = F.W, H = F.H;
     if (prev) E.push(frameEnergy(d, prev));
     prev = Uint8ClampedArray.from(d);
     let a = 0; if (acc) for (let k = 0; k < d.length; k += 4) { const dr = d[k] - acc[0], dg = d[k + 1] - acc[1], db = d[k + 2] - acc[2]; if (dr * dr + dg * dg + db * db < 45 * 45) a++; }
@@ -96,6 +100,7 @@ export async function measure({ fps = 12, story = null, width = 1280, height = 7
     frames.push({ t, texts: boxes.filter((b) => b.kind === 'text').map(nb), foci: boxes.filter((b) => b.kind === 'focus').map(nb) });
     for (const m of boxes.meta ?? []) {
       if (m.prim === 'impact') impacts.set(`${m.shot}@${(+m.t).toFixed(4)}`, { shot: m.shot, t: +m.t, frames: m.frames });
+      if (m.prim === 'world3d' && m.shot) w3d.add(m.shot);
       if (m.prim === 'smear') smear[m.shot] = (smear[m.shot] ?? 0) + 1 / fps;
     }
   }
@@ -107,7 +112,7 @@ export async function measure({ fps = 12, story = null, width = 1280, height = 7
   return {
     title: film.title, profile: film.profileName, style: film.S.name, duration: film.duration, fps: film.fps, sampleFps: fps,
     holdEnergy: film.S.rules.holdEnergy ?? film.P.holdEnergy, E, accent, frames, cuts,
-    impacts: [...impacts.values()].sort((a, b) => a.t - b.t), smear, transients, silences: film.silences ?? [],
+    impacts: [...impacts.values()].sort((a, b) => a.t - b.t), smear, w3d: [...w3d], transients, silences: film.silences ?? [],
     shots: film.shots.map((s) => ({ id: s.id, t: s.t, size: s.size ?? null, on: s.on ?? 1, sakuga: s.sakuga ?? tiers[s.id] ?? null, transition_out: s.transition_out ?? null, text: s.text ?? '', action: s.action ?? '', cam: camShape(s, film) })),
   };
 }
@@ -129,7 +134,14 @@ export function energyArc(M, T) {
     endDrop: peak > 0 ? mean(last) / peak : 1, holds, silences: sil, longestHold: Math.max(0, ...runs.filter(near).map((h) => h[1] - h[0])), peaks: peaks.length };
 }
 
+// spec 013: la forma del story fija la ventana del pico y la tolerancia del giro (engine/arc.json: formas). causal = perfil intacto.
+export function formaT(T, forma) {
+  const f = CFG.formas?.[forma ?? 'causal'] ?? CFG.formas?.causal ?? {}, o = { ...T };
+  for (const k of ['peakPos', 'accomTol', 'endDrop']) if (f[k] != null) o[k] = f[k];
+  return o;
+}
 export function analyze(M, story, T) {
+  const formaSpine = CFG.formas?.[story?.forma ?? 'causal']?.spine ?? 'estricto'; T = formaT(T, story?.forma);
   const checks = [], D = M.duration, fr = 1 / M.fps;
   const add = (id, pass, level, problem, remedy, shot = '-', t = 0, weight) => checks.push({ id, pass: !!pass, level, problem, remedy, shot, t: +(+t).toFixed(3), weight: weight ?? (level === 'FIX' ? 3 : 1) });
   const A = energyArc(M, T), shotAt = (t) => M.shots.find((s) => t >= s.t[0] && t < s.t[1]) ?? M.shots[M.shots.length - 1];
@@ -143,7 +155,7 @@ export function analyze(M, story, T) {
   // 1 · spine causal (Parker/Stone)
   beats.forEach((b, i) => {
     if (!i) return;
-    const l = norm(b.link ?? ''), ok = LINKS_OK.includes(l);
+    const l = norm(b.link ?? ''), ok = formaSpine === 'libre' || LINKS_OK.includes(l);
     add('spine', ok, 'FIX', ok ? '' : `beat ${b.id ?? i} → "${b.text}": conector "${b.link ?? '(ninguno)'}" con el anterior = "y luego"`, 'reescribir para que quepa "pero" o "por lo tanto" (causa o giro)', b.shot ?? shotAt(b.t)?.id, b.t);
   });
   for (let i = 1; i < beats.length; i++) if (beats[i].t < beats[i - 1].t) add('spine-order', false, 'WARN', `beats desordenados en el tiempo (${beats[i - 1].t} → ${beats[i].t})`, 'ordenar por t', '-', beats[i].t);
@@ -214,6 +226,14 @@ export function analyze(M, story, T) {
   // 10 · referencia de escala humana antes del salto
   for (const s of story.scale ?? []) add('scale-ref', typeof s.ref_at === 'number' && s.ref_at < s.at, 'FIX', `salto de escala en ${s.at}s sin referencia humana previa${typeof s.ref_at === 'number' ? ` (ref en ${s.ref_at}s)` : ''}`, 'mostrar antes algo de escala humana (una mano, una persona) y declarar ref_at', shotAt(s.at)?.id, s.at);
   for (const s of M.shots) if ((s.transition_out ?? '').toLowerCase() === 'scale-cut' && !(story.scale ?? []).some((x) => Math.abs(x.at - s.t[1]) < 0.5)) add('scale-declared', false, 'WARN', `scale-cut en ${s.t[1]}s sin story.scale`, 'declarar el salto con su referencia humana', s.id, s.t[1]);
+  // 12 · S10 (spec 009): el 3D se guioniza desde el principio. Un shot con world3d debe caer en un beat 3D declarado (beat.w3d = {concepto, porque}).
+  {
+    const D3 = beats.map((b, i) => ({ b, t0: b.t, t1: beats[i + 1]?.t ?? D })).filter((x) => x.b.w3d);
+    for (const id of M.w3d ?? []) {
+      const sh = M.shots.find((x) => x.id === id), decl = D3.some((x) => x.b.shot === id || (sh && sh.t[0] < x.t1 - 1e-9 && sh.t[1] > x.t0 + 1e-9));
+      add('w3d-sin-guion', decl, 'WARN', decl ? '' : `w3d.sin-guion: ${id} usa world3d sin un beat 3D declarado en story.json`, 'beat.w3d = { concepto, porque }: qué concepto de la memoria encarna el 3D (o quitar el 3D)', id, sh?.t[0] ?? 0);
+    }
+  }
   // 11 · pedagogía (Mayer), solo explainer
   if (M.profile === 'explainer') pedagogy(M, story, T, add, measures);
   const issues = checks.filter((c) => !c.pass).map(({ level, shot, t, problem, remedy }) => ({ level, shot, t, problem, remedy }));
@@ -262,10 +282,12 @@ const shotOfT = (M, t) => (M.shots.find((s) => t >= s.t[0] && t < s.t[1]) ?? M.s
 
 // ───────── etapa completa ─────────
 const rdJ = (p, d) => (fs.existsSync(path.join(ROOT, p)) ? JSON.parse(fs.readFileSync(path.join(ROOT, p), 'utf8')) : d);
-export async function runArc({ fps = 12, story: sp, record = false, write = true } = {}) {
-  const { loadFilm } = await import('./film.mjs'), film = await loadFilm({ animatic: true }), spath = storyPath(film, sp);
+export async function runArc({ fps = 12, story: sp, record = false, write = true, film: F0 = null, fc = null, cacheOnly = false } = {}) {
+  const { loadFilm } = await import('./film.mjs'), film = F0 ?? await loadFilm({ animatic: true }), spath = storyPath(film, sp);
   let story = null; if (spath) { try { story = JSON.parse(fs.readFileSync(path.join(ROOT, spath), 'utf8')); } catch (e) { story = { _parseError: e.message }; } }
-  const M = await measure({ fps, story, width: film.width, height: film.height }), calib = rdJ('data/arc.calib.json', {}), T = thresholds(M.profile, calib);
+  const M = await measure({ fps, story, width: film.width, height: film.height, film: F0, fc, cacheOnly });
+  if (!M) return { deferred: true, issues: [], verdict: 'SHIP', skipped: true };
+  const calib = rdJ('data/arc.calib.json', {}), T = thresholds(M.profile, calib);
   const res = story?._parseError ? { verdict: 'FIX', score: 0, measures: {}, checks: [], issues: [{ level: 'FIX', shot: '-', t: 0, problem: `story.json ilegible: ${story._parseError}`, remedy: 'JSON válido' }] } : analyze(M, story, T);
   const out = { title: M.title, story: spath, profile: M.profile, style: M.style, ...res, thresholds: T, energy: { fps, E: M.E.map((e) => +e.toFixed(5)) } };
   if (record && story && !res.skipped) {                                       // esta pieza es referencia aprobada: sus medidas alimentan la calibración

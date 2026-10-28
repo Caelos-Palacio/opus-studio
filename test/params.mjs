@@ -89,6 +89,17 @@ const near = (a, b, e = 1e-9) => Math.abs(a - b) < e;
   ok('capas: variante inexistente → error', throws(() => resolve(tl, [], { variants: ['fr'] }), /variante desconocida/));
   ok('capa: esquema $defs.layer (campo desconocido / op inválida = FIX)', !validateLayer(agent).length && validateLayer({ ...agent, prio: 1 }).some((x) => /prio/.test(x.path)) && validateLayer({ ops: [{ op: 'set', path: '/x' }] }).some((x) => x.level === 'FIX'));
 }
+// ── 4b. dónde viven las capas (convención: carpeta del film para films no-demo) ──────────────────────────────────
+{
+  const { layersDir, loadLayers } = await import('../engine/params.mjs'), saved = process.env.OPUS_LAYERS; delete process.env.OPUS_LAYERS;
+  const rel = (tl) => path.relative(ROOT, layersDir(tl));
+  ok('capas: demo → data/layers', rel('data/timeline.json') === 'data/layers');
+  ok('capas: film en su carpeta (data/reel/timeline.json) → data/reel/layers si existe, si no data/layers/reel', rel('data/reel/timeline.json') === 'data/layers/reel');
+  ok('capas: regla (data/regla/regla.json) → data/regla/layers (la capa de memoria SÍ se carga)', rel('data/regla/regla.json') === 'data/regla/layers' && loadLayers('data/regla/regla.json').some((l) => l.name === 'memoria'));
+  ok('capas: film suelto en data/ (stress) no hereda capas ajenas', loadLayers('data/stress/potencias.json').length === 0);
+  if (saved !== undefined) process.env.OPUS_LAYERS = saved;
+}
+
 // ── 5. cookEntry: meta fuera, params resueltos y señales usadas dentro ────────────────────────────────────────────
 {
   const mk = (tl) => { const f = { ...clone(tl), shots: clone(tl.shots), beatTimes: [], duration: tl.duration }; bindParams(f); return f; };

@@ -4,8 +4,8 @@
 Escribes: out/**, docs/handoff/**, .trash/**, data/facts.json  (roles.json, modo enforce)
 
 Lee (puntero ruta@digest):
-- CLAUDE.md@fdb70ee2
-- docs/HANDOFF.md@0bfb99d6
+- CLAUDE.md@b116fe2c
+- docs/HANDOFF.md@13d13053
 - docs/MEMORIA.md@fcd5a7ec
 
 Comandos (sin shell):

@@ -1,0 +1,12 @@
+{
+"meta": {"id":"_base","grupo":"base","resumen":"base interna de movimiento y transición: ancla quieta, foco y rótulo","tags":["base"],"params":{"tam":"number"}},
+"scene": {"dsl":1,"id":"$ID","doc":"[receta:_base] ancla quieta con foco y rótulo.",
+ "params": {"tam":{"type":"number","range":[20,200],"unit":"px","default":90,"semantic":"radio del ancla"}},
+ "camera": {"move":"static"}, "transition": {"out":"cut"},
+ "objects": [
+  {"id":"fondo","type":"ground","fy":0.86,"alpha":0.22},
+  {"id":"ancla","type":"shape","shape":"circle","x":{"$expr":"S_cx"},"y":{"$expr":"S_cy - 30"},"r":{"$expr":"tam"},"color":"accent","semantic":"$hueco: el objeto ancla del film"},
+  {"id":"foco","type":"focus","x":{"$expr":"S_cx - tam"},"y":{"$expr":"S_cy - tam - 30"},"w":{"$expr":"2 * tam"},"h":{"$expr":"2 * tam"},"label":"ancla"},
+  {"id":"rotulo","type":"text","text":"$hueco: lo que el espectador lee","x":{"$expr":"S_cx"},"y":{"$expr":"S_cy + tam + 40"},"role":"body","align":"center"}
+ ]}
+}

@@ -1,11 +1,286 @@
-import { PARAMS, word, focusOf, since, pop, shake, glitch, stack, bphase, clamp } from './K_tipo.mjs';
-// K13 · pulsos 32 → 34. TO / DO a pantalla completa: el crescendo se tensa (señal `tension`): más tiras, más canales, destello lima de 2 fotogramas en cada pulso.
-export default {
-  params: PARAMS,
-  draw(ctx, t, u, shot, film, api) {
-    const S = api.safe, P = api.params, a0 = since(film, shot, t, 0), p = pop(api, a0, { from: 1.1 }), [jx, jy] = shake(P, t, 10 + 30 * P.tension, 13), ph = bphase(film, t), flash = ph < 0.07 ? 1 : 0;
-    if (flash) { ctx.save(); ctx.globalAlpha = 0.28; ctx.fillStyle = api.color('accent'); ctx.fillRect(0, 0, film.width, film.height); ctx.restore(); }
-    const boxes = stack(api, ['TO', 'DO'], { width: api.safe.w * 0.78, cy: S.cy, gap: 0.22 }).map((l, i) => { const g = glitch(P, t, l.size, 13 + i, 0.1); return word(ctx, api, l.str, l.cx + jx * (i ? -1 : 1), l.cy + jy, l.size * p.s * (1 + 0.04 * P.kick + 0.05 * P.tension), { label: 'TODO', slice: { ...g, amp: g.amp + l.size * 0.05 * P.tension }, split: 8 + 26 * P.tension }); });
-    focusOf(api, boxes, 'rotura');
+// GENERADO desde shots/K13.scene.json por `node engine/dsl.mjs build` (spec 006). No editar a mano: edita el .scene.json y regenera.
+import { shot } from '../engine/dsl-core.mjs';
+import * as K_tipo from './K_tipo.mjs';
+export default shot({
+ "dsl": 1,
+ "id": "K13",
+ "doc": "K13 · pulsos 32 → 34. TO / DO a pantalla completa: el crescendo se tensa (señal `tension`): más tiras, más canales, destello lima de 2 fotogramas en cada pulso.",
+ "libs": {
+  "K_tipo": "./K_tipo.mjs"
+ },
+ "fns": {
+  "since": {
+   "lib": "K_tipo",
+   "fn": "since",
+   "bind": [
+    "film",
+    "shot",
+    "t"
+   ]
   },
-};
+  "bphase": {
+   "lib": "K_tipo",
+   "fn": "bphase",
+   "bind": [
+    "film",
+    "t"
+   ]
+  },
+  "shake": {
+   "lib": "K_tipo",
+   "fn": "shake",
+   "bind": [
+    "P",
+    "t"
+   ],
+   "reads": [
+    "chaos"
+   ]
+  },
+  "glitch": {
+   "lib": "K_tipo",
+   "fn": "glitch",
+   "bind": [
+    "P",
+    "t"
+   ],
+   "reads": [
+    "chaos",
+    "snare",
+    "kick"
+   ]
+  }
+ },
+ "params": {
+  "kick": {
+   "type": "number",
+   "range": [
+    0,
+    2
+   ],
+   "default": 0,
+   "semantic": "envolvente de los onsets del bombo: golpe de escala"
+  },
+  "snare": {
+   "type": "number",
+   "range": [
+    0,
+    2
+   ],
+   "default": 0,
+   "semantic": "envolvente de caja/palmas/toms: destello y corte de tiras"
+  },
+  "hat": {
+   "type": "number",
+   "range": [
+    0,
+    2
+   ],
+   "default": 0,
+   "semantic": "envolvente de hats: titileo"
+  },
+  "tom": {
+   "type": "number",
+   "range": [
+    0,
+    2
+   ],
+   "default": 0,
+   "semantic": "envolvente de toms: cuarta voz del secuenciador"
+  },
+  "chaos": {
+   "type": "number",
+   "range": [
+    0,
+    1
+   ],
+   "default": 0.5,
+   "semantic": "desorden: 1 = ruido (tiras y temblor), 0 = todo alineado"
+  },
+  "lock": {
+   "type": "number",
+   "range": [
+    0,
+    1
+   ],
+   "default": 0,
+   "semantic": "cuánto se pega el contenido a la rejilla visible"
+  },
+  "shock": {
+   "type": "number",
+   "range": [
+    0,
+    2
+   ],
+   "default": 0,
+   "semantic": "onda de choque tras el golpe (sacudida, canales, anillo)"
+  },
+  "tension": {
+   "type": "number",
+   "range": [
+    0,
+    1.5
+   ],
+   "default": 0,
+   "semantic": "tensión acumulada del crescendo (compresión, brillo del acento)"
+  },
+  "drift": {
+   "type": "number",
+   "range": [
+    -1,
+    1
+   ],
+   "default": 0,
+   "semantic": "deriva lenta (LFO): respiración en los respiros"
+  },
+  "text": {
+   "type": "string",
+   "semantic": "texto principal del shot (default shot.text)"
+  }
+ },
+ "objects": [
+  {
+   "id": "a0",
+   "type": "let",
+   "value": {
+    "$expr": "since(0)"
+   }
+  },
+  {
+   "id": "p",
+   "type": "let",
+   "lib": "K_tipo",
+   "fn": "pop",
+   "args": [
+    "api",
+    {
+     "$expr": "a0"
+    },
+    {
+     "from": 1.1
+    }
+   ],
+   "fields": [
+    "s",
+    "a"
+   ]
+  },
+  {
+   "id": "J",
+   "type": "let",
+   "value": {
+    "$expr": "shake(10 + 30 * tension, 13)"
+   },
+   "fields": [
+    "0",
+    "1"
+   ]
+  },
+  {
+   "type": "shape",
+   "shape": "rect",
+   "color": "accent",
+   "alpha": 0.28,
+   "x": {
+    "$expr": "0"
+   },
+   "y": {
+    "$expr": "0"
+   },
+   "w": {
+    "$expr": "W"
+   },
+   "h": {
+    "$expr": "H"
+   },
+   "when": "bphase() < 0.07"
+  },
+  {
+   "id": "lines",
+   "type": "let",
+   "lib": "K_tipo",
+   "fn": "stack",
+   "args": [
+    "api",
+    [
+     "TO",
+     "DO"
+    ],
+    {
+     "width": {
+      "$expr": "S_w * 0.78"
+     },
+     "cy": {
+      "$expr": "S_cy"
+     },
+     "gap": 0.22
+    }
+   ]
+  },
+  {
+   "id": "L",
+   "type": "repeat",
+   "items": {
+    "$expr": "lines"
+   },
+   "fields": [
+    "str",
+    "cx",
+    "cy",
+    "size",
+    "cap"
+   ],
+   "children": [
+    {
+     "id": "g",
+     "type": "let",
+     "value": {
+      "$expr": "glitch(L_size, 13 + i, 0.1)"
+     },
+     "fields": [
+      "amp"
+     ]
+    },
+    {
+     "type": "word",
+     "lib": "K_tipo",
+     "str": {
+      "$expr": "L_str"
+     },
+     "x": {
+      "$expr": "L_cx + J_0 * (i ? -1 : 1)"
+     },
+     "y": {
+      "$expr": "L_cy + J_1"
+     },
+     "size": {
+      "$expr": "L_size * p_s * (1 + 0.04 * kick + 0.05 * tension)"
+     },
+     "opts": {
+      "label": "TODO",
+      "slice": {
+       "$expr": "set(g, 'amp', g_amp + L_size * 0.05 * tension)"
+      },
+      "split": {
+       "$expr": "8 + 26 * tension"
+      }
+     }
+    }
+   ]
+  },
+  {
+   "type": "focusOf",
+   "lib": "K_tipo",
+   "fn": "focusOf",
+   "args": [
+    "api",
+    {
+     "$expr": "boxes"
+    },
+    {
+     "$lit": "rotura"
+    }
+   ]
+  }
+ ]
+}, { K_tipo });

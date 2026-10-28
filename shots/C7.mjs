@@ -1,0 +1,190 @@
+// GENERADO desde shots/C7.scene.json por `node engine/dsl.mjs build` (spec 006). No editar a mano: edita el .scene.json y regenera.
+import { shot } from '../engine/dsl-core.mjs';
+export default shot({
+ "dsl": 1,
+ "id": "C7",
+ "doc": "[receta:caida_con_peso] ancla quieta con foco y rótulo.",
+ "params": {
+  "tam": {
+   "type": "number",
+   "range": [
+    20,
+    200
+   ],
+   "unit": "px",
+   "default": 90,
+   "semantic": "radio del ancla"
+  },
+  "caidaAlto": {
+   "type": "number",
+   "range": [
+    0,
+    600
+   ],
+   "unit": "px",
+   "default": 260,
+   "semantic": "altura de la que cae"
+  },
+  "caidaEn": {
+   "type": "number",
+   "range": [
+    0,
+    3
+   ],
+   "unit": "s",
+   "default": 0.2,
+   "semantic": "instante en que suelta"
+  }
+ },
+ "camera": {
+  "move": "static"
+ },
+ "transition": {
+  "out": "cut"
+ },
+ "objects": [
+  {
+   "id": "fondo",
+   "type": "fondo",
+   "preset": "expediente_kraft",
+   "ajustes": {
+    "vineta": {
+     "fuerza": 0.1
+    },
+    "soporte": {
+     "alfa": 0.15
+    },
+    "mota": {
+     "alfa": 0.2
+    }
+   }
+  },
+  {
+   "id": "acta",
+   "type": "objeto",
+   "objeto": "acta_cuaderno",
+   "x": {
+    "$expr": "S_cx - 120"
+   },
+   "y": {
+    "$expr": "S_cy - 20"
+   },
+   "size": 460,
+   "hollow": 0.92,
+   "partes": {
+    "escrito": {
+     "$expr": "0"
+    }
+   }
+  },
+  {
+   "id": "h",
+   "type": "formula",
+   "tex": "h = 6{,}62607015 \\times 10^{-34}\\ \\mathrm{J\\,s}",
+   "x": {
+    "$expr": "S_cx - 120"
+   },
+   "y": {
+    "$expr": "S_cy - 110"
+   },
+   "size": 24,
+   "align": "center",
+   "write": {
+    "$expr": "1"
+   }
+  },
+  {
+   "id": "ancla",
+   "type": "objeto",
+   "objeto": "sello_tampon",
+   "x": {
+    "$expr": "S_cx - 120"
+   },
+   "y": {
+    "$expr": "S_cy + 50 - 330*(1-spring(lt-1.2,\"snap\"))"
+   },
+   "size": 240,
+   "params": {
+    "texto": "20·V·2019",
+    "forma": "rectangular"
+   },
+   "partes": {
+    "altura": {
+     "$expr": "1-spring(lt-1.2,\"snap\")"
+    },
+    "tinta": {
+     "$expr": "1"
+    },
+    "huella": {
+     "$expr": "step(1.3,lt)"
+    }
+   },
+   "focus": false
+  },
+  {
+   "id": "marco",
+   "type": "shape",
+   "shape": "rect",
+   "stroke": true,
+   "lineWidth": 12,
+   "x": {
+    "$expr": "S_cx - 350"
+   },
+   "y": {
+    "$expr": "S_cy - 245"
+   },
+   "w": 460,
+   "h": 450,
+   "color": "accent",
+   "alpha": {
+    "$expr": "step(1.3,lt)"
+   }
+  },
+  {
+   "id": "golpe",
+   "type": "shape",
+   "shape": "rect",
+   "x": 0,
+   "y": 0,
+   "w": 1280,
+   "h": 720,
+   "color": "ink",
+   "alpha": {
+    "$expr": "0.3*step(1.2,lt)*exp(-9*(lt-1.2))"
+   }
+  },
+  {
+   "id": "cil",
+   "type": "objeto",
+   "objeto": "cilindro_metalico",
+   "x": {
+    "$expr": "S_cx + 330"
+   },
+   "y": {
+    "$expr": "S_cy + 90"
+   },
+   "size": 160,
+   "partes": {
+    "brillo": {
+     "$expr": "0.9"
+    }
+   }
+  },
+  {
+   "id": "l1",
+   "type": "text",
+   "text": "Ya no es el kilo.",
+   "x": {
+    "$expr": "S_cx"
+   },
+   "y": {
+    "$expr": "S_cy + 270"
+   },
+   "role": "h2",
+   "align": "center",
+   "alpha": {
+    "$expr": "seg(lt,0.0,0.3)"
+   }
+  }
+ ]
+}, {  });

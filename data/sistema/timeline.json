@@ -1,0 +1,100 @@
+{
+ "title": "El sistema: proceso y arquitectura (diagramas estáticos)",
+ "style": "soft",
+ "medium": "tecnico_plano",
+ "profile": "lamina",
+ "fps": 30,
+ "width": 1920,
+ "height": 1080,
+ "duration": 40,
+ "autoSfx": false,
+ "music": null,
+ "end_hold_ok": true,
+ "shots": [
+  {
+   "id": "S01",
+   "t": [
+    0,
+    8
+   ],
+   "size": "WS",
+   "action": "pipeline de producción en snake: once etapas del brief a la nota del usuario",
+   "text": "Pipeline de producción",
+   "transition_out": "cut",
+   "after": null,
+   "cam": {
+    "move": "static",
+    "why": "reveal",
+    "amount": 0
+   }
+  },
+  {
+   "id": "S02",
+   "t": [
+    8,
+    16
+   ],
+   "size": "WS",
+   "action": "ciclo 3DD: ocho pasos en bucle y dos lecciones reales",
+   "text": "Ciclo 3DD: la nota cierra el bucle",
+   "transition_out": "cut",
+   "after": "S01",
+   "cam": {
+    "move": "static",
+    "why": "reveal",
+    "amount": 0
+   }
+  },
+  {
+   "id": "S03",
+   "t": [
+    16,
+    24
+   ],
+   "size": "WS",
+   "action": "arquitectura del motor: seis capas apiladas con sus módulos",
+   "text": "Arquitectura del motor por capas",
+   "transition_out": "cut",
+   "after": "S02",
+   "cam": {
+    "move": "static",
+    "why": "reveal",
+    "amount": 0
+   }
+  },
+  {
+   "id": "S04",
+   "t": [
+    24,
+    32
+   ],
+   "size": "WS",
+   "action": "orquestación: director, tres agentes Sonnet en worktrees, handoff e integración a main",
+   "text": "Orquestación de agentes",
+   "transition_out": "cut",
+   "after": "S03",
+   "cam": {
+    "move": "static",
+    "why": "reveal",
+    "amount": 0
+   }
+  },
+  {
+   "id": "S05",
+   "t": [
+    32,
+    40
+   ],
+   "size": "WS",
+   "action": "eficiencia medida: seis barras antes y después",
+   "text": "Eficiencia medida: antes y después",
+   "transition_out": "cut",
+   "after": "S04",
+   "cam": {
+    "move": "static",
+    "why": "reveal",
+    "amount": 0
+   }
+  }
+ ]
+}

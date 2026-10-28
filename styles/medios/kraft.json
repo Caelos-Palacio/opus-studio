@@ -1,0 +1,214 @@
+{
+ "name": "kraft",
+ "description": "Cartón y papel de estraza: soporte pardo con fibras gruesas, pliegues y motas de pulpa; tinta negra de estampa (irregular, con tinta que no prende) + un único acento rojo sello; sellos de goma en el fondo. Aire de almacén, correos y archivo. 1 neutro (tinta negra) + 1 acento.",
+ "seed": 2203,
+ "font": "DejaVu Sans, sans-serif",
+ "blend": "multiply",
+ "accents": [
+  "#B3261E"
+ ],
+ "palette": {
+  "paper": "#B58C5C",
+  "ink": "#1E1812",
+  "accent": "#B3261E",
+  "accent2": "#3A2A1C",
+  "quant": "#B3261E",
+  "anom": "#1E1812",
+  "shade": "#8A6A44"
+ },
+ "support": {
+  "kind": "carton",
+  "base": "#B58C5C",
+  "mottle": {
+   "amount": 0.07,
+   "cell": 110,
+   "warm": "#C9A070",
+   "cool": "#8E6A3F"
+  },
+  "tooth": 0.06,
+  "fibers": {
+   "n": 1400,
+   "len": [
+    14,
+    70
+   ],
+   "alpha": [
+    0.08,
+    0.24
+   ],
+   "color": "#5E4326",
+   "light": "#D9B685",
+   "width": 1.6
+  },
+  "decor": {
+   "creases": {
+    "n": 5,
+    "len": [
+     300,
+     900
+    ],
+    "dark": "#4A3320",
+    "light": "#D8B88A",
+    "alpha": [
+     0.08,
+     0.16
+    ]
+   },
+   "specks": {
+    "n": 700,
+    "r": [
+     0.8,
+     2.6
+    ],
+    "alpha": [
+     0.2,
+     0.55
+    ],
+    "color": "#3B2A18"
+   }
+  }
+ },
+ "layers": [
+  {
+   "name": "fibras gruesas",
+   "depth": 0.22,
+   "fibers": {
+    "n": 160,
+    "len": [
+     40,
+     160
+    ],
+    "alpha": [
+     0.1,
+     0.28
+    ],
+    "color": "#5E4326",
+    "width": 2.4
+   }
+  },
+  {
+   "name": "sellos",
+   "depth": 0.5,
+   "stamps": {
+    "n": 5,
+    "r": [
+     46,
+     90
+    ],
+    "color": "#B3261E",
+    "alpha": [
+     0.2,
+     0.36
+    ],
+    "tilt": 0.7,
+    "starve": 120,
+    "texts": [
+     "FRÁGIL",
+     "Nº 07",
+     "CORREOS",
+     "1953",
+     "ARCHIVO",
+     "REVISADO"
+    ],
+    "font": "DejaVu Sans, sans-serif"
+   }
+  },
+  {
+   "name": "motas",
+   "depth": 0.8,
+   "specks": {
+    "n": 300,
+    "r": [
+     0.6,
+     1.8
+    ],
+    "alpha": [
+     0.15,
+     0.45
+    ],
+    "color": "#3B2A18"
+   }
+  },
+  {
+   "name": "polvo",
+   "depth": 1.45,
+   "over": true,
+   "fibers": {
+    "n": 10,
+    "len": [
+     40,
+     120
+    ],
+    "alpha": [
+     0.05,
+     0.12
+    ],
+    "color": "#4A3320",
+    "width": 1.8
+   },
+   "specks": {
+    "n": 36,
+    "r": [
+     1.2,
+     3.2
+    ],
+    "alpha": [
+     0.05,
+     0.14
+    ],
+    "color": "#3B2A18"
+   }
+  }
+ ],
+ "ink": {
+  "alpha": 0.95,
+  "erosion": {
+   "amount": 0.5,
+   "cell": 6,
+   "fps": 12
+  },
+  "misregister": {
+   "dx": 1.8,
+   "dy": 1.2,
+   "alpha": 0.22
+  },
+  "jitter": {
+   "amp": 1.0,
+   "band": 4,
+   "fps": 6
+  }
+ },
+ "grain": {
+  "amount": 0.055,
+  "fps": 12,
+  "tiles": 5
+ },
+ "vignette": {
+  "amount": 0.26,
+  "color": "#4A3018",
+  "inner": 0.5
+ },
+ "grade": {
+  "vignette": 0,
+  "grain": 0,
+  "post": {
+   "bloom": null,
+   "color": null,
+   "chroma": 0
+  }
+ },
+ "rules": {
+  "glow": true,
+  "gradients": false,
+  "glowScale": 1.5
+ },
+ "composition": {
+  "edgeMargin": 0.05,
+  "anchor": "free",
+  "negativeSpace": 0.5
+ },
+ "encode": {
+  "crf": 24,
+  "tune": "grain"
+ }
+}

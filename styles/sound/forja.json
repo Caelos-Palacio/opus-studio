@@ -48,5 +48,5 @@
     "bus": { "music": -1, "sfx": 4, "amb": -5 }, "musicPocket": { "f": 2500, "q": 0.9, "db": -2.5 },
     "macro": { "floorDb": -15, "pow": 0.85 }, "saturation": 0.12
   },
-  "master": { "lufs": -14, "tp": -2.0 }
+  "master": { "lufs": -14, "tp": -4.5 }
 }

@@ -5,10 +5,12 @@
 //   node engine/status.mjs --links   exit 1 si algún .md (raíz y docs/) tiene un enlace relativo roto
 // Dos partes: ESTÁTICA (derivada de ficheros versionados: reproducible en CI, se verifica) y VIVA (veredictos, ramas, último run, ledger:
 // depende de la máquina, se regenera pero no se compara). Un STATUS.md estático desfasado es un fallo de test.
+import { isMain } from './paths.mjs';
 import fs from 'node:fs';
 import path from 'node:path';
 import { spawnSync } from 'node:child_process';
 import { ROOT, digest, verify, stats } from './ledger.mjs';
+import { coverage, formatCoverageSummary } from './dsl-coverage.mjs';
 
 const rd = (f) => { try { return fs.readFileSync(path.join(ROOT, f), 'utf8'); } catch { return null; } };
 const rj = (f) => { try { return JSON.parse(rd(f)); } catch { return null; } };
@@ -31,6 +33,7 @@ export function staticPart() {
   o.push('', '## Motor', '', `- versión: ${pkg.version ?? '?'} (package.json) · módulos engine/: ${ls('engine').filter((f) => f.endsWith('.mjs')).length}`);
   const R = rj('roles.json'); o.push(`- roles: modo \`${R?.mode ?? '?'}\` (${Object.keys(R?.roles ?? {}).join(', ')}) · digest \`${digest(R)}\``);
   o.push(`- presupuestos: data/budgets.json digest \`${digest(rj('data/budgets.json'))}\``);
+  o.push('', '## DSL de escenas (spec 010)', '', ...formatCoverageSummary(coverage(ROOT)));
   o.push('', '## Tests', '', `Archivos (test/*.mjs): ${ls('test').filter((f) => f.endsWith('.mjs')).map((f) => '`' + f + '`').join(' ') || 'ninguno'}`);
   return o.join('\n');
 }
@@ -53,7 +56,7 @@ export async function livePart() {
     o.push(br.length ? br.slice(0, 30).map((b) => `- \`${b}\` (+${git(['rev-list', '--count', `${base}..${b}`]).stdout.trim()} commits)`).join('\n') + (br.length > 30 ? `\n- … y ${br.length - 30} más` : '') : '- ninguna');
   }
   o.push('', '## Último run de tests', '');
-  const T = rj('out/tests.json'); o.push(T ? `- ${T.ts}: ${T.fail ? `${T.fail} fallos` : 'todo verde'}${T.fast ? ' (--fast)' : ''}` : '- sin out/tests.json (lo escribe `npm test`)');
+  const T = rj('out/tests.json'); o.push(T ? `- ${T.ts}: ${T.fail ? `${T.fail} fallos` : 'todo verde'}${T.profile ? ` (perfil ${T.profile})` : T.fast ? ' (--fast)' : ''}` : '- sin out/tests.json (lo escribe `npm test`)');
   o.push('', '## Ledger', '');
   const v = verify(), s = stats(); o.push(`- cadena: ${v.ok ? 'íntegra' : `ROTA (${v.problems.length} problemas)`} · ${v.n} entradas (${v.chained} encadenadas, ${v.legacy} heredadas, ${v.signed} firmadas) · códigos ${s.total ? (100 * s.coded / s.total).toFixed(0) : 0} %`);
   o.push('', '## Presupuestos', '');
@@ -84,7 +87,7 @@ export function brokenLinks() {
   }
   return bad;
 }
-if (import.meta.url === `file://${process.argv[1]}`) {
+if (isMain(import.meta.url)) {
   const a = process.argv.slice(2);
   if (a.includes('--links')) { const b = brokenLinks(); for (const x of b) console.log('✗ ' + x); console.log(b.length ? `✗ ${b.length} enlaces rotos` : '✓ sin enlaces rotos'); process.exit(b.length ? 1 : 0); }
   else if (a.includes('--check')) { const c = checkStatic(); console.log(c.ok ? '✓ STATUS.md al día' : `✗ STATUS.md desactualizado: ${c.why} → node engine/status.mjs`); process.exit(c.ok ? 0 : 1); }

@@ -2,10 +2,11 @@
 // Vocabulario controlado versionado (spec 006; research/10-rosetta.md: vocabulario cerrado + guardas deterministas, NO compresión por LLM).
 //   node engine/vocab.mjs list [sección] | canon <palabra> | lint [--json] | sync | refs <original> <derivado>
 // Fuente: data/vocab.json. Cada término = {id, def, forbid:[sinónimos prohibidos]}. Puro salvo carga/lint (fs).
+import { isMain, rootFrom } from './paths.mjs';
 import fs from 'node:fs';
 import path from 'node:path';
 
-export const ROOT = path.resolve(path.dirname(new URL(import.meta.url).pathname), '..');
+export const ROOT = rootFrom(import.meta.url);
 export const VOCAB = JSON.parse(fs.readFileSync(path.join(ROOT, 'data/vocab.json'), 'utf8'));
 export const VERSION = VOCAB.version;
 const S = VOCAB.sections;
@@ -54,6 +55,8 @@ export function lintMemoriaEnums(mem, { file = '-' } = {}) {
   return out;
 }
 const listFiles = (dir, re) => { const d = path.join(ROOT, dir); return fs.existsSync(d) ? fs.readdirSync(d).filter((f) => re.test(f)).map((f) => path.join(dir, f)) : []; };
+// Exentos del lint de vocab A PROPOSITO: data/anticliche.es.json (lista de sinonimos prohibidos y frases de poster) y data/ideas.md; ninguno esta en el corpus.
+export const EXEMPT = ['data/anticliche.es.json', 'data/ideas.md'];
 export function corpus(root = ROOT) {
   const dataDirs = ['data', ...fs.readdirSync(path.join(root, 'data'), { withFileTypes: true }).filter((e) => e.isDirectory()).map((e) => 'data/' + e.name)];
   const files = [...dataDirs.flatMap((d) => ['memoria.json', 'story.json'].map((f) => `${d}/${f}`)), 'data/notas.json', 'data/story.template.json'].filter((f) => fs.existsSync(path.join(root, f)));
@@ -92,10 +95,18 @@ export const reasonCode = (text) => REASONS.find(([re]) => re.test(String(text))
 export async function syncMetrics() {
   const { REGISTRY } = await import('./metrics/registry.mjs'), old = new Map(S.metric.terms.map((t) => [t.id, t]));
   S.metric.terms = REGISTRY.map((m) => ({ id: m.id, def: old.get(m.id)?.def ?? m.name, forbid: old.get(m.id)?.forbid ?? [] }));
-  fs.writeFileSync(path.join(ROOT, 'data/vocab.json'), JSON.stringify(VOCAB, null, 1) + '\n'); return S.metric.terms.length;
+  const f = path.join(ROOT, 'data/vocab.json'), txt = fs.readFileSync(f, 'utf8'), out = spliceTerms(txt, 'metric', S.metric.terms);
+  if (out !== txt) fs.writeFileSync(f, out); return S.metric.terms.length;
+}
+// Reescribe SOLO el arreglo "terms" de una sección (indent 2, como el resto del archivo): el resto de bytes (líneas compactadas a mano) queda intacto.
+export function spliceTerms(txt, sec, termList) {
+  const a = txt.indexOf(`\n    "${sec}": {`), b = a < 0 ? -1 : txt.indexOf('\n      "terms": [', a), c = b < 0 ? -1 : txt.indexOf('\n      ]', b);
+  if (c < 0) throw new Error(`vocab sync: no encuentro "terms" de la sección ${sec}`);
+  const body = JSON.stringify(termList, null, 2).split('\n').map((l) => '      ' + l).join('\n').trimStart();
+  return txt.slice(0, b) + '\n      "terms": ' + body + txt.slice(c + '\n      ]'.length);
 }
 
-if (process.argv[1] && path.resolve(process.argv[1]) === path.resolve(new URL(import.meta.url).pathname)) {
+if (isMain(import.meta.url)) {
   const [cmd, a, b] = process.argv.slice(2), json = process.argv.includes('--json');
   if (cmd === 'list') { for (const sec of a ? [a] : sections()) console.log(`${sec} (${terms(sec).length}): ${terms(sec).join(' ')}`); }
   else if (cmd === 'canon') { const c = canon(a); console.log(c ?? '(no canónico)'); process.exit(c ? 0 : 1); }

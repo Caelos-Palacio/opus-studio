@@ -11,7 +11,7 @@
     "title": { "type": "string" },
     "style": { "type": "string", "description": "pack de styles/<nombre>.json (se comprueba contra el directorio)" },
     "medium": { "type": "string", "description": "medio del film (spec 003): styles/medios/<nombre>.json — soporte, tinta, grano, paleta, parallax. Sin él, comportamiento clásico" },
-    "profile": { "enum": ["reel", "explainer", "cinematic"] },
+    "profile": { "enum": ["reel", "explainer", "cinematic", "lamina"] },
     "profileOverrides": { "$ref": "#/$defs/profileOverrides" },
     "styleOverrides": { "$ref": "#/$defs/styleOverrides" },
     "palette": { "type": "object", "description": "compat opus-studio 2 (styles.mjs resolveStyle)", "additionalProperties": { "type": "string" } },
@@ -29,6 +29,8 @@
     "handoffs": { "type": "array", "items": { "$ref": "#/$defs/handoff" } },
     "motif": { "anyOf": [{ "type": "null" }, { "$ref": "#/$defs/motif" }] },
     "rhyme": { "type": "boolean", "description": "false desactiva el aviso de rima (lint rima)" },
+    "fondo": { "type": "boolean", "description": "false desactiva el aviso fondo.vacio (lint fondo): solo para fixtures técnicos; un film real justifica su oscuro con profundidad" },
+    "fondo_ok": { "type": "object", "additionalProperties": false, "required": ["porque"], "properties": { "porque": { "type": "string", "minLength": 20, "description": "por qué un fondo constante o un preset sin ajustes SIRVE al tema (no «para evitar el negro»)" } }, "description": "spec 021: justifica un fondo constante (lint fondo.estatico) o un preset sin ajustes (fondo.preset_crudo); el soporte puede SER la metáfora" },
     "end_hold_ok": { "type": "boolean", "description": "true permite un final en reposo (lint motion)" },
     "shots": { "type": "array", "minItems": 1, "items": { "$ref": "#/$defs/shot" } },
     "signals": { "type": "object", "description": "F4: señales nombradas, funciones puras de t (docs/PARAMS.md); se enlazan a parámetros con {\"$sig\"} o sig('x') en {\"$expr\"}", "additionalProperties": { "$ref": "#/$defs/signal" } },
@@ -38,7 +40,7 @@
   "$defs": {
     "num2": { "type": "array", "items": { "type": "number" }, "minItems": 2, "maxItems": 2 },
     "unit2": { "type": "array", "items": { "type": "number", "minimum": 0, "maximum": 1 }, "minItems": 2, "maxItems": 2 },
-    "voice": { "enum": ["click", "tick", "pop", "whoosh", "impact", "riser", "shimmer", "drone", "rev", "anom"] },
+    "voice": { "enum": ["click", "tick", "pop", "whoosh", "impact", "riser", "shimmer", "drone", "rev", "gota", "nota", "anom", "llave", "sello", "sello_seco", "pluma", "secante", "reloj", "mosca"] },
     "shot": {
       "type": "object",
       "additionalProperties": false,
@@ -134,7 +136,7 @@
     },
     "sfx": {
       "type": "object", "additionalProperties": false, "required": ["at", "type"],
-      "properties": { "at": { "type": "number" }, "type": { "$ref": "#/$defs/voice" }, "gain": { "type": "number", "minimum": 0 }, "pan": { "type": "number", "minimum": -1, "maximum": 1 }, "dur": { "type": "number", "exclusiveMinimum": 0 } }
+      "properties": { "at": { "type": "number" }, "type": { "$ref": "#/$defs/voice" }, "gain": { "type": "number", "minimum": 0 }, "pan": { "type": "number", "minimum": -1, "maximum": 1 }, "dur": { "type": "number", "exclusiveMinimum": 0 }, "energia": { "type": "number", "minimum": 0, "maximum": 1, "description": "gota: energía normalizada del evento (más aguda cuanto más energía)" } }
     },
     "cue": {
       "type": "object", "additionalProperties": false, "required": ["at", "type"],
@@ -171,6 +173,7 @@
         "maxHold": { "type": "number", "minimum": 0 }, "cutOnBeat": { "type": "boolean" }, "shotLen": { "$ref": "#/$defs/num2" },
         "safe": { "type": "object", "additionalProperties": false, "properties": { "top": { "type": "number" }, "bottom": { "type": "number" }, "side": { "type": "number" } } },
         "minFontPx": { "type": "number", "minimum": 0 }, "requireCausality": { "type": "boolean" }, "requireFacts": { "type": "boolean" },
+        "requireFocus": { "type": "boolean" }, "saliency": { "type": "boolean" }, "maxSizes": { "type": "number", "minimum": 0 },
         "holdEnergy": { "type": "number", "minimum": 0 }, "popRatio": { "type": "number", "minimum": 0 }, "readCps": { "type": "number", "exclusiveMinimum": 0 }
       }
     },
@@ -178,7 +181,7 @@
       "type": "object", "additionalProperties": false,
       "description": "se fusiona en profundidad sobre el pack (styles.mjs); claves de primer nivel = las de DEFAULTS",
       "properties": {
-        "name": { "type": "string" }, "description": { "type": "string" }, "mood": { "type": "string" }, "defaultProfile": { "enum": ["reel", "explainer", "cinematic"] },
+        "name": { "type": "string" }, "description": { "type": "string" }, "mood": { "type": "string" }, "defaultProfile": { "enum": ["reel", "explainer", "cinematic", "lamina"] },
         "palette": { "type": "object", "additionalProperties": { "type": "string" } }, "typeface": { "type": "object" }, "motion": { "type": "object" },
         "camera": { "type": "object" }, "grade": { "type": "object" }, "depth": { "type": "object" }, "light": { "type": "object" },
         "compose": { "type": "object" }, "rules": { "type": "object" }, "bans": { "type": "array", "items": { "type": "string" } }

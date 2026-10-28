@@ -4,10 +4,10 @@
 Escribes: out/**, docs/handoff/**, .trash/**, storyboard/**  (roles.json, modo enforce)
 
 Lee (puntero ruta@digest):
-- CLAUDE.md@fdb70ee2
-- docs/HANDOFF.md@0bfb99d6
+- CLAUDE.md@b116fe2c
+- docs/HANDOFF.md@13d13053
 - CINE.md@7f37c69c
-- CRAFT.md@294b906c
+- CRAFT.md@0f06b0ad
 - STYLES.md@7b04c1b9
 - storyboard/README.md@5d7badb6
 

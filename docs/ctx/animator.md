@@ -4,10 +4,10 @@
 Escribes: out/**, docs/handoff/**, .trash/**, shots/{ids}.mjs  (roles.json, modo enforce)
 
 Lee (puntero ruta@digest):
-- CLAUDE.md@fdb70ee2
-- docs/HANDOFF.md@0bfb99d6
-- CRAFT.md@294b906c
-- docs/API.md@0dccb895
+- CLAUDE.md@b116fe2c
+- docs/HANDOFF.md@13d13053
+- CRAFT.md@0f06b0ad
+- docs/API.md@1eba3c99
 - AGENTES.md@3dc8b85e
 
 Comandos (sin shell):

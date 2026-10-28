@@ -6,6 +6,7 @@
 //   --strip --around-cuts 8         8 frames alrededor de cada corte y on_beat (out/strips/)
 //   --mp4 → RETIRADO (E5): montaba bloques sin hash de contenido (caché obsoleta tras editar un shot, sin gate de lint).
 //           Se redirige a `node engine/cut.mjs` con los mismos argumentos (fragmentos con hash, gate, mezcla sellada).
+//   --range a:b --prores [--alpha [grain]]   (worker de cut) ProRes 4444 .mov; --alpha = fondo/medio/post fuera, canal alfa real
 //   --animatic                      ignora shots/*.mjs y dibuja placeholders
 import './help.mjs';
 import { isMain } from './paths.mjs';
@@ -15,7 +16,7 @@ import path from 'node:path';
 import { spawn, spawnSync } from 'node:child_process';
 import canvasPkg from 'canvas';
 import { loadFilm, seek, activeShots, shotBeats, ROOT } from './film.mjs';
-import { x264Args } from './encode.mjs';
+import { x264Args, proresArgs } from './encode.mjs';
 const { createCanvas, registerFont } = canvasPkg;
 
 const argv = process.argv.slice(2);
@@ -24,14 +25,14 @@ const arg = (k, d) => { const i = argv.indexOf(k); return i >= 0 && argv[i + 1] 
 const OUT = path.join(ROOT, 'out');
 const mk = (p) => fs.mkdirSync(p, { recursive: true });
 
-export async function makeRenderer({ size, animatic = false, grade = !animatic, style, profile } = {}) {
+export async function makeRenderer({ size, animatic = false, grade = !animatic, style, profile, alpha = false } = {}) {   // alpha: false | true | 'grain' (ver seek.mjs)
   const film = await loadFilm({ animatic, style, profile });
   for (const f of film.typeface.files ?? []) registerFont(path.join(ROOT, f.path), { family: film.typeface.family, weight: String(f.weight) });
   let [W, H] = size ? size.split('x').map(Number) : [film.width, film.height];
   W -= W % 2; H -= H % 2;
   const cv = createCanvas(W, H), ctx = cv.getContext('2d');
   const sx = W / film.width, sy = H / film.height;
-  const frame = (t) => { ctx.setTransform(sx, 0, 0, sy, 0, 0); return seek(ctx, t, film, { grade }); };
+  const frame = (t) => { ctx.setTransform(sx, 0, 0, sy, 0, 0); return seek(ctx, t, film, { grade, alpha }); };
   return { film, cv, ctx, W, H, frame };
 }
 
@@ -61,6 +62,7 @@ const labelFor = (film, t) => {
 };
 
 async function stills() {
+  process.env.OPUS_FXFAST ??= '1';                                           // R3 (spec 009): hojas de contacto = vista previa → fx rápidos por defecto (OPUS_FXFAST=0 los apaga); el master (--range) no
   const R = await makeRenderer({ size: arg('--size'), animatic: has('--animatic') });
   const { film } = R; mk(path.join(OUT, 'sheets'));
   const id = arg('--shot');
@@ -81,6 +83,7 @@ async function stills() {
 }
 
 async function strips() {
+  process.env.OPUS_FXFAST ??= '1';
   const R = await makeRenderer({ size: arg('--size') });
   const { film } = R; mk(path.join(OUT, 'strips'));
   const n = +arg('--around-cuts', 8), fps = film.fps;
@@ -98,20 +101,22 @@ async function strips() {
 // Worker interno: renderiza [a,b) fotogramas a un mp4 sin audio.
 async function rangeWorker() {
   const [a, b] = arg('--range').split(':').map(Number), fps = +arg('--fps'), out = arg('--out');
-  const R = await makeRenderer({ size: arg('--size') });
-  const ff = spawn('ffmpeg', ['-y', '-loglevel', 'error', '-f', 'rawvideo', '-pix_fmt', 'bgra', '-s', `${R.W}x${R.H}`, '-r', String(fps), '-i', 'pipe:0',
-    ...x264Args({ crf: arg('--crf', '16'), preset: arg('--preset', process.env.OPUS_PRESET ?? 'medium'), threads: +arg('--threads', 0) }), out + '.part.mp4'], { stdio: ['pipe', 'inherit', 'inherit'] });
+  const prores = has('--prores') || has('--alpha'), alpha = has('--alpha') ? (arg('--alpha') === 'grain' ? 'grain' : true) : false, ext = prores ? 'mov' : 'mp4';
+  const R = await makeRenderer({ size: arg('--size'), alpha });
+  // ProRes: rgba RECTO (getImageData); toBuffer('raw') de node-canvas es premultiplicado y x264 (opaco) no lo nota, pero el alfa sí.
+  const ff = spawn('ffmpeg', ['-y', '-loglevel', 'error', '-f', 'rawvideo', '-pix_fmt', prores ? 'rgba' : 'bgra', '-s', `${R.W}x${R.H}`, '-r', String(fps), '-i', 'pipe:0',
+    ...(prores ? proresArgs() : x264Args({ tune: R.film.P.boceto ? null : R.film.medium?.encode?.tune, crf: arg('--crf', '16'), preset: arg('--preset', process.env.OPUS_PRESET ?? 'medium'), threads: +arg('--threads', 0) })), out + '.part.' + ext], { stdio: ['pipe', 'inherit', 'inherit'] });
   let i = a;
   await new Promise((res) => {
     const pump = () => {
       while (i < b) {
         R.frame(Math.min(R.film.duration, i / fps));
-        const ok = ff.stdin.write(R.cv.toBuffer('raw')); i++;
+        const ok = ff.stdin.write(prores ? Buffer.from(R.ctx.getImageData(0, 0, R.W, R.H).data.buffer) : R.cv.toBuffer('raw')); i++;
         if (!ok) return ff.stdin.once('drain', pump);
       }
       ff.stdin.end();
     };
-    ff.on('close', (code) => { if (code === 0) fs.renameSync(out + '.part.mp4', out); res(code); });
+    ff.on('close', (code) => { if (code === 0) fs.renameSync(out + '.part.' + ext, out); res(code); });
     pump();
   });
 }

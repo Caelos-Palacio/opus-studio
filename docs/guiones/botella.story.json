@@ -1,0 +1,89 @@
+{
+  "v": 2,
+  "oleada": "013-a",
+  "forma": "kisho",
+  "idea": "Una tarjeta de 1906 prometía un chelín a quien la devolviera; 108 años después alguien la devolvió y la asociación compró un chelín viejo por internet para pagarla.",
+  "voz": {
+    "quien": "el empleado que archiva las tarjetas devueltas en Plymouth, con paciencia de escribiente",
+    "actitud": "trata una deuda de 108 años como un asiento contable y se le nota el cariño",
+    "persona": "tercera",
+    "tiempo": "presente",
+    "registro": ["carta", "contable", "seco"],
+    "tic": "Se debe",
+    "prohibido": ["destino", "emotivo", "increíble", "milagro", "esperanza"]
+  },
+  "punto_de_vista": {
+    "tesis_discutible": "Lo conmovedor de la botella más antigua no es el viaje sino la contabilidad: alguien devolvió un dato y alguien pagó lo prometido.",
+    "contra": "que un mensaje en una botella es un grito romántico lanzado a nadie"
+  },
+  "ancla": {
+    "objeto": "tarjeta postal de la Marine Biological Association en inglés, alemán y neerlandés, con una recompensa de un chelín",
+    "detalle": "la tarjeta pide anotar dónde y cómo se halló, y manda romper la botella",
+    "dato": {
+      "valor": "108 años y 138 días en el mar: lanzada el 30-11-1906 en el Mar del Norte, hallada en Amrum el 17-04-2015; recompensa de 1 chelín",
+      "unidad": "años",
+      "fuente": "Guinness World Records https://www.guinnessworldrecords.com/news/2016/3/mysterious-postcard-found-on-german-shore-is-confirmed-as-oldest-message-in-a-bot-420594 (ver docs/guiones/botella.md)"
+    },
+    "en_pantalla_antes_de": 6,
+    "tacto": "papel de carta, tinta sepia, sal seca, acuarela corrida"
+  },
+  "question": {
+    "text": "Qué se le debe a quien cumple una petición con 108 años de retraso.",
+    "posed_at": 1,
+    "answered_at": 43.5,
+    "on_screen": false,
+    "creencia_previa": "que una botella al mar es un mensaje, un grito lanzado a nadie, y que una promesa de 1906 caduca con quien la hizo",
+    "por_que_no_sabia": "nadie piensa en la botella como un instrumento de medida, ni en la recompensa como el precio de un dato"
+  },
+  "giro": {
+    "t": 24.4,
+    "de": "un mensaje en una botella que llega tarde",
+    "a": "un formulario de medida que alguien devuelve, tarde pero a tiempo: la tarjeta cumple lo que pedía",
+    "cambia_lo_visto": "las 1 020 botellas parecían gritos y eran instrumentos; el chelín no era un premio, era el precio de un dato"
+  },
+  "apuesta": {
+    "valor": "promesa / olvido",
+    "polo_inicial": "una promesa de 1906 caducó con quien la hizo",
+    "polo_final": "la promesa se cumple: quien devuelve cobra y quien prometió paga, con un chelín viejo comprado por internet",
+    "por_que_importa": "un dato esperó 108 años y la institución le pagó igual"
+  },
+  "subtexto": {
+    "dice": "se debe un chelín",
+    "significa": "cumplir una palabra dada es un acto de contabilidad antes que de emoción, y por eso emociona"
+  },
+  "tono": {
+    "primario": "ternura",
+    "secundario": "espera",
+    "contradiccion": "un asunto de contabilidad tratado con delicadeza"
+  },
+  "beats": [
+    { "id": "b1", "t": 0.4, "peso": "medio", "concreto": "tarjeta postal sobre papel de carta, acuarela diluida; escrita en inglés, alemán y neerlandés; una mancha de sal en una esquina", "text": "Se debe un chelín a quien devuelva esta tarjeta." },
+    { "id": "b2", "t": 5, "peso": "largo", "concreto": "mapa del Mar del Norte en acuarela; botellas lastradas que flotan en fila a dos pies del fondo; flechas del este al oeste que se dibujan solas", "text": "Mil veinte botellas, de 1904 a 1906. Medían el fondo del mar." },
+    { "id": "b3", "t": 13.4, "peso": "corto", "link": "por lo tanto", "concreto": "una red de arrastre sube con una botella; manos de pescador; una moneda de plata cambia de mano en un muelle de Plymouth", "text": "Las subían los pescadores en sus redes. Un chelín cada una." },
+    { "id": "b4", "t": 15.4, "peso": "pausa", "link": "pero", "concreto": "una botella sola bajo el agua turbia de acuarela: lastre, algas, la luz que cambia; ninguna red; las gotas de agua borran un número de la tarjeta sin que nadie lo repase", "text": "Esta salió el 30 de noviembre de 1906. Esta no volvió." },
+    { "id": "b5", "t": 24.4, "peso": "medio", "link": "pero", "concreto": "playa de Amrum en acuarela clara, abril; una mujer de vacaciones se agacha y saca la tarjeta; la tarjeta pide anotar dónde y cómo se halló", "text": "17 de abril de 2015, Amrum. La tarjeta pide un dato. No pedía auxilio." },
+    { "id": "b6", "t": 31.4, "peso": "corto", "link": "por lo tanto", "concreto": "la tarjeta entra en un sobre con sello alemán y cruza el mapa del Mar del Norte hacia Plymouth", "text": "Ella lo hace: la devuelve." },
+    { "id": "b7", "t": 36, "peso": "largo", "link": "por lo tanto", "concreto": "un dedo en la pantalla de un portátil con una moneda de plata (borrosa, acuarela); un cajón de madera con monedas de otro siglo", "text": "Se debe un chelín. La asociación busca uno viejo en una subasta por internet." },
+    { "id": "b8", "t": 43.5, "peso": "largo", "concreto": "el sobre llega; en una palma, un chelín de plata gastado; sobre la tarjeta un sello de tinta: PAGADO; sal en la esquina", "text": "Se debe un chelín. Pagado." }
+  ],
+  "accommodation": { "t": 24.4, "type": "creencia", "text": "la botella no era un mensaje: era un formulario con recompensa, y se devolvió rellenado" },
+  "imperfeccion": [
+    { "t": 19, "que": "una gota de agua cae sobre la tarjeta y corre la tinta de la fecha de 1906: queda ilegible y la pieza no la limpia", "porque": "108 años en el agua dejan una cifra borrosa; ocultar el estropicio sería mentir sobre el papel" },
+    { "t": 15.4, "que": "nueve segundos de pausa, sin texto salvo una línea, más largos que cualquier beat vecino", "porque": "la espera ES el tema; acortarla sería explicarla" }
+  ],
+  "cierre": { "tipo": "eco", "ultima_linea": "Se debe un chelín. Pagado.", "porque": "el cierre es contable: la deuda abierta en la primera línea se salda en la última; el eco es el recibo, no un retorno de plantilla", "sin_moraleja": true },
+  "medium": {
+    "id": "papel_carta_acuarela",
+    "porque": "El tema es agua y sal sobre papel durante 108 años: un papel de carta con tinta sepia y acuarela diluida deja que el medio haga lo que hizo el mar (correr la tinta, manchar de sal). El formato cuadrado es el de una postal. Un fondo oscuro lo traicionaría: aquí se escribe y se devuelve, no se mira el abismo."
+  },
+  "accent": { "means": "el azul diluido del agua; el sello de tinta PAGADO es la única tinta firme" },
+  "frescura": {
+    "puntos": { "ancla": 2, "pregunta": 2, "hecho_raro": 2, "giro_relee": 2, "apuesta": 1, "distancia_default": 1, "distancia_archivo": 2 },
+    "version_por_defecto": "La botella más antigua del mundo: 108 años a la deriva, una mujer encuentra un mensaje del pasado, 'a veces los mensajes llegan' (emotivo, cierre esperanzado)",
+    "descartados": [
+      { "logline": "el record: 108 años frente al de 132 años (2018)", "razon": "convierte el film en una tabla de récords; el récord se superó y el film no trata de ganar" },
+      { "logline": "'Botella 1904' con recompensa de peniques (research §8)", "razon": "no se sostiene: la botella del récord se lanzó el 30-11-1906 y la recompensa era de un chelín; 1904 solo es el inicio del experimento de Bidder" }
+    ],
+    "distancia": "mismo tema que el por defecto (la botella más antigua), ángulo distinto: instrumento de medida, formulario y deuda saldada, sin romanticismo del mensaje"
+  }
+}

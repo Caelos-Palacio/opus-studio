@@ -3,11 +3,16 @@
 // DOC alimenta docs/API.md (engine/doc.mjs): la referencia no puede desincronizarse del código.
 import { clamp, lerp, hash2, noise1, rng, hashStr, TAU } from './core.mjs';
 import { WARPS, parsePath, shapes, affine, tracePath, tracePolys, traceTrim, morphPolys, bbox, warpShape, mapPts } from './geom.mjs';
-import { layer as fxLayer } from './fx.mjs';
+import { layer as fxLayer, bloom as fxBloom, pool as fxPool } from './fx.mjs';
+import { angleCheck } from './w3d-camera.mjs';
 import { span } from './perf.mjs';
 import { rgba, mix } from './color.mjs';
+import { drawFondo } from './fondos.mjs';
+import { drawObjeto, OBJETOS } from './objetos.mjs';
+import { drawSvg, SVG_LIB } from './svg.mjs';
 
 export const DOC = {};
+const rrect = (c, x, y, w, h, r) => { c.moveTo(x + r, y); c.arcTo(x + w, y, x + w, y + h, r); c.arcTo(x + w, y + h, x, y + h, r); c.arcTo(x, y + h, x, y, r); c.arcTo(x, y, x + w, y, r); c.closePath(); };
 const doc = (name, sig, text) => (DOC[name] = { sig, text });
 const memo = (film, bucket) => { film._memo ??= {}; return (film._memo[bucket] ??= new Map()); };
 
@@ -27,18 +32,68 @@ doc('label', 'api.label(str, [x,y], {role, avoid, leader})', 'Etiqueta que se co
 doc('image', 'api.image(id, x, y, w, h, {fit, alpha})', 'Imagen de assets/ (síncrona en Node).');
 doc('footage', 'api.footage(id, tLocal, x, y, w, h, {loop, speed, fit})', 'Vídeo real: fotogramas pre-extraídos (engine/assets.mjs --footage) con remapeo de tiempo.');
 doc('layer', 'api.layer(spec, (ctx, t, api) => ...)', 'Capa compuesta con efectos (blur, bloom, motionBlur, trail, dirBlur, chroma, displace, warp, mask, fps, blend).');
-doc('world3d', 'api.world3d(scene, {rect, t, u, cam, overrides, step, motionBlur, transparent, ssaa, alpha})', '3D REAL como capa del compositor (backend aislado headless-gl+three): el shot declara la escena como DATOS ({id, background, fog, ground, camera, objects:[{shape|instances, size, pos, color, mat, outline}]}) y el motor la dibuja con el estilo (paleta forzada, luz clave S.light.az, bandas toon + contorno de tinta, niebla y sombra de contacto, SSAA). cam/overrides pueden ser funciones de t; step:\'auto\' sigue los twos del film. Se dibuja ANTES del grade/post/medio. Sin gl/Mesa: lint FIX.');
+doc('world3d', 'api.world3d(scene, {rect, t, u, cam, overrides, step, motionBlur, transparent, ssaa, alpha, groundFy, parallax, bloom, bg, scale, override}) → {horizonY, groundY, el, fov}', '3D REAL como capa del compositor (backend aislado headless-gl+three): el shot declara la escena como DATOS ({id, background, fog, ground, camera, objects:[{shape|instances, size, pos, color, mat, outline}]}) y el motor la dibuja con el estilo (paleta forzada, luz clave S.light.az, bandas toon + contorno de tinta, niebla y sombra de contacto, SSAA; v2: sombras proyectadas (shadow map, bandas toon o PCF), AO de contacto, rim con el acento, bloom por el post 2D con bloom:true; ground:{catcher:true} proyecta la sombra sobre el suelo 2D). camera:{fromShot:true, scale, horizon} deriva elevación y lente del horizonte y la línea de suelo del shot (api.ground o groundFy) y de la escala de plano (shot.size): PG el∈[8°,20°], PM [5°,15°], heroico [−12°,−4°]; fuera de regla sin override ⇒ aviso w3d.angulo del lint; con fromShot el parallax de la cámara 2D mueve la cámara 3D con la ley de api.depth. background:{top,bottom}|\'sample\' hace que la niebla tome el degradado del fondo. cam/overrides pueden ser funciones de t (cam.ppm = px por metro en el foco); step:\'auto\' sigue los twos del film. Se dibuja ANTES del grade/post/medio. Sin gl/Mesa: lint FIX.');
 doc('p3', 'api.p3(x, y, z) → [sx, sy, k]', 'Proyección en perspectiva alrededor del foco de cámara (z>0 = lejos). k = escala.');
 doc('card3d', 'api.card3d({x,y,w,h, rx, ry, z}, (ctx, api) => ...)', 'Tarjeta con giro 3D real (homografía por malla) — ≤ 60° legible.');
 doc('atmos', 'api.atmos(z) → {alpha, blur}', 'Perspectiva atmosférica y DOF del estilo para una profundidad z.');
+doc('fondo', 'api.fondo({preset?, semilla?, ajustes?:{idCapa:{…}}, sin?:[idCapa], capas?:[{tipo, id?, alfa, mezcla, paralaje, deriva, anim:{alfa,escala,dx,dy}, …params}]}, {alfa})', 'Fondo GENERATIVO como pila de capas declaradas (datos): degradados, ruido (fbm, deformado, celular, flujo), atmósfera (niebla, polvo, rayos, bokeh, estrellas, orbes), motivos (retícula, trama, rayado, semitono, motivo), luz (viñeta, foco, terminador) y temáticas (olas, acuarela, perfil). Presets temáticos con `porque` (cosmos_profundo, cuba_oscura, expediente_kraft, papel_carta_acuarela, mar_acuarela, noche_ciudad, laboratorio, taller_madera, amanecer_niebla, plano_tecnico). Determinista (semilla), con parallax por capa; colores por rol de la paleta del medio. Spec 021: CUALQUIER parámetro admite {expr:"…t lt u beat pulso(\'impacto\',0.4)…"} o keyframes {k:[[x,v],…],ease,eje,en:"giro"} (colores en OKLab); capas reactivas a eventos (onda, mancha, pulso; `eventos:[{id,tipo,at,x,y}]`) y capa `codigo` ({tipo:"codigo",archivo:"fondos/x.mjs"}: función propia (ctx,t,E) en shots/fondos/, bajo sandbox). Los presets son ejemplos de partida: derívalos con ajustes/sin/capas. Pintar PRIMERO en el shot. Catálogo: node engine/fondos-meta.mjs.');
+doc('objeto', 'api.objeto(id, {x, y, size, rot, estado, partes, params, color, relleno, acento, flip, alfa, label}) → {x, y, w, h, <ancla>:{x,y}}', 'Objeto vectorial paramétrico de la biblioteca (cilindro_metalico, campana_cristal, llave_laton, balanza_cruz, sello_tampon, acta_cuaderno, pluma, fotomultiplicador, cuba, contador, papel_continuo, lapiz, lampara_mesa, botella_vidrio, tarjeta_postal, moneda, sobre_sello, red_pesca, mapa_costero, reloj, mano, puerta, ventana, mesa, libro). `estado` = nombre o [a,b,u] (interpola), `partes` = valores animables, `params` = forma/cantidad/texto; devuelve las anclas con nombre en px. Registra foco. Trazo con la tinta del medio y relleno por rol.');
+doc('svg', 'api.svg(id, {x, y, size, rot, flip, alfa, trazo, morphTo, u, roles, mono, label}) → {x, y, w, h, punta:{x,y}, centro:{x,y}}', `SVG importado (assets/svg/: ${SVG_LIB.join(', ')}; o una ruta assets/….svg) como elemento: sanitizado (sin scripts/href externos/foreignObject), cuadro unidad de lado size, recoloreable por roles de paleta (data-fill/data-stroke, roles:{"#hex":"rol"}, mono:"rol"), trazo 0..1 = trazado progresivo por longitud de path (punta = la pluma) y morphTo+u entre dos SVG con el mismo número de paths.`);
+doc('box', 'api.box(x, y, w, h, {label, tag, color, fill, fillAlpha, radius, lw, banda, sombra, alpha, role}) → {x, y, w, h}', 'Caja con rótulo para diagramas: relleno (fill, def. paper), contorno (color), banda superior, sombra, etiqueta numerada (tag) y rótulo de varias líneas (label con saltos de línea: la 1.ª en role, las demás en label). Registra el texto para el lint; el foco lo pone el diagrama.');
 
+// beat musical (fraccionario) en el instante t: rejilla explícita del film (tempo variable) o bpm+offset; 0 si el film no tiene pulso
+const BEATS = new WeakMap();
+export function beatAtOf(film) {
+  let f = BEATS.get(film); if (f) return f;
+  f = (t) => {
+    const bt = film.beatTimes;
+    if (bt?.length > 1) { let lo = 0, hi = bt.length - 1; while (hi - lo > 1) { const mid = (lo + hi) >> 1; if (bt[mid] <= t) lo = mid; else hi = mid; } return lo + (t - bt[lo]) / Math.max(1e-6, bt[lo + 1] - bt[lo]); }
+    return film.bpm > 0 ? ((t - (film.beatOffset || 0)) * film.bpm) / 60 : 0;
+  };
+  BEATS.set(film, f); return f;
+}
 export function prims(ctx, api, film, shot, cx) {
   const S = film.S, col = api.color, k = api.k, W = film.width, H = film.height;
   const log = (prim, box, extra = {}) => api.meta.push({ prim, shot: shot.id, ...box, ...extra });
   const colorOf = (c) => (typeof c === 'string' ? col(c) : c);
   const texSize = (o) => o.size ?? api.sizes[o.role ?? 'h2'] * 1.1;
 
+  const fondoE = (film._fondoE ??= { cache: new Map() });
   const P = {
+    fondo(spec, o = {}) {
+      const E = fondoE; if (E.pal !== S.palette) { E.pal = S.palette; E._col = null; E._palKey = null; }
+      Object.assign(E, { W, H, k, canvas: film.canvas, depth: api.depth, u: cx.u, dur: shot.t[1] - shot.t[0], lt: o.lt ?? cx.t - shot.t[0], alfa: o.alfa ?? 1,
+        eventos: film.eventos ?? [], beatAt: beatAtOf(film), codigo: film.codigo ?? null });        // spec 021: eventos del film, rejilla de beats y proveedor sandboxed de la capa `codigo`
+      const r = drawFondo(ctx, spec, cx.t, E);
+      api.meta.push({ prim: 'fondo', shot: shot.id, ...r });                                          // lint fondo.estatico / fondo.preset_crudo / fondo.codigo_lento
+    },
+    objeto(id, o = {}) {
+      const tf = S.typeface, r = drawObjeto(ctx, id, { ...o, x: o.x, y: o.y }, { pal: S.palette, k, t: cx.t, font: `"${tf.mono || 'Courier New'}", monospace` }), c = Math.abs(Math.cos(r.rot)), sn = Math.abs(Math.sin(r.rot));
+      const bw = r.w * c + r.h * sn, bh = r.w * sn + r.h * c; if (o.focus !== false) api.focus(r.x - bw / 2, r.y - bh / 2, bw, bh, o.label ?? id, o.hollow ? { hollow: o.hollow } : {});
+      log('objeto', { x: r.x - bw / 2, y: r.y - bh / 2, w: bw, h: bh }, { objeto: id });
+      return r;
+    },
+    svg(id, o = {}) {
+      const doc = film.assets.svg(id), B = o.morphTo != null ? film.assets.svg(o.morphTo) : undefined, r = drawSvg(ctx, doc, { ...o, morphTo: B }, { pal: S.palette, k }), c = Math.abs(Math.cos(r.rot)), sn = Math.abs(Math.sin(r.rot));
+      const bw = r.w * c + r.h * sn, bh = r.w * sn + r.h * c; api.focus(r.x - bw / 2, r.y - bh / 2, bw, bh, o.label ?? id);
+      log('svg', { x: r.x - bw / 2, y: r.y - bh / 2, w: bw, h: bh }, { svg: id });
+      return r;
+    },
+    box(x, y, w, h, o = {}) {
+      const a = clamp(o.alpha ?? 1), rad = Math.min((o.radius ?? 0) * k, w / 2, h / 2), cc = o.color ?? 'ink', fl = o.fill === undefined ? 'paper' : o.fill, lw = (o.lw ?? 2) * k;
+      const path = () => { ctx.beginPath(); if (rad > 0) rrect(ctx, x, y, w, h, rad); else ctx.rect(x, y, w, h); };
+      ctx.save();
+      if (o.sombra) { ctx.globalAlpha = 0.22 * a; ctx.fillStyle = col('shade'); path(); ctx.fill(); }
+      if (fl) { ctx.globalAlpha = a * (o.fillAlpha ?? 0.92); ctx.fillStyle = col(fl); path(); ctx.fill(); }
+      if (o.banda) { ctx.globalAlpha = a; ctx.fillStyle = col(cc); ctx.fillRect(x, y, w, o.banda * k); }
+      if (lw > 0) { ctx.globalAlpha = a; ctx.strokeStyle = col(cc); ctx.lineWidth = lw; path(); ctx.stroke(); }
+      ctx.restore();
+      if (o.tag != null && o.tag !== '') api.text(String(o.tag), x + 24 * k, y + 28 * k, { role: 'label', color: cc, alpha: a, align: 'left' });
+      const L = o.label == null ? [] : String(o.label).split('\n'), s1 = api.sizes[o.role ?? 'body'], s2 = api.sizes.label, gap = 1.45;
+      if (L.length) { const blk = s1 * 1.2 + (L.length - 1) * s2 * gap, y0 = y + h / 2 - blk / 2 + s1 * 0.6 + (o.tag ? 12 * k : 0);
+        L.forEach((ln, i) => api.text(ln, x + w / 2, i ? y0 + s1 * 0.6 + (i - 0.5) * s2 * gap + s2 * 0.1 : y0, i ? { role: 'label', alpha: 0.85 * a } : { role: o.role ?? 'body', alpha: a })); }
+      return { x, y, w, h };
+    },
     tex(tex, x, y, o = {}) {
       const T = film.assets.tex(tex, o.display !== false), size = texSize(o), w = T.w * size, h = T.h * size;
       const al = o.align ?? 'center', x0 = al === 'center' ? x - w / 2 : al === 'right' ? x - w : x, y0 = y - h / 2;
@@ -279,8 +334,11 @@ export function prims(ctx, api, film, shot, cx) {
       log('layer', { x: 0, y: 0, w: W, h: H }, { fx: Object.keys(spec) });
     },
 
-    // 3D como capa (spec 004): escena declarada como datos; el backend (film.world3d) rasteriza a la resolución de dispositivo y el
+    // 3D como capa (spec 004/009): escena declarada como datos; el backend (film.world3d) rasteriza a la resolución de dispositivo y el
     // resultado se dibuja con el transform actual (cámara 2D del shot incluida). Pasa por el MISMO grade/post/medio que el 2D.
+    // v2: con scene.camera.fromShot la cámara sale del horizonte/suelo del shot (api.ground o o.groundFy), la escala de plano (shot.size)
+    // y el parallax de la cámara 2D (truck/dolly 3D con la misma ley que api.depth); o.bloom pasa el emisivo por el bloom del post 2D (fx.bloom);
+    // fondo/niebla con degradado muestreado del 2D (scene.background:'sample' u o.bgSample).
     world3d(scene, o = {}) {
       const W3 = film.world3d, rect = o.rect ?? [0, 0, W, H], B = cx.base, sx = Math.hypot(B.a, B.b), sy = Math.hypot(B.c, B.d), pw = Math.max(2, Math.round(rect[2] * sx)), ph = Math.max(2, Math.round(rect[3] * sy));
       const box = { x: rect[0], y: rect[1], w: rect[2], h: rect[3] };
@@ -290,12 +348,33 @@ export function prims(ctx, api, film, shot, cx) {
         api.text('3D NO DISPONIBLE', rect[0] + rect[2] / 2, rect[1] + rect[3] / 2, { role: 'label' }); return { available: false };
       }
       const st = shot.on | 0, twos = S.motion.stepFps ? Math.round(film.fps / S.motion.stepFps) : 0, step = o.step === 'auto' || o.step === undefined ? Math.max(st > 1 ? st : 0, twos > 1 ? twos : 0) : +o.step || 0;
-      const im = W3.render(scene, { size: [pw, ph], style: S, t: o.t ?? cx.t, u: o.u ?? cx.u, fps: film.fps, k: k * sx, cam: o.cam, overrides: o.overrides, step, ssaa: o.ssaa, motionBlur: o.motionBlur, transparent: !!o.transparent });
+      const fromShot = !!scene.camera?.fromShot, par = o.parallax ?? fromShot, tNow = o.t ?? cx.t;
+      const groundFy = o.groundFy ?? (cx.groundY != null ? (cx.groundY - rect[1]) / rect[3] : undefined);
+      let bgSample = o.bgSample ?? null;
+      if (!bgSample && (o.bg === 'sample' || scene.background === 'sample')) {                       // degradado del fondo 2D ya pintado: 8 paradas de arriba abajo (columnas junto a los bordes de la capa)
+        const n = 8, got = []; for (let i = 0; i < n; i++) { const yy = rect[1] + rect[3] * (i + 0.5) / n, p0 = [0.03, 0.97].map((fx) => ctx.getImageData(Math.max(0, Math.round(B.e + (rect[0] + rect[2] * fx) * sx - 1)), Math.max(0, Math.round(B.f + yy * sy - 1)), 3, 3).data);
+          const acc = [0, 0, 0]; for (const d of p0) for (let q = 0; q < d.length; q += 4) { acc[0] += d[q]; acc[1] += d[q + 1]; acc[2] += d[q + 2]; } got.push(acc.map((v) => v / (p0.length * 9))); }
+        bgSample = got;
+      }
+      const camFn = par ? (tt) => ({ ...(typeof o.cam === 'function' ? o.cam(tt) : o.cam), pan: [cx.cam.x ?? 0, cx.cam.y ?? 0], zoom: cx.cam.z ?? 1 }) : o.cam;
+      const dev = { size: [pw, ph], style: S, t: tNow, u: o.u ?? cx.u, fps: film.fps, k: k * sx, cam: camFn, overrides: o.overrides, step, ssaa: o.ssaa, motionBlur: o.motionBlur, transparent: !!o.transparent,
+        groundFy, unitH: rect[3], unitW: rect[2], scale: o.scale ?? shot.size, override: o.override, bgSample, focal: S.depth?.focal };
+      const im = W3.render(scene, dev);
       const cvs = ((film._w3cv ??= new Map())), key = pw + 'x' + ph; let cv = cvs.get(key); if (!cv) { if (cvs.size > 3) cvs.clear(); cv = film.canvas(pw, ph); cvs.set(key, cv); }
       const c2 = cv.getContext('2d'), id = c2.createImageData(pw, ph); id.data.set(im.data); c2.putImageData(id, 0, 0);
-      ctx.save(); ctx.globalAlpha *= o.alpha ?? 1; ctx.drawImage(cv, rect[0], rect[1], rect[2], rect[3]); ctx.restore();
-      log('world3d', box, { id: scene.id, backend: W3.sig(), cached: im.cached, step });
-      return { available: true, rect, cached: im.cached };
+      ctx.save(); if (par) ctx.setTransform(B.a, B.b, B.c, B.d, B.e, B.f);                         // el parallax lo hace la cámara 3D: la capa se pega SIN la cámara 2D
+      ctx.globalAlpha *= o.alpha ?? 1; ctx.drawImage(cv, rect[0], rect[1], rect[2], rect[3]); ctx.restore();
+      // bloom de los emisivos 3D con el MISMO kernel del post 2D (fx.bloom): ni un solo píxel de bloom propio del backend
+      const bl = o.bloom ?? S.world3d?.bloom ?? false;
+      if (bl) {
+        const spec = { ...(S.grade?.post?.bloom ?? { threshold: 0.62, strength: 0.7, radius: 26 }), ...(typeof bl === 'object' ? bl : {}) }, mk = W3.render(scene, { ...dev, pass: 'emissive', motionBlur: null });
+        const full = fxPool(film).get(ctx.canvas.width, ctx.canvas.height), fx2 = full.getContext('2d'), mc = film.canvas(pw, ph), mx = mc.getContext('2d'), md = mx.createImageData(pw, ph); md.data.set(mk.data); mx.putImageData(md, 0, 0);
+        fx2.setTransform(par ? B.a : ctx.getTransform().a, par ? B.b : ctx.getTransform().b, par ? B.c : ctx.getTransform().c, par ? B.d : ctx.getTransform().d, par ? B.e : ctx.getTransform().e, par ? B.f : ctx.getTransform().f); fx2.drawImage(mc, rect[0], rect[1], rect[2], rect[3]);
+        fxBloom(film, ctx, full, { ...spec, strength: (spec.strength ?? 0.7) * (o.alpha ?? 1), radius: (spec.radius ?? 24) * sx });
+      }
+      const info = im.info ?? null, warn = info ? angleCheck(info.angle) : null;
+      log('world3d', box, { id: scene.id, backend: W3.sig(), cached: im.cached, step, ...(info ? { horizonY: +info.horizonY.toFixed(4), groundY: +info.groundY.toFixed(4), el: +info.el.toFixed(2), angle: info.angle } : {}), ...(warn ? { angulo: warn.msg, remedy: warn.remedy } : {}) });
+      return { available: true, rect, cached: im.cached, ...(info ? { horizonY: info.horizonY, groundY: info.groundY, el: info.el, fov: info.fov } : {}) };
     },
 
     // 2.5D: perspectiva alrededor del foco de cámara. f = distancia focal en px (estilo: depth.focal).

@@ -1,0 +1,42 @@
+{
+  "descripcion": "Conjunto de calibración del panel (spec 022, G4). Cada película tiene un nivel ordinal (1–5) deducido de las notas humanas de data/notas.json; el panel debe reproducir ese orden (Spearman ≥ umbral). Los empates de nivel no cuentan como orden conocido. Los mp4 están en out/entregas (o OPUS_ENTREGAS).",
+  "umbral_spearman": 0.7,
+  "semilla": 2210,
+  "semillas": { "calibracion": 2210, "calibracion2": 7002 },
+  "niveles": {
+    "1": "mala: monótona, apresurada, audio pobre (nota ≈ 5)",
+    "2": "«bien, no wow» o superada por una versión posterior",
+    "3": "correcta pero peor que su alternativa o «no el mejor concepto»",
+    "4": "buena: «algo mejor», «bastante muy bien» (nota ≈ 8)",
+    "5": "sobresaliente: «muy god» 9,5, «genial», «muy bien» en la versión adoptada"
+  },
+  "peliculas": [
+    { "clave": "potencias_v1", "mp4": "potencias_v1.mp4", "nivel": 1, "notas": ["N01"], "porque": "5: monótona, apresurada, audio pobre, no épica" },
+    { "clave": "mate", "mp4": "mate.mp4", "nivel": 2, "notas": ["N06"], "porque": "v1 nocturno: bien, no wow (fondo negro plano)" },
+    { "clave": "reel", "mp4": "reel.mp4", "nivel": 2, "notas": ["N05"], "porque": "v1: bien, no wow" },
+    { "clave": "regla", "mp4": "regla.mp4", "nivel": 2, "notas": ["N04"], "porque": "v1: bien, no wow" },
+    { "clave": "botella", "mp4": "botella.mp4", "nivel": 2, "notas": ["N19"], "porque": "versión con el motor completo (aspecto clip-art, spec 022); la libre es «genial»" },
+    { "clave": "potencias_v3", "mp4": "potencias_v3.mp4", "nivel": 3, "notas": ["N17"], "porque": "plano técnico: peor que la v2 oscura" },
+    { "clave": "regla_v2", "mp4": "regla_v2.mp4", "nivel": 3, "notas": ["N16"], "porque": "no es el mejor concepto pero está bien ejecutado" },
+    { "clave": "potencias_v2", "mp4": "potencias_v2.mp4", "nivel": 4, "notas": ["N09", "N17"], "porque": "8: algo mejor; mejor que la v3" },
+    { "clave": "reel_v2", "mp4": "reel_v2.mp4", "nivel": 4, "notas": ["N18"], "porque": "bastante muy bien" },
+    { "clave": "mate_terracota", "mp4": "mate_terracota.mp4", "nivel": 5, "notas": ["N14", "N15"], "porque": "acento adoptado: está muy bien" },
+    { "clave": "mate_papel", "mp4": "mate_papel.mp4", "nivel": 5, "notas": ["N10"], "porque": "9,5: muy god (la vara)" },
+    { "clave": "botella_aislada", "mp4": "botella_aislada.mp4", "nivel": 5, "notas": ["N19"], "porque": "genial" }
+  ],
+  "pares": [
+    { "mayor": "mate_papel", "menor": "potencias_v1", "fuerza": "estricto", "origen": "N10 vs N01" },
+    { "mayor": "botella_aislada", "menor": "botella", "fuerza": "estricto", "origen": "N19, spec 022" },
+    { "mayor": "potencias_v2", "menor": "potencias_v3", "fuerza": "estricto", "origen": "N09, N17" },
+    { "mayor": "reel_v2", "menor": "regla_v2", "fuerza": "debil", "origen": "N18 vs N16 (≳)" },
+    { "mayor": "potencias_v2", "menor": "potencias_v1", "fuerza": "estricto", "origen": "N09 (8) vs N01 (5)" },
+    { "mayor": "mate_papel", "menor": "mate", "fuerza": "estricto", "origen": "N10 vs N06" },
+    { "mayor": "mate_terracota", "menor": "mate", "fuerza": "estricto", "origen": "N15 vs N06" },
+    { "mayor": "reel_v2", "menor": "reel", "fuerza": "estricto", "origen": "N18 vs N05" }
+  ],
+  "excluidos": {
+    "world3d_datacenter": "clip de 6 s sin audio: no es comparable con films completos (nota N11 = 8 sobre otra versión)",
+    "botella_libre_v2, botella_v3_haiku_kit, botella_v3_haiku_prompt": "sin nota humana",
+    "voz_demo": "pieza de voz, no un film"
+  }
+}

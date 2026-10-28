@@ -1,6 +1,6 @@
 {
   "schema": "opus-vocab/1",
-  "version": 1,
+  "version": 2,
   "doc": "Vocabulario controlado (spec 006). Fuente única de términos; engine/vocab.mjs lo carga. Cambiar un término = subir version y pasar `npm test`.",
   "sections": {
     "concept.kind": {
@@ -254,9 +254,18 @@
           "forbid": []
         },
         {
+          "id": "fondo",
+          "def": "profundidad del fondo (métrica fondo.profundidad): avisa del fondo oscuro sin profundidad (spec 012 P6)",
+          "forbid": []
+        },
+        {
           "id": "arc",
           "def": "arco dramático",
           "forbid": []
+        },
+        {
+          "id": "narr",
+          "def": "lint narrativo (spec 013): suelo negativo del storytelling; FIX solo si el story es v2"
         }
       ]
     },
@@ -421,6 +430,11 @@
         {
           "id": "scale-ref",
           "def": "comprobación del arco: scale ref",
+          "forbid": []
+        },
+        {
+          "id": "w3d-sin-guion",
+          "def": "comprobación del arco: un shot con world3d no cae en ningún beat 3D declarado (beat.w3d) de story.json; emite el aviso w3d.sin-guion (spec 009, S10)",
           "forbid": []
         },
         {
@@ -670,6 +684,51 @@
         }
       ]
     },
+    "lint.rule": {
+      "doc": "Códigos de aviso del lint/crítico para reglas de dirección (no confundir con lint.stage).",
+      "terms": [
+        {
+          "id": "fondo.estatico",
+          "def": "el mismo fondo (preset o soporte del medio) sin variación animada de parámetros en más del 60 % de la duración del film; se justifica con fondo_ok:{porque} en el timeline (spec 021 D)",
+          "forbid": []
+        },
+        {
+          "id": "fondo.preset_crudo",
+          "def": "un preset usado sin ajustes, sin ni capas extra en más del 50 % de los shots con fondo: los presets son ejemplos de partida, no un menú (spec 021 D)",
+          "forbid": []
+        },
+        {
+          "id": "fondo.codigo_lento",
+          "def": "una capa de código propio (shots/fondos) tarda más de su presupuesto maxMs por cuadro (spec 021 B)",
+          "forbid": []
+        },
+        {
+          "id": "fondo.vacio",
+          "def": "fondo oscuro sin profundidad medible (varianza espacial, gradiente y cambio temporal bajos fuera de sujeto y texto) en ≥ 30 % del film (FIX si ≥ 60 %); el oscuro elegido por el tema, con estrellas, niebla, viñeta o parallax, pasa (spec 012 P6)",
+          "forbid": []
+        },
+        {
+          "id": "w3d.angulo",
+          "def": "elevación de la cámara 3D fuera de la regla de su escala de plano (PG [8°,20°], PM [5°,15°], contrapicado heroico [−12°,−4°]) sin camera.override",
+          "forbid": []
+        },
+        {
+          "id": "receta.hueco",
+          "def": "un shot nacido de una receta conserva un $hueco sin llenar (cadena «$hueco: …» en su .scene.json); WARN con la ruta: lo concreto del film aún no está escrito (spec 016)",
+          "forbid": []
+        },
+        {
+          "id": "receta.repeticion",
+          "def": "una misma receta genera más del 50 % de los shots de un film (con ≥ 3), o los films de una oleada comparten la secuencia de recetas: la plantilla se volvió molde (WARN; spec 016)",
+          "forbid": []
+        },
+        {
+          "id": "w3d.sin-guion",
+          "def": "un shot usa world3d sin pertenecer a un beat 3D (beat.w3d = {concepto, porque}) declarado en story.json: el 3D se guioniza desde el principio, no se añade después (spec 009, S10)",
+          "forbid": []
+        }
+      ]
+    },
     "medium": {
       "doc": "Medio (soporte/técnica) de styles/medios/.",
       "terms": [
@@ -677,7 +736,16 @@
           "id": "papel_crema",
           "def": "tinta sobre papel crema",
           "forbid": []
-        }
+        },
+        { "id": "papel_crema_ciruela", "def": "papel crema con acento violeta profundo (variante A)", "forbid": [] },
+        { "id": "papel_crema_terracota", "def": "papel crema con acento terracota (variante B)", "forbid": [] },
+        { "id": "kraft", "def": "tinta negra de estampa sobre cartón de estraza", "forbid": [] },
+        { "id": "pizarra", "def": "tiza sobre pizarra con borrado parcial", "forbid": [] },
+        { "id": "tecnico", "def": "plano técnico azul con cuadrícula, cotas y HUD", "forbid": [] },
+        { "id": "tecnico_plano", "def": "lámina técnica de diagramas: cianotipia con cuadrícula milimetrada, HUD de plano (revisión, hoja) y trazo limpio; para esquemas del propio sistema", "forbid": [] },
+        { "id": "tecnico_bermellon", "def": "plano técnico azul con acento bermellón (redline de ingeniero) en vez del ámbar", "forbid": [] },
+        { "id": "neon", "def": "tubos de luz sobre muro mojado con parpadeo y reflejo", "forbid": [] },
+        { "id": "neon_pulso", "def": "neón del reel: letrero roto de tubos lima y magenta sobre ladrillo ciruela, con parpadeo, zumbido y suelo mojado", "forbid": [] }
       ]
     },
     "prose": {
@@ -763,6 +831,20 @@
           "def": "cámara virtual del shot",
           "forbid": [
             "camara"
+          ]
+        },
+        {
+          "id": "herramienta",
+          "def": "entrada del registro de tools: comando CLI, primitiva, tipo DSL, medio, métrica o check (spec 015)",
+          "forbid": [
+            "tool"
+          ]
+        },
+        {
+          "id": "intención",
+          "def": "lo que el agente quiere conseguir, en español libre; entrada de find y plan (spec 015)",
+          "forbid": [
+            "intent"
           ]
         }
       ]
@@ -1001,6 +1083,11 @@
           "forbid": []
         },
         {
+          "id": "fondo.profundidad",
+          "def": "Profundidad del fondo",
+          "forbid": []
+        },
+        {
           "id": "drama.peakPos",
           "def": "Posición del clímax",
           "forbid": []
@@ -1093,6 +1180,521 @@
         {
           "id": "medio.grainISO",
           "def": "Grano (ISO equivalente)",
+          "forbid": []
+        }
+      ]
+    },
+    "narr.check": {
+      "doc": "Checks del lint narrativo (engine/narr.mjs).",
+      "terms": [
+        {
+          "id": "schema.v2",
+          "def": "campos de story v2 presentes",
+          "forbid": []
+        },
+        {
+          "id": "ancla.visible",
+          "def": "el ancla aparece en pantalla antes de su límite",
+          "forbid": []
+        },
+        {
+          "id": "ancla.dato",
+          "def": "el dato del ancla tiene cifra o nombre propio y fuente",
+          "forbid": []
+        },
+        {
+          "id": "abstracto.densidad",
+          "def": "abstractos por 100 palabras",
+          "forbid": []
+        },
+        {
+          "id": "concreto.ratio",
+          "def": "proporción de beats con cosa física declarada",
+          "forbid": []
+        },
+        {
+          "id": "cliche.apertura",
+          "def": "apertura de cliché (grupo A)",
+          "forbid": []
+        },
+        {
+          "id": "cliche.cierre",
+          "def": "cierre moralizante, retorno o pregunta retórica (grupos C y F)",
+          "forbid": []
+        },
+        {
+          "id": "cliche.poster",
+          "def": "vocabulario de póster (grupo D)",
+          "forbid": []
+        },
+        {
+          "id": "paralelismo.neg",
+          "def": "paralelismos negativos y estructuras de plantilla (grupo B)",
+          "forbid": []
+        },
+        {
+          "id": "triada",
+          "def": "enumeraciones en tríada",
+          "forbid": []
+        },
+        {
+          "id": "pregunta.plantilla",
+          "def": "pregunta sí/no o apertura con ¿ repetida en el archivo",
+          "forbid": []
+        },
+        {
+          "id": "pregunta.apertura_y_cierre",
+          "def": "gancho y último beat ambos en pregunta",
+          "forbid": []
+        },
+        {
+          "id": "spine.metronomo",
+          "def": "conectores en alternancia estricta o un solo conector",
+          "forbid": []
+        },
+        {
+          "id": "ritmo.beats_cv",
+          "def": "uniformidad de la duración de los beats",
+          "forbid": []
+        },
+        {
+          "id": "ritmo.frases_cv",
+          "def": "uniformidad de la longitud de frases en pantalla",
+          "forbid": []
+        },
+        {
+          "id": "giro.posicion",
+          "def": "giro fuera de la ventana de la forma o coincidente con otros films",
+          "forbid": []
+        },
+        {
+          "id": "cierre.eco",
+          "def": "último beat solapa con el primero sin declarar eco",
+          "forbid": []
+        },
+        {
+          "id": "cierre.moraleja",
+          "def": "moraleja en el último beat",
+          "forbid": []
+        },
+        {
+          "id": "voz.coherencia",
+          "def": "persona o palabras prohibidas contra la voz declarada",
+          "forbid": []
+        },
+        {
+          "id": "voz.tic",
+          "def": "el tic declarado aparece de 2 a 6 veces",
+          "forbid": []
+        },
+        {
+          "id": "imperfeccion.presente",
+          "def": "la imperfección tiene un evento en el timeline",
+          "forbid": []
+        },
+        {
+          "id": "frescura.registro",
+          "def": "puntos de frescura suficientes y sin vetos",
+          "forbid": []
+        },
+        {
+          "id": "frescura.archivo",
+          "def": "solape de palabras clave con films previos",
+          "forbid": []
+        },
+        {
+          "id": "diversidad.oleada",
+          "def": "medio y tono distintos dentro de una oleada",
+          "forbid": []
+        },
+        {
+          "id": "narr_ok.sin_porque",
+          "def": "excepción narrativa sin porqué",
+          "forbid": []
+        }
+      ]
+    },
+    "story.forma": {
+      "doc": "Forma narrativa (story.forma, engine/arc.json: formas).",
+      "terms": [
+        {
+          "id": "causal",
+          "def": "pero/por lo tanto; el arco exige el spine",
+          "forbid": []
+        },
+        {
+          "id": "kisho",
+          "def": "kishōtenketsu: sin conflicto, giro lateral",
+          "forbid": []
+        },
+        {
+          "id": "espiral",
+          "def": "repetición con variación",
+          "forbid": []
+        },
+        {
+          "id": "cuenta_atras",
+          "def": "el pico va al final",
+          "forbid": []
+        }
+      ]
+    },
+    "story.cierre": {
+      "doc": "Tipo de cierre (story.cierre.tipo).",
+      "terms": [
+        {
+          "id": "corte",
+          "def": "termina en seco",
+          "forbid": []
+        },
+        {
+          "id": "eco",
+          "def": "vuelve al inicio; opción justificada, no regla",
+          "forbid": []
+        },
+        {
+          "id": "golpe",
+          "def": "termina en un impacto",
+          "forbid": []
+        },
+        {
+          "id": "silencio",
+          "def": "termina en silencio",
+          "forbid": []
+        },
+        {
+          "id": "abierto",
+          "def": "deja la pregunta abierta",
+          "forbid": []
+        },
+        {
+          "id": "cicatriz",
+          "def": "se resuelve con una marca que queda",
+          "forbid": []
+        }
+      ]
+    },
+    "fondo.capa": {
+      "doc": "Tipo de capa de fondo generativo (spec 014: fondo.capas[].tipo).",
+      "terms": [
+        {
+          "id": "onda",
+          "def": "Anillos que se expanden desde cada evento, como el agua tras un golpe.",
+          "forbid": []
+        },
+        {
+          "id": "mancha",
+          "def": "Mancha de tinta o gota que crece en cada evento, persiste y se desvanece.",
+          "forbid": []
+        },
+        {
+          "id": "pulso",
+          "def": "Lavado de color o foco que se enciende en cada evento y se apaga.",
+          "forbid": []
+        },
+        {
+          "id": "codigo",
+          "def": "Capa escrita por el agente: función pura (ctx, t, E) en shots/fondos/, bajo sandbox.",
+          "forbid": []
+        },
+        {
+          "id": "relleno",
+          "def": "Color liso que cubre todo el cuadro.",
+          "forbid": []
+        },
+        {
+          "id": "degradado",
+          "def": "Degradado lineal, radial o por bandas; puede muestrear la paleta del medio.",
+          "forbid": []
+        },
+        {
+          "id": "fbm",
+          "def": "Campo de ruido fractal suave: nubes, manchas, textura de soporte.",
+          "forbid": []
+        },
+        {
+          "id": "deformado",
+          "def": "Ruido con dominio deformado: humo, mármol, vetas fluidas.",
+          "forbid": []
+        },
+        {
+          "id": "celular",
+          "def": "Ruido celular tipo Voronoi: celdas, grietas, membranas, fotocélulas.",
+          "forbid": []
+        },
+        {
+          "id": "flujo",
+          "def": "Líneas de flujo que siguen un campo de ruido, con trazo que avanza.",
+          "forbid": []
+        },
+        {
+          "id": "niebla",
+          "def": "Niebla por profundidad: velo que espesa hacia el horizonte y deriva.",
+          "forbid": []
+        },
+        {
+          "id": "polvo",
+          "def": "Partículas en suspensión que derivan y titilan, con tamaños en profundidad.",
+          "forbid": []
+        },
+        {
+          "id": "rayos",
+          "def": "Rayos de luz volumétricos (godrays) desde un punto, con vaivén lento.",
+          "forbid": []
+        },
+        {
+          "id": "bokeh",
+          "def": "Discos de luz desenfocada con borde vivo, que respiran y derivan.",
+          "forbid": []
+        },
+        {
+          "id": "estrellas",
+          "def": "Campo de estrellas con titileo y algunas destellos en cruz.",
+          "forbid": []
+        },
+        {
+          "id": "orbes",
+          "def": "Esferas luminosas de cristal, como lunas o fotomultiplicadores, con parpadeo propio.",
+          "forbid": []
+        },
+        {
+          "id": "reticula",
+          "def": "Retícula de líneas, puntos o cruces, como papel milimetrado o plano técnico.",
+          "forbid": []
+        },
+        {
+          "id": "trama",
+          "def": "Rayado cruzado a mano: líneas paralelas irregulares, simple o en cruz.",
+          "forbid": []
+        },
+        {
+          "id": "rayado",
+          "def": "Renglones de papel de carta o cuaderno, con línea de margen opcional.",
+          "forbid": []
+        },
+        {
+          "id": "semitono",
+          "def": "Puntos de semitono cuyo tamaño sigue un campo radial, lineal o de ruido.",
+          "forbid": []
+        },
+        {
+          "id": "motivo",
+          "def": "Motivo repetido (cruz, hoja, estrella…) con variación de posición, giro y tamaño.",
+          "forbid": []
+        },
+        {
+          "id": "vineta",
+          "def": "Viñeta que oscurece los bordes y concentra la mirada en el centro.",
+          "forbid": []
+        },
+        {
+          "id": "foco",
+          "def": "Charco de luz o cono sobre un punto, como una lámpara sobre la mesa.",
+          "forbid": []
+        },
+        {
+          "id": "terminador",
+          "def": "Línea de día y noche: franja de sombra con borde suave, recta o curva.",
+          "forbid": []
+        },
+        {
+          "id": "olas",
+          "def": "Mar en franjas de olas con espuma y deriva, del horizonte a la orilla.",
+          "forbid": []
+        },
+        {
+          "id": "acuarela",
+          "def": "Lavados de acuarela: manchas con borde más oscuro, sangrado y pigmento disperso.",
+          "forbid": []
+        },
+        {
+          "id": "perfil",
+          "def": "Silueta de horizonte: montañas, ciudad con ventanas, dunas o bosque.",
+          "forbid": []
+        }
+      ]
+    },
+    "fondo.preset": {
+      "doc": "Fondo temático de referencia (spec 014: fondo.preset).",
+      "terms": [
+        {
+          "id": "cosmos_profundo",
+          "def": "Ejemplo de partida: cosmos con nebulosa, dos campos de estrellas y polvo.",
+          "forbid": []
+        },
+        {
+          "id": "cuba_oscura",
+          "def": "Ejemplo de partida: agua negra con esferas luminosas, niebla fría, haces y paralaje.",
+          "forbid": []
+        },
+        {
+          "id": "expediente_kraft",
+          "def": "Ejemplo de partida: soporte de estraza con renglones, marcas de registro y rayado a lápiz.",
+          "forbid": []
+        },
+        {
+          "id": "papel_carta_acuarela",
+          "def": "Ejemplo de partida: papel de carta con renglones azules, lavados de acuarela y ondas.",
+          "forbid": []
+        },
+        {
+          "id": "mar_acuarela",
+          "def": "Ejemplo de partida: mar de acuarela con lavados azules, franjas de olas y bruma.",
+          "forbid": []
+        },
+        {
+          "id": "noche_ciudad",
+          "def": "Ejemplo de partida: noche urbana con cielo violeta, montañas, rascacielos, bokeh y bruma.",
+          "forbid": []
+        },
+        {
+          "id": "laboratorio",
+          "def": "Ejemplo de partida: laboratorio claro con retícula de puntos, cono de lámpara y semitono.",
+          "forbid": []
+        },
+        {
+          "id": "taller_madera",
+          "def": "Ejemplo de partida: banco de taller con vetas, lámpara cálida, polvo dorado y rayones.",
+          "forbid": []
+        },
+        {
+          "id": "amanecer_niebla",
+          "def": "Ejemplo de partida: amanecer con niebla, sierras en bandas, rayos de sol y polvo.",
+          "forbid": []
+        },
+        {
+          "id": "plano_tecnico",
+          "def": "Ejemplo de partida: plano milimetrado con líneas mayores, marcas de registro y viñeta.",
+          "forbid": []
+        }
+      ]
+    },
+    "objeto": {
+      "doc": "Objeto de la biblioteca (spec 014: api.objeto / tipo DSL objeto).",
+      "terms": [
+        {
+          "id": "cilindro_metalico",
+          "def": "Cilindro de metal pulido, alto igual que ancho, con brillo que recorre su flanco.",
+          "forbid": []
+        },
+        {
+          "id": "campana_cristal",
+          "def": "Campana de cristal sobre peana, con condensación; admite hasta tres campanas anidadas.",
+          "forbid": []
+        },
+        {
+          "id": "llave_laton",
+          "def": "Llave de latón con aro, caña y paletón dentado; gira en la cerradura.",
+          "forbid": []
+        },
+        {
+          "id": "balanza_cruz",
+          "def": "Balanza de brazos iguales con platos colgados; la aguja puede quedar ladeada.",
+          "forbid": []
+        },
+        {
+          "id": "sello_tampon",
+          "def": "Sello de goma con mango de madera; baja, estampa (o no, sin tinta) y sube.",
+          "forbid": []
+        },
+        {
+          "id": "acta_cuaderno",
+          "def": "Hoja de acta con título, renglones escritos y líneas de firma.",
+          "forbid": []
+        },
+        {
+          "id": "pluma",
+          "def": "Pluma de ave o estilográfica con plumín; deja un trazo de tinta al escribir.",
+          "forbid": []
+        },
+        {
+          "id": "fotomultiplicador",
+          "def": "Tubo fotomultiplicador de bulbo grande: cúpula de vidrio, cuello y base con patillas.",
+          "forbid": []
+        },
+        {
+          "id": "cuba",
+          "def": "Corte de una cuba cilíndrica de agua con fotomultiplicadores en las paredes y destello.",
+          "forbid": []
+        },
+        {
+          "id": "contador",
+          "def": "Contador de dígitos mecánico (rodillos) o numérico (siete segmentos) con valor animable.",
+          "forbid": []
+        },
+        {
+          "id": "papel_continuo",
+          "def": "Hoja de papel continuo de impresora: bandas, perforaciones laterales y líneas impresas.",
+          "forbid": []
+        },
+        {
+          "id": "lapiz",
+          "def": "Lápiz hexagonal con virola y goma; se desgasta y puede escribir una línea.",
+          "forbid": []
+        },
+        {
+          "id": "lampara_mesa",
+          "def": "Lámpara de mesa articulada con pantalla y cono de luz que se enciende.",
+          "forbid": []
+        },
+        {
+          "id": "botella_vidrio",
+          "def": "Botella de vidrio con lastre de arena, tapón y mensaje enrollado; flota inclinada.",
+          "forbid": []
+        },
+        {
+          "id": "tarjeta_postal",
+          "def": "Tarjeta postal con costa por delante y renglones, sello y dirección por detrás.",
+          "forbid": []
+        },
+        {
+          "id": "moneda",
+          "def": "Moneda con canto, orla y emblema; gira sobre su eje y refleja la luz.",
+          "forbid": []
+        },
+        {
+          "id": "sobre_sello",
+          "def": "Sobre con solapa que se abre, sello de correos con matasellos y dirección.",
+          "forbid": []
+        },
+        {
+          "id": "red_pesca",
+          "def": "Red de malla en rombos que cuelga de una soga con flotadores y se tensa.",
+          "forbid": []
+        },
+        {
+          "id": "mapa_costero",
+          "def": "Mapa de costa con mar rayado, rosa de los vientos, ruta punteada y cruz.",
+          "forbid": []
+        },
+        {
+          "id": "reloj",
+          "def": "Reloj de pared redondo con números, agujas de hora, minuto y segundero.",
+          "forbid": []
+        },
+        {
+          "id": "mano",
+          "def": "Mano esquemática de dedos articulados: abierta, puño, señalando o en pinza.",
+          "forbid": []
+        },
+        {
+          "id": "puerta",
+          "def": "Puerta con marco, paneles y picaporte que gira sobre sus bisagras dejando pasar luz.",
+          "forbid": []
+        },
+        {
+          "id": "ventana",
+          "def": "Ventana de cuarterones con alféizar, hojas que se abren y luz de fuera.",
+          "forbid": []
+        },
+        {
+          "id": "mesa",
+          "def": "Mesa de tablero grueso y cuatro patas en alzado frontal, con mantel opcional.",
+          "forbid": []
+        },
+        {
+          "id": "libro",
+          "def": "Libro cerrado o abierto con tapas, lomo, páginas con texto y página que pasa.",
           "forbid": []
         }
       ]
