@@ -14,11 +14,18 @@ const LOTUS = { hoja: '#07103f', rej: '#1c2a78', hdr: '#1c2a78', hdrAct: '#2de2e
 const ULT = { texto: [], objetos: [], sujeto: null };
 const fuente = (tam, peso = 'normal', tipo = 'mono') => `${peso} ${tam}px ${tipo === 'mono' ? F.mono : F.sans}`;
 
+let CAB = true;
+function bisel(g, P, x, y, w, h, on) { g.fillStyle = on ? P.hdrAct : P.hdr; g.fillRect(x, y, w, h); g.fillStyle = P.luzH; g.fillRect(x, y, w, 3); g.fillRect(x, y, 3, h); g.fillStyle = P.sombH; g.fillRect(x, y + h - 3, w, 3); g.fillRect(x + w - 3, y, 3, h); }
+/** cabecera(g,P,col): la UNICA cabecera fija (esquina con el reloj + A B). */
+function cabecera(g, P, col) {
+  bisel(g, P, 0, 0, CX[1], HH, false); g.fillStyle = P.hdrTx; g.font = fuente(28, 'normal', 'sans'); g.textAlign = 'center'; g.textBaseline = 'middle'; g.fillText('03:12', CX[1] / 2, HH / 2 + 2);
+  ['A', 'B'].forEach((L, i) => { const on = col === i + 1; bisel(g, P, CX[i + 1], 0, CX[i + 2] - CX[i + 1], HH, on); g.fillStyle = on && P === LOTUS ? '#04103a' : P.hdrTx; g.font = fuente(34, on ? 'bold' : 'normal', 'sans'); g.textAlign = 'center'; g.textBaseline = 'middle'; g.fillText(L, (CX[i + 1] + CX[i + 2]) / 2, HH / 2 + 2); });
+}
 /** hoja(g,o): rejilla de celdas. o = {P, scroll (filas, fraccion), cell(r,c)->{t,al,col,bg,it,b,dx,dy,a}, act:{r,c,fill}, fantasma}. Cabeceras fijas. */
 function hoja(g, o) {
-  const { P, scroll, cell, act } = o, r0 = Math.floor(scroll) + 1, n = 25, yR = (r) => HH + (r - 1 - scroll) * RH;
-  g.save(); g.beginPath(); g.rect(0, 0, W, SH); g.clip();
-  g.fillStyle = P.hoja; g.fillRect(0, 0, W, SH);
+  const { P, scroll, cell, act } = o, r0 = Math.floor(scroll) + 1, n = 46, yR = (r) => HH + (r - 1 - scroll) * RH;
+  g.save(); g.beginPath(); g.rect(0, 0, W, 2 * SH); g.clip();
+  g.fillStyle = P.hoja; g.fillRect(0, 0, W, 2 * SH);
   for (let r = r0; r < r0 + n; r++) for (let c = 1; c <= 2; c++) {
     const d = cell(r, c); if (!d) continue; const y = yR(r) + (d.dy || 0), x0 = CX[c], x1 = CX[c + 1];
     g.save(); g.beginPath(); g.rect(x0, yR(r), x1 - x0, RH); g.clip(); g.globalAlpha = d.a ?? 1;
@@ -28,15 +35,15 @@ function hoja(g, o) {
   }
   g.strokeStyle = P.rej; g.lineWidth = 2; g.beginPath();
   for (let r = r0; r <= r0 + n; r++) { const y = Math.round(yR(r)); g.moveTo(CX[1], y); g.lineTo(W, y); }
-  for (const x of [CX[2], CX[3] - 1]) { g.moveTo(x, HH); g.lineTo(x, SH); } g.stroke();
+  for (const x of [CX[2], CX[3] - 1]) { g.moveTo(x, HH); g.lineTo(x, 2 * SH); } g.stroke();
   if (act) { const x0 = CX[act.c], x1 = CX[act.c + 1], y = yR(act.r); g.save(); g.beginPath(); g.rect(CX[1], HH, W - CX[1], SH - HH); g.clip();
     if (act.fill) { g.fillStyle = P.sel; g.fillRect(x0, y, x1 - x0, RH); if (act.txt) { g.fillStyle = act.txtCol; g.font = fuente(44, 'bold'); g.textBaseline = 'middle'; g.textAlign = 'right'; g.fillText(act.txt, x1 - 26, y + RH / 2 + 3); } }
     g.strokeStyle = P.sel; g.lineWidth = 7; g.strokeRect(x0 + 2, y + 2, x1 - x0 - 4, RH - 4); if (!act.fill) { g.fillStyle = P.sel; g.fillRect(x1 - 14, y + RH - 14, 20, 20); } g.restore(); }
   // cabeceras fijas: fila superior y columna izquierda, biseladas (estilo 1997)
-  const bis = (x, y, w, h, on) => { g.fillStyle = on ? P.hdrAct : P.hdr; g.fillRect(x, y, w, h); g.fillStyle = P.luzH; g.fillRect(x, y, w, 3); g.fillRect(x, y, 3, h); g.fillStyle = P.sombH; g.fillRect(x, y + h - 3, w, 3); g.fillRect(x + w - 3, y, 3, h); };
+  const bis = (x, y, w, h, on) => { return bisel(g, P, x, y, w, h, on);
+     g.fillStyle = on ? P.hdrAct : P.hdr; g.fillRect(x, y, w, h); g.fillStyle = P.luzH; g.fillRect(x, y, w, 3); g.fillRect(x, y, 3, h); g.fillStyle = P.sombH; g.fillRect(x, y + h - 3, w, 3); g.fillRect(x + w - 3, y, 3, h); };
   for (let r = r0; r < r0 + n; r++) { const y = yR(r); if (y + RH < HH) continue; const on = act && act.r === r; bis(0, y, CX[1], RH, on); g.fillStyle = on && P === LOTUS ? '#04103a' : P.hdrTx; g.font = fuente(34, on ? 'bold' : 'normal', 'sans'); g.textAlign = 'center'; g.textBaseline = 'middle'; g.fillText(String(r), CX[1] / 2, y + RH / 2 + 2); }
-  bis(0, 0, CX[1], HH, false); g.fillStyle = P.hdrTx; g.font = fuente(28, 'normal', 'sans'); g.textAlign = 'center'; g.textBaseline = 'middle'; g.fillText('03:12', CX[1] / 2, HH / 2 + 2);
-  ['A', 'B'].forEach((L, i) => { const on = act && act.c === i + 1; bis(CX[i + 1], 0, CX[i + 2] - CX[i + 1], HH, on); g.fillStyle = on && P === LOTUS ? '#04103a' : P.hdrTx; g.font = fuente(34, on ? 'bold' : 'normal', 'sans'); g.textAlign = 'center'; g.textBaseline = 'middle'; g.fillText(L, (CX[i + 1] + CX[i + 2]) / 2, HH / 2 + 2); });
+  if (CAB) cabecera(g, P, act && act.c);
   g.restore();
 }
 
@@ -61,7 +68,7 @@ function sBisiesto(g, t) {
     if (c === 2 && NOTAS[r + 4]) return { t: NOTAS[r + 4], it: true, col: P.gris, tam: 38, sans: true }; return null; } });
 }
 const OBJ = 52, DS = 56; // fila final: A60 queda en la fila 8 del cuadro
-const celdaBase = (P, r, c, extra60 = {}) => (r > 90 ? null : c === 1 ? cFecha(P, r, r === 60 ? extra60 : {}) : cSerie(r, r === 60 ? { b: true } : { col: P.gris }));
+const celdaBase = (P, r, c, extra60 = {}) => (r > 130 ? null : c === 1 ? cFecha(P, r, r === 60 ? extra60 : {}) : cSerie(r, r === 60 ? { b: true } : { col: P.gris }));
 function sBaja(g, t) {
   const P = CLARO, u = clamp((t - TBAJA0) / (TLAND - TBAJA0)), e = 1 - Math.pow(1 - u, 2.4), dt = Math.max(0, t - TLAND);
   const sc = OBJ * e + (u >= 1 ? 0.22 * Math.exp(-7 * dt) * Math.sin(26 * dt) : 0), v = Math.abs(OBJ * 2.4 * Math.pow(1 - u, 1.4)) / (TLAND - TBAJA0) * (u < 1 && u > 0 ? 1 : 0), sel = t >= TLAND;
@@ -91,20 +98,21 @@ function sDesplaza(g, t) {
   for (let r = 60; r < 72; r++) { const p = clamp((t - (t1 + (r - 60) * 0.16)) / 0.4); if (p <= 0 || p >= 1) continue; const y = HH + (r - 1 - sc) * RH; g.save(); g.beginPath(); g.rect(CX[1], y, CX[2] - CX[1], RH); g.clip(); g.globalAlpha = 1 - p; g.fillStyle = P.tx; g.font = fuente(44); g.textAlign = 'right'; g.textBaseline = 'middle'; g.fillText(fecha(r), CX[2] - 26, y + RH / 2 + 3 + RH * p); g.restore(); }
   g.restore();
 }
+const PAL = [CLARO, CLARO, CLARO, CLARO, LOTUS, CLARO, CLARO], COL = [1, 0, 1, 1, 1, 1, 1];
 const ESC = [sTecleo, sBisiesto, sBaja, (g, t) => sFijo(g, t, CLARO, 0, 'respiro'), sLotus, sDesplaza, (g, t) => sFijo(g, t, CLARO, 0, 'cierre')];
 
 // voz: ventanas ABSOLUTAS (s)
 const VOZ = [['tecleo', 0.4, 3.7], ['bisiesto', 4.1, 6.2], ['baja', 10.0, 12.9], ['respiro', 13.4, 16.9], ['lotus', 17.3, 19.9], ['desplaza', 20.4, 24.3], ['cierre', 24.7, 27.6]];
-function banda(g, t) { // la voz es una NOTA de celda (amarillo de comentario) sobre la hoja, abajo
+function banda(g, t) { // la voz es una NOTA de celda (amarillo de comentario) sobre la columna A, abajo; la B queda libre
   for (const [id, a, b] of VOZ) {
     const al = Math.min(smoothstep(a, a + 0.35, t), 1 - smoothstep(b - 0.35, b, t)); if (al <= 0.01) continue;
-    g.font = fuente(58, 'bold', 'sans'); const pal = hechos.voz[id].split(' '), L = []; let cur = '';
-    for (const p of pal) { const q = cur ? cur + ' ' + p : p; if (g.measureText(q).width > 820 && cur) { L.push(cur); cur = p; } else cur = q; }
-    L.push(cur); const bh = L.length * 74 + 60, y0 = 1860 - bh, wmax = Math.max(...L.map((s) => g.measureText(s).width));
-    g.save(); g.globalAlpha = al; g.shadowColor = 'rgba(0,0,0,0.35)'; g.shadowBlur = 18; g.shadowOffsetY = 8; g.fillStyle = '#fff3a8'; g.fillRect(150, y0, 880, bh); g.shadowColor = 'transparent';
-    g.strokeStyle = '#14161c'; g.lineWidth = 3; g.strokeRect(150, y0, 880, bh); g.fillStyle = '#c8321f'; g.beginPath(); g.moveTo(1030, y0); g.lineTo(1030 - 34, y0); g.lineTo(1030, y0 + 34); g.fill();
-    g.fillStyle = '#14161c'; g.textAlign = 'left'; g.textBaseline = 'top'; L.forEach((s, i) => g.fillText(s, 186, y0 + 30 + i * 74)); g.restore();
-    ULT.texto.push({ id: 'voz-' + id, x: 186, y: y0 + 30, w: wmax, h: L.length * 74 - 10, color: '#14161c', tam: 58, alfa: al, contenedor: { x: 150, y: y0, w: 880, h: bh } });
+    g.font = fuente(44, 'bold', 'sans'); const pal = hechos.voz[id].split(' '), L = []; let cur = '';
+    for (const p of pal) { const q = cur ? cur + ' ' + p : p; if (g.measureText(q).width > 440 && cur) { L.push(cur); cur = p; } else cur = q; }
+    L.push(cur); const bh = L.length * 58 + 44, y0 = 1860 - bh, wmax = Math.max(...L.map((s) => g.measureText(s).width));
+    g.save(); g.globalAlpha = al; g.shadowColor = 'rgba(0,0,0,0.35)'; g.shadowBlur = 16; g.shadowOffsetY = 7; g.fillStyle = '#fff3a8'; g.fillRect(128, y0, 544, bh); g.shadowColor = 'transparent';
+    g.strokeStyle = '#14161c'; g.lineWidth = 3; g.strokeRect(128, y0, 544, bh); g.fillStyle = '#c8321f'; g.beginPath(); g.moveTo(672, y0); g.lineTo(672 - 30, y0); g.lineTo(672, y0 + 30); g.fill();
+    g.fillStyle = '#14161c'; g.textAlign = 'left'; g.textBaseline = 'top'; L.forEach((s, i) => g.fillText(s, 150, y0 + 22 + i * 58)); g.restore();
+    ULT.texto.push({ id: 'voz-' + id, x: 150, y: y0 + 22, w: wmax, h: L.length * 58 - 8, color: '#14161c', tam: 44, alfa: al, contenedor: { x: 128, y: y0, w: 544, h: bh } });
   }
 }
 function sala(g, t) {
@@ -119,7 +127,7 @@ export function frame(ctx, t) {
   const e = escenas[i], c0 = i < last ? cruces[i] : 0, enCruce = i < last && t > e.t0 + e.dur - c0;
   const lumi = 1 + 0.012 * Math.sin(t * 9.1) * (rng(fi)() > 0.97 ? 1.6 : 0.4); // parpadeo de refresco, sembrado por fotograma
   ctx.save(); ctx.beginPath(); ctx.rect(0, 0, W, SH); ctx.clip();
-  if (enCruce) { const u = inOutCubic((t - (e.t0 + e.dur - c0)) / c0); ctx.save(); ctx.translate(0, -u * SH); ESC[i](ctx, t); ctx.restore(); ctx.save(); ctx.translate(0, (1 - u) * SH); ESC[i + 1](ctx, t); ctx.restore(); }
+  if (enCruce) { const u = inOutCubic((t - (e.t0 + e.dur - c0)) / c0); CAB = false; ctx.save(); ctx.translate(0, -u * SH); ESC[i](ctx, t); ctx.restore(); ctx.save(); ctx.translate(0, (1 - u) * (SH - HH)); ctx.beginPath(); ctx.rect(0, HH, W, SH - HH); ctx.clip(); ESC[i + 1](ctx, t); ctx.restore(); CAB = true; const j = u < 0.5 ? i : i + 1; cabecera(ctx, PAL[j], COL[j]); }
   else ESC[i](ctx, t);
   ctx.globalAlpha = Math.max(0, lumi - 1) * 6; ctx.fillStyle = '#ffffff'; ctx.fillRect(0, 0, W, SH); ctx.globalAlpha = 1; ctx.restore();
   
