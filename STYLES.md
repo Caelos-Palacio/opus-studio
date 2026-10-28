@@ -13,6 +13,11 @@ Estilo = *cómo se ve y se mueve*. **Perfil** (`reel` / `explainer` / `cinematic
 | `soft` | reel | amable, ligero | SaaS, bienestar, onboarding | pastel · degradados · muelles blandos · cámara lenta |
 | `brutalist` | reel | crudo, irónico | arte, cultura, anti-marca | mono · gris + rojo/azul primarios · movimiento por pasos · cámara lineal |
 | `stopmo` | reel | artesanal, cálido | tráiler con tacto, marca artesanal, educación cálida | 12 fps cuantizados · smear · muelle con rebote · luz lateral + sombra de contacto · grano |
+| `cosmos` | cinematic | asombro, preciso, nocturno | divulgación científica nocturna | papel azul-negro · ámbar + cian · bloom físico · niebla/DOF · grade cálido con dither |
+| `hierro` | cinematic | contundente, tenso, épico | trailers de combate, narrativa de poder | acero negro + hueso · rojo + oro · tipo condensado en mayúsculas · bloom + aberración + grano · cámara pesada |
+| `nocturno` | explainer | contemplativo, riguroso | explainers de matemáticas | pizarra azul-negro · marfil · líneas finas · bloom leve · color = categoría matemática · Latin Modern |
+| `pulso` | reel | percusivo, vibrante | reels 9:16, tipografía cinética con música | negro azulado + lima ácida + magenta · mayúsculas gigantes · cortes en rejilla de tempo · impact frames |
+| `suite` | explainer | sobrio, técnico | el GIF de demo del README | paleta GitHub dark · tipo monoespaciado · sin post |
 
 `node engine/style.mjs --list` · `npm run gallery` (el mismo film en todos los estilos → `out/gallery.png` + lint por estilo).
 
@@ -85,4 +90,4 @@ Las entidades de un relevo exportan `{x, y, s}` y, si aplica, `role` (color-rol)
 ```
 
 ## Límites honestos del motor
-Canvas 2D: **no hay** 3D, metraje/capturas de pantalla, voz sintética, subtítulos sincronizados por palabra, LaTeX ni animación dibujada cuadro a cuadro. Un pack cambia la *estética*, no esas capacidades. Si el encargo las exige, dilo en el brief y usa un backend con soporte (p. ej. Remotion/HyperFrames o Manim) conservando proceso, estilo y lint.
+Canvas 2D: **no hay** shaders, voz sintética, subtítulos sincronizados por palabra ni animación dibujada cuadro a cuadro; el 3D real existe solo como capa opcional `world3d`. (TeX real y metraje sí existen: `api.tex`, `api.footage`.) Un pack cambia la *estética*, no esas capacidades. Si el encargo las exige, dilo en el brief y usa un backend con soporte (p. ej. Remotion/HyperFrames o Manim) conservando proceso, estilo y lint.

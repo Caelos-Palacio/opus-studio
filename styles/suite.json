@@ -1,0 +1,28 @@
+{
+  "name": "suite",
+  "description": "Estilo del GIF de demo del README: terminal oscura (GitHub dark), monoespaciada, un acento azul. Sin postproceso: lo que se ve es geometria y tipo.",
+  "mood": ["sobrio", "tecnico", "preciso"],
+  "defaultProfile": "explainer",
+  "palette": {
+    "paper": "#0d1117",
+    "ink": "#e6edf3",
+    "accent": "#58a6ff",
+    "accent2": "#3fb950",
+    "shade": "#8b949e"
+  },
+  "typeface": {
+    "family": "JetBrainsMono Nerd Font Mono",
+    "fallback": "'DejaVu Sans Mono', monospace",
+    "mono": "JetBrainsMono Nerd Font Mono",
+    "weights": [400, 700],
+    "scale": 1.5,
+    "base": 34,
+    "case": "none",
+    "tracking": 0
+  },
+  "motion": { "spring": { "omega": 14, "zeta": 0.8 }, "ease": "inOut", "stagger": 0.06 },
+  "camera": { "amount": 0.08, "ease": "cinema", "maxZoomPerSec": 0.25, "maxPanPerSec": 0.5, "maxRotPerSec": 8, "slide": 0.05 },
+  "grade": { "vignette": 0, "grain": 0, "letterbox": 0 },
+  "compose": { "anchor": "thirds", "anchorTol": 0.14, "negativeSpace": 0.4 },
+  "rules": { "glow": false, "gradients": false, "maxColors": 5, "maxChroma": 0.3 }
+}

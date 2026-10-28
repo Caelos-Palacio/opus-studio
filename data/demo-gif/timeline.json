@@ -1,0 +1,19 @@
+{
+  "title": "demo-gif",
+  "style": "suite",
+  "profile": "explainer",
+  "profileOverrides": { "minFontPx": 9, "shotLen": [3, 40] },
+  "fps": 15,
+  "width": 800,
+  "height": 450,
+  "bpm": 120,
+  "beatOffset": 0,
+  "duration": 8,
+  "handoffs": [],
+  "shots": [
+    { "id": "G01", "t": [0, 4], "size": "MS", "action": "la camara se acerca al punto mientras la curva respira", "text": "seek(t)", "transition_out": "cut", "after": null,
+      "cam": { "move": "push", "amount": 0.1, "focus": [0.4, 0.62], "why": "approach" } },
+    { "id": "G02", "t": [4, 8], "size": "WS", "action": "la camara se aleja y el bucle se cierra", "text": "seek(t)", "transition_out": "cut", "after": "G01",
+      "cam": { "move": "pull", "amount": 0.1, "chain": true, "focus": [0.4, 0.62], "why": "reveal" } }
+  ]
+}

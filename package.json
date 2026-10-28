@@ -44,7 +44,8 @@
     "profile": "node engine/profile.mjs",
     "metrics": "node engine/metrics.mjs",
     "vocab": "node engine/vocab.mjs",
-    "dsl": "node engine/dsl.mjs"
+    "dsl": "node engine/dsl.mjs",
+    "demo:gif": "node tools/demo-gif.mjs"
   },
   "dependencies": {
     "acorn": "^8.18.0",
