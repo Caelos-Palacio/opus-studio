@@ -226,7 +226,9 @@ export function verificar(id) {
   const motivos = [...(auOk ? [] : ['auditoría del kit con fallos graves (código ' + au.status + ')']), ...lineas.filter((l) => /^\[FALLA/.test(l)).map((l) => 'filtro ' + l)];
   if (!frOk && !motivos.length) motivos.push('el filtro falló: ' + ((fr.stderr ?? '').trim().split('\n').pop() || 'sin detalle'));
   const pasa = auOk && frOk, completo = !!e.produccion.completo;
-  fs.writeFileSync(path.join(dir, 'verificacion.md'), `# Verificación: ${id}\n\nResultado: **${pasa ? 'PASA' : 'FALLA'}** (${ahora()})\n\nArchivo: \`${e.produccion.mp4}\` (${e.produccion.modo}${completo ? '' : ': no es el corte final, no se puede entregar'})\n\n## Motivos\n${motivos.length ? motivos.map((m) => `- ${m}`).join('\n') : '- ninguno'}\n\n## Filtro (panel.mjs filtro --codigo --entrega plan.md)\n\`\`\`\n${lineas.join('\n') || (fr.stdout + fr.stderr).trim()}\n\`\`\`\n\n## Auditoría del kit\n\`\`\`\n${auTxt.trim().split('\n').slice(-40).join('\n')}\n\`\`\`\n`);
+  const relativo = (txt) => txt.split(ROOT + path.sep).join('').split(ROOT).join('.');
+  fs.writeFileSync(path.join(dir, 'verificacion.md'), relativo(`# Verificación: ${id}\n\nResultado: **${pasa ? 'PASA' : 'FALLA'}** (${ahora()})\n\nArchivo: \`${e.produccion.mp4}\` (${e.produccion.modo}${completo ? '' : ': no es el corte final, no se puede entregar'})\n\n## Motivos\n${motivos.length ? motivos.map((m) => `- ${m}`).join('\n') : '- ninguno'}\n\n## Filtro (panel.mjs filtro --codigo --entrega plan.md)\n\`\`\`\n${lineas.join('\n') || (fr.stdout + fr.stderr).trim()}\n\`\`\`\n\n## Auditoría del kit\n\`\`\`\n${auTxt.trim().split('\n').slice(-40).join('\n')}\n\`\`\`\n`));
+
   e.verificacion = { resultado: pasa ? 'PASA' : 'FALLA', motivos, mp4: e.produccion.mp4, completo, t: ahora() };
   const fase = !pasa ? 'verificado_falla' : completo && e.revision === 'consultar_final' ? 'esperando_corte_final' : 'verificado';
   mover(e, fase, 'verificar', { resultado: e.verificacion.resultado }); wEstado(id, e);

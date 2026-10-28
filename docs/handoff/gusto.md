@@ -25,7 +25,7 @@
   - SHIP = media de las 3 miradas ≥ 8 y ninguna < 6. Exit: 0 SHIP, 3 FIX, 2 incompleto.
 - `data/calibracion.json`: 12 películas con nivel ordinal 1–5 (deducido de las notas) y 8 pares de orden (4 de la spec + 4 deducidos de las notas); umbral ρ ≥ 0,7.
 - Prompts en `docs/current/PANEL.md` (común + enfoque por mirada, autocontenidos) y `docs/current/PANEL-CALIBRACION.md` (prompt de pasada única + comandos).
-- Paquetes del lote 2 en `/home/carlos/Documentos/MUltia/opus-studio-4/out/panel/calibracion2/{A..L}` (ignorado por git; se regeneran con `node engine/panel.mjs preparar-calibracion`, ~3 min). Mapa: `out/panel/calibracion2-mapa.json` (no lo leen los críticos). El lote 1 (`calibracion/`) se conserva.
+- Paquetes del lote 2 en `out/panel/calibracion2/{A..L}` (ignorado por git; se regeneran con `node engine/panel.mjs preparar-calibracion`, ~3 min). Mapa: `out/panel/calibracion2-mapa.json` (no lo leen los críticos). El lote 1 (`calibracion/`) se conserva.
 - Test `test/gusto.mjs` (68 comprobaciones, incl. tiras, descriptor de audio, `vistos`, reetiquetado y lote 2; suite `test/suites.d/gusto.json`).
 
 ## NO hecho (a propósito)

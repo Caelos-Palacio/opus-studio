@@ -18,7 +18,7 @@ Archivo: `salida/clip.mp4` (clip 0-5: no es el corte final, no se puede entregar
 
 ## Auditoría del kit
 ```
-AUDITORIA /home/carlos/Documentos/MUltia/opus-studio-4/.claude/worktrees/v6/kit-libre/films/prueba_v6
+AUDITORIA .claude/worktrees/v6/kit-libre/films/prueba_v6
 ritmo: 3 escenas, CV de duraciones 0.35
 
 Escena "sobre" (0-5.0 s)
@@ -54,5 +54,5 @@ Detalle
   . t=12.90 (mar) pixeles distintos del fondo 14% desv 29 detalle 9.4
 
 RESUMEN: 0 fallos graves, 0 avisos
-recortes 4x en /home/carlos/Documentos/MUltia/opus-studio-4/.claude/worktrees/v6/kit-libre/films/prueba_v6/auditoria
+recortes 4x en .claude/worktrees/v6/kit-libre/films/prueba_v6/auditoria
 ```
