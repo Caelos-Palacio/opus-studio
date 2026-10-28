@@ -198,6 +198,8 @@ film.
    | gusto | ¿tiene personalidad o parece una presentación corporativa? |
    | sorpresa | ¿se distingue de las últimas entregas? ¿están la rareza y el momento memorable? |
    | desborde | ¿algún texto se sale de su contenedor o aparece cortado? |
+   | costuras | al desplazar o repetir algo (rejillas, mapas, fondos en mosaico), ¿se ve una junta, una cabecera duplicada o un salto? |
+   | tapado | ¿algún texto o nota tapa datos que se están leyendo? |
 4. Antes del render final, haz una previsualización a ¼ de resolución y 12 fps.
 
 ## 8. Entrega e informe

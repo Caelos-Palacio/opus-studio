@@ -242,7 +242,7 @@ ${texto ? "export const cajas = () => ({ texto: [{ id: 'titulo', x: 400, y: 10, 
   ok('F9 --entrega: un plan con rasgos nuevos PASA; solo comparte 1 de 5 con una de las 3 últimas (el viejo fuera de las 3 no cuenta)', rn1.estado === 'PASA' && ru.estado === 'PASA', rn1.motivos.concat(ru.motivos).join('|'));
   ok('F10 --entrega: repetir ≥ 2 de 5 rasgos de una de las 3 últimas FALLA y nombra la entrega y los rasgos', ri.estado === 'FALLA' && /b1/.test(ri.motivos[0]) && /paleta/.test(ri.motivos[0]) && /medio/.test(ri.motivos[0]), ri.motivos.join('|'));
   ok('F11 --entrega: un plan que no declara los 5 rasgos FALLA (pliego de sorpresa); rasgosDePlan lee negritas y tildes', rp.estado === 'FALLA' && /tipografia/.test(rp.motivos[0]) && Object.keys(P.rasgosDePlan('- **tipografía:** x y\n')).join() === 'tipografia');
-  ok('F12 --entrega combinado con mp4: suma ambos grupos de comprobaciones', P.filtro(bueno, { plan: nuevo, registro: reg }).checks.map((c) => c.id).join() === 'fondo,audio,texto,determinismo,repeticion');
+  ok('F12 --entrega combinado con mp4: suma ambos grupos de comprobaciones', P.filtro(bueno, { plan: nuevo, registro: reg }).checks.map((c) => c.id).filter((i) => i !== 'dinamica').join() === 'fondo,audio,texto,determinismo,repeticion');
   ok('F13 filtro sin mp4 ni plan es un error de uso; el registro real data/entregas.json es válido para el veto', (() => { try { P.filtro(null, {}); return false; } catch { return true; } })() && P.filtro(null, { plan: nuevo }).estado === 'PASA');
 
   // CLI: código de salida 0 / 3

@@ -396,7 +396,7 @@ export function prompt(mirada, { paquete = null, calibracion = false, dir = path
 
 // ───────────────────────── filtro de mínimos (F1, sin LLM) ─────────────────────────
 // El panel de 3 críticos queda como herramienta opcional: la meta ρ ≥ 0,7 se abandonó (docs/current/PANEL.md). El juez es este filtro + la lámina A/B.
-export const AUDIO_I = [-20, -13], AUDIO_TP = -1, REPITE_MAX = 2, ULTIMAS = 3, RASGOS = ['paleta', 'medio', 'tipografia', 'sonido', 'estructura'];
+export const AUDIO_I = [-20, -13], AUDIO_TP = -1, AUDIO_LRA = 6, REPITE_MAX = 2, ULTIMAS = 3, RASGOS = ['paleta', 'medio', 'tipografia', 'sonido', 'estructura'];
 const sinTilde = (x) => String(x).normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase();
 
 /** Rasgos declarados en plan.md: líneas «paleta: …», «- **medio:** …», etc. (los 5 de MODO-LIBRE §0b). */
@@ -452,6 +452,7 @@ export function filtro(mp4, { codigo = null, plan = null, registro = path.join(R
       else {
         const mal = [a.TP != null && a.TP > AUDIO_TP ? `true peak ${a.TP} dBFS > ${AUDIO_TP}` : null, a.I < AUDIO_I[0] || a.I > AUDIO_I[1] ? `sonoridad ${a.I} LUFS fuera de ${AUDIO_I[0]}…${AUDIO_I[1]}` : null].filter(Boolean);
         add('audio', mal.length ? 'FALLA' : 'OK', mal.length ? mal.join('; ') : `${a.I} LUFS, true peak ${a.TP} dBFS`);
+        if (a.LRA != null && a.LRA < AUDIO_LRA) add('dinamica', 'AVISO', `LRA ${a.LRA} LU < ${AUDIO_LRA}: audio plano (el brief pide ≥ ${AUDIO_LRA}; la dinámica es parte del arco)`);
       }
     }
   }
